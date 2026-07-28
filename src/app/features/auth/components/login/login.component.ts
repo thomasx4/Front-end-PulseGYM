@@ -15,14 +15,6 @@ export class LoginComponent {
     {
       title: 'PULSE GYM',
       subtitle: 'Precision tracking for the elite athlete. Experience fitness curated through data and design.'
-    },
-    {
-      title: 'ENTRENA CON DATOS',
-      subtitle: 'Monitorea tu progreso en tiempo real y alcanza tus metas más rápido.'
-    },
-    {
-      title: 'DISEÑO ÉLITE',
-      subtitle: 'Una experiencia diseñada para atletas que buscan lo mejor.'
     }
   ];
 
