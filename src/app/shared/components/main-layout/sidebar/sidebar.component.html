@@ -9,7 +9,7 @@
 
     <nav class="sidebar__nav">
 
-        *ngFor="let item of menuItems"
+        <a *ngFor="let item of menuItems"
         [routerLink]="item.route"
         routerLinkActive="sidebar__nav-item--active"
         class="sidebar__nav-item"
