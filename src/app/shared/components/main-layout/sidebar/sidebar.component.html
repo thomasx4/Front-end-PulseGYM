@@ -1,0 +1,25 @@
+<aside class="sidebar">
+    <div class="sidebar__brand">
+        <span class="sidebar__brand-icon">⚡</span>
+        <div>
+            <h1 class="sidebar__brand-name">PULSE GYM</h1>
+            <span class="sidebar__brand-role">ADMINISTRADOR</span>
+        </div>
+    </div>
+
+    <nav class="sidebar__nav">
+
+        *ngFor="let item of menuItems"
+        [routerLink]="item.route"
+        routerLinkActive="sidebar__nav-item--active"
+        class="sidebar__nav-item"
+        >
+        <span class="sidebar__nav-icon">{{ item.icon }}</span>
+        {{ item.label }}
+        </a>
+    </nav>
+
+    <button class="sidebar__logout" (click)="onLogout()">
+        <span>↩</span> Log Out
+    </button>
+</aside>

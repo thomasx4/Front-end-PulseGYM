@@ -1,0 +1,81 @@
+.sidebar {
+    width: 260px;
+    background-color: #0f1b3d;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem 1rem;
+
+    &__brand {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 2.5rem;
+        padding: 0 0.5rem;
+    }
+
+    &__brand-icon {
+        font-size: 1.5rem;
+    }
+
+    &__brand-name {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    &__brand-role {
+        font-size: 0.7rem;
+        color: #8a93b2;
+        letter-spacing: 0.05em;
+    }
+
+    &__nav {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        flex: 1;
+    }
+
+    &__nav-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        color: #b8bfd6;
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: background-color 0.15s ease;
+
+        &:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        &--active {
+            background-color: #2b3a75;
+            color: #ffffff;
+            font-weight: 600;
+        }
+    }
+
+    &__nav-icon {
+        width: 20px;
+        text-align: center;
+    }
+
+    &__logout {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: none;
+        border: none;
+        color: #ff6b6b;
+        padding: 0.75rem 1rem;
+        cursor: pointer;
+        font-size: 0.9rem;
+        margin-top: 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        padding-top: 1.25rem;
+    }
+}
