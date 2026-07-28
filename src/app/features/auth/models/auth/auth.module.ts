@@ -1,6 +1,3 @@
-// Este archivo sería para el modelo de autenticación
-// Podrías exportar interfaces y tipos aquí
-
 export interface AuthCredentials {
   email: string;
   password: string;

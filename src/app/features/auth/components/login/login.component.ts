@@ -14,7 +14,7 @@ export class LoginComponent {
   slides = [
     {
       title: 'PULSE GYM',
-      subtitle: 'Precision tracking for the elite athlete. Experience fitness curated through data and design.'
+      subtitle: 'Seguimiento de precisión para atletas de élite. Experimenta un entrenamiento optimizado mediante datos y diseño.'
     }
   ];
 

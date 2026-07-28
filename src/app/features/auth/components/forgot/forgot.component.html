@@ -1,5 +1,4 @@
 <div class="forgot-container">
-    <!-- Panel Izquierdo -->
     <div class="forgot-left">
         <div class="overlay"></div>
         <div class="brand-content">
@@ -13,11 +12,9 @@
         </div>
     </div>
 
-    <!-- Panel Derecho -->
     <div class="forgot-right">
         <div class="forgot-form-wrapper">
 
-            <!-- ========== PASO 1: INGRESAR NOMBRE DE USUARIO ========== -->
             <ng-container *ngIf="currentStep === 'username'">
                 <div class="form-header">
                     <h2>Recuperar Contraseña</h2>
@@ -67,7 +64,6 @@
                 </form>
             </ng-container>
 
-            <!-- ========== PASO 2: INGRESAR TOKEN ========== -->
             <ng-container *ngIf="currentStep === 'token'">
                 <div class="form-header">
                     <h2>Verificar Código</h2>
@@ -121,7 +117,6 @@
                 </form>
             </ng-container>
 
-            <!-- ========== PASO 3: NUEVA CONTRASEÑA ========== -->
             <ng-container *ngIf="currentStep === 'password'">
                 <div class="form-header">
                     <h2>Nueva Contraseña</h2>

@@ -9,11 +9,28 @@ $error-red: #e74c3c;
     box-sizing: border-box;
 }
 
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    background: #fafbfc;
+}
+
 .login-container {
     display: flex;
     width: 100vw;
     height: 100vh;
     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    margin: 0;
+    padding: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
 }
 
 .login-left {
@@ -249,7 +266,6 @@ $error-red: #e74c3c;
     }
 }
 
-// ==================== BOTÓN AYUDA ====================
 .help-button {
     position: absolute;
     bottom: 30px;
@@ -273,7 +289,6 @@ $error-red: #e74c3c;
     }
 }
 
-// ==================== RESPONSIVE ====================
 @media (max-width: 992px) {
     .login-left {
         display: none;
