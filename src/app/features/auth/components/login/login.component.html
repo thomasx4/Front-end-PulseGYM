@@ -33,7 +33,7 @@
                                 <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
                             </svg>
                         </span>
-                        <input id="email" type="email" formControlName="email" placeholder="correo@ejemplo.com"
+                        <input id="email" type="email" formControlName="email" placeholder="nombre@ejemplo.com"
                             [class.error]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
                     </div>
                     <span class="error-message"
@@ -46,7 +46,7 @@
                 <div class="form-group">
                     <div class="label-row">
                         <label for="password">CONTRASEÑA</label>
-                        <a routerLink="/auth/forgot-password" class="forgot-link">Olvidó su contraseña?</a>
+                        <a routerLink="auth/forgot-password" class="forgot-link">Olvidó su contraseña?</a>
                     </div>
                     <div class="input-wrapper">
                         <span class="input-icon">
@@ -100,6 +100,7 @@
                 <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
                 <path d="M12 17h.01"></path>
             </svg>
+            
         </button>
     </div>
 </div>
