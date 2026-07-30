@@ -15,7 +15,7 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./login.component.scss']
 })
 export class LoginComponent implements OnInit, OnDestroy {
-  loginForm!: FormGroup;
+  loginForm: FormGroup;
   hidePassword = true;
   loading = false;
   errorMessage = '';
@@ -42,7 +42,9 @@ export class LoginComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private authService: AuthService,
     private router: Router
-  ) {}
+  ) {
+    this.initForm();
+  }
 
   goToForgotPassword() {
     this.router.navigate(['/forgot-password']);
@@ -55,7 +57,6 @@ export class LoginComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.initForm();
     this.startSlideShow();
   }
 
