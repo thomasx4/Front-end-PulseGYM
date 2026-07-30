@@ -6,7 +6,6 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
-import { AuthGuard } from './core/guards/auth.guard';
 
 @NgModule({
   declarations: [
@@ -24,7 +23,7 @@ import { AuthGuard } from './core/guards/auth.guard';
       useClass: AuthInterceptor,
       multi: true
     },
-    AuthGuard
+
   ],
   bootstrap: [AppComponent]
 })

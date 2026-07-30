@@ -14,12 +14,11 @@
 
     <div class="forgot-right">
         <div class="forgot-form-wrapper">
-
+            
             <ng-container *ngIf="currentStep === 'username'">
                 <div class="form-header">
                     <h2>Recuperar Contraseña</h2>
-                    <p class="form-subtitle">Ingresa tu nombre de usuario para recibir un código de verificación en tu
-                        correo.</p>
+                    <p class="form-subtitle">Ingresa tu nombre de usuario para recibir un código de verificación en tu correo.</p>
                 </div>
 
                 <form [formGroup]="usernameForm" (ngSubmit)="onSubmitUsername()" class="forgot-form">
@@ -27,8 +26,7 @@
                         <label for="username">NOMBRE DE USUARIO</label>
                         <div class="input-wrapper">
                             <span class="input-icon">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                                     <circle cx="12" cy="7" r="4"></circle>
                                 </svg>
@@ -44,17 +42,15 @@
 
                     <button type="submit" class="btn-submit">
                         Enviar código
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" style="margin-left: 6px;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left: 6px;">
                             <path d="M22 2L11 13"></path>
                             <path d="M22 2l-7 20-4-9-9-4 20-7z"></path>
                         </svg>
                     </button>
 
                     <div class="back-link">
-                        <a routerLink="/auth">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
+                        <a routerLink="/auth/login">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M19 12H5"></path>
                                 <path d="m12 19-7-7 7-7"></path>
                             </svg>
@@ -64,26 +60,26 @@
                 </form>
             </ng-container>
 
-            <ng-container *ngIf="currentStep === 'token'">
+            <ng-container *ngIf="currentStep === 'password'">
                 <div class="form-header">
-                    <h2>Verificar Código</h2>
-                    <p class="form-subtitle">Hemos enviado un código de 4 dígitos a tu correo. Ingrésalo a continuación.
-                    </p>
+                    <h2>Restablecer Contraseña</h2>
+                    <p class="form-subtitle">Ingresa el código de verificación y tu nueva contraseña.</p>
                 </div>
 
-                <form [formGroup]="tokenForm" (ngSubmit)="onSubmitToken()" class="forgot-form">
+                <form [formGroup]="resetForm" (ngSubmit)="onSubmitReset()" class="forgot-form">
+                    
                     <div class="form-group">
                         <label for="token">CÓDIGO DE VERIFICACIÓN</label>
                         <div class="input-wrapper">
                             <span class="input-icon">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                                     <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                                 </svg>
                             </span>
                             <input id="token" type="text" formControlName="token" placeholder="0000" maxlength="4"
-                                inputmode="numeric" [class.error]="token?.invalid && (token?.touched || submitted)">
+                                inputmode="numeric"
+                                [class.error]="token?.invalid && (token?.touched || submitted)">
                         </div>
                         <span class="error-message" *ngIf="token?.invalid && (token?.touched || submitted)">
                             <span *ngIf="token?.errors?.['required']">El código es obligatorio</span>
@@ -91,45 +87,11 @@
                         </span>
                     </div>
 
-                    <button type="submit" class="btn-submit">
-                        Verificar código
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" style="margin-left: 6px;">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg>
-                    </button>
-
-                    <div class="resend-link">
-                        <span>¿No recibiste el código?</span>
-                        <button type="button" class="link-button" (click)="resendToken()">Reenviar</button>
-                    </div>
-
-                    <div class="back-link">
-                        <button type="button" class="link-button" (click)="goToStep('username')">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
-                                <path d="M19 12H5"></path>
-                                <path d="m12 19-7-7 7-7"></path>
-                            </svg>
-                            Volver al paso anterior
-                        </button>
-                    </div>
-                </form>
-            </ng-container>
-
-            <ng-container *ngIf="currentStep === 'password'">
-                <div class="form-header">
-                    <h2>Nueva Contraseña</h2>
-                    <p class="form-subtitle">Ingresa tu nueva contraseña y confírmala para completar el proceso.</p>
-                </div>
-
-                <form [formGroup]="passwordForm" (ngSubmit)="onSubmitPassword()" class="forgot-form">
                     <div class="form-group">
                         <label for="newPassword">NUEVA CONTRASEÑA</label>
                         <div class="input-wrapper">
                             <span class="input-icon">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                                     <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                                 </svg>
@@ -147,37 +109,37 @@
                         <label for="confirmPassword">CONFIRMAR CONTRASEÑA</label>
                         <div class="input-wrapper">
                             <span class="input-icon">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                                     <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                                 </svg>
                             </span>
                             <input id="confirmPassword" type="password" formControlName="confirmPassword"
                                 placeholder="••••••••"
-                                [class.error]="(confirmPassword?.invalid || passwordForm.errors?.['mismatch']) && (confirmPassword?.touched || submitted)">
+                                [class.error]="(confirmPassword?.invalid || resetForm.errors?.['mismatch']) && (confirmPassword?.touched || submitted)">
                         </div>
                         <span class="error-message"
-                            *ngIf="(confirmPassword?.invalid || passwordForm.errors?.['mismatch']) && (confirmPassword?.touched || submitted)">
+                            *ngIf="(confirmPassword?.invalid || resetForm.errors?.['mismatch']) && (confirmPassword?.touched || submitted)">
                             <span *ngIf="confirmPassword?.errors?.['required']">Confirma tu contraseña</span>
-                            <span *ngIf="passwordForm.errors?.['mismatch']">Las contraseñas no coinciden</span>
+                            <span *ngIf="resetForm.errors?.['mismatch']">Las contraseñas no coinciden</span>
                         </span>
                     </div>
 
                     <button type="submit" class="btn-submit">
                         Cambiar contraseña
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" style="margin-left: 6px;">
-                            <path
-                                d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4">
-                            </path>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left: 6px;">
+                            <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path>
                         </svg>
                     </button>
 
+                    <div class="resend-link">
+                        <span>¿No recibiste el código?</span>
+                        <button type="button" class="link-button" (click)="resendToken()">Reenviar</button>
+                    </div>
+
                     <div class="back-link">
-                        <button type="button" class="link-button" (click)="goToStep('token')">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
+                        <button type="button" class="link-button" (click)="goToStep('username')">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M19 12H5"></path>
                                 <path d="m12 19-7-7 7-7"></path>
                             </svg>
@@ -190,18 +152,16 @@
             <ng-container *ngIf="currentStep === 'success'">
                 <div class="success-state">
                     <div class="success-icon">
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                             <polyline points="22 4 12 14.01 9 11.01"></polyline>
                         </svg>
                     </div>
                     <h2>¡Listo!</h2>
                     <p class="success-message">{{ successMessage }}</p>
-                    <a routerLink="/auth" class="btn-submit" style="text-decoration: none;">
+                    <a routerLink="/auth/login" class="btn-submit" style="text-decoration: none;">
                         Iniciar sesión
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" style="margin-left: 6px;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left: 6px;">
                             <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
                             <polyline points="10 17 15 12 10 7"></polyline>
                             <line x1="15" y1="12" x2="3" y2="12"></line>
@@ -212,7 +172,6 @@
 
         </div>
 
-        <!-- Icono de ayuda -->
         <button type="button" class="help-button" title="Ayuda">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="12" r="10"></circle>

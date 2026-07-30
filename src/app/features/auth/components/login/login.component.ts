@@ -4,7 +4,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
-import { AuthCredentials, AuthResponse } from '../../models/auth/auth.model';
+import { RolUsuario } from '../../models/auth/auth.model';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -14,7 +14,6 @@ import { Subscription } from 'rxjs';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
-
 export class LoginComponent implements OnInit, OnDestroy {
   loginForm!: FormGroup;
   hidePassword = true;
@@ -45,9 +44,14 @@ export class LoginComponent implements OnInit, OnDestroy {
     private router: Router
   ) {}
 
+  goToForgotPassword() {
+    this.router.navigate(['/forgot-password']);
+  }
+
   ngOnInit(): void {
     if (this.authService.isLoggedIn()) {
-      this.router.navigate(['/dashboard']);
+      const role = this.authService.getCurrentRole();
+      this.redirectUserByRole(role);
       return;
     }
 
@@ -87,33 +91,47 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.hidePassword = !this.hidePassword;
   }
 
-  onSubmit(): void {
-    if (this.loginForm.invalid) {
-      this.loginForm.markAllAsTouched();
-      this.errorMessage = 'Por favor, completa todos los campos correctamente';
-      return;
-    }
+  onSubmit() {
+    if (this.loginForm.invalid) return;
 
     this.loading = true;
     this.errorMessage = '';
 
-    const credentials: AuthCredentials = {
-      email: this.loginForm.get('email')?.value,
-      password: this.loginForm.get('password')?.value
-    };
+    this.authService.login(this.loginForm.value).subscribe({
+      next: (user) => {
+        this.loading = false;
+        
+        const role = this.authService.getCurrentRole();
 
-    this.subscription = this.authService.login(credentials).subscribe({
-      next: (response: AuthResponse) => {
-        console.log('Login exitoso:', response);
-        this.loading = false;
-        this.router.navigate(['/dashboard']);
+        this.redirectUserByRole(role);
       },
-      error: (error: Error) => {
-        this.errorMessage = error.message;
+      error: (error) => {
         this.loading = false;
-        console.error('Error en login:', error);
+        this.errorMessage = error.message;
       }
     });
+  }
+
+  private redirectUserByRole(role: RolUsuario | null): void {
+    if (!role) {
+      this.router.navigate(['/home']);
+      return;
+    }
+
+    switch (role) {
+      case RolUsuario.ADMIN:
+        this.router.navigate(['/admin']);
+        break;
+      case RolUsuario.ENTRENADOR:
+        this.router.navigate(['/trainer']);
+        break;
+      case RolUsuario.RECEPCIONISTA:
+        this.router.navigate(['/reception']);
+        break;
+      default:
+        this.router.navigate(['/home']); 
+        break;
+    }
   }
 
   get email() { return this.loginForm.get('email'); }

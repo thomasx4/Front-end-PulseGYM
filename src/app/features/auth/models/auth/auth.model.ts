@@ -5,5 +5,21 @@ export interface AuthCredentials {
 
 export interface AuthResponse {
   token: string;
+  user: User;
   expiresIn: number;
+}
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: RolUsuario;
+}
+
+
+export enum RolUsuario {
+  ADMIN = 'ADMIN',
+  ENTRENADOR = 'ENTRENADOR',
+  RECEPCIONISTA = 'RECEPCIONISTA',
+  USER = 'USER'
 }

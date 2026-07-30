@@ -1,15 +1,18 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../../../../environments/environment';
 
-type Step = 'username' | 'token' | 'password' | 'success';
+
+type Step = 'username' | 'password' | 'success';
 
 @Component({
   selector: 'app-forgot',
   standalone: true,
   imports: [
     ReactiveFormsModule, 
-    CommonModule        
+    CommonModule
   ],
   templateUrl: './forgot.component.html',
   styleUrls: ['./forgot.component.scss']
@@ -18,11 +21,14 @@ export class ForgotComponent {
   currentStep: Step = 'username';
   
   usernameForm: FormGroup;
-  tokenForm: FormGroup;
-  passwordForm: FormGroup;
+  resetForm: FormGroup;
 
   submitted = false;
   successMessage = '';
+  errorMessage = '';
+
+  private currentUsername: string = '';
+  private apiUrl = `${environment.apiUrl}/pg-ms-auth/auth`;
 
   slides = [
     {
@@ -40,25 +46,25 @@ export class ForgotComponent {
   ];
   currentSlide = 0;
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    private http: HttpClient
+  ) {
     this.usernameForm = this.fb.group({
       username: ['', [Validators.required, Validators.minLength(3)]]
     });
 
-    this.tokenForm = this.fb.group({
-      token: ['', [Validators.required, Validators.pattern(/^\d{4}$/)]]
-    });
-
-    this.passwordForm = this.fb.group({
+    this.resetForm = this.fb.group({
+      token: ['', [Validators.required, Validators.pattern(/^\d{4}$/)]],
       newPassword: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', Validators.required]
     }, { validators: this.passwordMatchValidator });
   }
 
   get username() { return this.usernameForm.get('username'); }
-  get token() { return this.tokenForm.get('token'); }
-  get newPassword() { return this.passwordForm.get('newPassword'); }
-  get confirmPassword() { return this.passwordForm.get('confirmPassword'); }
+  get token() { return this.resetForm.get('token'); }
+  get newPassword() { return this.resetForm.get('newPassword'); }
+  get confirmPassword() { return this.resetForm.get('confirmPassword'); }
 
   passwordMatchValidator(form: FormGroup) {
     const newPass = form.get('newPassword')?.value;
@@ -68,49 +74,67 @@ export class ForgotComponent {
 
   onSubmitUsername(): void {
     this.submitted = true;
+    this.errorMessage = '';
+
     if (this.usernameForm.invalid) {
       this.usernameForm.markAllAsTouched();
       return;
     }
 
-    console.log('Enviando token para usuario:', this.usernameForm.value.username);
-    
-    this.currentStep = 'token';
-    this.submitted = false;
-    this.tokenForm.reset();
+    const username = this.usernameForm.value.username;
+    this.currentUsername = username;
+
+    console.log('Enviando a URL:', `${this.apiUrl}/forgot-password`);
+    console.log('Payload:', { username });
+
+    this.http.post(`${this.apiUrl}/forgot-password`, { username }).subscribe({
+      next: (response: any) => {
+        console.log('Token enviado correctamente:', response);
+        this.currentStep = 'password';
+        this.submitted = false;
+        this.resetForm.reset();
+      },
+      error: (error) => {
+        console.error('Error al enviar el token:', error);
+        if (error.status === 530 || (error.error && error.error.includes('mail'))) {
+          this.errorMessage = 'El servidor de correo no está disponible en este momento. Por favor, inténtalo más tarde o contacta a soporte.';
+        } else {
+          this.errorMessage = error.error?.message || 'El usuario no existe o hubo un error en el servidor.';
+        }
+      }
+    });
   }
 
-  onSubmitToken(): void {
+  onSubmitReset(): void {
     this.submitted = true;
-    if (this.tokenForm.invalid) {
-      this.tokenForm.markAllAsTouched();
-      return;
-    }
+    this.errorMessage = '';
 
-    console.log('Validando token:', this.tokenForm.value.token);
-
-    this.currentStep = 'password';
-    this.submitted = false;
-    this.passwordForm.reset();
-  }
-
-  onSubmitPassword(): void {
-    this.submitted = true;
-    if (this.passwordForm.invalid) {
-      this.passwordForm.markAllAsTouched();
+    if (this.resetForm.invalid) {
+      this.resetForm.markAllAsTouched();
       return;
     }
 
     const payload = {
-      token: this.tokenForm.value.token,
-      newPassword: this.passwordForm.value.newPassword,
-      confirmPassword: this.passwordForm.value.confirmPassword
+      token: this.resetForm.value.token,
+      username: this.currentUsername,
+      newPassword: this.resetForm.value.newPassword,
+      confirmPassword: this.resetForm.value.confirmPassword
     };
 
-    console.log('Payload para backend:', payload);
+    console.log('Enviando todo al endpoint final:', `${this.apiUrl}/reset-password`);
+    console.log('Payload unificado:', payload);
 
-    this.successMessage = '¡Tu contraseña ha sido actualizada correctamente!';
-    this.currentStep = 'success'; 
+    this.http.post(`${this.apiUrl}/reset-password`, payload).subscribe({
+      next: (response: any) => {
+        console.log('Contraseña cambiada con éxito:', response);
+        this.successMessage = '¡Tu contraseña ha sido actualizada correctamente!';
+        this.currentStep = 'success';
+      },
+      error: (error) => {
+        console.error('Error al cambiar la contraseña:', error);
+        this.errorMessage = error.error?.message || 'El código es incorrecto o hubo un error al cambiar la contraseña.';
+      }
+    });
   }
 
   goToSlide(index: number): void {
@@ -120,11 +144,14 @@ export class ForgotComponent {
   goToStep(step: Step): void {
     this.currentStep = step;
     this.submitted = false;
+    this.errorMessage = '';
   }
 
   resendToken(): void {
     this.submitted = false;
-    this.tokenForm.reset();
+    this.resetForm.reset();
+    this.errorMessage = '';
     console.log('Reenviando token...');
+    this.onSubmitUsername();
   }
 }
