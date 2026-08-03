@@ -1,6 +1,8 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { MainLayoutComponent } from './shared/components/main-layout/main-layout.component';    
+import { RegisterCredentialsComponent } from './features/auth/components/register-credentials/register-credentials.component';
+import { CredentialsListComponent } from './features/auth/components/credentials-list/credentials-list.component';
 
 const routes: Routes = [
     {
@@ -8,8 +10,14 @@ const routes: Routes = [
         loadChildren: () => import('./features/auth/auth.module').then(m => m.AuthModule)
     },
     {
-        path: 'dashboard',
-        component: MainLayoutComponent
+        path: 'dashboard-admin',
+        component: MainLayoutComponent,
+        children: [
+            {
+                path: 'users',
+                component: CredentialsListComponent
+            }
+        ]
     },
     {
         path: '',
