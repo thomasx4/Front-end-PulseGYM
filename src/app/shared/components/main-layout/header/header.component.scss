@@ -1,20 +1,18 @@
 * {
-    display: flex;
+  display: flex;
 }
 
 .search-bar {
   display: flex;
-  padding: 9px;
-
-  &:focus-within {
-    background-color: #ffffff;
-    border-color: #cbd5e1;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-
-    .search-bar__icon {
-      color: #3b82f6;
-    }
-  }
+  align-items: center;
+  gap: 0.75rem;
+  background-color: #c3c4c6;
+  padding: 0.6rem 1rem;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 400px;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
 
   &__icon {
     width: 18px;
@@ -29,7 +27,7 @@
     outline: none;
     background: transparent;
     font-size: 0.9rem;
-    
+
     color: #1e293b;
 
     &::placeholder {
