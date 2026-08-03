@@ -14,7 +14,12 @@ export class RegisterCredentialsComponent {
   enviando = false;
   errorMsg = '';
 
-  roles: RolUsuario[] = ['administrador', 'entrenador', 'recepcionista', 'socio'];
+  roles: RolUsuario[] = [
+  RolUsuario.ADMIN,
+  RolUsuario.ENTRENADOR,
+  RolUsuario.RECEPCIONISTA,
+  RolUsuario.USER
+];
 
   constructor(
     private fb: FormBuilder,
