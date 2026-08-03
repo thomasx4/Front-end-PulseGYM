@@ -1,3 +1,7 @@
+// Este archivo sería para el modelo de autenticación
+// Podrías exportar interfaces y tipos aquí
+
+
 export interface AuthCredentials {
   email: string;
   password: string;
@@ -11,8 +15,36 @@ export interface AuthResponse {
 
 export interface User {
   id: string;
-  name: string;
   email: string;
+  name: string;
+  role: RolUsuario;
+  avatar?: string;
+}
+
+export interface RegisterRequestDTO {
+  email: string;
+  password: string;
+  username: string;
+  rol: RolUsuario;
+  estado: boolean;
+}
+
+export interface HttpGlobalResponse<T> {
+  data: T;
+  messege: string;
+}
+
+export interface MessageGlobalDTO {
+  message: string;
+}
+
+export interface CredencialesListado {
+  id: number;
+  username: string;
+  email: string;
+  rol: string;
+  estado: boolean;
+  name: string;
   role: RolUsuario;
 }
 
