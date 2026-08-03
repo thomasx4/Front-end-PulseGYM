@@ -6,6 +6,7 @@ import { StatusBadgeComponent } from './components/status-badge/status-badge.com
 import { MainLayoutComponent } from './components/main-layout/main-layout.component';
 import { HeaderComponent } from './components/main-layout/header/header.component';
 import { SidebarComponent } from './components/main-layout/sidebar/sidebar.component';
+import { StatCardComponent } from './components/stat-card/stat-card.component';
 
 
 
@@ -14,7 +15,8 @@ import { SidebarComponent } from './components/main-layout/sidebar/sidebar.compo
     StatusBadgeComponent,
     MainLayoutComponent,
     HeaderComponent,
-    SidebarComponent
+    SidebarComponent,
+    StatCardComponent
   ],
   imports: [
     CommonModule,
