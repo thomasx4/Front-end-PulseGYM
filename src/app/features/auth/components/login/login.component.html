@@ -21,6 +21,13 @@
                 <p class="form-subtitle">Inicia sesion para acceder a todas las funcionalidades.</p>
             </div>
 
+            <div *ngIf="successMessage" class="alert alert-success">
+                {{ successMessage }}
+            </div>
+            <div *ngIf="errorMessage" class="alert alert-danger">
+                {{ errorMessage }}
+            </div>
+
             <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
                 <!-- Email -->
                 <div class="form-group">
@@ -34,10 +41,10 @@
                             </svg>
                         </span>
                         <input id="email" type="email" formControlName="email" placeholder="nombre@ejemplo.com"
-                            [class.error]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
+                            [class.error]="loginForm?.get('email')?.invalid && loginForm?.get('email')?.touched">
                     </div>
                     <span class="error-message"
-                        *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
+                        *ngIf="loginForm?.get('email')?.invalid && loginForm?.get('email')?.touched">
                         Ingresa un correo válido
                     </span>
                 </div>
@@ -46,7 +53,7 @@
                 <div class="form-group">
                     <div class="label-row">
                         <label for="password">CONTRASEÑA</label>
-                        <a href="#" class="forgot-link">Olvidó su contraseña?</a>
+                        <a (click)="goToForgotPassword()" class="forgot-link">¿Olvidaste tu contraseña?</a>
                     </div>
                     <div class="input-wrapper">
                         <span class="input-icon">
@@ -58,7 +65,7 @@
                         </span>
                         <input id="password" [type]="hidePassword ? 'password' : 'text'" formControlName="password"
                             placeholder="••••••••"
-                            [class.error]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+                            [class.error]="loginForm?.get('password')?.invalid && loginForm?.get('password')?.touched">
                         <button type="button" class="toggle-password" (click)="togglePassword()">
                             <svg *ngIf="hidePassword" width="18" height="18" viewBox="0 0 24 24" fill="none"
                                 stroke="currentColor" stroke-width="2">
@@ -76,19 +83,25 @@
                         </button>
                     </div>
                     <span class="error-message"
-                        *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+                        *ngIf="loginForm?.get('password')?.invalid && loginForm?.get('password')?.touched">
                         La contraseña es obligatoria
                     </span>
                 </div>
 
                 <!-- Botón -->
-                <button type="submit" class="btn-login">
-                    Entrar
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        style="margin-left: 6px;">
-                        <path d="M5 12h14"></path>
-                        <path d="m12 5 7 7-7 7"></path>
-                    </svg>
+                <button type="submit" class="btn-login" [disabled]="loading">
+                    <ng-container *ngIf="!loading">
+                        Entrar
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            style="margin-left: 6px;">
+                            <path d="M5 12h14"></path>
+                            <path d="m12 5 7 7-7 7"></path>
+                        </svg>
+                    </ng-container>
+                    <ng-container *ngIf="loading">
+                        <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                            Entrando...
+                    </ng-container>
                 </button>
             </form>
         </div>
