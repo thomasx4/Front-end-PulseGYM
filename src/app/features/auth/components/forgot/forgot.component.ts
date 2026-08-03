@@ -1,19 +1,12 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../../../environments/environment';
-
 
 type Step = 'username' | 'password' | 'success';
 
 @Component({
   selector: 'app-forgot',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule, 
-    CommonModule
-  ],
   templateUrl: './forgot.component.html',
   styleUrls: ['./forgot.component.scss']
 })

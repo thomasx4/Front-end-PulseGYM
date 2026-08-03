@@ -19,6 +19,18 @@ export class AuthInterceptor implements HttpInterceptor {
   ) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    if (req.url.includes('/login')) {
+      return next.handle(req).pipe(
+        catchError((error: HttpErrorResponse) => {
+          if (error.status === 401) {
+            this.authService.logout();
+          }
+          return throwError(() => error);
+        })
+      );
+    }
+
+    // Para el resto de peticiones, intentamos obtener el token
     const token = this.authService.getToken();
     
     let authReq = req;

@@ -1,7 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ReactiveFormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 import { RolUsuario } from '../../models/auth/auth.model';
@@ -9,8 +7,6 @@ import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-login',
-  standalone: true,                     
-  imports: [ReactiveFormsModule, CommonModule ],  
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
@@ -19,6 +15,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   hidePassword = true;
   loading = false;
   errorMessage = '';
+  successMessage = '';
   private subscription?: Subscription;
 
   slides = [
@@ -97,40 +94,54 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     this.loading = true;
     this.errorMessage = '';
+    this.successMessage = '';
 
     this.authService.login(this.loginForm.value).subscribe({
-      next: (user) => {
+      next: (response: any) => {
         this.loading = false;
         
-        const role = this.authService.getCurrentRole();
+        if (response && response.message) {
+          this.successMessage = response.message || '¡Inicio de sesión exitoso! Redirigiendo...';
+          const role = response.role || this.authService.getCurrentRole();
 
-        this.redirectUserByRole(role);
+          setTimeout(() => {
+            this.redirectUserByRole(role);
+          }, 1500);
+        } else {
+          this.errorMessage = 'Respuesta inesperada del servidor. Inténtalo de nuevo.';
+        }
       },
       error: (error) => {
         this.loading = false;
-        this.errorMessage = error.message;
+        if (error.status === 401 || error.status === 400) {
+          this.errorMessage = error.error?.message || 'Credenciales incorrectas. Verifica tu correo y contraseña.';
+        } else if (error.status === 0) {
+          this.errorMessage = 'No se puede conectar al servidor. Verifica tu conexión.';
+        } else {
+          this.errorMessage = error.message || 'Ocurrió un error inesperado. Inténtalo de nuevo.';
+        }
       }
     });
   }
 
   private redirectUserByRole(role: RolUsuario | null): void {
     if (!role) {
-      this.router.navigate(['/home']);
+      this.router.navigate(['/auth/login']);
       return;
     }
 
     switch (role) {
       case RolUsuario.ADMIN:
-        this.router.navigate(['/admin']);
+        this.router.navigate(['']);
         break;
       case RolUsuario.ENTRENADOR:
-        this.router.navigate(['/trainer']);
+        this.router.navigate(['']);
         break;
       case RolUsuario.RECEPCIONISTA:
-        this.router.navigate(['/reception']);
+        this.router.navigate(['']);
         break;
       default:
-        this.router.navigate(['/home']); 
+        this.router.navigate(['/auth/login']); 
         break;
     }
   }

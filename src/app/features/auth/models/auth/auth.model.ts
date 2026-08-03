@@ -18,8 +18,8 @@ export interface User {
 
 
 export enum RolUsuario {
-  ADMIN = 'ADMIN',
-  ENTRENADOR = 'ENTRENADOR',
-  RECEPCIONISTA = 'RECEPCIONISTA',
-  USER = 'USER'
+  ADMIN = 'administrador',
+  ENTRENADOR = 'entrenador',
+  RECEPCIONISTA = 'recepcionista',
+  USER = 'user'
 }

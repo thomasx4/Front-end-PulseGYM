@@ -21,6 +21,13 @@
                 <p class="form-subtitle">Inicia sesion para acceder a todas las funcionalidades.</p>
             </div>
 
+            <div *ngIf="successMessage" class="alert alert-success">
+                {{ successMessage }}
+            </div>
+            <div *ngIf="errorMessage" class="alert alert-danger">
+                {{ errorMessage }}
+            </div>
+
             <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
                 <!-- Email -->
                 <div class="form-group">
@@ -82,13 +89,19 @@
                 </div>
 
                 <!-- Botón -->
-                <button type="submit" class="btn-login">
-                    Entrar
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        style="margin-left: 6px;">
-                        <path d="M5 12h14"></path>
-                        <path d="m12 5 7 7-7 7"></path>
-                    </svg>
+                <button type="submit" class="btn-login" [disabled]="loading">
+                    <ng-container *ngIf="!loading">
+                        Entrar
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            style="margin-left: 6px;">
+                            <path d="M5 12h14"></path>
+                            <path d="m12 5 7 7-7 7"></path>
+                        </svg>
+                    </ng-container>
+                    <ng-container *ngIf="loading">
+                        <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                            Entrando...
+                    </ng-container>
                 </button>
             </form>
         </div>
@@ -100,7 +113,6 @@
                 <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
                 <path d="M12 17h.01"></path>
             </svg>
-            
         </button>
     </div>
 </div>

@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, throwError, BehaviorSubject, of } from 'rxjs';
+import { Observable, throwError, BehaviorSubject } from 'rxjs';
 import { tap, catchError, map, distinctUntilChanged } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import * as CryptoJS from 'crypto-js'; // <--- IMPORTANTE: Importamos la librería
 import { AuthCredentials, AuthResponse, User, RolUsuario } from '../../features/auth/models/auth/auth.model';
 import { environment } from '../../../../environments/environment';
 
@@ -14,7 +15,8 @@ export class AuthService {
   private tokenKey = 'auth_token';
   private userKey = 'user_data';
   
-  // Subjects para mantener el estado en tiempo real
+  private secretKey = 'MiClaveSuperSegura2026!';
+
   private authStatus = new BehaviorSubject<boolean>(this.isLoggedIn());
   authStatus$ = this.authStatus.asObservable().pipe(distinctUntilChanged());
   
@@ -26,31 +28,44 @@ export class AuthService {
     private router: Router
   ) {}
 
-  /**
-   * Inicio de sesión
-   * Retorna el objeto User completo para que el componente pueda leer el rol
-   */
-  login(credentials: AuthCredentials): Observable<User> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials)
+  login(credentials: AuthCredentials): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/login`, credentials)
       .pipe(
-        tap(response => this.handleSuccessfulLogin(response)),
-        map(response => response.user),
-        catchError(this.handleError)
+        catchError(this.handleError),
+        tap(response => {
+          console.log('Respuesta del backend:', response); 
+
+          if (response && response.token) {
+            console.log('Token original:', response.token);
+            
+            this.setEncryptedItem(this.tokenKey, response.token);
+            
+            console.log('Token guardado en localStorage:', localStorage.getItem(this.tokenKey));
+            console.log('Token descifrado (getToken):', this.getToken());
+            
+            if (response.user) {
+              this.setEncryptedItem(this.userKey, JSON.stringify(response.user));
+              this.currentUserSubject.next(response.user);
+            }
+            this.authStatus.next(true);
+          }
+        })
       );
   }
+  private setEncryptedItem(key: string, value: string): void {
+    const encrypted = CryptoJS.AES.encrypt(value, this.secretKey).toString();
+    localStorage.setItem(key, encrypted);
+  }
 
-  /**
-   * Maneja el almacenamiento de datos al hacer login exitoso
-   */
-  private handleSuccessfulLogin(response: AuthResponse): void {
-    localStorage.setItem(this.tokenKey, response.token);
-    
-    if (response.user) {
-      localStorage.setItem(this.userKey, JSON.stringify(response.user));
-      this.currentUserSubject.next(response.user);
+  private getDecryptedItem(key: string): string | null {
+    const encrypted = localStorage.getItem(key);
+    if (!encrypted) return null;
+    try {
+      const bytes = CryptoJS.AES.decrypt(encrypted, this.secretKey);
+      return bytes.toString(CryptoJS.enc.Utf8);
+    } catch (e) {
+      return null;
     }
-    
-    this.authStatus.next(true);
   }
 
   /**
@@ -64,18 +79,17 @@ export class AuthService {
     this.router.navigate(['/auth/login']);
   }
 
-  // --- Getters de estado (Sincrónicos y Observables) ---
-
   isLoggedIn(): boolean {
-    return !!localStorage.getItem(this.tokenKey);
+    const encryptedToken = localStorage.getItem(this.tokenKey);
+    return !!encryptedToken;
   }
 
   getToken(): string | null {
-    return localStorage.getItem(this.tokenKey);
+    return this.getDecryptedItem(this.tokenKey);
   }
 
   getUser(): User | null {
-    const userData = localStorage.getItem(this.userKey);
+    const userData = this.getDecryptedItem(this.userKey);
     return userData ? JSON.parse(userData) : null;
   }
 
@@ -83,94 +97,48 @@ export class AuthService {
     return this.currentUserSubject.asObservable();
   }
 
-
-  /**
-   * Verifica si el usuario tiene un rol específico (Sincrónico)
-   * Útil para Guards o condicionales en el HTML
-   */
   hasRole(role: RolUsuario): boolean {
     const user = this.getUser();
     return user ? user.role === role : false;
   }
 
-  /**
-   * Verifica si el usuario tiene el rol de Administrador
-   */
   isAdmin(): boolean {
     return this.hasRole(RolUsuario.ADMIN);
   }
 
-  /**
-   * Verifica si el usuario tiene el rol de Entrenador
-   */
   isTrainer(): boolean {
     return this.hasRole(RolUsuario.ENTRENADOR);
   }
 
-  /**
-   * Verifica si el usuario tiene el rol de Recepcionista
-   */
   isReceptionist(): boolean {
     return this.hasRole(RolUsuario.RECEPCIONISTA);
   }
 
-  /**
-   * Obtiene el rol actual del usuario como string (para el Router)
-   */
   getCurrentRole(): RolUsuario | null {
     const user = this.getUser();
     return user ? user.role : null;
   }
 
-  // --- Manejo de Errores Mejorado ---
-
   private handleError(error: HttpErrorResponse): Observable<never> {
     let errorMessage = 'Error al procesar la solicitud';
-    
     console.error('Error del servidor:', error);
-    
     if (error.error instanceof ErrorEvent) {
-      // Error del lado del cliente
       errorMessage = `Error de conexión: ${error.error.message}`;
     } else {
       const serverError = error.error as any;
-      
-      // Intenta obtener el mensaje del backend (diferentes formatos comunes)
       const message = serverError?.message || serverError?.error || serverError?.mensaje;
-      
       switch (error.status) {
-        case 0:
-          errorMessage = 'No se puede conectar al servidor. Verifica tu conexión.';
-          break;
-        case 400:
-          errorMessage = message || 'Solicitud incorrecta. Verifica los datos.';
-          break;
-        case 401:
-          errorMessage = message || 'Credenciales inválidas.';
-          break;
-        case 403:
-          errorMessage = message || 'Acceso denegado. No tienes permisos suficientes.';
-          break;
-        case 404:
-          errorMessage = message || 'Recurso no encontrado.';
-          break;
-        case 409:
-          errorMessage = message || 'Conflicto con los datos existentes.';
-          break;
-        case 422:
-          errorMessage = message || 'Datos inválidos. Verifica el formato.';
-          break;
-        case 500:
-        case 502:
-        case 503:
-        case 504:
-          errorMessage = 'Error del servidor. Intenta más tarde.';
-          break;
-        default:
-          errorMessage = message || `Error ${error.status}: ${error.statusText}`;
+        case 0: errorMessage = 'No se puede conectar al servidor. Verifica tu conexión.'; break;
+        case 400: errorMessage = message || 'Solicitud incorrecta. Verifica los datos.'; break;
+        case 401: errorMessage = message || 'Credenciales inválidas.'; break;
+        case 403: errorMessage = message || 'Acceso denegado. No tienes permisos suficientes.'; break;
+        case 404: errorMessage = message || 'Recurso no encontrado.'; break;
+        case 409: errorMessage = message || 'Conflicto con los datos existentes.'; break;
+        case 422: errorMessage = message || 'Datos inválidos. Verifica el formato.'; break;
+        case 500: case 502: case 503: case 504: errorMessage = 'Error del servidor. Intenta más tarde.'; break;
+        default: errorMessage = message || `Error ${error.status}: ${error.statusText}`;
       }
     }
-    
     return throwError(() => new Error(errorMessage));
   }
 }
