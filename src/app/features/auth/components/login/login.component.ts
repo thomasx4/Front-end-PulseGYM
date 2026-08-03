@@ -1,7 +1,8 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
+import { IdleService } from '../../../../core/services/idle.service';
 import { RolUsuario } from '../../models/auth/auth.model';
 import { Subscription } from 'rxjs';
 
@@ -17,6 +18,13 @@ export class LoginComponent implements OnInit, OnDestroy {
   errorMessage = '';
   successMessage = '';
   private subscription?: Subscription;
+
+  private idleService = inject(IdleService);
+
+  private failedAttempts = 0;
+  private maxAttempts = 3;
+  private lockTime = 30000; 
+  private lockEndTime: number | null = null;
 
   slides = [
     {
@@ -55,6 +63,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     }
 
     this.startSlideShow();
+    this.idleService.startWatching();
   }
 
   ngOnDestroy(): void {
@@ -64,6 +73,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     if (this.subscription) {
       this.subscription.unsubscribe();
     }
+    this.idleService.stopWatching();
   }
 
   private initForm(): void {
@@ -89,7 +99,30 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.hidePassword = !this.hidePassword;
   }
 
+  isLoginLocked(): boolean {
+    if (this.lockEndTime) {
+      const remaining = this.lockEndTime - Date.now();
+      return remaining > 0;
+    }
+    return false;
+  }
+
+  getRemainingSeconds(): number {
+    if (this.lockEndTime) {
+      const remaining = this.lockEndTime - Date.now();
+      return remaining > 0 ? Math.ceil(remaining / 1000) : 0;
+    }
+    return 0;
+  }
+
   onSubmit() {
+    if (this.isLoginLocked()) {
+      const seconds = this.getRemainingSeconds();
+      this.errorMessage = `Demasiados intentos. Espera ${seconds} segundos.`;
+      this.loading = false;
+      return;
+    }
+
     if (this.loginForm.invalid) return;
 
     this.loading = true;
@@ -100,25 +133,45 @@ export class LoginComponent implements OnInit, OnDestroy {
       next: (response: any) => {
         this.loading = false;
         
-        if (response && response.message) {
-          this.successMessage = response.message || '¡Inicio de sesión exitoso! Redirigiendo...';
-          const role = response.role || this.authService.getCurrentRole();
-
-          setTimeout(() => {
-            this.redirectUserByRole(role);
-          }, 1500);
-        } else {
-          this.errorMessage = 'Respuesta inesperada del servidor. Inténtalo de nuevo.';
+        if (response && response.message && response.message.includes('no se encuentra registrado')) {
+          this.failedAttempts++;
+          
+          if (this.failedAttempts >= this.maxAttempts) {
+            this.lockEndTime = Date.now() + this.lockTime;
+            this.errorMessage = `Has excedido los intentos. Bloqueado por ${this.lockTime / 1000} segundos.`;
+            this.failedAttempts = 0;
+          } else {
+            this.errorMessage = `Credenciales incorrectas. Intento ${this.failedAttempts} de ${this.maxAttempts}.`;
+          }
+          return;
         }
+
+        this.failedAttempts = 0;
+        this.lockEndTime = null;
+        
+        this.successMessage = response.message || '¡Inicio de sesión exitoso! Redirigiendo...';
+        const role = response.role || this.authService.getCurrentRole();
+
+        setTimeout(() => {
+          this.redirectUserByRole(role);
+        }, 1500);
       },
       error: (error) => {
         this.loading = false;
+        this.failedAttempts++;
+        
         if (error.status === 401 || error.status === 400) {
-          this.errorMessage = error.error?.message || 'Credenciales incorrectas. Verifica tu correo y contraseña.';
+          this.errorMessage = error.error?.message || 'Credenciales incorrectas.';
         } else if (error.status === 0) {
-          this.errorMessage = 'No se puede conectar al servidor. Verifica tu conexión.';
+          this.errorMessage = 'No se puede conectar al servidor.';
         } else {
-          this.errorMessage = error.message || 'Ocurrió un error inesperado. Inténtalo de nuevo.';
+          this.errorMessage = error.message || 'Error inesperado.';
+        }
+
+        if (this.failedAttempts >= this.maxAttempts) {
+          this.lockEndTime = Date.now() + this.lockTime;
+          this.errorMessage = `Has excedido los intentos. Bloqueado por ${this.lockTime / 1000} segundos.`;
+          this.failedAttempts = 0;
         }
       }
     });
@@ -135,10 +188,10 @@ export class LoginComponent implements OnInit, OnDestroy {
         this.router.navigate(['/dashboard-admin']);
         break;
       case RolUsuario.ENTRENADOR:
-        this.router.navigate(['']);
+        this.router.navigate(['/dashboard-entrenador']);
         break;
       case RolUsuario.RECEPCIONISTA:
-        this.router.navigate(['']);
+        this.router.navigate(['/dashboard-recepcionista']);
         break;
       default:
         this.router.navigate(['/auth/login']); 
