@@ -89,18 +89,21 @@
                 </div>
 
                 <!-- Botón -->
-                <button type="submit" class="btn-login" [disabled]="loading">
-                    <ng-container *ngIf="!loading">
+                <button type="submit" class="btn-login" [disabled]="loading || isLoginLocked()">
+                    <ng-container *ngIf="!loading && !isLoginLocked()">
                         Entrar
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            style="margin-left: 6px;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" style="margin-left: 6px;">
                             <path d="M5 12h14"></path>
                             <path d="m12 5 7 7-7 7"></path>
                         </svg>
                     </ng-container>
                     <ng-container *ngIf="loading">
                         <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-                            Entrando...
+                        Entrando...
+                    </ng-container>
+                    <ng-container *ngIf="!loading && isLoginLocked()">
+                        <span style="opacity: 0.6;">Bloqueado</span>
                     </ng-container>
                 </button>
             </form>

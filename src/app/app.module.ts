@@ -8,6 +8,7 @@ import { AppComponent } from './app.component';
 import { SharedModule } from './shared/shared.module';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 import { RouterModule } from '@angular/router';
+import { IdleService } from './core/services/idle.service';
 
 @NgModule({
   declarations: [
@@ -25,6 +26,7 @@ import { RouterModule } from '@angular/router';
     AuthModule 
   ],
   providers: [
+    IdleService,
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
