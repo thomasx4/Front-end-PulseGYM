@@ -1,7 +1,6 @@
 // Este archivo sería para el modelo de autenticación
 // Podrías exportar interfaces y tipos aquí
 
-export type RolUsuario = 'administrador' | 'entrenador' | 'recepcionista' | 'socio';
 
 export interface AuthCredentials {
   email: string;
@@ -18,7 +17,7 @@ export interface User {
   id: string;
   email: string;
   name: string;
-  role: 'admin' | 'user' | 'trainer';
+  role: RolUsuario;
   avatar?: string;
 }
 
@@ -45,4 +44,14 @@ export interface CredencialesListado {
   email: string;
   rol: string;
   estado: boolean;
+  name: string;
+  role: RolUsuario;
+}
+
+
+export enum RolUsuario {
+  ADMIN = 'administrador',
+  ENTRENADOR = 'entrenador',
+  RECEPCIONISTA = 'recepcionista',
+  USER = 'user'
 }
