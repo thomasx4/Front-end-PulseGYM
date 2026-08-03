@@ -1,6 +1,6 @@
 <aside class="sidebar">
     <div class="sidebar__brand">
-        <span class="sidebar__brand-icon">⚡</span>
+        <img src="../../../../../favicon.ico" class="sidebar__brand-icon" >
         <div>
             <h1 class="sidebar__brand-name">PULSE GYM</h1>
             <span class="sidebar__brand-role">ADMINISTRADOR</span>
@@ -14,8 +14,9 @@
         routerLinkActive="sidebar__nav-item--active"
         class="sidebar__nav-item"
         >
-        <span class="sidebar__nav-icon">{{ item.icon }}</span>
-        {{ item.label }}
+        <span [innerHTML]="item.iconHtml" class="sidebar__icon-wrapper"></span>
+
+        <span>{{ item.label }}</span>
         </a>
     </nav>
 
