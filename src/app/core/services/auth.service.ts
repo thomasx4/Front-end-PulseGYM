@@ -5,8 +5,9 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError, BehaviorSubject } from 'rxjs';
 import { tap, catchError, map, distinctUntilChanged } from 'rxjs/operators';
 import { Router } from '@angular/router';
-import * as CryptoJS from 'crypto-js'; // <--- IMPORTANTE: Importamos la librería
+import * as CryptoJS from 'crypto-js';
 import { AuthCredentials, AuthResponse, User, RolUsuario } from '../../features/auth/models/auth/auth.model';
+import { jwtDecode } from 'jwt-decode';
 
 @Injectable({
   providedIn: 'root'
@@ -14,24 +15,34 @@ import { AuthCredentials, AuthResponse, User, RolUsuario } from '../../features/
 export class AuthService {
   private apiUrl = `${environment.apiUrl}/pg-ms-auth/auth`;
 
+  /**
+   * Registro de credenciales
+   */
   registerCredentials(datos: RegisterRequestDTO): Observable<MessageGlobalDTO> {
     return this.http.post<MessageGlobalDTO>(`${this.apiUrl}/register`, datos);
   }
 
+  /**
+   * Listado de credenciales
+   */
   listarCredenciales(): Observable<HttpGlobalResponse<CredencialesListado[]>> {
     return this.http.get<HttpGlobalResponse<CredencialesListado[]>>(`${this.apiUrl}/usuarios`);
   }
 
+  /**
+   * Cambio de estado de credencial
+   */
   cambiarEstado(id: number, nuevoEstado: boolean): Observable<MessageGlobalDTO> {
-  return this.http.put<MessageGlobalDTO>(
-    `${this.apiUrl}/usuarios/estado/${id}`,
-    { estado: nuevoEstado }
-  );
-}
+    return this.http.put<MessageGlobalDTO>(
+      `${this.apiUrl}/usuarios/estado/${id}`,
+      { estado: nuevoEstado }
+    );
+  }
 
   private tokenKey = 'auth_token';
   private userKey = 'user_data';
-  
+  private roleKey = 'user_role';
+
   private secretKey = 'MiClaveSuperSegura2026!';
 
   private authStatus = new BehaviorSubject<boolean>(this.isLoggedIn());
@@ -45,6 +56,10 @@ export class AuthService {
     private router: Router
   ) {}
 
+  /**
+   * Inicio de sesión
+   * Adaptado para extraer el token y el rol desde diferentes estructuras del backend
+   */
   login(credentials: AuthCredentials): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/login`, credentials)
       .pipe(
@@ -52,23 +67,49 @@ export class AuthService {
         tap(response => {
           console.log('Respuesta del backend:', response); 
 
-          if (response && response.token) {
-            console.log('Token original:', response.token);
+          let token: string | null = null;
+          let userRole: RolUsuario = RolUsuario.USER;
+          let userEmail: string = credentials.email;
+
+          if (response && response.data && response.data.jwt) {
+            token = response.data.jwt;
+          } else if (response && response.token) {
+            token = response.token;
+          }
+
+          if (token) {
+            this.setEncryptedItem(this.tokenKey, token);
             
-            this.setEncryptedItem(this.tokenKey, response.token);
+            try {
+              const decoded: any = jwtDecode(token);
+              userRole = decoded.role || decoded.Rol || decoded.user_role || RolUsuario.USER;
+              userEmail = decoded.email || decoded.sub || credentials.email;
+            } catch (error) {
+              console.warn('No se pudo decodificar el token. Usando rol por defecto.');
+            }
+
+            const dummyUser: User = {
+              id: '0',
+              name: 'Usuario',
+              email: userEmail,
+              role: userRole
+            };
+
+            this.setEncryptedItem(this.userKey, JSON.stringify(dummyUser));
+            localStorage.setItem(this.roleKey, userRole);
+            
+            this.currentUserSubject.next(dummyUser);
+            this.authStatus.next(true);
             
             console.log('Token guardado en localStorage:', localStorage.getItem(this.tokenKey));
             console.log('Token descifrado (getToken):', this.getToken());
-            
-            if (response.user) {
-              this.setEncryptedItem(this.userKey, JSON.stringify(response.user));
-              this.currentUserSubject.next(response.user);
-            }
-            this.authStatus.next(true);
+          } else {
+            console.warn('El backend no envió un token válido.');
           }
         })
       );
   }
+
   private setEncryptedItem(key: string, value: string): void {
     const encrypted = CryptoJS.AES.encrypt(value, this.secretKey).toString();
     localStorage.setItem(key, encrypted);
@@ -91,29 +132,53 @@ export class AuthService {
   logout(): void {
     localStorage.removeItem(this.tokenKey);
     localStorage.removeItem(this.userKey);
+    localStorage.removeItem(this.roleKey);
     this.authStatus.next(false);
     this.currentUserSubject.next(null);
     this.router.navigate(['/auth/login']);
   }
 
+  /**
+   * Verifica si el usuario está logueado
+   */
   isLoggedIn(): boolean {
     const encryptedToken = localStorage.getItem(this.tokenKey);
     return !!encryptedToken;
   }
 
+  /**
+   * Obtiene el token descifrado
+   */
   getToken(): string | null {
     return this.getDecryptedItem(this.tokenKey);
   }
 
+  /**
+   * Obtiene el usuario completo descifrado
+   */
   getUser(): User | null {
     const userData = this.getDecryptedItem(this.userKey);
     return userData ? JSON.parse(userData) : null;
   }
 
+  /**
+   * Obtiene el rol directamente del localStorage (sin descifrar)
+   */
+  getCurrentRole(): RolUsuario | null {
+    const role = localStorage.getItem(this.roleKey);
+    return role as RolUsuario || null;
+  }
+
+  /**
+   * Observable del usuario actual
+   */
   getCurrentUser(): Observable<User | null> {
     return this.currentUserSubject.asObservable();
   }
 
+  /**
+   * Verifica si el usuario tiene un rol específico
+   */
   hasRole(role: RolUsuario): boolean {
     const user = this.getUser();
     return user ? user.role === role : false;
@@ -131,11 +196,9 @@ export class AuthService {
     return this.hasRole(RolUsuario.RECEPCIONISTA);
   }
 
-  getCurrentRole(): RolUsuario | null {
-    const user = this.getUser();
-    return user ? user.role : null;
-  }
-
+  /**
+   * Manejo de errores
+   */
   private handleError(error: HttpErrorResponse): Observable<never> {
     let errorMessage = 'Error al procesar la solicitud';
     console.error('Error del servidor:', error);

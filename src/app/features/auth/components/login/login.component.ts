@@ -150,11 +150,13 @@ export class LoginComponent implements OnInit, OnDestroy {
         this.lockEndTime = null;
         
         this.successMessage = response.message || '¡Inicio de sesión exitoso! Redirigiendo...';
-        const role = response.role || this.authService.getCurrentRole();
+        const role = response?.user?.role || this.authService.getCurrentRole();
+
+                console.log('Rol obtenido:', role);
 
         setTimeout(() => {
           this.redirectUserByRole(role);
-        }, 1500);
+        }, 2000);
       },
       error: (error) => {
         this.loading = false;
@@ -192,6 +194,9 @@ export class LoginComponent implements OnInit, OnDestroy {
         break;
       case RolUsuario.RECEPCIONISTA:
         this.router.navigate(['/dashboard-recepcionista']);
+        break;
+      case RolUsuario.USER:
+        this.router.navigate(['/user']);
         break;
       default:
         this.router.navigate(['/auth/login']); 
