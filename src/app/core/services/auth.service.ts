@@ -18,8 +18,8 @@ export class AuthService {
     return this.http.post<MessageGlobalDTO>(`${this.apiUrl}/register`, datos);
   }
 
-  listarCredenciales(): Observable<HttpGlobalResponse<CredencialesListado[]>> {
-    return this.http.get<HttpGlobalResponse<CredencialesListado[]>>(`${this.apiUrl}/usuarios`);
+  listarCredenciales(): Observable<CredencialesListado[]> {
+    return this.http.get<CredencialesListado[]>(`${this.apiUrl}/usuarios`);
   }
 
   cambiarEstado(id: number, nuevoEstado: boolean): Observable<MessageGlobalDTO> {
@@ -52,10 +52,10 @@ export class AuthService {
         tap(response => {
           console.log('Respuesta del backend:', response); 
 
-          if (response && response.token) {
+          if (response?.data?.jwt) {
             console.log('Token original:', response.token);
             
-            this.setEncryptedItem(this.tokenKey, response.token);
+            this.setEncryptedItem(this.tokenKey, response.data.jwt);
             
             console.log('Token guardado en localStorage:', localStorage.getItem(this.tokenKey));
             console.log('Token descifrado (getToken):', this.getToken());
