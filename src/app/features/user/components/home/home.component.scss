@@ -1,0 +1,115 @@
+.dashboard-layout {
+    display: flex;
+    min-height: 100vh;
+    background: #f5f5f5;
+}
+
+.dashboard-main {
+    flex: 1;
+    margin-left: 240px;
+    padding: 24px 32px;
+}
+
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+
+    .search-box {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: #ffffff;
+        border: 1px solid #e9ecef;
+        border-radius: 12px;
+        padding: 10px 16px;
+        width: 320px;
+        color: #8898aa;
+
+        input {
+            border: none;
+            background: none;
+            outline: none;
+            font-size: 14px;
+            color: #1a1a2e;
+            width: 100%;
+
+            &::placeholder {
+                color: #8898aa;
+            }
+        }
+    }
+
+    .top-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: #ffffff;
+            border: 1px solid #e9ecef;
+            color: #4a5568;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+
+            &:hover {
+                background: #f1f5f9;
+            }
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e2e8f0;
+        }
+    }
+}
+
+.welcome-section {
+    margin-bottom: 24px;
+
+    h1 {
+        font-size: 28px;
+        font-weight: 700;
+        color: #1a1a2e;
+        margin: 0 0 4px 0;
+    }
+
+    p {
+        font-size: 16px;
+        color: #8898aa;
+        margin: 0;
+    }
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+}
+
+.grid-main {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.grid-side {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
