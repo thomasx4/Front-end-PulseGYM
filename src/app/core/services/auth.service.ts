@@ -25,9 +25,9 @@ export class AuthService {
   /**
    * Listado de credenciales
    */
-  listarCredenciales(): Observable<HttpGlobalResponse<CredencialesListado[]>> {
-    return this.http.get<HttpGlobalResponse<CredencialesListado[]>>(`${this.apiUrl}/usuarios`);
-  }
+listarCredenciales(): Observable<CredencialesListado[]> {
+  return this.http.get<CredencialesListado[]>(`${this.apiUrl}/usuarios`);
+}
 
   /**
    * Cambio de estado de credencial
