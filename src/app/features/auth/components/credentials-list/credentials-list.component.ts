@@ -27,7 +27,7 @@ export class CredentialsListComponent implements OnInit {
 
     this.authService.listarCredenciales().subscribe({
       next: (respuesta) => {
-        this.credenciales = respuesta.data;
+        this.credenciales = respuesta;
         this.cargando = false;
       },
       error: (err: HttpErrorResponse) => {
