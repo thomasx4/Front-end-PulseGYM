@@ -10,9 +10,6 @@ export class AuthGuard implements CanActivate {
   ) {}
 
   canActivate(route: ActivatedRouteSnapshot): boolean {
-    const startTime = Date.now();
-    while (Date.now() - startTime < 50) {
-    }
 
     if (!this.authService.isLoggedIn()) {
       this.router.navigate(['/auth/login']);
