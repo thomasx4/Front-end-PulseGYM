@@ -1,16 +1,39 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { ReactiveFormsModule } from '@angular/forms';
+import { AuthModule } from './features/auth/auth.module';
+import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { SharedModule } from './shared/shared.module';
+import { AuthInterceptor } from './core/interceptors/auth.interceptor';
+import { RouterModule } from '@angular/router';
+import { IdleService } from './core/services/idle.service';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
   ],
   imports: [
-    BrowserModule
+    BrowserModule,
+    RouterModule,       
+    AppRoutingModule, 
+    SharedModule,
+    HttpClientModule,
+    AppRoutingModule,
+    HttpClientModule,
+    ReactiveFormsModule,
+    AuthModule 
   ],
-  providers: [],
+  providers: [
+    IdleService,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    },
+
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

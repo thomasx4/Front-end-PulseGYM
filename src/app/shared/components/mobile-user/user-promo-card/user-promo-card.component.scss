@@ -1,0 +1,61 @@
+.user-promo-card {
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+    background-size: cover;
+    background-position: center;
+    min-height: 320px;
+    display: flex;
+    align-items: flex-end;
+
+    .promo-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(10, 42, 74, 0.85);
+    }
+
+    .promo-content {
+        position: relative;
+        z-index: 1;
+        padding: 24px;
+
+        .promo-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 0 0 8px 0;
+        }
+
+        .promo-description {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            margin: 0 0 16px 0;
+            line-height: 1.5;
+        }
+
+        .btn-promo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: none;
+            border: none;
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 0;
+
+            &:hover {
+                text-decoration: underline;
+            }
+
+            svg {
+                transition: transform 0.2s;
+            }
+
+            &:hover svg {
+                transform: translateX(4px);
+            }
+        }
+    }
+}

@@ -1,0 +1,49 @@
+<aside class="user-sidebar">
+    <div class="brand">
+        <h2 class="brand-name">{{ brand.name }}</h2>
+        <p class="brand-subtitle">{{ brand.subtitle }}</p>
+    </div>
+
+    <nav class="sidebar-nav">
+        <button *ngFor="let item of navItems" class="nav-item" [class.active]="isActive(item.route)"
+            (click)="navigate(item.route)">
+
+            <svg *ngIf="item.icon === 'dashboard'" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7"></rect>
+                <rect x="14" y="3" width="7" height="7"></rect>
+                <rect x="14" y="14" width="7" height="7"></rect>
+                <rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+
+            <svg *ngIf="item.icon === 'profile'" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+
+            <svg *ngIf="item.icon === 'memberships'" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2">
+                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+            </svg>
+
+            <svg *ngIf="item.icon === 'routines'" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2">
+                <path d="M6.5 6.5h11"></path>
+                <path d="M6.5 17.5h11"></path>
+                <path d="M6 20v-2a6 6 0 1 1 12 0v2"></path>
+                <path d="M9 7v10"></path>
+                <path d="M15 7v10"></path>
+            </svg>
+
+            <svg *ngIf="item.icon === 'payments'" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2">
+                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                <line x1="1" y1="10" x2="23" y2="10"></line>
+            </svg>
+
+            <span>{{ item.label }}</span>
+        </button>
+    </nav>
+</aside>

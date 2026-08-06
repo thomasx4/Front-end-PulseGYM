@@ -1,0 +1,18 @@
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+
+  &--activo {
+    background: #82E3AB;
+    color: #27AE60;
+  }
+
+  &--inactivo {
+    background: #F76767;
+    color: #E62222A8;
+  }
+}
