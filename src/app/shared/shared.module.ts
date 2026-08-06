@@ -26,7 +26,7 @@ import { UserPromoCardComponent } from './components/mobile-user/user-promo-card
     UserStatCardComponent,
     UserWeeklyActivityComponent,
     UserQuickActionsComponent,
-    UserPromoCardComponent
+    UserPromoCardComponent,
   ],
   imports: [
     CommonModule,

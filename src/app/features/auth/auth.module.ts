@@ -7,6 +7,7 @@ import { LoginComponent } from './components/login/login.component';
 import { RegisterCredentialsComponent } from './components/register-credentials/register-credentials.component';
 import { CredentialsListComponent } from './components/credentials-list/credentials-list.component';
 import { ForgotComponent } from './components/forgot/forgot.component';
+import { SharedModule } from '../../shared/shared.module';
 
 @NgModule({
   declarations: [
@@ -19,7 +20,8 @@ import { ForgotComponent } from './components/forgot/forgot.component';
     CommonModule,
     ReactiveFormsModule,
     RouterModule,
-    AuthRoutingModule
+    AuthRoutingModule,
+    SharedModule
   ],
   exports: [
     LoginComponent,
