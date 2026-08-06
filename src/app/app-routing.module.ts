@@ -30,11 +30,7 @@ const routes: Routes = [
         canActivate: [AuthGuard],
         loadChildren: () => import('./features/user/user.module').then(m => m.UserModule)
     },
-    {
-        path: '',
-        redirectTo: '/auth',
-        pathMatch: 'full'
-    },
+    
 
     { path: 'auth/login', component: LoginComponent },
     { path: 'forgot-password', component: ForgotComponent },
