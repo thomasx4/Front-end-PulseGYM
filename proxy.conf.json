@@ -1,0 +1,8 @@
+{
+    "/pg-ms-auth": {
+        "target": "https://api.pulsegym.uk",
+        "secure": false,
+        "changeOrigin": true,
+        "logLevel": "debug"
+    }
+}
