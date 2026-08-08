@@ -1,0 +1,297 @@
+<div class="admin-dashboard" #dashboardContainer>
+
+    <!-- SECCIÓN 1: ESTADÍSTICAS DE USUARIOS -->
+    <div class="stats-grid">
+        <div *ngFor="let stat of statsUsuarios" class="stat-card">
+            <div class="stat-card__icon" [class]="'stat-card__icon--' + stat.color">
+                <ng-container [ngSwitch]="stat.icono">
+                    <!-- Icono: Total Usuarios -->
+                    <svg *ngSwitchCase="'users'" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+
+                    <!-- Icono: Activos -->
+                    <svg *ngSwitchCase="'active'" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+
+                    <!-- Icono: Inactivos -->
+                    <svg *ngSwitchCase="'inactive'" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                        <line x1="3" y1="3" x2="21" y2="21"></line>
+                    </svg>
+
+                    <!-- Icono: Nuevos del Mes -->
+                    <svg *ngSwitchCase="'new'" width="24" height="24" viewBox="0 0 22 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 21v-2a4 4 0 0 0-4-4H4a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="7" cy="7" r="4"></circle>
+                        <line x1="20" y1="8" x2="20" y2="14"></line>
+                        <line x1="17" y1="11" x2="23" y2="11"></line>
+                    </svg>
+                </ng-container>
+            </div>
+
+            <div class="stat-card__content">
+                <div class="stat-card__row">
+                    <span class="stat-card__value">{{ stat.valor | number }}</span>
+                    <span *ngIf="hasTrend(stat.tendencia)" class="stat-card__trend"
+                        [class.trend--up]="isPositiveTrend(stat.tendencia)"
+                        [class.trend--down]="!isPositiveTrend(stat.tendencia)">
+                        {{ formatTrend(stat.tendencia) }}
+                    </span>
+                </div>
+                <span class="stat-card__label">{{ stat.titulo }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECCIÓN 2: GRÁFICO DE INGRESOS Y DISTRIBUCIÓN -->
+    <div class="charts-grid">
+
+        <!-- Gráfico de Ingresos (Izquierda) -->
+        <div class="chart-card chart-card--full">
+            <div class="chart-card__header">
+                <div class="chart-card__title-group">
+                    <h3>Ingresos últimos 6 meses</h3>
+                    <span class="chart-card__subtitle">Rendimiento financiero semestral</span>
+                </div>
+                <div class="chart-card__actions">
+                    <button class="btn btn--soft-gray" (click)="exportarReporte()" [disabled]="loading">
+                        <svg *ngIf="!loading" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        <span *ngIf="loading" class="spinner-border spinner-border-sm me-1"></span>
+                        {{ loading ? 'Exportando...' : 'Exportar PDF' }}
+                    </button>
+                    <div class="select-wrapper">
+                        <select class="btn btn--soft-blue" (change)="cambiarAnio($event)">
+                            <option *ngFor="let anio of anosDisponibles" [value]="anio"
+                                [selected]="anio === anioSeleccionado">
+                                {{ anio }}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-card__body">
+                <div class="area-chart">
+                    <!-- Líneas horizontales de fondo -->
+                    <div class="area-chart__grid">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+
+                    <!-- Barras con tooltip -->
+                    <div class="area-chart__bars">
+                        <div *ngFor="let item of ingresosMensuales" class="area-bar-item">
+                            <div class="area-bar-wrapper" [style.height.%]="getBarHeight(item.ingresos)">
+                                <div class="area-bar" [style.height.%]="100"
+                                    [title]="(item.ingresos | currency:'COP':'symbol':'1.0-0')">
+                                    <div class="area-bar__top-line"></div>
+                                    <!-- Tooltip personalizado -->
+                                    <div class="area-bar__tooltip">
+                                        <span class="tooltip-label">{{ item.mes }}</span>
+                                        <span class="tooltip-value">{{ item.ingresos | currency:'COP':'symbol':'1.0-0'
+                                            }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="area-bar__label">{{ item.mes }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Distribución (Derecha) -->
+        <div class="chart-card chart-card--distribution">
+            <div class="chart-card__header">
+                <div class="chart-card__title-group">
+                    <h3>Distribución</h3>
+                    <span class="chart-card__subtitle">Fuentes de ingreso este mes</span>
+                </div>
+            </div>
+
+            <!-- Donut Chart -->
+            <div class="chart-card__donut-container">
+                <div class="donut-chart" [style.background]="getDonutGradient()">
+                    <div class="donut-chart__center">
+                        <span class="donut-chart__value">${{ (totalRevenue / 1000) | number:'1.1-1' }}k</span>
+                        <span class="donut-chart__label">TOTAL REVENUE</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Leyenda -->
+            <div class="chart-card__legend">
+                <div *ngFor="let item of distribucionIngresos" class="legend-item">
+                    <div class="legend-item__left">
+                        <span class="legend-item__dot" [style.background-color]="item.color"></span>
+                        <span class="legend-item__label">{{ item.fuente }}</span>
+                    </div>
+                    <span class="legend-item__percentage">{{ item.porcentaje }}%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECCIÓN 3: INFO CARDS (3 COLUMNAS) -->
+    <div class="info-grid">
+
+        <!-- Por Vencer -->
+        <div class="info-card">
+            <div class="info-card__header">
+                <div class="info-card__title">
+                    <div class="icon-badge icon-badge--red">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                            <circle cx="12" cy="3" r="1" fill="currentColor"></circle>
+                        </svg>
+                    </div>
+                    <h3>Por vencer</h3>
+                </div>
+                <a href="#" class="info-card__link">Ver todos</a>
+            </div>
+
+            <div class="info-card__body">
+                <div *ngFor="let item of porVencer.slice(0, 2)" class="expiring-user-item">
+                    <img [src]="item.avatar || 'https://i.pravatar.cc/100?u=' + item.nombre" [alt]="item.nombre"
+                        class="expiring-user-item__avatar">
+                    <div class="expiring-user-item__info">
+                        <span class="expiring-user-item__name">{{ item.nombre }}</span>
+                        <span class="expiring-user-item__days" [class.vencido]="item.estaVencido"
+                            [class.critical]="item.dias > 7">
+                            <span *ngIf="item.estaVencido">
+                                Vencido hace {{ item.dias }} {{ item.dias === 1 ? 'día' : 'días' }}
+                            </span>
+                            <span *ngIf="!item.estaVencido && item.dias === 0">
+                                Vence hoy
+                            </span>
+                            <span *ngIf="!item.estaVencido && item.dias === 1">
+                                Vence mañana
+                            </span>
+                            <span *ngIf="!item.estaVencido && item.dias > 1">
+                                Vence en {{ item.dias }} días
+                            </span>
+                        </span>
+                    </div>
+                    <button class="btn btn--pill-dark">Renovar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Asistencia Hoy -->
+        <div class="info-card">
+            <div class="info-card__header info-card__header--inline">
+                <div class="info-card__title">
+                    <svg class="title-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb"
+                        stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                        <polyline points="17 6 23 6 23 12"></polyline>
+                    </svg>
+                    <h3>Asistencia Hoy</h3>
+                </div>
+                <span class="info-card__subtitle-highlight">{{ asistenciaHoy }} Socios</span>
+            </div>
+
+            <div class="info-card__body">
+                <div class="attendance-bar-container">
+                    <div class="attendance-bar" [style.width.%]="porcentajeAsistencia">
+                    </div>
+                </div>
+
+                <div class="stats-boxes">
+                    <div class="stat-box stat-box--filled">
+                        <span class="stat-box__value">{{ statsAsistencia.ayer }}</span>
+                        <span class="stat-box__label">AYER</span>
+                    </div>
+                    <div class="stat-box stat-box--bordered">
+                        <span class="stat-box__value">{{ statsAsistencia.hoy }}</span>
+                        <span class="stat-box__label">HOY</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estado de Equipos -->
+        <div class="info-card">
+            <div class="info-card__header">
+                <div class="info-card__title">
+                    <svg class="title-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0a2a4a"
+                        stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path
+                            d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z">
+                        </path>
+                    </svg>
+                    <h3>Estado de Equipos</h3>
+                </div>
+            </div>
+
+            <div class="info-card__body">
+                <div *ngFor="let equipo of equipos.slice(0, 3)" class="equipment-row">
+                    <div class="status-circle" [class.status-circle--ok]="equipo.estado === 'Operativo'"
+                        [class.status-circle--warn]="equipo.estado === 'Mantenimiento'"
+                        [class.status-circle--danger]="equipo.estado === 'Fuera de Servicio'">
+                        <ng-container *ngIf="equipo.estado === 'Operativo'">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </ng-container>
+                        <ng-container *ngIf="equipo.estado === 'Mantenimiento'">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                <path
+                                    d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z">
+                                </path>
+                                <line x1="12" y1="9" x2="12" y2="13"></line>
+                                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                            </svg>
+                        </ng-container>
+                        <ng-container *ngIf="equipo.estado === 'Fuera de Servicio'">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="15" y1="9" x2="9" y2="15"></line>
+                                <line x1="9" y1="9" x2="15" y2="15"></line>
+                            </svg>
+                        </ng-container>
+                    </div>
+
+                    <div class="equipment-row__content">
+                        <span class="equipment-row__title">{{ equipo.nombre }}</span>
+                        <div class="equipment-row__progress-track">
+                            <div class="equipment-row__progress-fill" [class.fill--ok]="equipo.estado === 'Operativo'"
+                                [class.fill--warn]="equipo.estado === 'Mantenimiento'"
+                                [class.fill--danger]="equipo.estado === 'Fuera de Servicio'"
+                                [style.width.%]="equipo.estado === 'Operativo' ? 85 : equipo.estado === 'Mantenimiento' ? 45 : 15">
+                            </div>
+                        </div>
+                    </div>
+
+                    <span class="equipment-row__status-text" [class.text--ok]="equipo.estado === 'Operativo'"
+                        [class.text--warn]="equipo.estado === 'Mantenimiento'"
+                        [class.text--danger]="equipo.estado === 'Fuera de Servicio'">
+                        {{ equipo.estado }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
