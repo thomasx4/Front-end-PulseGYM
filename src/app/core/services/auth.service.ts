@@ -15,6 +15,9 @@ import { jwtDecode } from 'jwt-decode';
 export class AuthService {
   private apiUrl = `${environment.apiUrl}/pg-ms-auth/auth`;
 
+  private readonly LOCK_KEY = 'login_lock_end_time';
+  private readonly LOCK_DURATION = 30000;
+
   /**
    * Registro de credenciales
    */
@@ -25,9 +28,9 @@ export class AuthService {
   /**
    * Listado de credenciales
    */
-listarCredenciales(): Observable<CredencialesListado[]> {
-  return this.http.get<CredencialesListado[]>(`${this.apiUrl}/usuarios`);
-}
+  listarCredenciales(): Observable<CredencialesListado[]> {
+    return this.http.get<CredencialesListado[]>(`${this.apiUrl}/usuarios`);
+  }
 
   /**
    * Cambio de estado de credencial
@@ -55,6 +58,33 @@ listarCredenciales(): Observable<CredencialesListado[]> {
     private http: HttpClient,
     private router: Router
   ) {}
+
+  isLoginGloballyLocked(): boolean {
+    const lockEndTime = localStorage.getItem(this.LOCK_KEY);
+    if (!lockEndTime) return false;
+    
+    const endTime = parseInt(lockEndTime, 10);
+    const remaining = endTime - Date.now();
+    return remaining > 0;
+  }
+
+  getLockRemainingSeconds(): number {
+    const lockEndTime = localStorage.getItem(this.LOCK_KEY);
+    if (!lockEndTime) return 0;
+    
+    const endTime = parseInt(lockEndTime, 10);
+    const remaining = Math.ceil((endTime - Date.now()) / 1000);
+    return remaining > 0 ? remaining : 0;
+  }
+
+  setGlobalLock(): void {
+    const endTime = Date.now() + this.LOCK_DURATION;
+    localStorage.setItem(this.LOCK_KEY, endTime.toString());
+  }
+
+  clearGlobalLock(): void {
+    localStorage.removeItem(this.LOCK_KEY);
+  }
 
   /**
    * Inicio de sesión
@@ -150,12 +180,13 @@ listarCredenciales(): Observable<CredencialesListado[]> {
   }
 
   /**
-   * Cierre de sesión
+   * Cierre de sesión - También limpia el bloqueo global
    */
   logout(): void {
     localStorage.removeItem(this.tokenKey);
     localStorage.removeItem(this.userKey);
     localStorage.removeItem(this.roleKey);
+    this.clearGlobalLock();
     this.authStatus.next(false);
     this.currentUserSubject.next(null);
     this.router.navigate(['/auth/login']);
