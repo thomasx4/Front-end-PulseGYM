@@ -9,6 +9,7 @@ import { SharedModule } from './shared/shared.module';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 import { RouterModule } from '@angular/router';
 import { IdleService } from './core/services/idle.service';
+import { AdminModule } from './features/admin/admin.module'; 
 
 @NgModule({
   declarations: [
@@ -16,14 +17,13 @@ import { IdleService } from './core/services/idle.service';
   ],
   imports: [
     BrowserModule,
-    RouterModule,       
-    AppRoutingModule, 
+    RouterModule,
     SharedModule,
     HttpClientModule,
     AppRoutingModule,
-    HttpClientModule,
     ReactiveFormsModule,
-    AuthModule 
+    AuthModule,
+    AdminModule
   ],
   providers: [
     IdleService,

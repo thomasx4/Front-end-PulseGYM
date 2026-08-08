@@ -1,6 +1,6 @@
 <aside class="sidebar">
     <div class="sidebar__brand">
-        <img src="../../../../../favicon.ico" class="sidebar__brand-icon" >
+        <img src="../../../../../favicon.ico" class="sidebar__brand-icon">
         <div>
             <h1 class="sidebar__brand-name">PULSE GYM</h1>
             <span class="sidebar__brand-role">ADMINISTRADOR</span>
@@ -8,15 +8,10 @@
     </div>
 
     <nav class="sidebar__nav">
-
-        <a *ngFor="let item of menuItems"
-        [routerLink]="item.route"
-        routerLinkActive="sidebar__nav-item--active"
-        class="sidebar__nav-item"
-        >
-        <span [innerHTML]="item.iconHtml" class="sidebar__icon-wrapper"></span>
-
-        <span>{{ item.label }}</span>
+        <a *ngFor="let item of menuItems" [routerLink]="item.route" routerLinkActive="sidebar__nav-item--active"
+            [routerLinkActiveOptions]="{ exact: item.exact || false }" class="sidebar__nav-item">
+            <span [innerHTML]="item.iconHtml" class="sidebar__icon-wrapper"></span>
+            <span>{{ item.label }}</span>
         </a>
     </nav>
 
