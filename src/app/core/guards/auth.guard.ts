@@ -10,6 +10,10 @@ export class AuthGuard implements CanActivate {
   ) {}
 
   canActivate(route: ActivatedRouteSnapshot): boolean {
+    if (this.authService.isLoginGloballyLocked()) {
+      this.router.navigate(['/auth/login']);
+      return false;
+    }
 
     if (!this.authService.isLoggedIn()) {
       this.router.navigate(['/auth/login']);
