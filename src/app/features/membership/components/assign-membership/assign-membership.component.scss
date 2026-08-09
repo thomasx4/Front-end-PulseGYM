@@ -1,8 +1,8 @@
-// CONTENEDOR PRINCIPAL
 .membership-page {
-    padding: 24px 32px;
-    background: #f5f6fa;
+    padding: 36px 40px;
+    background-color: #f7f9fc;
     min-height: 100vh;
+    box-sizing: border-box;
 }
 
 // ENCABEZADO
@@ -10,182 +10,249 @@
     margin-bottom: 32px;
 
     h1 {
-        font-size: 28px;
+        font-size: 32px;
         font-weight: 800;
-        color: #0b192c;
-        margin: 0 0 8px 0;
+        color: #0b1a30;
+        margin: 0 0 6px 0;
+        letter-spacing: -0.5px;
     }
-}
 
-.membership-subtitle {
-    font-size: 15px;
-    color: #8a94a6;
-    margin: 0;
+    .membership-subtitle {
+        font-size: 15px;
+        color: #718096;
+        margin: 0;
+    }
 }
 
 // GRID DE MEMBRESÍAS
 .membership-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
+    gap: 28px;
+    align-items: stretch;
 }
 
-// TARJETA DE MEMBRESÍA
+// TARJETA BASE (Blanca)
 .membership-card {
+    position: relative;
     background: #ffffff;
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 22px;
+    padding: 32px 28px 28px 28px;
     display: flex;
     flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    border: 1px solid #edf2f7;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
 
     &:hover {
         transform: translateY(-4px);
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
     }
 
-    // CABECERA DE LA TARJETA
-    &__header {
-        height: 8px;
-        position: relative;
-        display: flex;
-        justify-content: flex-end;
-        align-items: flex-start;
-        padding: 8px 16px 0 0;
-    }
+    // ÍCONO MARCA DE AGUA
+    &__watermark {
+        position: absolute;
+        top: 28px;
+        right: 28px;
+        width: 52px;
+        height: 52px;
+        color: #e2e8f0;
+        pointer-events: none;
 
-    // BADGE DE ESTADO
-    &__badge {
-        font-size: 11px;
-        font-weight: 700;
-        padding: 3px 14px;
-        border-radius: 20px;
-        background: rgba(255, 255, 255, 0.25);
-        color: #ffffff;
-        letter-spacing: 0.3px;
-        text-transform: uppercase;
-
-        &.activa {
-            background: #22c55e;
-            color: #ffffff;
+        svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(12deg);
         }
     }
 
-    // CUERPO DE LA TARJETA
+    // CUERPO DE TARJETA
     &__body {
-        padding: 20px 24px 24px 24px;
         flex: 1;
+        display: flex;
+        flex-direction: column;
     }
 
-    // TÍTULO DE LA MEMBRESÍA
     &__title {
-        font-size: 18px;
+        font-size: 13px;
         font-weight: 800;
-        color: #0b192c;
-        margin: 0 0 8px 0;
-        letter-spacing: 0.3px;
+        color: #64748b;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+        margin: 0 0 12px 0;
     }
 
-    // PRECIO
     &__price {
-        margin-bottom: 16px;
-    }
+        display: flex;
+        align-items: baseline;
+        margin-bottom: 24px;
 
-    .price-value {
-        font-size: 28px;
-        font-weight: 800;
-        color: #0b192c;
-    }
+        .price-value {
+            font-size: 38px;
+            font-weight: 800;
+            color: #0b1a30;
+            line-height: 1;
+        }
 
-    .price-period {
-        font-size: 16px;
-        font-weight: 500;
-        color: #8a94a6;
-        margin-left: 4px;
+        .price-period {
+            font-size: 15px;
+            font-weight: 600;
+            color: #94a3b8;
+            margin-left: 4px;
+        }
     }
 
     // LISTA DE BENEFICIOS
     &__benefits {
         list-style: none;
         padding: 0;
-        margin: 0;
+        margin: 0 0 28px 0;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
 
         li {
             display: flex;
             align-items: center;
             gap: 10px;
             font-size: 14px;
-            color: #2d3748;
-            padding: 6px 0;
-            border-bottom: 1px solid #f1f5f9;
-
-            &:last-child {
-                border-bottom: none;
-            }
+            font-weight: 500;
+            color: #334155;
 
             svg {
+                width: 18px;
+                height: 18px;
+                color: #475569;
                 flex-shrink: 0;
-                color: #22c55e;
             }
         }
     }
 
-    // PIE DE LA TARJETA
+    // ESTADO ACTIVA (Punto verde + texto)
+    &__status {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: auto;
+        margin-bottom: 24px;
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #22c55e;
+            border-radius: 50%;
+        }
+
+        .status-text {
+            font-size: 14px;
+            font-weight: 700;
+            color: #22c55e;
+        }
+    }
+
+    // PIE DE TARJETA Y BOTONES
     &__footer {
-        padding: 16px 24px 24px 24px;
         display: flex;
         flex-direction: column;
         gap: 10px;
-        border-top: 1px solid #f1f5f9;
-        background: #fafbfc;
-    }
-}
-
-// BOTONES
-.btn {
-    padding: 10px 20px;
-    border-radius: 10px;
-    font-size: 14px;
-    font-weight: 600;
-    border: none;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    transition: all 0.2s ease;
-
-    svg {
-        flex-shrink: 0;
     }
 
-    // BOTÓN PRIMARIO (Asignar)
-    &--primary {
-        background-color: #0a2a4a;
-        color: #ffffff;
+    .btn {
+        width: 100%;
+        padding: 12px 18px;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        border: none;
+        transition: all 0.2s ease;
+        text-align: center;
 
-        &:hover {
-            background-color: #1e4a75;
-            transform: translateY(-1px);
+        &--primary {
+            background-color: #0f1c3f;
+            color: #ffffff;
+
+            &:hover {
+                background-color: #1a2b5c;
+            }
+        }
+
+        &--outline {
+            background-color: transparent;
+            color: #0f1c3f;
+            border: 1px solid #cbd5e1;
+
+            &:hover {
+                background-color: #f8fafc;
+            }
         }
     }
+    
+    // TARJETA DESTACADA (ELITE PERFORMANCE)
+    &--destacado {
+        background: #091936;
+        border-color: #091936;
 
-    // BOTÓN SECUNDARIO (Ver socios)
-    &--outline {
-        background-color: transparent;
-        color: #4a5568;
-        border: 1.5px solid #e2e8f0;
+        .membership-card__title {
+            color: #ffffff;
+        }
 
-        &:hover {
-            background-color: #f1f5f9;
-            border-color: #cbd5e1;
+        .price-value {
+            color: #ffffff;
+        }
+
+        .price-period {
+            color: #94a3b8;
+        }
+
+        .membership-card__benefits li {
+            color: #e2e8f0;
+
+            svg {
+                color: #94a3b8;
+            }
+        }
+
+        // BADGE "MÁS POPULAR"
+        .membership-card__badge {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            background: #a5b4fc;
+            color: #1e1b4b;
+            font-size: 11px;
+            font-weight: 800;
+            padding: 6px 14px;
+            border-radius: 20px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        // BOTONES EN TARJETA DESTACADA
+        .btn--primary {
+            background: linear-gradient(135deg, #7c83ed 0%, #9097f3 100%);
+            color: #ffffff;
+
+            &:hover {
+                opacity: 0.92;
+            }
+        }
+
+        .btn--outline {
+            background-color: transparent;
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+
+            &:hover {
+                background-color: rgba(255, 255, 255, 0.08);
+            }
         }
     }
 }
 
 // RESPONSIVE
-@media (max-width: 1200px) {
+@media (max-width: 1100px) {
     .membership-grid {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -197,6 +264,6 @@
     }
 
     .membership-page {
-        padding: 16px;
+        padding: 20px;
     }
 }

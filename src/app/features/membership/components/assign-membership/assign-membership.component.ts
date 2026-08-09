@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
-interface Membresia {
+export interface Membresia {
   id: number;
   nombre: string;
   precio: number;
@@ -8,7 +8,9 @@ interface Membresia {
   beneficios: string[];
   estado: 'Activa' | 'Inactiva';
   sociosActivos: number;
-  color: string;
+  destacado?: boolean;
+  badgeText?: string;
+  iconoFondo?: 'dumbbell' | 'star' | string;
 }
 
 @Component({
@@ -18,7 +20,6 @@ interface Membresia {
 })
 export class AssignMembershipComponent implements OnInit {
 
-  // LISTA DE MEMBRESÍAS
   membresias: Membresia[] = [];
 
   constructor() { }
@@ -27,7 +28,6 @@ export class AssignMembershipComponent implements OnInit {
     this.cargarMembresias();
   }
 
-  // CARGAR MEMBRESÍAS (datos mock para diseño)
   cargarMembresias(): void {
     this.membresias = [
       {
@@ -35,43 +35,51 @@ export class AssignMembershipComponent implements OnInit {
         nombre: 'ESSENTIAL',
         precio: 49,
         periodo: 'mo',
-        beneficios: ['24/7 Gym Access', 'Locker Room Access'],
+        beneficios: [
+          '24/7 Gym Access',
+          'Locker Room Access'
+        ],
         estado: 'Activa',
         sociosActivos: 120,
-        color: '#0a2a4a'
+        iconoFondo: 'dumbbell'
       },
       {
         id: 2,
         nombre: 'ELITE PERFORMANCE',
         precio: 89,
         periodo: 'mo',
-        beneficios: ['Everything in Essential', '4 Personal Training sessions'],
+        beneficios: [
+          'Everything in Standard',
+          '4 Personal Training sessions',
+          'Nutritional Consultations'
+        ],
         estado: 'Activa',
         sociosActivos: 342,
-        color: '#1e4a75'
+        destacado: true,
+        badgeText: 'MÁS POPULAR'
       },
       {
         id: 3,
         nombre: 'VIP SANCTUARY',
         precio: 199,
         periodo: 'mo',
-        beneficios: ['Unlimited PT Sessions', 'Private Lounge & Spa', 'Priority Equipment Booking'],
+        beneficios: [
+          'Unlimited PT Sessions',
+          'Private Lounge & Spa',
+          'Priority Equipment Booking'
+        ],
         estado: 'Activa',
         sociosActivos: 85,
-        color: '#2d6a9f'
+        iconoFondo: 'star'
       }
     ];
   }
 
-  // ASIGNAR MEMBRESÍA A UN SOCIO
   asignarMembresia(id: number): void {
     console.log('Asignar membresía ID:', id);
-    // TODO: Abrir modal de asignación
   }
 
-  // VER SOCIOS DE UNA MEMBRESÍA
   verSocios(id: number): void {
     console.log('Ver socios de membresía ID:', id);
-    // TODO: Navegar a lista de socios filtrada
   }
 }
