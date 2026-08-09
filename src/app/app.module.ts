@@ -10,6 +10,7 @@ import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 import { RouterModule } from '@angular/router';
 import { IdleService } from './core/services/idle.service';
 import { AdminModule } from './features/admin/admin.module'; 
+import { MembershipModule } from './features/membership/membership.module';
 
 @NgModule({
   declarations: [
@@ -23,7 +24,8 @@ import { AdminModule } from './features/admin/admin.module';
     AppRoutingModule,
     ReactiveFormsModule,
     AuthModule,
-    AdminModule
+    AdminModule,
+    MembershipModule
   ],
   providers: [
     IdleService,
