@@ -16,9 +16,13 @@ const routes: Routes = [
     {
         path: 'dashboard-admin',
         component: MainLayoutComponent,
-        canActivate: [AuthGuard],              
+        canActivate: [AuthGuard],
         data: { expectedRole: 'administrador' },
         children: [
+            {
+                path: '',
+                loadChildren: () => import('./features/admin/admin.module').then(m => m.AdminModule)
+            },
             {
                 path: 'users',
                 component: CredentialsListComponent
