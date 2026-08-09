@@ -10,15 +10,13 @@
     <div class="membership-grid">
         <div *ngFor="let membresia of membresias" class="membership-card"
             [class.membership-card--destacado]="membresia.destacado">
-            <!-- ÍCONO DE FONDO (MARCA DE AGUA) -->
+            <!-- MARCA DE AGUA -->
             <div class="membership-card__watermark" *ngIf="membresia.iconoFondo">
-                <!-- Mancuerna -->
                 <svg *ngIf="membresia.iconoFondo === 'dumbbell'" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                     stroke-width="1.8">
                     <path d="M6.5 6.5h11M6.5 17.5h11M6 20v-5M18 20v-5M6 9V4M18 9V4M4 15h4M16 15h4M4 9h4M16 9h4"
                         stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
-                <!-- Estrella -->
                 <svg *ngIf="membresia.iconoFondo === 'star'" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                     stroke-width="1.5">
                     <polygon
@@ -26,12 +24,12 @@
                 </svg>
             </div>
 
-            <!-- BADGE DESTACADO (MÁS POPULAR) -->
+            <!-- BADGE DESTACADO -->
             <div class="membership-card__badge" *ngIf="membresia.badgeText">
                 {{ membresia.badgeText }}
             </div>
 
-            <!-- CUERPO DE LA TARJETA -->
+            <!-- CUERPO -->
             <div class="membership-card__body">
                 <h2 class="membership-card__title">{{ membresia.nombre }}</h2>
 
@@ -40,7 +38,6 @@
                     <span class="price-period">/{{ membresia.periodo }}</span>
                 </div>
 
-                <!-- LISTA DE BENEFICIOS -->
                 <ul class="membership-card__benefits">
                     <li *ngFor="let beneficio of membresia.beneficios">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
@@ -51,14 +48,13 @@
                     </li>
                 </ul>
 
-                <!-- ESTADO -->
                 <div class="membership-card__status">
                     <span class="status-dot"></span>
                     <span class="status-text">{{ membresia.estado }}</span>
                 </div>
             </div>
 
-            <!-- PIE DE LA TARJETA -->
+            <!-- BOTONES -->
             <div class="membership-card__footer">
                 <button class="btn btn--primary" (click)="asignarMembresia(membresia.id)">
                     Asignar a socio
@@ -71,4 +67,78 @@
         </div>
     </div>
 
+</div>
+
+<!-- MODAL ASIGNAR A SOCIO -->
+<div class="modal-backdrop" *ngIf="mostrarModal" (click)="cerrarModal()">
+    <div class="modal-dialog" (click)="$event.stopPropagation()">
+
+        <!-- ENCABEZADO DEL MODAL -->
+        <div class="modal-dialog__header">
+            <h2>Asignar {{ membresiaSeleccionada?.nombre }} a un socio</h2>
+            <button type="button" class="close-btn" (click)="cerrarModal()" aria-label="Cerrar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 6L6 18M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- BUSCADOR -->
+        <div class="modal-dialog__search">
+            <input type="text" placeholder="Buscar socio por nombre o correo..." [value]="searchTerm"
+                (input)="onSearchInput($event)" />
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8" />
+                <path d="M21 21l-4.35-4.35" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+        </div>
+
+        <!-- TABLA DE SOCIOS -->
+        <div class="modal-dialog__table-wrapper">
+            <table class="modal-table">
+                <thead>
+                    <tr>
+                        <th>SOCIO</th>
+                        <th>CONTACTO</th>
+                        <th>MIEMBRO DESDE</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let socio of sociosFiltrados">
+                        <td>
+                            <div class="socio-cell">
+                                <img [src]="socio.avatarUrl" [alt]="socio.nombre" class="socio-cell__avatar" />
+                                <span class="socio-cell__name">{{ socio.nombre }}</span>
+                            </div>
+                        </td>
+                        <td class="email-cell">{{ socio.email }}</td>
+                        <td class="date-cell">{{ socio.fechaRegistro }}</td>
+                        <td class="action-cell">
+                            <button type="button" class="btn-assign" (click)="confirmarAsignacion(socio)">
+                                Asignar
+                            </button>
+                        </td>
+                    </tr>
+                    <tr *ngIf="sociosFiltrados.length === 0">
+                        <td colspan="4" class="empty-cell">
+                            No se encontraron socios que coincidan con la búsqueda.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- PAGINACIÓN -->
+        <div class="modal-dialog__pagination">
+            <button type="button" class="page-arrow" aria-label="Anterior">&lt;</button>
+            <button type="button" class="page-num active">1</button>
+            <button type="button" class="page-num">2</button>
+            <button type="button" class="page-num">3</button>
+            <span class="page-dots">...</span>
+            <button type="button" class="page-num">25</button>
+            <button type="button" class="page-arrow" aria-label="Siguiente">&gt;</button>
+        </div>
+
+    </div>
 </div>

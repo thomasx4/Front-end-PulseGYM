@@ -32,7 +32,7 @@
     align-items: stretch;
 }
 
-// TARJETA BASE (Blanca)
+// TARJETA BASE
 .membership-card {
     position: relative;
     background: #ffffff;
@@ -50,7 +50,6 @@
         box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
     }
 
-    // ÍCONO MARCA DE AGUA
     &__watermark {
         position: absolute;
         top: 28px;
@@ -67,7 +66,6 @@
         }
     }
 
-    // CUERPO DE TARJETA
     &__body {
         flex: 1;
         display: flex;
@@ -103,7 +101,6 @@
         }
     }
 
-    // LISTA DE BENEFICIOS
     &__benefits {
         list-style: none;
         padding: 0;
@@ -129,7 +126,6 @@
         }
     }
 
-    // ESTADO ACTIVA (Punto verde + texto)
     &__status {
         display: flex;
         align-items: center;
@@ -151,7 +147,6 @@
         }
     }
 
-    // PIE DE TARJETA Y BOTONES
     &__footer {
         display: flex;
         flex-direction: column;
@@ -188,8 +183,7 @@
             }
         }
     }
-    
-    // TARJETA DESTACADA (ELITE PERFORMANCE)
+
     &--destacado {
         background: #091936;
         border-color: #091936;
@@ -214,7 +208,6 @@
             }
         }
 
-        // BADGE "MÁS POPULAR"
         .membership-card__badge {
             position: absolute;
             top: 24px;
@@ -229,7 +222,6 @@
             text-transform: uppercase;
         }
 
-        // BOTONES EN TARJETA DESTACADA
         .btn--primary {
             background: linear-gradient(135deg, #7c83ed 0%, #9097f3 100%);
             color: #ffffff;
@@ -251,6 +243,272 @@
     }
 }
 
+// ==========================================
+// ESTILOS DEL MODAL (ASIGNAR A SOCIO)
+// ==========================================
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.modal-dialog {
+    background: #ffffff;
+    width: 100%;
+    max-width: 680px;
+    border-radius: 20px;
+    padding: 32px 36px 28px 36px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+
+    // ENCABEZADO
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 24px;
+
+        h2 {
+            font-size: 22px;
+            font-weight: 800;
+            color: #0b1a30;
+            margin: 0;
+            letter-spacing: -0.3px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #94a3b8;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s ease;
+
+            &:hover {
+                color: #0b1a30;
+            }
+
+            svg {
+                width: 22px;
+                height: 22px;
+            }
+        }
+    }
+
+    // BARRA DE BÚSQUEDA
+    &__search {
+        position: relative;
+        margin-bottom: 24px;
+
+        input {
+            width: 100%;
+            padding: 12px 42px 12px 18px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            font-size: 14px;
+            color: #1e293b;
+            outline: none;
+            background-color: #ffffff;
+            box-sizing: border-box;
+            transition: border-color 0.2s ease;
+
+            &::placeholder {
+                color: #94a3b8;
+            }
+
+            &:focus {
+                border-color: #94a3b8;
+            }
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            color: #94a3b8;
+            pointer-events: none;
+        }
+    }
+
+    // TABLA DE SOCIOS
+    &__table-wrapper {
+        margin-bottom: 24px;
+        overflow-x: auto;
+    }
+
+    .modal-table {
+        width: 100%;
+        border-collapse: collapse;
+
+        th {
+            text-align: left;
+            font-size: 11px;
+            font-weight: 800;
+            color: #64748b;
+            letter-spacing: 0.8px;
+            padding: 0 12px 14px 12px;
+            border-bottom: 1px solid #f1f5f9;
+
+            &:first-child {
+                padding-left: 0;
+            }
+
+            &:last-child {
+                padding-right: 0;
+            }
+        }
+
+        td {
+            padding: 14px 12px;
+            border-bottom: 1px solid #f8fafc;
+            vertical-align: middle;
+            font-size: 14px;
+
+            &:first-child {
+                padding-left: 0;
+            }
+
+            &:last-child {
+                padding-right: 0;
+            }
+        }
+
+        .socio-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            &__avatar {
+                width: 38px;
+                height: 38px;
+                border-radius: 50%;
+                object-fit: cover;
+            }
+
+            &__name {
+                font-weight: 700;
+                color: #0b1a30;
+            }
+        }
+
+        .email-cell {
+            color: #64748b;
+            font-size: 13.5px;
+        }
+
+        .date-cell {
+            color: #475569;
+            font-size: 13.5px;
+        }
+
+        .action-cell {
+            text-align: right;
+        }
+
+        .empty-cell {
+            text-align: center;
+            color: #94a3b8;
+            padding: 24px 0;
+        }
+
+        // BOTÓN ASIGNAR
+        .btn-assign {
+            background-color: #ffffff;
+            border: 1px solid #cbd5e1;
+            color: #0b1a30;
+            font-weight: 700;
+            font-size: 13px;
+            padding: 6px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+
+            &:hover {
+                background-color: #f8fafc;
+                border-color: #94a3b8;
+            }
+        }
+    }
+
+    // PAGINACIÓN
+    &__pagination {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        margin-top: 8px;
+
+        .page-arrow {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 4px 8px;
+
+            &:hover {
+                color: #0b1a30;
+            }
+        }
+
+        .page-num {
+            background: none;
+            border: none;
+            font-size: 13px;
+            font-weight: 600;
+            color: #64748b;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            &:hover {
+                background-color: #f1f5f9;
+                color: #0b1a30;
+            }
+
+            &.active {
+                background-color: #0b1a30;
+                color: #ffffff;
+            }
+        }
+
+        .page-dots {
+            color: #94a3b8;
+            font-size: 13px;
+            padding: 0 4px;
+        }
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
 // RESPONSIVE
 @media (max-width: 1100px) {
     .membership-grid {
@@ -265,5 +523,9 @@
 
     .membership-page {
         padding: 20px;
+    }
+
+    .modal-dialog {
+        padding: 24px 20px;
     }
 }
