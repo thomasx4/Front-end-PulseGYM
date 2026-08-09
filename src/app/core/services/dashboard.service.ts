@@ -7,7 +7,6 @@ import { environment } from '../../../../environments/environment';
     providedIn: 'root',
 })
 export class DashboardService {
-
     // URLs DE LOS MICROSERVICIOS
     private usersApi = `${environment.apiUrl}/pg-ms-users/api/v1`;
     private operationApi = `${environment.apiUrl}/pg-ms-operation/api`;
@@ -29,23 +28,35 @@ export class DashboardService {
     }
 
     getNuevosDelMes(): Observable<any> {
-        const fechaInicio = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
-        const params = new HttpParams().set('fechaCreacion', fechaInicio.toISOString().split('T')[0]);
+        const fechaInicio = new Date(
+            new Date().getFullYear(),
+            new Date().getMonth(),
+            1,
+        );
+        const params = new HttpParams().set(
+            'fechaCreacion',
+            fechaInicio.toISOString().split('T')[0],
+        );
         return this.http.get(`${this.usersApi}/usuarios`, { params });
     }
 
     // INGRESOS (pg-ms-reports)
     getIngresosMensuales(mes: number, anio: number): Observable<any> {
-        return this.http.get(`${this.reportsApi}/ingresos/mensuales?mes=${mes}&anio=${anio}`);
+        return this.http.get(
+            `${this.reportsApi}/ingresos/mensuales?mes=${mes}&anio=${anio}`,
+        );
     }
 
     getIngresosDiarios(fecha: string): Observable<any> {
         return this.http.get(`${this.reportsApi}/ingresos/diarios?fecha=${fecha}`);
     }
 
-    getIngresosPorMembresia(fechaInicio: string, fechaFin: string): Observable<any> {
+    getIngresosPorMembresia(
+        fechaInicio: string,
+        fechaFin: string,
+    ): Observable<any> {
         return this.http.get(
-            `${this.reportsApi}/ingresos/por-membresia?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`
+            `${this.reportsApi}/ingresos/por-membresia?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`,
         );
     }
 
@@ -56,21 +67,28 @@ export class DashboardService {
 
     getTendencia(tipoReporte: string, fechaReferencia: string): Observable<any> {
         return this.http.get(
-            `${this.reportsApi}/tendencia?tipoReporte=${tipoReporte}&fechaReferencia=${fechaReferencia}`
+            `${this.reportsApi}/tendencia?tipoReporte=${tipoReporte}&fechaReferencia=${fechaReferencia}`,
         );
     }
 
     getAfluenciaPorFecha(fecha: string): Observable<any> {
-        return this.http.get(`${this.reportsApi}/afluencia/socios-por-dia?fecha=${fecha}`);
+        return this.http.get(
+            `${this.reportsApi}/afluencia/socios-por-dia?fecha=${fecha}`,
+        );
     }
 
-    // MORA / POR VENCER (pg-ms-reports)
-    getSociosEnMora(fechaInicio?: string, fechaFin?: string): Observable<any> {
-        let url = `${this.reportsApi}/mora`;
-        if (fechaInicio && fechaFin) {
-            url += `?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`;
-        }
-        return this.http.get(url);
+    //POR VENCER (pg-ms-users)
+    getMembresiasPorVencer(): Observable<any> {
+        return this.http.get(`${this.usersApi}/socios-membresias/por-vencer`);
+    }
+
+    getMembresiasPorVencerEnRango(
+        diasMinimo: number,
+        diasMaximo: number,
+    ): Observable<any> {
+        return this.http.get(
+            `${this.usersApi}/socios-membresias/por-vencer/rango?diasMinimo=${diasMinimo}&diasMaximo=${diasMaximo}`,
+        );
     }
 
     // EQUIPOS (pg-ms-operation)

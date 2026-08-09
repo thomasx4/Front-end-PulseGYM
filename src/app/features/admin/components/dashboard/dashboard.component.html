@@ -171,22 +171,22 @@
 
             <div class="info-card__body">
                 <div *ngFor="let item of porVencer.slice(0, 2)" class="expiring-user-item">
-                    <img [src]="item.avatar || 'https://i.pravatar.cc/100?u=' + item.nombre" [alt]="item.nombre"
-                        class="expiring-user-item__avatar">
+                    <img [src]="item.avatar" [alt]="item.nombre" class="expiring-user-item__avatar">
                     <div class="expiring-user-item__info">
                         <span class="expiring-user-item__name">{{ item.nombre }}</span>
-                        <span class="expiring-user-item__days" [class.vencido]="item.estaVencido"
-                            [class.critical]="item.dias > 7">
-                            <span *ngIf="item.estaVencido">
-                                Vencido hace {{ item.dias }} {{ item.dias === 1 ? 'día' : 'días' }}
-                            </span>
-                            <span *ngIf="!item.estaVencido && item.dias === 0">
-                                Vence hoy
-                            </span>
-                            <span *ngIf="!item.estaVencido && item.dias === 1">
+                        <!-- ⭐ Mostrar mensaje según urgencia -->
+                        <span class="expiring-user-item__days" [class.critico]="item.urgencia === 'CRITICO'"
+                            [class.urgente]="item.urgencia === 'URGENTE'" [class.pronto]="item.urgencia === 'PRONTO'">
+                            <!-- Si es crítico (1 día) -->
+                            <span *ngIf="item.urgencia === 'CRITICO'">
                                 Vence mañana
                             </span>
-                            <span *ngIf="!item.estaVencido && item.dias > 1">
+                            <!-- Si es urgente (2 días) -->
+                            <span *ngIf="item.urgencia === 'URGENTE'">
+                                Vence en 2 días
+                            </span>
+                            <!-- Si es pronto (3-5 días) -->
+                            <span *ngIf="item.urgencia === 'PRONTO'">
                                 Vence en {{ item.dias }} días
                             </span>
                         </span>

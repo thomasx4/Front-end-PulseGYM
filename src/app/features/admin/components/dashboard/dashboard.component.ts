@@ -9,7 +9,6 @@ import jsPDF from 'jspdf';
   styleUrls: ['./dashboard.component.scss'],
 })
 export class DashboardComponent implements OnInit {
-
   // REFERENCIA AL CONTENEDOR
   @ViewChild('dashboardContainer') dashboardContainer!: ElementRef;
 
@@ -85,13 +84,13 @@ export class DashboardComponent implements OnInit {
 
   get maxIngreso(): number {
     if (this.ingresosMensuales.length === 0) return 0;
-    return Math.max(...this.ingresosMensuales.map(item => item.ingresos));
+    return Math.max(...this.ingresosMensuales.map((item) => item.ingresos));
   }
 
   // CONSTRUCTOR
   constructor(
     private authService: AuthService,
-    private dashboardService: DashboardService
+    private dashboardService: DashboardService,
   ) {
     this.generarAnosDisponibles();
   }
@@ -234,7 +233,12 @@ export class DashboardComponent implements OnInit {
       const data = await this.dashboardService
         .getIngresosPorMembresia(fechaInicio, fechaFin)
         .toPromise();
-      if (data && data.detalle && Array.isArray(data.detalle) && data.detalle.length > 0) {
+      if (
+        data &&
+        data.detalle &&
+        Array.isArray(data.detalle) &&
+        data.detalle.length > 0
+      ) {
         const total = data.totalGeneral || 0;
         if (total > 0) {
           this.distribucionIngresos = data.detalle.map((item: any) => ({
@@ -280,34 +284,50 @@ export class DashboardComponent implements OnInit {
   // CARGAR POR VENCER (SOCIOS EN MORA)
   private async cargarPorVencer(): Promise<void> {
     try {
-      const response = await this.dashboardService.getSociosEnMora().toPromise();
-      const sociosData = response?.sociosEnMora || [];
-      if (!Array.isArray(sociosData) || sociosData.length === 0) {
+      const response = await this.dashboardService
+        .getMembresiasPorVencer()
+        .toPromise();
+
+      const data = Array.isArray(response) ? response : [];
+
+      if (data.length === 0) {
         this.porVencer = [];
         this.statsPorVencer.hoy = 0;
         this.statsPorVencer.manana = 0;
         return;
       }
-      this.porVencer = sociosData.map((socio: any) => {
-        const diasVencido = this.calcularDiasVencido(socio.fechaVencimiento);
-        return {
-          id: socio.idSocio,
-          nombre: socio.nombreCompleto || 'Usuario',
-          dias: diasVencido,
-          estaVencido: true,
-          avatar: `https://i.pravatar.cc/100?u=${socio.idSocio || Math.random()}`,
-          fechaVencimiento: socio.fechaVencimiento,
-          estado: socio.estadoMembresia || 'VENCIDA',
-        };
-      });
+
+      this.porVencer = data.map((item: any) => ({
+        id: item.idSocio,
+        nombre: item.nombreSocio || 'Usuario',
+        dias: item.diasRestantes || 0,
+        estaVencido: false,
+        avatar:
+          item.avatarUrl ||
+          `https://i.pravatar.cc/100?u=${item.idSocio || Math.random()}`,
+        fechaVencimiento: item.fechaVencimiento,
+        estado: item.estado || 'ACTIVA',
+        urgencia: item.urgencia || 'PRONTO',
+        idSocioMembresia: item.idSocioMembresia,
+        nombreMembresia: item.nombreMembresia,
+      }));
+
       const hoy = new Date().toISOString().split('T')[0];
-      const manana = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+      const manana = new Date(Date.now() + 86400000)
+        .toISOString()
+        .split('T')[0];
+
       this.statsPorVencer.hoy = this.porVencer.filter(
-        (m: any) => m.fechaVencimiento === hoy
+        (m: any) => m.fechaVencimiento === hoy,
       ).length;
+
       this.statsPorVencer.manana = this.porVencer.filter(
-        (m: any) => m.fechaVencimiento === manana
+        (m: any) => m.fechaVencimiento === manana,
       ).length;
+
+      console.log('Membresías por vencer:', this.porVencer);
+      console.log('Vencen hoy:', this.statsPorVencer.hoy);
+      console.log('Vencen mañana:', this.statsPorVencer.manana);
     } catch (error) {
       console.error('Error al cargar por vencer:', error);
       this.porVencer = [];
@@ -316,20 +336,12 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  // CALCULAR DÍAS VENCIDOS
-  private calcularDiasVencido(fechaVencimiento: string): number {
-    if (!fechaVencimiento) return 1;
-    const fecha = new Date(fechaVencimiento);
-    const hoy = new Date();
-    const diffTime = hoy.getTime() - fecha.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays > 0 ? diffDays : 1;
-  }
-
   // CARGAR ESTADO DE EQUIPOS
   private async cargarEquipos(): Promise<void> {
     try {
-      const response = await this.dashboardService.getEstadoEquipos().toPromise();
+      const response = await this.dashboardService
+        .getEstadoEquipos()
+        .toPromise();
       const equiposData = response?.data || [];
       this.equipos = equiposData.map((equipo: any) => ({
         id: equipo.id,
@@ -457,13 +469,24 @@ export class DashboardComponent implements OnInit {
       // TABLA DE INGRESOS
       const startY = 50;
       const rowHeight = 12;
-      const colWidths = [pageWidth * 0.15, pageWidth * 0.25, pageWidth * 0.25, pageWidth * 0.2];
+      const colWidths = [
+        pageWidth * 0.15,
+        pageWidth * 0.25,
+        pageWidth * 0.25,
+        pageWidth * 0.2,
+      ];
       let x = margin;
       let y = startY;
 
       // CABECERA DE LA TABLA
       pdf.setFillColor('#f1f2f4');
-      pdf.rect(x, y, colWidths.reduce((a, b) => a + b, 0), rowHeight, 'F');
+      pdf.rect(
+        x,
+        y,
+        colWidths.reduce((a, b) => a + b, 0),
+        rowHeight,
+        'F',
+      );
       pdf.setFontSize(11);
       pdf.setTextColor('#1a1a2e');
       pdf.setFont('helvetica', 'bold');
@@ -480,7 +503,12 @@ export class DashboardComponent implements OnInit {
         pdf.line(x, y, x, y + rowHeight);
         x += colWidths[i] || 0;
       }
-      pdf.line(margin, y + rowHeight, margin + colWidths.reduce((a, b) => a + b, 0), y + rowHeight);
+      pdf.line(
+        margin,
+        y + rowHeight,
+        margin + colWidths.reduce((a, b) => a + b, 0),
+        y + rowHeight,
+      );
 
       // DATOS DE LA TABLA
       y += rowHeight;
@@ -489,15 +517,26 @@ export class DashboardComponent implements OnInit {
       if (this.ingresosMensuales.length === 0) {
         pdf.setFontSize(12);
         pdf.setTextColor('#ef4444');
-        pdf.text('No hay datos de ingresos disponibles', pageWidth / 2, y + 20, {
-          align: 'center',
-        });
+        pdf.text(
+          'No hay datos de ingresos disponibles',
+          pageWidth / 2,
+          y + 20,
+          {
+            align: 'center',
+          },
+        );
       } else {
         this.ingresosMensuales.forEach((item, index) => {
           const porcentaje = total > 0 ? (item.ingresos / total) * 100 : 0;
           if (index % 2 === 0) {
             pdf.setFillColor('#fafbfc');
-            pdf.rect(margin, y, colWidths.reduce((a, b) => a + b, 0), rowHeight, 'F');
+            pdf.rect(
+              margin,
+              y,
+              colWidths.reduce((a, b) => a + b, 0),
+              rowHeight,
+              'F',
+            );
           }
           pdf.setFontSize(10);
           pdf.setTextColor('#1a1a2e');
@@ -514,7 +553,12 @@ export class DashboardComponent implements OnInit {
             x += colWidths[colIndex];
           });
           pdf.setDrawColor('#e2e8f0');
-          pdf.line(margin, y + rowHeight, margin + colWidths.reduce((a, b) => a + b, 0), y + rowHeight);
+          pdf.line(
+            margin,
+            y + rowHeight,
+            margin + colWidths.reduce((a, b) => a + b, 0),
+            y + rowHeight,
+          );
           y += rowHeight;
         });
       }
@@ -538,12 +582,19 @@ export class DashboardComponent implements OnInit {
       pdf.setFontSize(9);
       pdf.setFont('helvetica', 'italic');
       pdf.setTextColor('#8a94a6');
-      pdf.text('Pulse Gym - Reporte generado automáticamente', pageWidth / 2, pageHeight - 15, {
-        align: 'center',
-      });
+      pdf.text(
+        'Pulse Gym - Reporte generado automáticamente',
+        pageWidth / 2,
+        pageHeight - 15,
+        {
+          align: 'center',
+        },
+      );
 
       // GUARDAR PDF
-      pdf.save(`Ingresos-6-meses-${new Date().toISOString().split('T')[0]}.pdf`);
+      pdf.save(
+        `Ingresos-6-meses-${new Date().toISOString().split('T')[0]}.pdf`,
+      );
       this.loading = false;
     } catch (error) {
       console.error('Error al exportar PDF:', error);
