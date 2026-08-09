@@ -1,3 +1,5 @@
+<!-- src/app/shared/components/main-layout/sidebar/sidebar.component.html -->
+
 <aside class="sidebar">
     <div class="sidebar__brand">
         <img src="../../../../../favicon.ico" class="sidebar__brand-icon">
@@ -8,11 +10,37 @@
     </div>
 
     <nav class="sidebar__nav">
-        <a *ngFor="let item of menuItems" [routerLink]="item.route" routerLinkActive="sidebar__nav-item--active"
-            [routerLinkActiveOptions]="{ exact: item.exact || false }" class="sidebar__nav-item">
-            <span [innerHTML]="item.iconHtml" class="sidebar__icon-wrapper"></span>
-            <span>{{ item.label }}</span>
-        </a>
+        <!-- ITEMS NORMALES (SIN SUBMENÚ) -->
+        <ng-container *ngFor="let item of menuItems">
+            <a *ngIf="!item.children" [routerLink]="item.route" routerLinkActive="sidebar__nav-item--active"
+                [routerLinkActiveOptions]="{ exact: item.exact || false }" class="sidebar__nav-item">
+                <span [innerHTML]="item.iconHtml" class="sidebar__icon-wrapper"></span>
+                <span>{{ item.label }}</span>
+            </a>
+        </ng-container>
+
+        <!-- ITEM CON SUBMENÚ (MEMBRESÍAS) -->
+        <div class="sidebar__nav-item--parent" [class.open]="isMembershipOpen" (mouseenter)="isMembershipOpen = true"
+            (mouseleave)="isMembershipOpen = false">
+
+            <div class="sidebar__nav-item" [class.sidebar__nav-item--active]="isMembershipActive()">
+                <span [innerHTML]="getMembershipIcon()" class="sidebar__icon-wrapper"></span>
+                <span>Membresías</span>
+                <svg class="sidebar__dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+            </div>
+
+            <!-- SUBMENÚ -->
+            <div class="sidebar__submenu" *ngIf="isMembershipOpen">
+                <a *ngFor="let child of membershipChildren" [routerLink]="child.route"
+                    routerLinkActive="sidebar__submenu-item--active" class="sidebar__submenu-item">
+                    <span [innerHTML]="child.iconHtml" class="sidebar__icon-wrapper"></span>
+                    <span>{{ child.label }}</span>
+                </a>
+            </div>
+        </div>
     </nav>
 
     <button class="sidebar__logout" (click)="onLogout()">

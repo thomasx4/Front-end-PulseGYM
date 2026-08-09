@@ -1,11 +1,15 @@
+// src/app/shared/components/main-layout/sidebar/sidebar.component.ts
+
 import { Component } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { Router } from '@angular/router';
 
 interface MenuItem {
   label: string;
   iconHtml: SafeHtml;
   route: string;
   exact?: boolean;
+  children?: MenuItem[];
 }
 
 @Component({
@@ -15,8 +19,50 @@ interface MenuItem {
 })
 export class SidebarComponent {
   menuItems: MenuItem[] = [];
+  membershipChildren: MenuItem[] = [];
+  isMembershipOpen: boolean = false;
 
-  constructor(private sanitizer: DomSanitizer) {
+  constructor(
+    private sanitizer: DomSanitizer,
+    private router: Router
+  ) {
+    this.initMenuItems();
+  }
+
+  initMenuItems(): void {
+    // ICONO PARA ASIGNAR MEMBRESÍA
+    const assignIcon = this.sanitizer.bypassSecurityTrustHtml(`
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+        <circle cx="12" cy="7" r="4"></circle>
+        <line x1="19" y1="5" x2="19" y2="11"></line>
+        <line x1="16" y1="8" x2="22" y2="8"></line>
+      </svg>
+    `);
+
+    // ICONO PARA VER MEMBRESÍAS
+    const listIcon = this.sanitizer.bypassSecurityTrustHtml(`
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+      </svg>
+    `);
+
+    // ITEMS DEL SUBMENÚ DE MEMBRESÍAS
+    this.membershipChildren = [
+      {
+        label: 'Asignar Membresía',
+        route: '/dashboard-admin/memberships/assign',
+        iconHtml: assignIcon,
+      },
+      {
+        label: 'Lista de Membresías',
+        route: '/dashboard-admin/memberships/list',
+        iconHtml: listIcon,
+      }
+    ];
+
+    // MENÚ PRINCIPAL
     this.menuItems = [
       {
         label: 'Dashboard',
@@ -38,16 +84,6 @@ export class SidebarComponent {
           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="sidebar__nav-icon">
             <g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
             <g id="SVGRepo_iconCarrier"> <path d="M13 20V18C13 15.2386 10.7614 13 8 13C5.23858 13 3 15.2386 3 18V20H13ZM13 20H21V19C21 16.0545 18.7614 14 16 14C14.5867 14 13.3103 14.6255 12.4009 15.6311M11 7C11 8.65685 9.65685 10 8 10C6.34315 10 5 8.65685 5 7C5 5.34315 6.34315 4 8 4C9.65685 4 11 5.34315 11 7ZM18 9C18 10.1046 17.1046 11 16 11C14.8954 11 14 10.1046 14 9C14 7.89543 14.8954 7 16 7C17.1046 7 18 7.89543 18 9Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g>
-          </svg>
-        `),
-      },
-      {
-        label: 'Membresías',
-        route: '/dashboard-admin/memberships',
-        iconHtml: this.sanitizer.bypassSecurityTrustHtml(`
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="sidebar__nav-icon">
-            <g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> 
-            <path d="M15.9201 12.8959L19.2583 8.89003C19.533 8.5604 19.6704 8.39557 19.7681 8.21065C19.8548 8.0466 19.9183 7.87128 19.9567 7.68973C20 7.48508 20 7.27053 20 6.84144V6.2C20 5.07989 20 4.51984 19.782 4.09202C19.5903 3.71569 19.2843 3.40973 18.908 3.21799C18.4802 3 17.9201 3 16.8 3H7.2C6.0799 3 5.51984 3 5.09202 3.21799C4.71569 3.40973 4.40973 3.71569 4.21799 4.09202C4 4.51984 4 5.07989 4 6.2V6.84144C4 7.27053 4 7.48508 4.04328 7.68973C4.08168 7.87128 4.14515 8.0466 4.23188 8.21065C4.32964 8.39557 4.467 8.5604 4.74169 8.89003L8.07995 12.8959M13.4009 11.1989L19.3668 3.53988M10.5991 11.1989L4.6394 3.53414M6.55673 6H17.4505M17 16C17 18.7614 14.7614 21 12 21C9.23858 21 7 18.7614 7 16C7 13.2386 9.23858 11 12 11C14.7614 11 17 13.2386 17 16Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"></path> </g>
           </svg>
         `),
       },
@@ -82,11 +118,29 @@ export class SidebarComponent {
         label: 'Reports',
         route: 'dashboard-admin/reports',
         iconHtml: this.sanitizer.bypassSecurityTrustHtml(`
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="sidebar__nav-icon"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><defs><style>.a,.b{fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:1.5px;}.a{fill-rule:evenodd;}</style></defs><path class="a" d="M2,2V20a2,2,0,0,0,2,2H22"></path><rect class="b" height="6" rx="1.5" width="3" x="6" y="12"></rect><rect class="b" height="6" rx="1.5" width="3" x="12" y="7"></rect><rect class="b" height="6" rx="1.5" width="3" x="18" y="3"></rect></g></svg>
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="sidebar__nav-icon"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><defs><style>.a,.b{fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin="round;stroke-width:1.5px;}.a{fill-rule:evenodd;}</style></defs><path class="a" d="M2,2V20a2,2,0,0,0,2,2H22"></path><rect class="b" height="6" rx="1.5" width="3" x="6" y="12"></rect><rect class="b" height="6" rx="1.5" width="3" x="12" y="7"></rect><rect class="b" height="6" rx="1.5" width="3" x="18" y="3"></rect></g></svg>
         `),
       }
     ];
   }
 
-  onLogout() {}
+  // OBTENER ICONO DE MEMBRESÍAS PARA EL PADRE
+  getMembershipIcon(): SafeHtml {
+    return this.sanitizer.bypassSecurityTrustHtml(`
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="sidebar__nav-icon">
+        <g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> 
+        <path d="M15.9201 12.8959L19.2583 8.89003C19.533 8.5604 19.6704 8.39557 19.7681 8.21065C19.8548 8.0466 19.9183 7.87128 19.9567 7.68973C20 7.48508 20 7.27053 20 6.84144V6.2C20 5.07989 20 4.51984 19.782 4.09202C19.5903 3.71569 19.2843 3.40973 18.908 3.21799C18.4802 3 17.9201 3 16.8 3H7.2C6.0799 3 5.51984 3 5.09202 3.21799C4.71569 3.40973 4.40973 3.71569 4.21799 4.09202C4 4.51984 4 5.07989 4 6.2V6.84144C4 7.27053 4 7.48508 4.04328 7.68973C4.08168 7.87128 4.14515 8.0466 4.23188 8.21065C4.32964 8.39557 4.467 8.5604 4.74169 8.89003L8.07995 12.8959M13.4009 11.1989L19.3668 3.53988M10.5991 11.1989L4.6394 3.53414M6.55673 6H17.4505M17 16C17 18.7614 14.7614 21 12 21C9.23858 21 7 18.7614 7 16C7 13.2386 9.23858 11 12 11C14.7614 11 17 13.2386 17 16Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"></path> </g>
+      </svg>
+    `);
+  }
+
+  // VERIFICAR SI ALGUNA RUTA DE MEMBRESÍAS ESTÁ ACTIVA
+  isMembershipActive(): boolean {
+    const url = this.router.url;
+    return url.includes('/dashboard-admin/memberships');
+  }
+
+  onLogout() {
+    console.log('Logout');
+  }
 }

@@ -29,6 +29,25 @@ const routes: Routes = [
                 path: 'users',
                 component: CredentialsListComponent,
             },
+            {
+                path: 'memberships',
+                children: [
+                    {
+                        path: 'assign',
+                        loadChildren: () => 
+                            import('./features/membership/membership.module').then((m) => m.MembershipModule),
+                    },
+                    {
+                        path: 'list',
+                        component: CredentialsListComponent,
+                    },
+                    {
+                        path: '',
+                        redirectTo: 'assign',
+                        pathMatch: 'full',
+                    },
+                ],
+            },
         ],
     },
     {
@@ -36,21 +55,6 @@ const routes: Routes = [
         canActivate: [AuthGuard],
         loadChildren: () =>
             import('./features/user/user.module').then((m) => m.UserModule),
-    },
-    {
-        path: 'dashboard-admin/memberships',
-        component: MainLayoutComponent,
-        canActivate: [AuthGuard],
-        data: { expectedRole: 'administrador' },
-        children: [
-            {
-                path: '',
-                loadChildren: () =>
-                    import('./features/membership/membership.module').then(
-                        (m) => m.MembershipModule,
-                    ),
-            },
-        ],
     },
 
     { path: 'auth/login', component: LoginComponent },
