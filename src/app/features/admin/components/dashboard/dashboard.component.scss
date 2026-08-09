@@ -547,6 +547,54 @@
 }
 
 /* POR VENCER (USUARIOS) */
+
+.expiring-user-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    &__avatar {
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    &__info {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+
+    &__name {
+        font-size: 15px;
+        font-weight: 800;
+        color: #0b192c;
+    }
+
+    &__days {
+        font-size: 13px;
+        font-weight: 500;
+        color: #94a3b8;
+
+        // ⭐ Estilos por urgencia
+        &.critico {
+            color: #dc2626;
+            font-weight: 700;
+        }
+
+        &.urgente {
+            color: #f59e0b;
+            font-weight: 700;
+        }
+
+        &.pronto {
+            color: #3b82f6;
+            font-weight: 600;
+        }
+    }
+}
+
 .expiring-user-item {
     display: flex;
     align-items: center;
