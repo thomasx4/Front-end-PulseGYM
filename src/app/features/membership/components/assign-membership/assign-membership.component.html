@@ -1,1 +1,58 @@
-<p>assign-membership works!</p>
+<div class="membership-page">
+
+    <!-- ENCABEZADO -->
+    <div class="membership-header">
+        <h1>Asignar Membresía</h1>
+        <p class="membership-subtitle">Selecciona una membresía activa para asignarla a un socio.</p>
+    </div>
+
+    <!-- GRID DE MEMBRESÍAS -->
+    <div class="membership-grid">
+        <div *ngFor="let membresia of membresias" class="membership-card">
+            
+            <!-- CABECERA DE LA TARJETA -->
+            <div class="membership-card__header" [style.background-color]="membresia.color">
+                <span class="membership-card__badge" [class.activa]="membresia.estado === 'Activa'">
+                    {{ membresia.estado }}
+                </span>
+            </div>
+
+            <!-- CUERPO DE LA TARJETA -->
+            <div class="membership-card__body">
+                <h2 class="membership-card__title">{{ membresia.nombre }}</h2>
+                
+                <div class="membership-card__price">
+                    <span class="price-value">${{ membresia.precio }}</span>
+                    <span class="price-period">/{{ membresia.periodo }}</span>
+                </div>
+
+                <!-- LISTA DE BENEFICIOS -->
+                <ul class="membership-card__benefits">
+                    <li *ngFor="let beneficio of membresia.beneficios">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        {{ beneficio }}
+                    </li>
+                </ul>
+            </div>
+
+            <!-- PIE DE LA TARJETA -->
+            <div class="membership-card__footer">
+                <button class="btn btn--primary" (click)="asignarMembresia(membresia.id)">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                        <line x1="19" y1="5" x2="19" y2="11"></line>
+                        <line x1="16" y1="8" x2="22" y2="8"></line>
+                    </svg>
+                    Asignar a socio
+                </button>
+                <button class="btn btn--outline" (click)="verSocios(membresia.id)">
+                    Ver socios ({{ membresia.sociosActivos }})
+                </button>
+            </div>
+        </div>
+    </div>
+
+</div>
