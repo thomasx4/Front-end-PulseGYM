@@ -13,6 +13,7 @@ export class RegisterCredentialsComponent {
   form: FormGroup;
   enviando = false;
   errorMsg = '';
+  exitoMsg = '';
 
   roles: RolUsuario[] = [
   RolUsuario.ADMIN,
@@ -46,12 +47,17 @@ export class RegisterCredentialsComponent {
 
     this.enviando = true;
     this.errorMsg = '';
+    this.exitoMsg = '';
 
     this.authService.registerCredentials(payload).subscribe({
       next: () => {
         this.enviando = false;
+        this.exitoMsg = '¡Usuario registrado correctamente!';
         this.form.reset();
-        // aquí después conectamos un mensaje de éxito o redirección //////
+
+        setTimeout(() => {
+          this.exitoMsg = '';
+        }, 3000);
       },
       error: (err: HttpErrorResponse) => {
         this.enviando = false;
