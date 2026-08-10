@@ -1,18 +1,80 @@
+// Colores Principales
+$color-primary: #0f1c3f;
+$color-primary-hover: #1a2b5c;
+$color-dark: #0b1a30;
+$color-dark-alt: #081936;
+
+// Neutrales
+$color-bg-light: #f8fafc;
+$color-bg-muted: #f1f5f9;
+$color-border: #e2e8f0;
+$color-border-subtle: #edf2f7;
+$color-text-main: #334155;
+$color-text-muted: #64748b;
+$color-text-subtle: #94a3b8;
+
+// Estados y Alertas
+$color-success: #10b981;
+$color-success-bg: #ecfdf5;
+$color-success-border: #a7f3d0;
+$color-success-text: #065f46;
+
+$color-danger: #ef4444;
+$color-danger-bg: #fee2e2;
+$color-danger-border: #fca5a5;
+$color-danger-text: #dc2626;
+
+$color-warning: #d97706;
+$color-warning-bg: #fef3c7;
+$color-warning-text: #92400e;
+
+$color-info-bg: #dbeafe;
+$color-info-text: #1e40af;
+
+// Bordes Redondeados
+$radius-sm: 8px;
+$radius-md: 12px;
+$radius-lg: 16px;
+$radius-xl: 20px;
+$radius-pill: 9999px;
+
+// Transiciones
+$transition-fast: all 0.2s ease;
+
+// ANIMACIONES
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+// PÁGINA PRINCIPAL Y ENCABEZADOS
+
 .membership-page {
     padding: 36px 40px;
-    background-color: #f7f9fc;
     min-height: 100vh;
     box-sizing: border-box;
 }
 
-// ENCABEZADO TARJETAS
 .membership-header {
     margin-bottom: 32px;
 
     h1 {
         font-size: 32px;
         font-weight: 800;
-        color: #0b1a30;
+        color: $color-dark;
         margin: 0 0 6px 0;
         letter-spacing: -0.5px;
     }
@@ -24,7 +86,108 @@
     }
 }
 
-// GRID DE TARJETA
+// SECCIÓN POR VENCER
+
+.por-vencer-section {
+    background: #f1e4d0;
+    border-radius: $radius-lg;
+    padding: 20px 24px;
+    margin-bottom: 28px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.por-vencer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+
+    h2 {
+        font-size: 16px;
+        font-weight: 700;
+        color: $color-dark;
+        margin: 0;
+    }
+
+    .por-vencer-count {
+        font-size: 13px;
+        font-weight: 600;
+        color: $color-text-muted;
+        background: $color-bg-muted;
+        padding: 4px 14px;
+        border-radius: 20px;
+    }
+}
+
+.por-vencer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+}
+
+.por-vencer-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: $color-bg-light;
+    border-radius: 10px;
+    border: 1px solid $color-bg-muted;
+
+    &__info {
+        display: flex;
+        flex-direction: column;
+    }
+
+    &__name {
+        font-size: 14px;
+        font-weight: 700;
+        color: $color-dark;
+    }
+
+    &__membresia {
+        font-size: 12px;
+        color: $color-text-muted;
+    }
+
+    &__dias {
+        font-size: 13px;
+        font-weight: 700;
+        padding: 4px 12px;
+        border-radius: $radius-md;
+        background: $color-bg-muted;
+        color: $color-text-muted;
+
+        &.urgente {
+            background: $color-danger-bg;
+            color: $color-danger-text;
+        }
+
+        &.alerta {
+            background: $color-warning-bg;
+            color: $color-warning;
+        }
+    }
+}
+
+.btn-renovar-small {
+    background: $color-primary;
+    color: #ffffff;
+    border: none;
+    border-radius: $radius-sm;
+    padding: 6px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+
+    &:hover {
+        background: $color-primary-hover;
+    }
+}
+
+// GRID Y TARJETAS DE MEMBRESÍAS
+
 .membership-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -33,7 +196,6 @@
 }
 
 .membership-card {
-    position: relative;
     background: #ffffff;
     border-radius: 22px;
     padding: 32px 28px 28px 28px;
@@ -41,23 +203,7 @@
     flex-direction: column;
     justify-content: space-between;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-    border: 1px solid #edf2f7;
-
-    &__watermark {
-        position: absolute;
-        top: 28px;
-        right: 28px;
-        width: 52px;
-        height: 52px;
-        color: #e2e8f0;
-        pointer-events: none;
-
-        svg {
-            width: 100%;
-            height: 100%;
-            transform: rotate(12deg);
-        }
-    }
+    border: 1px solid $color-border-subtle;
 
     &__body {
         flex: 1;
@@ -68,7 +214,7 @@
     &__title {
         font-size: 13px;
         font-weight: 800;
-        color: #64748b;
+        color: $color-text-muted;
         letter-spacing: 1.2px;
         text-transform: uppercase;
         margin: 0 0 12px 0;
@@ -82,14 +228,14 @@
         .price-value {
             font-size: 38px;
             font-weight: 800;
-            color: #0b1a30;
+            color: $color-dark;
             line-height: 1;
         }
 
         .price-period {
             font-size: 15px;
             font-weight: 600;
-            color: #94a3b8;
+            color: $color-text-subtle;
             margin-left: 4px;
         }
     }
@@ -108,13 +254,31 @@
             gap: 10px;
             font-size: 14px;
             font-weight: 500;
-            color: #334155;
+            color: $color-text-main;
 
             svg {
                 width: 18px;
                 height: 18px;
                 color: #475569;
                 flex-shrink: 0;
+            }
+        }
+
+        .benefit-ia {
+            border-radius: 6px;
+            margin: 2px 0;
+
+            svg, span {
+                font-weight: 600;
+            }
+        }
+
+        .benefit-flexible {
+            border-radius: 6px;
+            margin: 2px 0;
+
+            svg, span {
+                font-weight: 600;
             }
         }
     }
@@ -149,92 +313,142 @@
     .btn {
         width: 100%;
         padding: 12px 18px;
-        border-radius: 12px;
+        border-radius: $radius-md;
         font-size: 14px;
         font-weight: 700;
         cursor: pointer;
         border: none;
-        transition: all 0.2s ease;
+        transition: $transition-fast;
         text-align: center;
 
         &--primary {
-            background-color: #0f1c3f;
+            background-color: $color-primary;
             color: #ffffff;
 
             &:hover {
-                background-color: #1a2b5c;
+                background-color: $color-primary-hover;
             }
         }
 
         &--outline {
             background-color: transparent;
-            color: #0f1c3f;
+            color: $color-primary;
             border: 1px solid #cbd5e1;
 
             &:hover {
-                background-color: #f8fafc;
+                background-color: $color-bg-light;
             }
-        }
-    }
-
-    &--destacado {
-        background: #091936;
-        border-color: #091936;
-
-        .membership-card__title,
-        .price-value {
-            color: #ffffff;
-        }
-
-        .price-period {
-            color: #94a3b8;
-        }
-
-        .membership-card__benefits li {
-            color: #e2e8f0;
-
-            svg {
-                color: #94a3b8;
-            }
-        }
-
-        .membership-card__badge {
-            position: absolute;
-            top: 24px;
-            right: 24px;
-            background: #a5b4fc;
-            color: #1e1b4b;
-            font-size: 11px;
-            font-weight: 800;
-            padding: 6px 14px;
-            border-radius: 20px;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-        }
-
-        .btn--primary {
-            background: linear-gradient(135deg, #7c83ed 0%, #9097f3 100%);
-            color: #ffffff;
-        }
-
-        .btn--outline {
-            background-color: transparent;
-            color: #ffffff;
-            border: 1px solid rgba(255, 255, 255, 0.35);
         }
     }
 }
 
-// ==========================================
-// VISTA: SOCIOS ASIGNADOS (MÓDULO COMPLETO)
-// ==========================================
+// ACCIONES Y BOTONES DE TABLA
+
+.acciones-buttons {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    justify-content: flex-end;
+}
+
+.btn-accion {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: $radius-sm;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: $transition-fast;
+
+    svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    &.btn-renovar {
+        background: $color-info-bg;
+        color: $color-info-text;
+
+        &:hover:not(:disabled) {
+            background: #bfdbfe;
+        }
+    }
+
+    &.btn-suspender {
+        background: $color-warning-bg;
+        color: $color-warning-text;
+
+        &:hover:not(:disabled) {
+            background: #fde68a;
+        }
+    }
+
+    &.btn-cancelar {
+        background: $color-danger-bg;
+        color: #991b1b;
+
+        &:hover:not(:disabled) {
+            background: $color-danger-border;
+        }
+    }
+}
+
+// ALERTAS BANNER / INLINE
+
+.alert {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    border-radius: $radius-md;
+    margin-bottom: 16px;
+    font-weight: 600;
+    font-size: 14px;
+    animation: slideDown 0.3s ease-out;
+
+    .alert-icon {
+        width: 22px;
+        height: 22px;
+        flex-shrink: 0;
+    }
+}
+
+.alert-success {
+    background: $color-success-bg;
+    color: $color-success-text;
+    border: 1px solid $color-success-border;
+
+    .alert-icon {
+        stroke: $color-success;
+    }
+}
+
+.alert-error {
+    background: #fef2f2;
+    color: #991b1b;
+    border: 1px solid $color-danger-border;
+
+    .alert-icon {
+        stroke: $color-danger;
+    }
+}
+
+// VISTA DETALLE Y BANNER RESUMEN
+
 .detail-header {
     margin-bottom: 24px;
 
     .detail-title {
         font-size: 32px;
         font-weight: 800;
-        color: #0b1a30;
+        color: $color-dark;
         margin: 0 0 8px 0;
         letter-spacing: -0.5px;
     }
@@ -242,7 +456,7 @@
     .back-link {
         background: none;
         border: none;
-        color: #64748b;
+        color: $color-text-muted;
         font-size: 14px;
         font-weight: 600;
         cursor: pointer;
@@ -253,7 +467,7 @@
         transition: color 0.2s ease;
 
         &:hover {
-            color: #0b1a30;
+            color: $color-dark;
         }
 
         svg {
@@ -263,10 +477,9 @@
     }
 }
 
-// BANNER TARJETA OSCURA ENCABEZADO
 .summary-banner {
-    background-color: #081936;
-    border-radius: 20px;
+    background-color: $color-dark-alt;
+    border-radius: $radius-xl;
     padding: 32px 36px;
     display: grid;
     grid-template-columns: 220px 1fr 200px;
@@ -280,7 +493,7 @@
         .summary-banner__title {
             font-size: 12px;
             font-weight: 800;
-            color: #94a3b8;
+            color: $color-text-subtle;
             letter-spacing: 1.2px;
             text-transform: uppercase;
             margin: 0 0 8px 0;
@@ -298,7 +511,7 @@
 
             .price-per {
                 font-size: 15px;
-                color: #94a3b8;
+                color: $color-text-subtle;
                 margin-left: 4px;
             }
         }
@@ -324,8 +537,24 @@
                 svg {
                     width: 18px;
                     height: 18px;
-                    color: #94a3b8;
+                    color: $color-text-subtle;
                     flex-shrink: 0;
+                }
+
+                &.benefit-ia {
+                    background: rgba(219, 234, 254, 0.2);
+                    border-radius: 6px;
+                    padding: 4px 10px;
+
+                    svg, span { color: $color-text-subtle; }
+                }
+
+                &.benefit-flexible {
+                    background: rgba(254, 243, 199, 0.2);
+                    border-radius: 6px;
+                    padding: 4px 10px;
+
+                    svg, span { color: $color-text-subtle; }
                 }
             }
         }
@@ -363,18 +592,19 @@
 
         .summary-banner__label {
             font-size: 13px;
-            color: #94a3b8;
+            color: $color-text-subtle;
             font-weight: 500;
         }
     }
 }
 
-// SECCIÓN PRINCIPAL
+// TABLA DE SOCIOS ASIGNADOS
+
 .assigned-section {
     &__title {
         font-size: 20px;
         font-weight: 800;
-        color: #0b1a30;
+        color: $color-dark;
         margin: 0 0 20px 0;
     }
 
@@ -391,14 +621,14 @@
             input {
                 width: 100%;
                 padding: 10px 40px 10px 16px;
-                border-radius: 12px;
-                border: 1px solid #e2e8f0;
+                border-radius: $radius-md;
+                border: 1px solid $color-border;
                 background: #ffffff;
                 font-size: 14px;
                 outline: none;
 
                 &::placeholder {
-                    color: #94a3b8;
+                    color: $color-text-subtle;
                 }
             }
 
@@ -409,33 +639,16 @@
                 transform: translateY(-50%);
                 width: 18px;
                 height: 18px;
-                color: #94a3b8;
-            }
-        }
-
-        .btn-filter {
-            background-color: #e2e8f0;
-            color: #334155;
-            font-weight: 700;
-            font-size: 13px;
-            padding: 10px 20px;
-            border-radius: 20px;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-
-            &:hover {
-                background-color: #cbd5e1;
+                color: $color-text-subtle;
             }
         }
     }
 }
 
-// TABLA TARJETA
 .assigned-table-card {
     background: #ffffff;
-    border-radius: 20px;
-    border: 1px solid #edf2f7;
+    border-radius: $radius-xl;
+    border: 1px solid $color-border-subtle;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
     overflow: hidden;
 }
@@ -448,21 +661,19 @@
         text-align: left;
         font-size: 11px;
         font-weight: 800;
-        color: #64748b;
+        color: $color-text-muted;
         letter-spacing: 0.8px;
         padding: 20px 24px;
-        border-bottom: 1px solid #f1f5f9;
+        border-bottom: 1px solid $color-bg-muted;
     }
 
     td {
         padding: 16px 24px;
-        border-bottom: 1px solid #f8fafc;
+        border-bottom: 1px solid $color-bg-light;
         vertical-align: middle;
     }
 
-    .text-right {
-        text-align: right;
-    }
+    .text-right { text-align: right; }
 
     .user-profile {
         display: flex;
@@ -479,48 +690,28 @@
         &__name {
             font-size: 14px;
             font-weight: 700;
-            color: #0b1a30;
+            color: $color-dark;
         }
     }
 
-    .email-col {
+    .tel-col, .email-col, .tel-cell {
         font-size: 13.5px;
-        color: #64748b;
+        color: $color-text-muted;
     }
 
     .date-col {
         font-size: 13.5px;
-        color: #334155;
+        color: $color-text-main;
         font-weight: 500;
-    }
-
-    .action-dots-btn {
-        background: none;
-        border: none;
-        color: #94a3b8;
-        cursor: pointer;
-        padding: 6px;
-        border-radius: 6px;
-
-        &:hover {
-            color: #0b1a30;
-            background-color: #f1f5f9;
-        }
-
-        svg {
-            width: 20px;
-            height: 20px;
-        }
     }
 
     .empty-state {
         text-align: center;
-        color: #94a3b8;
+        color: $color-text-subtle;
         padding: 36px;
     }
 }
 
-// FOOTER PAGINACIÓN DETALLE
 .table-footer {
     display: flex;
     align-items: center;
@@ -531,7 +722,7 @@
     &__info {
         font-size: 13px;
         font-weight: 600;
-        color: #64748b;
+        color: $color-text-muted;
     }
 
     &__pagination {
@@ -542,14 +733,13 @@
         .p-arrow {
             background: none;
             border: none;
-            color: #94a3b8;
+            color: $color-text-subtle;
             font-size: 15px;
             cursor: pointer;
             padding: 4px 8px;
 
-            &:hover {
-                color: #0b1a30;
-            }
+            &:hover { color: $color-dark; }
+            &:disabled { opacity: 0.4; cursor: not-allowed; }
         }
 
         .p-num {
@@ -557,31 +747,27 @@
             border: none;
             font-size: 13px;
             font-weight: 600;
-            color: #64748b;
+            color: $color-text-muted;
             width: 30px;
             height: 30px;
-            border-radius: 8px;
+            border-radius: $radius-sm;
             cursor: pointer;
 
             &:hover {
-                background-color: #f1f5f9;
-                color: #0b1a30;
+                background-color: $color-bg-muted;
+                color: $color-dark;
             }
 
             &.active {
-                background-color: #0b1a30;
+                background-color: $color-dark;
                 color: #ffffff;
             }
-        }
-
-        .p-dots {
-            color: #94a3b8;
-            font-size: 13px;
         }
     }
 }
 
-// MODAL
+// MODALES PROPIOS DEL COMPONENTE
+
 .modal-backdrop {
     position: fixed;
     inset: 0;
@@ -598,9 +784,15 @@
     background: #ffffff;
     width: 100%;
     max-width: 680px;
-    border-radius: 20px;
+    border-radius: $radius-xl;
     padding: 32px 36px 28px 36px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+    max-height: 90vh;
+    overflow-y: auto;
+
+    &--flexible {
+        max-width: 720px;
+    }
 
     &__header {
         display: flex;
@@ -611,7 +803,7 @@
         h2 {
             font-size: 22px;
             font-weight: 800;
-            color: #0b1a30;
+            color: $color-dark;
             margin: 0;
         }
 
@@ -619,7 +811,7 @@
             background: none;
             border: none;
             cursor: pointer;
-            color: #94a3b8;
+            color: $color-text-subtle;
 
             svg {
                 width: 22px;
@@ -635,8 +827,8 @@
         input {
             width: 100%;
             padding: 12px 42px 12px 18px;
-            border-radius: 12px;
-            border: 1px solid #e2e8f0;
+            border-radius: $radius-md;
+            border: 1px solid $color-border;
             font-size: 14px;
             outline: none;
             box-sizing: border-box;
@@ -649,7 +841,7 @@
             transform: translateY(-50%);
             width: 18px;
             height: 18px;
-            color: #94a3b8;
+            color: $color-text-subtle;
         }
     }
 
@@ -661,14 +853,14 @@
             text-align: left;
             font-size: 11px;
             font-weight: 800;
-            color: #64748b;
+            color: $color-text-muted;
             padding: 0 12px 14px 12px;
-            border-bottom: 1px solid #f1f5f9;
+            border-bottom: 1px solid $color-bg-muted;
         }
 
         td {
             padding: 14px 12px;
-            border-bottom: 1px solid #f8fafc;
+            border-bottom: 1px solid $color-bg-light;
             vertical-align: middle;
             font-size: 14px;
         }
@@ -686,31 +878,25 @@
 
             &__name {
                 font-weight: 700;
-                color: #0b1a30;
+                color: $color-dark;
             }
         }
 
-        .email-cell {
-            color: #64748b;
-        }
-
-        .date-cell {
-            color: #475569;
-        }
+        .email-cell { color: $color-text-muted; }
+        .date-cell { color: #475569; }
 
         .btn-assign {
             background-color: #ffffff;
             border: 1px solid #cbd5e1;
-            color: #0b1a30;
+            color: $color-dark;
             font-weight: 700;
             font-size: 13px;
             padding: 6px 18px;
-            border-radius: 8px;
+            border-radius: $radius-sm;
             cursor: pointer;
 
-            &:hover {
-                background-color: #f8fafc;
-            }
+            &:hover:not(:disabled) { background-color: $color-bg-light; }
+            &:disabled { opacity: 0.6; cursor: not-allowed; }
         }
     }
 
@@ -724,8 +910,10 @@
         .page-arrow {
             background: none;
             border: none;
-            color: #94a3b8;
+            color: $color-text-subtle;
             cursor: pointer;
+
+            &:disabled { opacity: 0.4; cursor: not-allowed; }
         }
 
         .page-num {
@@ -733,26 +921,106 @@
             border: none;
             font-size: 13px;
             font-weight: 600;
-            color: #64748b;
+            color: $color-text-muted;
             width: 32px;
             height: 32px;
-            border-radius: 8px;
+            border-radius: $radius-sm;
             cursor: pointer;
 
+            &:hover { background-color: $color-bg-muted; }
+
             &.active {
-                background-color: #0b1a30;
+                background-color: $color-dark;
                 color: #ffffff;
             }
-        }
-
-        .page-dots {
-            color: #94a3b8;
         }
     }
 }
 
-// RESPONSIVE
+// Campos Asignación Flexible
+.flexible-fields {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 16px;
+    margin-bottom: 20px;
+    padding: 16px 20px;
+    background: $color-bg-light;
+    border-radius: $radius-md;
+    border: 1px solid $color-border;
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+
+        label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-control {
+            padding: 10px 14px;
+            border-radius: $radius-sm;
+            border: 1px solid $color-border;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+            background: #ffffff;
+
+            &:focus {
+                border-color: $color-primary;
+                box-shadow: 0 0 0 3px rgba(15, 28, 63, 0.08);
+            }
+        }
+
+        small {
+            font-size: 11px;
+            color: $color-text-subtle;
+        }
+    }
+
+    textarea.form-control {
+        resize: vertical;
+        font-family: inherit;
+    }
+}
+
+// SPINNER DE CARGA
+
+.loading-overlay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    gap: 16px;
+
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid $color-border;
+        border-top-color: $color-dark;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    span {
+        font-size: 14px;
+        color: $color-text-muted;
+        font-weight: 600;
+    }
+}
+
+// ADAPTABILIDAD RESPONSIVA (MEDIA QUERIES)
+
 @media (max-width: 992px) {
+    .membership-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
     .summary-banner {
         grid-template-columns: 1fr;
         gap: 24px;
@@ -763,5 +1031,33 @@
             padding-left: 0;
             padding-top: 20px;
         }
+    }
+
+    .por-vencer-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .membership-grid,
+    .por-vencer-grid,
+    .flexible-fields {
+        grid-template-columns: 1fr;
+    }
+
+    .membership-page {
+        padding: 16px;
+    }
+
+    .modal-dialog,
+    .modal-dialog--flexible {
+        padding: 20px;
+        margin: 10px;
+        max-width: 100%;
+    }
+
+    .acciones-buttons {
+        flex-direction: column;
+        gap: 4px;
     }
 }

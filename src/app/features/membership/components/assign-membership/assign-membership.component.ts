@@ -1,272 +1,742 @@
 import { Component, OnInit } from '@angular/core';
+import { forkJoin, firstValueFrom, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { 
+    MembershipService, 
+    AsignacionRequest, 
+    AsignacionFlexibleRequest, 
+    RenovarRequest, 
+    SuspenderRequest, 
+    CancelarRequest 
+} from '../../../../core/services/membership.service';
+import Swal from 'sweetalert2';
 
-export interface Membresia {
-  id: number;
-  nombre: string;
-  precio: number;
-  periodo: string;
-  beneficios: string[];
-  estado: 'Activa' | 'Inactiva';
-  sociosActivos: number;
-  destacado?: boolean;
-  badgeText?: string;
-  iconoFondo?: 'dumbbell' | 'star' | string;
+export interface MembresiaUI {
+    id: number;
+    nombre: string;
+    precio: number;
+    periodo: string;
+    beneficios: string[];
+    estado: string;
+    sociosActivos: number;
+    incluyeIA: boolean;
+    esFlexible: boolean;
 }
 
-export interface Socio {
-  id: number;
-  nombre: string;
-  email: string;
-  fechaRegistro: string;
-  avatarUrl: string;
-}
-
-export interface SocioAsignado {
-  id: number;
-  nombre: string;
-  email: string;
-  fechaAsignacion: string;
-  avatarUrl: string;
+export interface SocioUI {
+    id: number;
+    idSocioMembresia?: number;
+    nombre: string;
+    telefono: string;
+    fechaAsignacion?: string;
+    fechaVencimiento?: string;
+    fechaRegistro?: string;
+    avatarUrl: string;
+    estado: string;
 }
 
 @Component({
-  selector: 'app-assign-membership',
-  templateUrl: './assign-membership.component.html',
-  styleUrls: ['./assign-membership.component.scss'],
+    selector: 'app-assign-membership',
+    templateUrl: './assign-membership.component.html',
+    styleUrls: ['./assign-membership.component.scss'],
 })
 export class AssignMembershipComponent implements OnInit {
-  // Control de Vista: 'tarjetas' | 'socios'
-  vistaActual: 'tarjetas' | 'socios' = 'tarjetas';
 
-  membresias: Membresia[] = [];
-  membresiaSeleccionada: Membresia | null = null;
+    // CONTROL DE VISTA
+    vistaActual: 'tarjetas' | 'socios' = 'tarjetas';
 
-  // Estado del Modal (Asignar)
-  mostrarModal: boolean = false;
-  searchTermModal: string = '';
+    // DATOS
+    membresias: MembresiaUI[] = [];
+    membresiaSeleccionada: MembresiaUI | null = null;
+    membresiasPorVencer: any[] = [];
 
-  // Búsqueda en la Vista de Socios Asignados
-  searchTermSocios: string = '';
+    // MODAL DE ASIGNACIÓN
+    mostrarModal: boolean = false;
+    mostrarModalFlexible: boolean = false;
+    searchTermModal: string = '';
+    loading: boolean = false;
+    errorMessage: string = '';
+    successMessage: string = '';
 
-  // Datos Mocks
-  sociosModal: Socio[] = [];
-  sociosFiltradosModal: Socio[] = [];
+    // MODAL FLEXIBLE
+    diasFlexibles: number = 1;
+    observacionesFlexible: string = '';
 
-  sociosAsignados: SocioAsignado[] = [];
-  sociosAsignadosFiltrados: SocioAsignado[] = [];
+    // FILTROS
+    searchTermSocios: string = '';
 
-  ngOnInit(): void {
-    this.cargarMembresias();
-    this.cargarSociosModal();
-    this.cargarSociosAsignados();
-  }
+    // SOCIOS ASIGNADOS (PAGINACIÓN)
+    sociosAsignados: SocioUI[] = [];
+    sociosAsignadosFiltrados: SocioUI[] = [];
+    sociosPaginaActual: number = 1;
+    sociosItemsPorPagina: number = 5;
 
-  cargarMembresias(): void {
-    this.membresias = [
-      {
-        id: 1,
-        nombre: 'ESSENTIAL',
-        precio: 49,
-        periodo: 'mo',
-        beneficios: ['24/7 Gym Access', 'Locker Room Access'],
-        estado: 'Activa',
-        sociosActivos: 120,
-        iconoFondo: 'dumbbell',
-      },
-      {
-        id: 2,
-        nombre: 'ELITE PERFORMANCE',
-        precio: 89,
-        periodo: 'mo',
-        beneficios: [
-          'Everything in Standard',
-          '4 Personal Training sessions',
-          'Nutritional Consultations',
-        ],
-        estado: 'Activa',
-        sociosActivos: 342,
-        destacado: true,
-        badgeText: 'MÁS POPULAR',
-      },
-      {
-        id: 3,
-        nombre: 'VIP SANCTUARY',
-        precio: 199,
-        periodo: 'mo',
-        beneficios: [
-          'Unlimited PT Sessions',
-          'Private Lounge & Spa',
-          'Priority Equipment Booking',
-        ],
-        estado: 'Activa',
-        sociosActivos: 85,
-        iconoFondo: 'star',
-      },
-    ];
-  }
+    // SOCIOS MODAL (PAGINACIÓN)
+    sociosModal: SocioUI[] = [];
+    sociosFiltradosModal: SocioUI[] = [];
+    sociosModalPaginaActual: number = 1;
+    sociosModalItemsPorPagina: number = 5;
 
-  cargarSociosModal(): void {
-    this.sociosModal = [
-      {
-        id: 101,
-        nombre: 'Elena Rodriguez',
-        email: 'elena.r@example.com',
-        fechaRegistro: 'Mar 12, 2023',
-        avatarUrl:
-          'https://ui-avatars.com/api/?name=Elena+Rodriguez&background=2d3748&color=fff',
-      },
-      {
-        id: 102,
-        nombre: 'Julian Vance',
-        email: 'j.vance@workmail.com',
-        fechaRegistro: 'Jan 05, 2023',
-        avatarUrl:
-          'https://ui-avatars.com/api/?name=Julian+Vance&background=1a202c&color=fff',
-      },
-      {
-        id: 103,
-        nombre: 'Sarah Jenkins',
-        email: 'sarahj@web.com',
-        fechaRegistro: 'Aug 22, 2023',
-        avatarUrl:
-          'https://ui-avatars.com/api/?name=Sarah+Jenkins&background=4a5568&color=fff',
-      },
-      {
-        id: 104,
-        nombre: "Liam O'Connell",
-        email: 'liam.oc@mail.com',
-        fechaRegistro: 'May 15, 2023',
-        avatarUrl:
-          "https://ui-avatars.com/api/?name=Liam+O'Connell&background=0f172a&color=fff",
-      },
-      {
-        id: 105,
-        nombre: 'Sophia Martinez',
-        email: 'sophia.m@mail.com',
-        fechaRegistro: 'Jul 18, 2023',
-        avatarUrl:
-          'https://ui-avatars.com/api/?name=Sophia+Martinez&background=334155&color=fff',
-      },
-    ];
-    this.sociosFiltradosModal = [...this.sociosModal];
-  }
+    // ACCIONES - Estado de carga
+    accionEnProceso: boolean = false;
 
-  cargarSociosAsignados(): void {
-    this.sociosAsignados = [
-      {
-        id: 1,
-        nombre: 'Elena Rodriguez',
-        email: 'elena.r@example.com',
-        fechaAsignacion: 'Mar 12, 2023',
-        avatarUrl:
-          'https://ui-avatars.com/api/?name=Elena+Rodriguez&background=2d3748&color=fff',
-      },
-      {
-        id: 2,
-        nombre: 'Julian Vance',
-        email: 'j.vance@workmail.com',
-        fechaAsignacion: 'Jan 05, 2023',
-        avatarUrl:
-          'https://ui-avatars.com/api/?name=Julian+Vance&background=1a202c&color=fff',
-      },
-      {
-        id: 3,
-        nombre: 'Sarah Jenkins',
-        email: 'sarahj@web.com',
-        fechaAsignacion: 'Aug 22, 2023',
-        avatarUrl:
-          'https://ui-avatars.com/api/?name=Sarah+Jenkins&background=4a5568&color=fff',
-      },
-      {
-        id: 4,
-        nombre: "Liam O'Connell",
-        email: 'liam.oc@mail.com',
-        fechaAsignacion: 'May 15, 2023',
-        avatarUrl:
-          "https://ui-avatars.com/api/?name=Liam+O'Connell&background=0f172a&color=fff",
-      },
-      {
-        id: 5,
-        nombre: 'Sophia Martinez',
-        email: 'sophia.m@mail.com',
-        fechaAsignacion: 'Jul 18, 2023',
-        avatarUrl:
-          'https://ui-avatars.com/api/?name=Sophia+Martinez&background=334155&color=fff',
-      },
-      {
-        id: 6,
-        nombre: 'Noah Thompson',
-        email: 'noah.t@mail.com',
-        fechaAsignacion: 'Aug 30, 2023',
-        avatarUrl:
-          'https://ui-avatars.com/api/?name=Noah+Thompson&background=1e293b&color=fff',
-      },
-      {
-        id: 7,
-        nombre: 'Olivia Parker',
-        email: 'olivia.p@mail.com',
-        fechaAsignacion: 'Sep 10, 2023',
-        avatarUrl:
-          'https://ui-avatars.com/api/?name=Olivia+Parker&background=475569&color=fff',
-      },
-    ];
-    this.sociosAsignadosFiltrados = [...this.sociosAsignados];
-  }
+    constructor(private membershipService: MembershipService) { }
 
-  // NAVEGACIÓN A MÓDULO VER SOCIOS
-  verSocios(id: number): void {
-    const seleccionada = this.membresias.find((m) => m.id === id);
-    if (seleccionada) {
-      this.membresiaSeleccionada = seleccionada;
-      this.vistaActual = 'socios';
-      this.searchTermSocios = '';
-      this.sociosAsignadosFiltrados = [...this.sociosAsignados];
+    ngOnInit(): void {
+        this.cargarMembresias();
+        this.cargarPorVencer();
     }
-  }
 
-  volverAMembresias(): void {
-    this.vistaActual = 'tarjetas';
-    this.membresiaSeleccionada = null;
-  }
+    // CARGA DE DATOS DESDE EL BACKEND
 
-  // ABRIR/CERRAR MODAL
-  asignarMembresia(id: number): void {
-    const seleccionada = this.membresias.find((m) => m.id === id);
-    if (seleccionada) {
-      this.membresiaSeleccionada = seleccionada;
-      this.mostrarModal = true;
-      this.searchTermModal = '';
-      this.sociosFiltradosModal = [...this.sociosModal];
+    cargarMembresias(): void {
+        this.loading = true;
+        this.errorMessage = '';
+
+        this.membershipService.getMembresias().subscribe({
+            next: (response: any) => {
+                this.membresias = (response || []).map((item: any) => ({
+                    id: item.idMembresia,
+                    nombre: item.nombre,
+                    precio: item.precioTotal || 0,
+                    periodo: 'mo',
+                    beneficios: item.beneficios
+                        ? item.beneficios.split(',').map((b: string) => b.trim())
+                        : ['Sin beneficios'],
+                    estado: item.activo ? 'Activa' : 'Inactiva',
+                    sociosActivos: 0,
+                    incluyeIA: !!item.incluyeIA,
+                    esFlexible: !!item.esFlexible,
+                }));
+                this.actualizarConteoSocios();
+                this.loading = false;
+            },
+            error: (error) => {
+                this.errorMessage = error.error?.message || 'Error al cargar membresías.';
+                this.loading = false;
+            },
+        });
     }
-  }
 
-  cerrarModal(): void {
-    this.mostrarModal = false;
-  }
+    actualizarConteoSocios(): void {
+        if (this.membresias.length === 0) return;
 
-  // FILTROS
-  onSearchModal(event: Event): void {
-    const value = (event.target as HTMLInputElement).value.toLowerCase().trim();
-    this.searchTermModal = value;
-    this.sociosFiltradosModal = this.sociosModal.filter(
-      (s) =>
-        s.nombre.toLowerCase().includes(value) ||
-        s.email.toLowerCase().includes(value),
-    );
-  }
+        const observables = this.membresias.map((m) =>
+            this.membershipService.getMembresiaConSociosActivos(m.id).pipe(
+                catchError(() => of({ sociosAsignados: [] }))
+            )
+        );
 
-  onSearchSociosAsignados(event: Event): void {
-    const value = (event.target as HTMLInputElement).value.toLowerCase().trim();
-    this.searchTermSocios = value;
-    this.sociosAsignadosFiltrados = this.sociosAsignados.filter(
-      (s) =>
-        s.nombre.toLowerCase().includes(value) ||
-        s.email.toLowerCase().includes(value),
-    );
-  }
+        forkJoin(observables).subscribe((respuestas: any[]) => {
+            respuestas.forEach((response, index) => {
+                const sociosData = response?.sociosAsignados || response?.data || [];
+                this.membresias[index].sociosActivos = sociosData.length;
+            });
+        });
+    }
 
-  confirmarAsignacion(socio: Socio): void {
-    console.log(`Asignando membresía a: ${socio.nombre}`);
-    this.cerrarModal();
-  }
+    cargarPorVencer(): void {
+        this.membershipService.getPorVencer().subscribe({
+            next: (response: any) => {
+                this.membresiasPorVencer = response || [];
+            },
+            error: () => {
+                this.membresiasPorVencer = [];
+            },
+        });
+    }
+
+    verSocios(id: number): void {
+        this.loading = true;
+        this.errorMessage = '';
+
+        this.membershipService.getMembresiaConSociosActivos(id).subscribe({
+            next: (response: any) => {
+                const seleccionada = this.membresias.find((m) => m.id === id);
+                if (seleccionada) {
+                    this.membresiaSeleccionada = seleccionada;
+                    const sociosData = response.sociosAsignados || response.data || [];
+
+                    this.sociosAsignados = sociosData.map((s: any) => ({
+                        id: s.idSocio || s.id,
+                        idSocioMembresia: s.idSocioMembresia,
+                        nombre: s.nombreCompleto || s.nombre || 'Usuario',
+                        telefono: s.telefono || 'No disponible',
+                        fechaAsignacion: this.formatearFecha(s.fechaAsignacion || s.fechaCreacion),
+                        fechaVencimiento: this.formatearFecha(s.fechaVencimiento),
+                        avatarUrl: this.generarAvatar(s.nombreCompleto || s.nombre || 'Usuario'),
+                        estado: s.estado || 'ACTIVA',
+                    }));
+
+                    this.membresiaSeleccionada.sociosActivos = this.sociosAsignados.length;
+                    this.sociosAsignadosFiltrados = [...this.sociosAsignados];
+                    this.sociosPaginaActual = 1;
+                    this.vistaActual = 'socios';
+                }
+                this.loading = false;
+            },
+            error: (error) => {
+                this.errorMessage = error.error?.message || 'Error al cargar socios.';
+                this.loading = false;
+            },
+        });
+    }
+
+    // MODAL DE ASIGNACIÓN
+
+    async asignarMembresia(id: number): Promise<void> {
+        const seleccionada = this.membresias.find((m) => m.id === id);
+        if (!seleccionada) return;
+
+        this.membresiaSeleccionada = seleccionada;
+        await this.cargarUsuariosActivos();
+
+        if (seleccionada.esFlexible) {
+            this.mostrarModalFlexible = true;
+            this.diasFlexibles = 1;
+            this.observacionesFlexible = '';
+        } else {
+            this.mostrarModal = true;
+            this.searchTermModal = '';
+            this.sociosModalPaginaActual = 1;
+        }
+    }
+
+    cerrarModal(): void {
+        this.mostrarModal = false;
+        this.mostrarModalFlexible = false;
+        this.errorMessage = '';
+        this.successMessage = '';
+
+        if (this.vistaActual === 'socios' && this.membresiaSeleccionada) {
+            this.verSocios(this.membresiaSeleccionada.id);
+        } else {
+            this.cargarMembresias();
+        }
+        this.cargarPorVencer();
+    }
+
+    async cargarUsuariosActivos(): Promise<void> {
+        this.loading = true;
+        try {
+            const response: any = await firstValueFrom(this.membershipService.getUsuariosActivos());
+            const usuarios = response || [];
+            this.sociosModal = usuarios.map((u: any) => ({
+                id: u.idUsuario || u.id,
+                nombre: u.nombre || 'Usuario',
+                telefono: u.telefono || 'No disponible',
+                fechaRegistro: this.formatearFecha(u.fechaRegistro || u.fechaCreacion),
+                avatarUrl: this.generarAvatar(u.nombre || 'Usuario'),
+                estado: u.estado || 'ACTIVO'
+            }));
+            this.sociosFiltradosModal = [...this.sociosModal];
+        } catch (error: any) {
+            this.errorMessage = error.error?.message || 'Error al cargar usuarios activos.';
+            this.sociosModal = [];
+            this.sociosFiltradosModal = [];
+        } finally {
+            this.loading = false;
+        }
+    }
+
+    // CONFIRMACIONES Y ACCIONES CON SWEETALERT2
+
+    async confirmarAsignacion(socio: SocioUI) {
+        if (!this.membresiaSeleccionada) return;
+
+        const result = await Swal.fire({
+            title: '¿Confirmar Asignación?',
+            html: `
+                <p class="swal-text-description">
+                    ¿Estás seguro de que deseas asignar la membresía <strong>${this.membresiaSeleccionada.nombre}</strong> a <strong>${socio.nombre}</strong> en Pulse Gym?
+                </p>
+                <div class="swal-user-card">
+                    <img src="${socio.avatarUrl}" alt="Avatar" class="swal-avatar">
+                    <div class="swal-user-info">
+                        <span class="swal-user-name">${socio.nombre}</span>
+                        <span class="swal-user-id">ID: #${socio.id}</span>
+                    </div>
+                    <span class="swal-user-badge">${socio.estado || 'ACTIVO'}</span>
+                </div>
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'Confirmar y Asignar',
+            cancelButtonText: 'Cancelar',
+            customClass: {
+                popup: 'custom-swal-popup',
+                confirmButton: 'custom-swal-confirm-btn',
+                cancelButton: 'custom-swal-cancel-btn'
+            },
+            buttonsStyling: false
+        });
+
+        if (result.isConfirmed) {
+            this.ejecutarAsignacionServicio(socio);
+        }
+    }
+
+    ejecutarAsignacionServicio(socio: SocioUI): void {
+        if (!this.membresiaSeleccionada) return;
+
+        const request: AsignacionRequest = {
+            idSocio: socio.id,
+            idMembresia: this.membresiaSeleccionada.id,
+            observaciones: `Asignación desde panel admin - ${new Date().toLocaleDateString('es-ES')}`,
+        };
+
+        this.loading = true;
+
+        this.membershipService.asignarMembresia(request).subscribe({
+            next: () => {
+                this.loading = false;
+                if (this.membresiaSeleccionada) {
+                    this.membresiaSeleccionada.sociosActivos += 1;
+                }
+                
+                this.mostrarAlertaExito('¡Membresía Asignada!', `La membresía se ha asignado correctamente a ${socio.nombre}.`);
+                this.cerrarModal();
+            },
+            error: (error) => {
+                this.loading = false;
+                this.mostrarAlertaError(error.error?.message || 'Error al asignar la membresía.');
+            },
+        });
+    }
+
+    async confirmarAsignacionFlexible(socio: SocioUI) {
+        if (!this.membresiaSeleccionada) return;
+
+        const result = await Swal.fire({
+            title: '¿Confirmar Asignación Flexible?',
+            html: `
+                <p class="swal-text-description">
+                    ¿Estás seguro de asignar <strong>${this.diasFlexibles} día(s)</strong> de la membresía <strong>${this.membresiaSeleccionada.nombre}</strong> a <strong>${socio.nombre}</strong>?
+                </p>
+                <div class="swal-user-card">
+                    <img src="${socio.avatarUrl}" alt="Avatar" class="swal-avatar">
+                    <div class="swal-user-info">
+                        <span class="swal-user-name">${socio.nombre}</span>
+                        <span class="swal-user-id">ID: #${socio.id}</span>
+                    </div>
+                    <span class="swal-user-badge">${socio.estado || 'ACTIVO'}</span>
+                </div>
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'Confirmar y Asignar',
+            cancelButtonText: 'Cancelar',
+            customClass: {
+                popup: 'custom-swal-popup',
+                confirmButton: 'custom-swal-confirm-btn',
+                cancelButton: 'custom-swal-cancel-btn'
+            },
+            buttonsStyling: false
+        });
+
+        if (result.isConfirmed) {
+            this.ejecutarAsignacionFlexibleServicio(socio);
+        }
+    }
+
+    ejecutarAsignacionFlexibleServicio(socio: SocioUI): void {
+        if (!this.membresiaSeleccionada) return;
+
+        const request: AsignacionFlexibleRequest = {
+            idSocio: socio.id,
+            idMembresia: this.membresiaSeleccionada.id,
+            cantidadDias: this.diasFlexibles,
+            observaciones: this.observacionesFlexible || `Asignación flexible desde panel admin - ${new Date().toLocaleDateString('es-ES')}`,
+        };
+
+        this.loading = true;
+
+        this.membershipService.asignarMembresiaFlexible(request).subscribe({
+            next: () => {
+                this.loading = false;
+                if (this.membresiaSeleccionada) {
+                    this.membresiaSeleccionada.sociosActivos += 1;
+                }
+                
+                this.mostrarAlertaExito('¡Membresía Flexible Asignada!', `Se han asignado ${this.diasFlexibles} día(s) a ${socio.nombre}.`);
+                this.cerrarModal();
+            },
+            error: (error) => {
+                this.loading = false;
+                this.mostrarAlertaError(error.error?.message || 'Error al asignar la membresía flexible.');
+            },
+        });
+    }
+
+    async abrirModalRenovar(socio: SocioUI) {
+        if (!socio.idSocioMembresia) {
+            this.mostrarAlertaError('No se puede renovar: falta el ID de la membresía.');
+            return;
+        }
+
+        const result = await Swal.fire({
+            title: '¿Renovar Membresía?',
+            html: `
+                <p class="swal-text-description">
+                    ¿Estás seguro de que deseas renovar el periodo activo para <strong>${socio.nombre}</strong>?
+                </p>
+                <div class="swal-user-card">
+                    <img src="${socio.avatarUrl}" alt="Avatar" class="swal-avatar">
+                    <div class="swal-user-info">
+                        <span class="swal-user-name">${socio.nombre}</span>
+                        <span class="swal-user-id">ID: #${socio.id}</span>
+                    </div>
+                    <span class="swal-user-badge">${socio.estado || 'ACTIVA'}</span>
+                </div>
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'Renovar Membresía',
+            cancelButtonText: 'Cancelar',
+            customClass: {
+                popup: 'custom-swal-popup',
+                confirmButton: 'custom-swal-confirm-btn',
+                cancelButton: 'custom-swal-cancel-btn'
+            },
+            buttonsStyling: false
+        });
+
+        if (result.isConfirmed) {
+            this.ejecutarRenovar(socio);
+        }
+    }
+
+    ejecutarRenovar(socio: SocioUI): void {
+        if (!socio.idSocioMembresia) return;
+
+        this.accionEnProceso = true;
+
+        const request: RenovarRequest = {
+            idSocioMembresia: socio.idSocioMembresia,
+            renovacionAutomatica: true,
+            observaciones: `Renovación manual - ${new Date().toLocaleDateString('es-ES')}`,
+        };
+
+        this.membershipService.renovarMembresia(request).subscribe({
+            next: () => {
+                this.accionEnProceso = false;
+                this.mostrarAlertaExito('¡Membresía Renovada!', `La membresía de ${socio.nombre} ha sido renovada con éxito.`);
+                this.cargarMembresias();
+                if (this.membresiaSeleccionada) {
+                    this.verSocios(this.membresiaSeleccionada.id);
+                }
+            },
+            error: (error) => {
+                this.accionEnProceso = false;
+                this.mostrarAlertaError(error.error?.message || 'Error al renovar la membresía.');
+            },
+        });
+    }
+
+    async abrirModalSuspender(socio: SocioUI) {
+        if (!socio.idSocioMembresia) {
+            this.mostrarAlertaError('No se puede suspender: falta el ID de la membresía.');
+            return;
+        }
+
+        const { value: motivo, isConfirmed } = await Swal.fire({
+            title: '¿Suspender Membresía?',
+            html: `
+                <p class="swal-text-description">
+                    ¿Estás seguro de que deseas suspender temporalmente el acceso a <strong>${socio.nombre}</strong>?
+                </p>
+                <div class="swal-user-card">
+                    <img src="${socio.avatarUrl}" alt="Avatar" class="swal-avatar">
+                    <div class="swal-user-info">
+                        <span class="swal-user-name">${socio.nombre}</span>
+                        <span class="swal-user-id">ID: #${socio.id}</span>
+                    </div>
+                    <span class="swal-user-badge">${socio.estado || 'ACTIVA'}</span>
+                </div>
+            `,
+            input: 'textarea',
+            inputPlaceholder: 'Escribe el motivo de la suspensión...',
+            inputAttributes: {
+                'aria-label': 'Motivo de la suspensión'
+            },
+            showCancelButton: true,
+            confirmButtonText: 'Suspender Membresía',
+            cancelButtonText: 'Cancelar',
+            customClass: {
+                popup: 'custom-swal-popup',
+                confirmButton: 'custom-swal-confirm-btn',
+                cancelButton: 'custom-swal-cancel-btn'
+            },
+            buttonsStyling: false
+        });
+
+        if (isConfirmed) {
+            this.ejecutarSuspender(socio, motivo || 'Suspensión manual');
+        }
+    }
+
+    ejecutarSuspender(socio: SocioUI, motivo: string): void {
+        if (!socio.idSocioMembresia) return;
+
+        this.accionEnProceso = true;
+
+        const request: SuspenderRequest = {
+            idSocioMembresia: socio.idSocioMembresia,
+            motivo: motivo,
+        };
+
+        this.membershipService.suspenderMembresia(request).subscribe({
+            next: () => {
+                this.accionEnProceso = false;
+                this.mostrarAlertaExito('¡Membresía Suspendida!', `La membresía de ${socio.nombre} fue suspendida.`);
+                this.cargarMembresias();
+                if (this.membresiaSeleccionada) {
+                    this.verSocios(this.membresiaSeleccionada.id);
+                }
+            },
+            error: (error) => {
+                this.accionEnProceso = false;
+                this.mostrarAlertaError(error.error?.message || 'Error al suspender la membresía.');
+            },
+        });
+    }
+
+    async abrirModalCancelar(socio: SocioUI) {
+        if (!socio.idSocioMembresia) {
+            this.mostrarAlertaError('No se puede cancelar: falta el ID de la membresía.');
+            return;
+        }
+
+        const { value: motivo, isConfirmed } = await Swal.fire({
+            title: '¿Confirmar Eliminación?',
+            html: `
+                <p class="swal-text-description">
+                    ¿Estás seguro de que deseas cancelar permanentemente la membresía de <strong>${socio.nombre}</strong> en Pulse Gym? Esta acción no se puede deshacer.
+                </p>
+                <div class="swal-user-card">
+                    <img src="${socio.avatarUrl}" alt="Avatar" class="swal-avatar">
+                    <div class="swal-user-info">
+                        <span class="swal-user-name">${socio.nombre}</span>
+                        <span class="swal-user-id">ID: #${socio.id}</span>
+                    </div>
+                    <span class="swal-user-badge">${socio.estado || 'PENDIENTE'}</span>
+                </div>
+            `,
+            input: 'textarea',
+            inputPlaceholder: 'Escribe el motivo de la cancelación...',
+            showCancelButton: true,
+            confirmButtonText: 'Eliminar / Cancelar',
+            cancelButtonText: 'Cancelar',
+            iconHtml: '<div class="custom-danger-icon"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg></div>',
+            customClass: {
+                popup: 'custom-swal-popup',
+                confirmButton: 'custom-swal-confirm-btn',
+                cancelButton: 'custom-swal-cancel-btn'
+            },
+            buttonsStyling: false
+        });
+
+        if (isConfirmed) {
+            this.ejecutarCancelar(socio, motivo || 'Cancelación manual');
+        }
+    }
+
+    ejecutarCancelar(socio: SocioUI, motivo: string): void {
+        if (!socio.idSocioMembresia) return;
+
+        this.accionEnProceso = true;
+
+        const request: CancelarRequest = {
+            idSocioMembresia: socio.idSocioMembresia,
+            motivo: motivo,
+        };
+
+        this.membershipService.cancelarMembresia(request).subscribe({
+            next: () => {
+                this.accionEnProceso = false;
+                this.mostrarAlertaExito('¡Membresía Cancelada!', `La membresía de ${socio.nombre} ha sido cancelada definitivamente.`);
+                this.cargarMembresias();
+                if (this.membresiaSeleccionada) {
+                    this.verSocios(this.membresiaSeleccionada.id);
+                }
+            },
+            error: (error) => {
+                this.accionEnProceso = false;
+                this.mostrarAlertaError(error.error?.message || 'Error al cancelar la membresía.');
+            },
+        });
+    }
+
+    renovarDesdePorVencer(item: any): void {
+        const socio: SocioUI = {
+            id: item.idSocio || item.id,
+            idSocioMembresia: item.idSocioMembresia,
+            nombre: item.nombreSocio || item.nombre || 'Usuario',
+            telefono: item.telefono || 'No disponible',
+            avatarUrl: this.generarAvatar(item.nombreSocio || item.nombre || 'Usuario'),
+            estado: 'POR VENCER'
+        };
+
+        this.abrirModalRenovar(socio);
+    }
+
+    // ALERTAS DE ÉXITO Y ERROR
+
+    mostrarAlertaExito(titulo: string, mensaje: string): void {
+        Swal.fire({
+            icon: 'success',
+            title: titulo,
+            text: mensaje,
+            confirmButtonText: 'Entendido',
+            timer: 3000,
+            timerProgressBar: true,
+            customClass: {
+                popup: 'custom-swal-popup',
+                confirmButton: 'custom-swal-success-btn'
+            },
+            buttonsStyling: false
+        });
+    }
+
+    mostrarAlertaError(mensaje: string): void {
+        Swal.fire({
+            icon: 'error',
+            title: 'Ocurrió un error',
+            text: mensaje,
+            confirmButtonText: 'Aceptar',
+            customClass: {
+                popup: 'custom-swal-popup',
+                confirmButton: 'custom-swal-confirm-btn'
+            },
+            buttonsStyling: false
+        });
+    }
+
+    // PAGINACIÓN Y GETTERS PARA TEMPLATE
+
+    get sociosPaginados(): SocioUI[] {
+        const inicio = (this.sociosPaginaActual - 1) * this.sociosItemsPorPagina;
+        return this.sociosAsignadosFiltrados.slice(inicio, inicio + this.sociosItemsPorPagina);
+    }
+
+    get totalSociosPaginas(): number {
+        return Math.ceil(this.sociosAsignadosFiltrados.length / this.sociosItemsPorPagina) || 1;
+    }
+
+    get paginasSocios(): number[] {
+        return Array.from({ length: this.totalSociosPaginas }, (_, i) => i + 1);
+    }
+
+    cambiarPaginaSocios(pagina: number): void {
+        if (pagina >= 1 && pagina <= this.totalSociosPaginas) {
+            this.sociosPaginaActual = pagina;
+        }
+    }
+
+    get sociosModalPaginados(): SocioUI[] {
+        const inicio = (this.sociosModalPaginaActual - 1) * this.sociosModalItemsPorPagina;
+        return this.sociosFiltradosModal.slice(inicio, inicio + this.sociosModalItemsPorPagina);
+    }
+
+    get totalSociosModalPaginas(): number {
+        return Math.ceil(this.sociosFiltradosModal.length / this.sociosModalItemsPorPagina) || 1;
+    }
+
+    get paginasModal(): number[] {
+        return Array.from({ length: this.totalSociosModalPaginas }, (_, i) => i + 1);
+    }
+
+    cambiarPaginaModal(pagina: number): void {
+        if (pagina >= 1 && pagina <= this.totalSociosModalPaginas) {
+            this.sociosModalPaginaActual = pagina;
+        }
+    }
+
+    // NAVEGACIÓN Y FILTROS
+
+    volverAMembresias(): void {
+        this.vistaActual = 'tarjetas';
+        this.membresiaSeleccionada = null;
+        this.errorMessage = '';
+        this.successMessage = '';
+        this.cargarPorVencer();
+        this.cargarMembresias();
+    }
+
+    onSearchModal(event: Event): void {
+        const value = (event.target as HTMLInputElement).value.toLowerCase().trim();
+        this.searchTermModal = value;
+        this.sociosFiltradosModal = this.sociosModal.filter(
+            (s) =>
+                s.nombre?.toLowerCase().includes(value) ||
+                s.telefono?.toLowerCase().includes(value),
+        );
+        this.sociosModalPaginaActual = 1;
+    }
+
+    onSearchSociosAsignados(event: Event): void {
+        const value = (event.target as HTMLInputElement).value.toLowerCase().trim();
+        this.searchTermSocios = value;
+        this.sociosAsignadosFiltrados = this.sociosAsignados.filter(
+            (s) =>
+                s.nombre?.toLowerCase().includes(value) ||
+                s.telefono?.toLowerCase().includes(value),
+        );
+        this.sociosPaginaActual = 1;
+    }
+
+    // UTILIDADES
+
+    generarAvatar(nombre: string): string {
+        const encoded = encodeURIComponent(nombre || 'Usuario');
+        return `https://ui-avatars.com/api/?name=${encoded}&background=0f1c3f&color=fff`;
+    }
+
+    formatearFecha(fecha: string | Date | undefined): string {
+        if (!fecha) return '-';
+        const parsedDate = new Date(fecha);
+        if (isNaN(parsedDate.getTime())) return '-';
+
+        return parsedDate.toLocaleDateString('es-ES', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
+        });
+    }
+
+    formatearPrecio(precio: number): string {
+        return new Intl.NumberFormat('es-CO', {
+            style: 'currency',
+            currency: 'COP',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+        }).format(precio || 0);
+    }
+
+    getEstadoColor(estado: string): string {
+        switch (estado?.toUpperCase()) {
+            case 'ACTIVA': return '#22c55e';
+            case 'SUSPENDIDA': return '#f59e0b';
+            case 'VENCIDA': return '#ef4444';
+            case 'CANCELADA': return '#6b7280';
+            default: return '#94a3b8';
+        }
+    }
+
+    trackByMembresiaId(index: number, item: MembresiaUI): number {
+        return item.id;
+    }
+
+    trackBySocioId(index: number, item: SocioUI): number {
+        return item.id;
+    }
+
+    trackByItemId(index: number, item: any): any {
+        return item.id || index;
+    }
+
+    trackByString(index: number, item: string): string {
+        return item;
+    }
+
+    trackByIndex(index: number): number {
+        return index;
+    }
 }

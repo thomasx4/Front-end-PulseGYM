@@ -3,3 +3,177 @@ html, body {
   padding: 0;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
+
+/* ==========================================================================
+   ESTILOS GLOBALES DE SWEETALERT2 PARA PULSE GYM
+   Ubicación: src/styles.scss
+   ========================================================================== */
+
+/* Importar estilos base de SweetAlert2 (asegura que tenga el layout correcto) */
+@import 'sweetalert2/dist/sweetalert2.min.css';
+
+/* Contenedor del Modal */
+.custom-swal-popup {
+  border-radius: 20px !important;
+  padding: 2rem 1.5rem !important;
+  font-family: system-ui, -apple-system, sans-serif !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+
+  .swal2-title {
+    color: #0f172a !important;
+    font-size: 1.5rem !important;
+    font-weight: 700 !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  .swal2-html-container {
+    color: #475569 !important;
+    font-size: 0.95rem !important;
+    margin: 0.5rem 0 !important;
+  }
+}
+
+/* ==========================================================================
+   BOTONES PERSONALIZADOS
+   ========================================================================== */
+
+/* Botón Principal / Confirmar (Azul Oscuro / Navy) */
+.custom-swal-confirm-btn {
+  background-color: #0f1c3f !important;
+  color: #ffffff !important;
+  border: none !important;
+  padding: 0.75rem 1.6rem !important;
+  border-radius: 10px !important;
+  font-weight: 600 !important;
+  font-size: 0.9rem !important;
+  cursor: pointer !important;
+  margin: 0.35rem !important;
+  transition: all 0.2s ease-in-out !important;
+  box-shadow: 0 4px 6px -1px rgba(15, 28, 63, 0.2) !important;
+
+  &:hover {
+    background-color: #1e293b !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 6px 12px -2px rgba(15, 28, 63, 0.3) !important;
+  }
+
+  &:active {
+    transform: translateY(0) !important;
+  }
+}
+
+/* Botón Éxito (Verde) */
+.custom-swal-success-btn {
+  background-color: #16a34a !important;
+  color: #ffffff !important;
+  border: none !important;
+  padding: 0.75rem 1.8rem !important;
+  border-radius: 10px !important;
+  font-weight: 600 !important;
+  font-size: 0.9rem !important;
+  cursor: pointer !important;
+  margin: 0.35rem !important;
+  transition: all 0.2s ease-in-out !important;
+  box-shadow: 0 4px 6px -1px rgba(22, 163, 74, 0.25) !important;
+
+  &:hover {
+    background-color: #15803d !important;
+    transform: translateY(-1px) !important;
+  }
+}
+
+/* Botón Cancelar (Gris / Light) */
+.custom-swal-cancel-btn {
+  background-color: #f1f5f9 !important;
+  color: #475569 !important;
+  border: 1px solid #cbd5e1 !important;
+  padding: 0.75rem 1.6rem !important;
+  border-radius: 10px !important;
+  font-weight: 600 !important;
+  font-size: 0.9rem !important;
+  cursor: pointer !important;
+  margin: 0.35rem !important;
+  transition: all 0.2s ease-in-out !important;
+
+  &:hover {
+    background-color: #e2e8f0 !important;
+    color: #0f172a !important;
+  }
+}
+
+/* ==========================================================================
+   TARJETA DEL USUARIO Y DETALLES EN EL MODAL
+   ========================================================================== */
+
+.swal-text-description {
+  color: #64748b !important;
+  font-size: 0.95rem !important;
+  line-height: 1.5 !important;
+  margin-bottom: 1rem !important;
+
+  strong {
+    color: #0f172a !important;
+  }
+}
+
+.swal-user-card {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  background-color: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  padding: 0.85rem 1.1rem !important;
+  border-radius: 14px !important;
+  margin: 1rem 0 !important;
+  text-align: left !important;
+}
+
+.swal-avatar {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 50% !important;
+  object-fit: cover !important;
+  border: 2px solid #e2e8f0 !important;
+}
+
+.swal-user-info {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 !important;
+  margin-left: 0.85rem !important;
+}
+
+.swal-user-name {
+  font-weight: 700 !important;
+  color: #0f172a !important;
+  font-size: 0.95rem !important;
+}
+
+.swal-user-id {
+  font-size: 0.8rem !important;
+  color: #64748b !important;
+  font-weight: 500 !important;
+}
+
+.swal-user-badge {
+  background-color: #dbeafe !important;
+  color: #1e40af !important;
+  font-size: 0.725rem !important;
+  font-weight: 700 !important;
+  padding: 0.3rem 0.65rem !important;
+  border-radius: 20px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.03em !important;
+}
+
+.custom-danger-icon {
+  width: 56px;
+  height: 56px;
+  background: #fef2f2;
+  color: #ef4444;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 0.75rem auto;
+}
