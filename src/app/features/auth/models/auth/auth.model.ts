@@ -60,5 +60,5 @@ export enum RolUsuario {
   ADMIN = 'administrador',
   ENTRENADOR = 'entrenador',
   RECEPCIONISTA = 'recepcionista',
-  USER = 'user'
+  USER = 'socio'
 }
