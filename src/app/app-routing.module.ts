@@ -4,14 +4,15 @@ import { MainLayoutComponent } from './shared/components/main-layout/main-layout
 import { RegisterCredentialsComponent } from './features/auth/components/register-credentials/register-credentials.component';
 import { CredentialsListComponent } from './features/auth/components/credentials-list/credentials-list.component';
 import { LoginComponent } from './features/auth/components/login/login.component';
-import { ForgotComponent } from '../app/features/auth/components/forgot/forgot.component'
+import { ForgotComponent } from '../app/features/auth/components/forgot/forgot.component';
 import { HomeComponent } from './features/user/components/home/home.component';
 import { AuthGuard } from '../app/core/guards/auth.guard';
 
 const routes: Routes = [
     {
         path: 'auth',
-        loadChildren: () => import('./features/auth/auth.module').then(m => m.AuthModule)
+        loadChildren: () =>
+            import('./features/auth/auth.module').then((m) => m.AuthModule),
     },
     {
         path: 'dashboard-admin',
@@ -21,29 +22,49 @@ const routes: Routes = [
         children: [
             {
                 path: '',
-                loadChildren: () => import('./features/admin/admin.module').then(m => m.AdminModule)
+                loadChildren: () =>
+                    import('./features/admin/admin.module').then((m) => m.AdminModule),
             },
             {
                 path: 'users',
-                component: CredentialsListComponent
-            }
-        ]
+                component: CredentialsListComponent,
+            },
+            {
+                path: 'memberships',
+                children: [
+                    {
+                        path: 'assign',
+                        loadChildren: () => 
+                            import('./features/membership/membership.module').then((m) => m.MembershipModule),
+                    },
+                    {
+                        path: 'list',
+                        component: CredentialsListComponent,
+                    },
+                    {
+                        path: '',
+                        redirectTo: 'assign',
+                        pathMatch: 'full',
+                    },
+                ],
+            },
+        ],
     },
     {
         path: 'user',
         canActivate: [AuthGuard],
-        loadChildren: () => import('./features/user/user.module').then(m => m.UserModule)
+        loadChildren: () =>
+            import('./features/user/user.module').then((m) => m.UserModule),
     },
-    
 
     { path: 'auth/login', component: LoginComponent },
     { path: 'forgot-password', component: ForgotComponent },
     { path: 'user', component: HomeComponent },
-    { path: '', redirectTo: '/auth/login', pathMatch: 'full' }
-]
+    { path: '', redirectTo: '/auth/login', pathMatch: 'full' },
+];
 
 @NgModule({
     imports: [RouterModule.forRoot(routes)],
-    exports: [RouterModule]
+    exports: [RouterModule],
 })
 export class AppRoutingModule { }

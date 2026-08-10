@@ -40,6 +40,7 @@
         flex: 1;
     }
 
+    // ITEM NORMAL
     &__nav-item {
         display: flex;
         align-items: center;
@@ -50,6 +51,7 @@
         text-decoration: none;
         font-size: 0.9rem;
         transition: background-color 0.15s ease;
+        cursor: pointer;
 
         &:hover {
             color: #ffffff;
@@ -61,6 +63,88 @@
             color: #ffffff;
             font-weight: 600;
             box-shadow: 0 2px 8px 0 rgba(0,0,0,0.6);
+        }
+    }
+
+    // ITEM PADRE CON SUBMENÚ
+    &__nav-item--parent {
+        position: relative;
+
+        .sidebar__nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            color: #858a8f;
+            text-decoration: none;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color 0.15s ease;
+
+            &:hover {
+                color: #ffffff;
+                background-color: rgb(39, 73, 146);
+            }
+        }
+
+        .sidebar__dropdown-icon {
+            margin-left: auto;
+            transition: transform 0.3s ease;
+        }
+
+        // Abrir submenú
+        &.open {
+            .sidebar__dropdown-icon {
+                transform: rotate(180deg);
+            }
+
+            .sidebar__submenu {
+                max-height: 300px;
+                opacity: 1;
+                visibility: visible;
+            }
+        }
+    }
+
+    // SUBMENÚ
+    &__submenu {
+        max-height: 0;
+        opacity: 0;
+        visibility: hidden;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        padding-left: 0.5rem;
+        margin-left: 0.5rem;
+        border-left: 2px solid rgba(14, 59, 114, 0.2);
+    }
+
+    &__submenu-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.6rem 1rem 0.6rem 1.5rem;
+        border-radius: 8px;
+        color: #858a8f;
+        text-decoration: none;
+        font-size: 0.85rem;
+        transition: all 0.15s ease;
+        cursor: pointer;
+
+        &:hover {
+            color: #ffffff;
+            background-color: rgba(39, 73, 146, 0.7);
+        }
+
+        &--active {
+            background-color: #0E3B72E8;
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .sidebar__icon-wrapper {
+            width: 18px;
+            height: 18px;
         }
     }
 
