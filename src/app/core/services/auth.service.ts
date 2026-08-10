@@ -32,13 +32,18 @@ export class AuthService {
     pagina: number = 0,
     tamanio: number = 5,
     ordenarPor: string = 'id',
-    direccion: string = 'desc'
+    direccion?: string,
+    rol?: string,
+    activo?: boolean
   ): Observable<RespuestaPaginadaCredenciales> {
-    const params = new HttpParams()
+    let params = new HttpParams()
       .set('pagina', pagina.toString())
       .set('tamanio', tamanio.toString())
       .set('ordenarPor', ordenarPor)
-      .set('direccion', direccion);
+
+    if (rol) params = params.set('rol', rol);
+    if (activo !== undefined) params = params.set('activo', activo);
+    if (direccion) params = params.set('direccion', direccion);
 
     return this.http.get<RespuestaPaginadaCredenciales>(
       `${this.apiUrl}/usuarios`,
@@ -76,7 +81,7 @@ export class AuthService {
   isLoginGloballyLocked(): boolean {
     const lockEndTime = localStorage.getItem(this.LOCK_KEY);
     if (!lockEndTime) return false;
-    
+
     const endTime = parseInt(lockEndTime, 10);
     const remaining = endTime - Date.now();
     return remaining > 0;
@@ -85,7 +90,7 @@ export class AuthService {
   getLockRemainingSeconds(): number {
     const lockEndTime = localStorage.getItem(this.LOCK_KEY);
     if (!lockEndTime) return 0;
-    
+
     const endTime = parseInt(lockEndTime, 10);
     const remaining = Math.ceil((endTime - Date.now()) / 1000);
     return remaining > 0 ? remaining : 0;

@@ -11,6 +11,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 })
 export class CredentialsListComponent implements OnInit {
   credenciales: Credencial[] = [];
+  filtrosActuales: { rol?: string; activo?: boolean; direccion?: string } = {};
   cargando: boolean = false;
   errorMensaje: string = '';
 
@@ -32,7 +33,7 @@ export class CredentialsListComponent implements OnInit {
     this.cargando = true;
     this.errorMensaje = '';
 
-    this.authService.listarCredenciales(pagina, this.tamanioPagina).subscribe({
+    this.authService.listarCredenciales(pagina, this.tamanioPagina, 'id', this.filtrosActuales.direccion || 'desc', this.filtrosActuales.rol, this.filtrosActuales.activo).subscribe({
       next: (res: RespuestaPaginadaCredenciales) => {
         this.credenciales = res.contenido;
         this.numeroPagina = res.numeroPagina;
@@ -80,6 +81,11 @@ export class CredentialsListComponent implements OnInit {
     if (pagina >= 0 && pagina < this.totalPaginas) {
       this.cargarCredenciales(pagina);
     }
+  }
+
+  onFiltrosAplicados(filtros: { rol?: string; activo?: boolean; direccion?: string }): void {
+    this.filtrosActuales = filtros;
+    this.cargarCredenciales(0);
   }
 
   abrirFormulario(): void {
