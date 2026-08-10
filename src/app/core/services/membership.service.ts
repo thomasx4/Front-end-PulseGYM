@@ -25,6 +25,7 @@ export interface AsignacionFlexibleRequest {
 export interface RenovarRequest {
     idSocioMembresia: number;
     renovacionAutomatica?: boolean;
+    cantidadDias?: number;
     observaciones?: string;
 }
 
@@ -46,9 +47,7 @@ export class MembershipService {
 
     constructor(private http: HttpClient) { }
 
-    // ============================================
     // 1. MEMBRESÍAS
-    // ============================================
 
     /**
      * Obtiene todas las membresías activas
@@ -64,9 +63,7 @@ export class MembershipService {
         return this.http.get(`${this.apiUrl}/membresias/${idMembresia}/socios-activos`);
     }
 
-    // ============================================
     // 2. USUARIOS (SOCIOS)
-    // ============================================
 
     /**
      * Obtiene todos los usuarios activos para asignar membresía
@@ -75,9 +72,7 @@ export class MembershipService {
         return this.http.get(`${this.apiUrl}/usuarios/activo`);
     }
 
-    // ============================================
-    // 3. ASIGNACIÓN DE MEMBRESÍAS
-    // ============================================
+    // ASIGNACIÓN DE MEMBRESÍAS
 
     /**
      * Asigna una membresía a un socio
@@ -107,9 +102,7 @@ export class MembershipService {
         return this.http.get(`${this.apiUrl}/socios-membresias/socio/${idSocio}/activa`);
     }
 
-    // ============================================
-    // 4. OPERACIONES SOBRE MEMBRESÍAS
-    // ============================================
+    // OPERACIONES SOBRE MEMBRESÍAS
 
     /**
      * Renueva una membresía (PUT)
@@ -135,9 +128,7 @@ export class MembershipService {
         );
     }
 
-    // ============================================
-    // 5. REPORTES
-    // ============================================
+    // REPORTES
 
     /**
      * Obtiene membresías por vencer (1-5 días)

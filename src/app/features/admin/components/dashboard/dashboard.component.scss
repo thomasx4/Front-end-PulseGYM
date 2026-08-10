@@ -7,26 +7,26 @@
     @media print {
         background: #ffffff;
         padding: 10px;
-        
+
         .stat-card {
             box-shadow: none;
             border: 1px solid #e2e8f0;
         }
-        
+
         .chart-card {
             box-shadow: none;
             border: 1px solid #e2e8f0;
         }
-        
+
         .info-card {
             box-shadow: none;
             border: 1px solid #e2e8f0;
         }
-        
+
         .btn {
             display: none !important;
         }
-        
+
         .chart-card__actions {
             display: none !important;
         }
@@ -241,7 +241,9 @@
 }
 
 @keyframes spinner-border {
-    100% { transform: rotate(360deg); }
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 /* GRÁFICO DE BARRAS (ÁREA) */
@@ -577,7 +579,6 @@
         font-weight: 500;
         color: #94a3b8;
 
-        // ⭐ Estilos por urgencia
         &.critico {
             color: #dc2626;
             font-weight: 700;
@@ -633,6 +634,24 @@
             color: #bb4646;
             font-weight: 800;
         }
+    }
+
+
+}
+
+.info-card__link {
+    background: none;
+    border: none;
+    padding: 0;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.2s ease;
+
+    &:hover {
+        color: #0f1c3f;
+        text-decoration: underline;
     }
 }
 

@@ -166,7 +166,9 @@
                     </div>
                     <h3>Por vencer</h3>
                 </div>
-                <a href="#" class="info-card__link">Ver todos</a>
+                <button type="button" class="info-card__link" (click)="irAAsignarMembresia()">
+                    Ver todos
+                </button>
             </div>
 
             <div class="info-card__body">
@@ -174,24 +176,22 @@
                     <img [src]="item.avatar" [alt]="item.nombre" class="expiring-user-item__avatar">
                     <div class="expiring-user-item__info">
                         <span class="expiring-user-item__name">{{ item.nombre }}</span>
-                        <!-- ⭐ Mostrar mensaje según urgencia -->
                         <span class="expiring-user-item__days" [class.critico]="item.urgencia === 'CRITICO'"
                             [class.urgente]="item.urgencia === 'URGENTE'" [class.pronto]="item.urgencia === 'PRONTO'">
-                            <!-- Si es crítico (1 día) -->
                             <span *ngIf="item.urgencia === 'CRITICO'">
                                 Vence mañana
                             </span>
-                            <!-- Si es urgente (2 días) -->
                             <span *ngIf="item.urgencia === 'URGENTE'">
                                 Vence en 2 días
                             </span>
-                            <!-- Si es pronto (3-5 días) -->
                             <span *ngIf="item.urgencia === 'PRONTO'">
                                 Vence en {{ item.dias }} días
                             </span>
                         </span>
                     </div>
-                    <button class="btn btn--pill-dark">Renovar</button>
+                    <button class="btn btn--pill-dark" (click)="irAAsignarMembresia()">
+                        Renovar
+                    </button>
                 </div>
             </div>
         </div>

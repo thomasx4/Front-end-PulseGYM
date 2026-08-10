@@ -4,12 +4,6 @@ html, body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-/* ==========================================================================
-   ESTILOS GLOBALES DE SWEETALERT2 PARA PULSE GYM
-   Ubicación: src/styles.scss
-   ========================================================================== */
-
-/* Importar estilos base de SweetAlert2 (asegura que tenga el layout correcto) */
 @import 'sweetalert2/dist/sweetalert2.min.css';
 
 /* Contenedor del Modal */
@@ -33,9 +27,9 @@ html, body {
   }
 }
 
-/* ==========================================================================
-   BOTONES PERSONALIZADOS
-   ========================================================================== */
+
+  //BOTONES PERSONALIZADOS
+
 
 /* Botón Principal / Confirmar (Azul Oscuro / Navy) */
 .custom-swal-confirm-btn {
@@ -101,9 +95,7 @@ html, body {
   }
 }
 
-/* ==========================================================================
-   TARJETA DEL USUARIO Y DETALLES EN EL MODAL
-   ========================================================================== */
+  //TARJETA DEL USUARIO Y DETALLES EN EL MODAL
 
 .swal-text-description {
   color: #64748b !important;

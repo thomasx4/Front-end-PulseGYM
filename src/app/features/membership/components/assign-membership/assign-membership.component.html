@@ -24,26 +24,64 @@
     </div>
 
     <!-- SECCIÓN POR VENCER -->
-    <div class="por-vencer-section" *ngIf="vistaActual === 'tarjetas' && membresiasPorVencer.length > 0">
-        <div class="por-vencer-header">
-            <h2>Membresías por vencer</h2>
-            <span class="por-vencer-count">{{ membresiasPorVencer.length }} socios</span>
-        </div>
-        <div class="por-vencer-grid">
-            <div *ngFor="let item of membresiasPorVencer; trackBy: trackByItemId" class="por-vencer-card">
-                <div class="por-vencer-card__info">
-                    <span class="por-vencer-card__name">{{ item.nombreSocio || item.nombre }}</span>
-                    <span class="por-vencer-card__membresia">{{ item.tipoMembresia || item.membresia }}</span>
-                </div>
-                <div class="por-vencer-card__dias" [class.urgente]="item.diasRestantes <= 2"
-                    [class.alerta]="item.diasRestantes <= 5">
-                    {{ item.diasRestantes }} días
-                </div>
-                <button type="button" class="btn-renovar-small" (click)="renovarDesdePorVencer(item)">Renovar</button>
+<div class="por-vencer-container" *ngIf="vistaActual === 'tarjetas' && membresiasPorVencer.length > 0">
+    <div class="por-vencer-header">
+        <div class="por-vencer-header__title">
+            <div class="icon-pulse-wrapper">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 16 14"></polyline>
+                </svg>
             </div>
+            <div>
+                <h2>Membresías por vencer</h2>
+                <p>Atención requerida para renovaciones próximas</p>
+            </div>
+        </div>
+        <span class="por-vencer-badge-total">{{ membresiasPorVencer.length }} socios</span>
+    </div>
+
+    <!-- Muestra máximo 6 ítems por página (3 arriba, 3 abajo) -->
+    <div class="por-vencer-grid">
+        <div *ngFor="let item of membresiasPorVencerPaginadas; trackBy: trackByItemId" class="por-vencer-card">
+
+            <div class="por-vencer-card__user">
+                <img [src]="generarAvatar(item.nombreSocio || item.nombre)" [alt]="item.nombreSocio || item.nombre"
+                    class="user-avatar">
+                <div class="user-details">
+                    <span class="user-name">{{ item.nombreSocio || item.nombre }}</span>
+                    <span class="user-membership">{{ item.tipoMembresia || item.nombreMembresia || 'Plan Activo' }}</span>
+                </div>
+            </div>
+
+            <div class="por-vencer-card__right">
+                <div class="days-badge" [class.urgente]="item.diasRestantes <= 2" [class.alerta]="item.diasRestantes > 2">
+                    {{ item.diasRestantes }} {{ item.diasRestantes === 1 ? 'día' : 'días' }}
+                </div>
+                <button type="button" class="btn-renovar-action" (click)="renovarDesdePorVencer(item)">
+                    Renovar
+                </button>
+            </div>
+
         </div>
     </div>
 
+    <!-- Paginación (solo se muestra si hay más de 6 registros) -->
+    <div class="por-vencer-pagination" *ngIf="totalPaginasPorVencer > 1">
+        <button type="button" class="btn-page" [disabled]="paginaPorVencerActual === 1" (click)="paginaAnteriorPorVencer()">
+            ‹
+        </button>
+
+        <span class="page-indicator">
+            Página {{ paginaPorVencerActual }} de {{ totalPaginasPorVencer }}
+        </span>
+
+        <button type="button" class="btn-page" [disabled]="paginaPorVencerActual === totalPaginasPorVencer" (click)="paginaSiguientePorVencer()">
+            ›
+        </button>
+    </div>
+</div>
     <!-- VISTA 1: TARJETAS DE MEMBRESÍAS -->
     <ng-container *ngIf="vistaActual === 'tarjetas'">
         <div class="membership-header">
@@ -177,6 +215,7 @@
                         <tr>
                             <th>SOCIO</th>
                             <th>CONTACTO</th>
+                            <th>PRECIO TOTAL</th>
                             <th>ASIGNADO EL</th>
                             <th>VENCE</th>
                             <th class="text-right">ACCIONES</th>
@@ -193,6 +232,8 @@
                                 </div>
                             </td>
                             <td class="tel-col">{{ socio.telefono }}</td>
+                            <td class="font-semibold text-emerald-400">
+                                {{ formatearPrecio(socio.precioTotal || 0) }}</td>
                             <td class="date-col">{{ socio.fechaAsignacion }}</td>
                             <td class="date-col">{{ socio.fechaVencimiento }}</td>
                             <td class="text-right">

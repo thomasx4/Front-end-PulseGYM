@@ -2,6 +2,7 @@ import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import { AuthService } from '../../../../core/services/auth.service';
 import { DashboardService } from '../../../../core/services/dashboard.service';
 import jsPDF from 'jspdf';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -87,12 +88,16 @@ export class DashboardComponent implements OnInit {
     return Math.max(...this.ingresosMensuales.map((item) => item.ingresos));
   }
 
-  // CONSTRUCTOR
   constructor(
     private authService: AuthService,
     private dashboardService: DashboardService,
+    private router: Router
   ) {
     this.generarAnosDisponibles();
+  }
+
+  irAAsignarMembresia(): void {
+    this.router.navigate(['/dashboard-admin/memberships/assign']); 
   }
 
   // LIFECYCLE HOOKS
