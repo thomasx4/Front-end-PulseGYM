@@ -1,0 +1,542 @@
+// ============================================
+// VARIABLES
+// ============================================
+$primary: #0f1c3f;
+$primary-light: #1a2b5c;
+$text-dark: #0b1a30;
+$text-muted: #64748b;
+$text-light: #94a3b8;
+$border-color: #e2e8f0;
+$bg-light: #f8fafc;
+$bg-white: #ffffff;
+$radius: 12px;
+$radius-lg: 16px;
+$shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+
+// Estados
+$success: #22c55e;
+$warning: #f59e0b;
+$danger: #ef4444;
+$gray: #94a3b8;
+
+// ============================================
+// PAGE HEADER
+// ============================================
+.membership-management {
+    padding: 32px 40px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 32px;
+
+    .page-title {
+        font-size: 28px;
+        font-weight: 800;
+        color: $text-dark;
+        margin: 0;
+        letter-spacing: -0.5px;
+    }
+}
+
+.btn-primary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: $primary;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: $radius;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background: $primary-light;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(15, 28, 63, 0.25);
+    }
+
+    svg {
+        stroke: white;
+    }
+}
+
+// ============================================
+// SECTION TITLES
+// ============================================
+.section-subtitle {
+    font-size: 18px;
+    font-weight: 700;
+    color: $text-dark;
+    margin: 0 0 16px 0;
+}
+
+// ============================================
+// PLAN CARDS GRID
+// ============================================
+.plans-section {
+    margin-bottom: 40px;
+}
+
+.plans-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+.plan-card {
+    background: $bg-white;
+    border-radius: $radius-lg;
+    padding: 28px 24px;
+    border: 1px solid $border-color;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+
+    &:hover {
+        box-shadow: $shadow;
+        transform: translateY(-4px);
+        border-color: $primary;
+    }
+
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+    }
+
+    &__badge {
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        padding: 4px 12px;
+        border-radius: 20px;
+
+        &.badge-essential {
+            background: #e0e7ff;
+            color: #4338ca;
+        }
+
+        &.badge-elite {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        &.badge-vip {
+            background: #fce4ec;
+            color: #9a1f3c;
+        }
+    }
+
+    &__title {
+        font-size: 18px;
+        font-weight: 700;
+        color: $text-dark;
+        margin: 0;
+    }
+
+    &__price {
+        margin-bottom: 20px;
+
+        &-amount {
+            font-size: 36px;
+            font-weight: 800;
+            color: $text-dark;
+        }
+
+        &-period {
+            font-size: 16px;
+            font-weight: 600;
+            color: $text-light;
+            margin-left: 2px;
+        }
+    }
+
+    &__benefits {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 24px 0;
+        flex: 1;
+
+        li {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 0;
+            font-size: 14px;
+            color: $text-muted;
+
+            svg {
+                width: 16px;
+                height: 16px;
+                stroke: $success;
+                flex-shrink: 0;
+            }
+        }
+    }
+
+    &__actions {
+        margin-top: auto;
+
+        .btn-outline {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid $border-color;
+            background: transparent;
+            border-radius: $radius;
+            font-weight: 600;
+            font-size: 14px;
+            color: $text-dark;
+            cursor: pointer;
+            transition: all 0.2s ease;
+
+            &:hover {
+                background: $primary;
+                color: white;
+                border-color: $primary;
+            }
+        }
+    }
+}
+
+// ============================================
+// TABLE SECTION
+// ============================================
+.members-table-section {
+    background: $bg-white;
+    border-radius: $radius-lg;
+    border: 1px solid $border-color;
+    overflow: hidden;
+}
+
+.table-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid $border-color;
+    flex-wrap: wrap;
+    gap: 12px;
+
+    .section-subtitle {
+        margin: 0;
+    }
+}
+
+.table-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.btn-filter {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: $bg-light;
+    border: 1px solid $border-color;
+    border-radius: $radius;
+    font-size: 13px;
+    font-weight: 600;
+    color: $text-muted;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background: $border-color;
+    }
+}
+
+.search-box {
+    position: relative;
+    width: 240px;
+
+    input {
+        width: 100%;
+        padding: 8px 36px 8px 14px;
+        border: 1px solid $border-color;
+        border-radius: $radius;
+        font-size: 13px;
+        outline: none;
+        transition: border-color 0.2s;
+
+        &:focus {
+            border-color: $primary;
+        }
+    }
+
+    .search-icon {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 16px;
+        height: 16px;
+        stroke: $text-light;
+    }
+}
+
+// ============================================
+// TABLE
+// ============================================
+.table-wrapper {
+    overflow-x: auto;
+}
+
+.members-table {
+    width: 100%;
+    border-collapse: collapse;
+
+    th {
+        text-align: left;
+        font-size: 11px;
+        font-weight: 800;
+        color: $text-light;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        padding: 16px 20px;
+        border-bottom: 2px solid $border-color;
+    }
+
+    td {
+        padding: 16px 20px;
+        border-bottom: 1px solid $bg-light;
+        vertical-align: middle;
+        font-size: 14px;
+    }
+
+    .text-right {
+        text-align: right;
+    }
+}
+
+// MEMBER INFO
+.member-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .member-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: $primary;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 14px;
+        flex-shrink: 0;
+    }
+
+    .member-name {
+        font-weight: 700;
+        color: $text-dark;
+    }
+
+    .member-email {
+        font-size: 12px;
+        color: $text-light;
+    }
+}
+
+// PLAN TIER
+.plan-tier {
+    font-weight: 700;
+    font-size: 12px;
+    padding: 4px 12px;
+    border-radius: 4px;
+    display: inline-block;
+
+    &.tier-essential {
+        background: #e0e7ff;
+        color: #4338ca;
+    }
+
+    &.tier-elite {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    &.tier-vip {
+        background: #fce4ec;
+        color: #9a1f3c;
+    }
+}
+
+// STATUS BADGE
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    font-size: 13px;
+
+    .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+
+    &.active {
+        color: $success;
+
+        .status-dot {
+            background: $success;
+        }
+    }
+
+    &.grace {
+        color: $warning;
+
+        .status-dot {
+            background: $warning;
+        }
+    }
+
+    &.cancelled {
+        color: $gray;
+
+        .status-dot {
+            background: $gray;
+        }
+    }
+}
+
+// ACTIONS
+.btn-actions {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background 0.2s;
+
+    &:hover {
+        background: $bg-light;
+    }
+
+    svg {
+        stroke: $text-muted;
+    }
+}
+
+// EMPTY STATE
+.empty-state {
+    text-align: center;
+    color: $text-light;
+    padding: 40px !important;
+}
+
+// ============================================
+// TABLE FOOTER - PAGINACIÓN
+// ============================================
+.table-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    border-top: 1px solid $border-color;
+    flex-wrap: wrap;
+    gap: 12px;
+
+    .table-info {
+        font-size: 13px;
+        color: $text-muted;
+    }
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    .page-btn {
+        width: 32px;
+        height: 32px;
+        border: 1px solid $border-color;
+        background: transparent;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 13px;
+        color: $text-muted;
+        transition: all 0.2s ease;
+
+        &:hover:not(:disabled) {
+            background: $bg-light;
+            border-color: $primary;
+            color: $primary;
+        }
+
+        &:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        &.active {
+            background: $primary;
+            color: white;
+            border-color: $primary;
+        }
+    }
+}
+
+// ============================================
+// RESPONSIVE
+// ============================================
+@media (max-width: 1024px) {
+    .plans-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .membership-management {
+        padding: 16px;
+    }
+
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .plans-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .table-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .table-controls {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+
+    .search-box {
+        width: 100%;
+    }
+
+    .table-footer {
+        flex-direction: column;
+        align-items: center;
+    }
+}
