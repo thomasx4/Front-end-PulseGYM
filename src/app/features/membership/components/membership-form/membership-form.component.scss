@@ -1,0 +1,653 @@
+// ============================================
+// VARIABLES
+// ============================================
+$primary: #0f1c3f;
+$primary-light: #1a2b5c;
+$primary-hover: #2a3b7c;
+$text-dark: #0b1a30;
+$text-muted: #64748b;
+$text-light: #94a3b8;
+$border-color: #e2e8f0;
+$bg-light: #f8fafc;
+$bg-white: #ffffff;
+$radius: 12px;
+$radius-lg: 16px;
+$shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+$shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.08);
+
+$success: #22c55e;
+$warning: #f59e0b;
+$danger: #ef4444;
+
+// ============================================
+// CONTAINER
+// ============================================
+.membership-form-container {
+    padding: 32px 40px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+// ============================================
+// HEADER
+// ============================================
+.form-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid $border-color;
+
+    &__left {
+        flex: 1;
+    }
+
+    &__right {
+        display: flex;
+        gap: 12px;
+        margin-top: 4px;
+        flex-shrink: 0;
+    }
+}
+
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    margin-bottom: 8px;
+
+    a {
+        color: $text-muted;
+        text-decoration: none;
+        transition: color 0.2s;
+
+        &:hover {
+            color: $primary;
+        }
+    }
+
+    &-separator {
+        color: $text-light;
+    }
+
+    &-current {
+        color: $text-dark;
+        font-weight: 600;
+    }
+}
+
+.form-title {
+    font-size: 28px;
+    font-weight: 800;
+    color: $text-dark;
+    margin: 0 0 8px 0;
+    letter-spacing: -0.5px;
+}
+
+.form-subtitle {
+    font-size: 15px;
+    color: $text-muted;
+    margin: 0;
+
+    strong {
+        color: $text-dark;
+    }
+}
+
+// ============================================
+// BUTTONS
+// ============================================
+.btn-primary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: $primary;
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: $radius;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover:not(:disabled) {
+        background: $primary-hover;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(15, 28, 63, 0.25);
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    svg {
+        stroke: white;
+    }
+}
+
+.btn-outline {
+    padding: 10px 24px;
+    background: transparent;
+    border: 1px solid $border-color;
+    border-radius: $radius;
+    font-weight: 600;
+    font-size: 14px;
+    color: $text-muted;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background: $bg-light;
+        border-color: $text-muted;
+    }
+}
+
+.btn-add {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: $bg-light;
+    border: 1px solid $border-color;
+    border-radius: $radius;
+    font-weight: 600;
+    font-size: 13px;
+    color: $text-muted;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+
+    &:hover {
+        background: $border-color;
+        color: $text-dark;
+    }
+
+    svg {
+        stroke: currentColor;
+    }
+}
+
+// ============================================
+// FORM GRID
+// ============================================
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 32px;
+}
+
+.form-column {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.preview-column {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    position: sticky;
+    top: 32px;
+    align-self: start;
+}
+
+// ============================================
+// FORM SECTIONS
+// ============================================
+.form-section {
+    background: $bg-white;
+    border-radius: $radius-lg;
+    padding: 24px 28px;
+    border: 1px solid $border-color;
+    box-shadow: $shadow;
+}
+
+.section-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: $text-dark;
+    margin: 0 0 20px 0;
+    letter-spacing: 0.3px;
+}
+
+// ============================================
+// FORM GROUPS
+// ============================================
+.form-group {
+    margin-bottom: 18px;
+
+    label {
+        display: block;
+        font-size: 11px;
+        font-weight: 700;
+        color: $text-muted;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        margin-bottom: 6px;
+    }
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid $border-color;
+    border-radius: $radius;
+    font-size: 14px;
+    font-weight: 500;
+    color: $text-dark;
+    background: $bg-white;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
+
+    &:focus {
+        outline: none;
+        border-color: $primary;
+        box-shadow: 0 0 0 3px rgba(15, 28, 63, 0.08);
+    }
+
+    &::placeholder {
+        color: $text-light;
+        font-weight: 400;
+    }
+}
+
+// ✅ CORREGIDO: selector para textarea
+textarea.form-control {
+    resize: vertical;
+    font-family: inherit;
+    line-height: 1.5;
+}
+
+// ✅ CORREGIDO: selector para select
+select.form-control {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    cursor: pointer;
+}
+
+.input-prefix {
+    position: relative;
+
+    .prefix {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 14px;
+        font-weight: 600;
+        color: $text-muted;
+    }
+
+    .form-control {
+        padding-left: 28px;
+    }
+}
+
+// ============================================
+// BENEFITS
+// ============================================
+.benefits-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.benefit-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: $bg-light;
+    border-radius: $radius;
+    border: 1px solid $border-color;
+
+    .benefit-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: $success;
+        flex-shrink: 0;
+    }
+
+    .benefit-text {
+        flex: 1;
+        font-size: 14px;
+        color: $text-dark;
+    }
+
+    .benefit-remove {
+        background: transparent;
+        border: none;
+        color: $text-light;
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+
+        &:hover {
+            background: $danger;
+            color: white;
+        }
+
+        svg {
+            display: block;
+        }
+    }
+}
+
+.add-benefit {
+    display: flex;
+    gap: 10px;
+
+    .form-control {
+        flex: 1;
+    }
+}
+
+// ============================================
+// TOGGLES
+// ============================================
+.toggle-group {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.toggle-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+
+    input {
+        display: none;
+
+        &:checked+.toggle-slider {
+            background: $primary;
+        }
+
+        &:checked+.toggle-slider::after {
+            transform: translateX(18px);
+        }
+    }
+
+    .toggle-slider {
+        width: 38px;
+        height: 22px;
+        background: $border-color;
+        border-radius: 12px;
+        position: relative;
+        transition: background 0.3s ease;
+        flex-shrink: 0;
+
+        &::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            top: 3px;
+            left: 3px;
+            transition: transform 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+        }
+    }
+
+    .toggle-label {
+        font-size: 14px;
+        font-weight: 500;
+        color: $text-dark;
+    }
+}
+
+// ============================================
+// PREVIEW CARD
+// ============================================
+.preview-card {
+    background: $bg-white;
+    border-radius: $radius-lg;
+    padding: 24px 28px;
+    border: 1px solid $border-color;
+    box-shadow: $shadow;
+}
+
+.preview-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: $text-muted;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin: 0 0 18px 0;
+}
+
+.preview-plan {
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+    }
+
+    &__badge {
+        font-size: 9px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        padding: 4px 12px;
+        border-radius: 20px;
+
+        &.badge-essential {
+            background: #e0e7ff;
+            color: #4338ca;
+        }
+
+        &.badge-elite {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        &.badge-vip {
+            background: #fce4ec;
+            color: #9a1f3c;
+        }
+
+        &.badge-premium {
+            background: #d1fae5;
+            color: #065f46;
+        }
+    }
+
+    &__name {
+        font-size: 20px;
+        font-weight: 800;
+        color: $text-dark;
+        margin: 0 0 4px 0;
+    }
+
+    &__price {
+        margin-bottom: 16px;
+
+        &-amount {
+            font-size: 32px;
+            font-weight: 800;
+            color: $text-dark;
+        }
+
+        &-period {
+            font-size: 14px;
+            font-weight: 500;
+            color: $text-light;
+            margin-left: 2px;
+        }
+    }
+
+    &__benefits {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 18px 0;
+
+        li {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 4px 0;
+            font-size: 13px;
+            color: $text-muted;
+
+            svg {
+                width: 16px;
+                height: 16px;
+                stroke: $success;
+                flex-shrink: 0;
+            }
+        }
+
+        .more-benefits {
+            color: $text-light;
+            font-style: italic;
+            font-size: 12px;
+        }
+    }
+
+    &__actions {
+        .btn-preview-select {
+            width: 100%;
+            padding: 10px;
+            background: $primary;
+            color: white;
+            border: none;
+            border-radius: $radius;
+            font-weight: 700;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+
+            &:hover {
+                background: $primary-hover;
+            }
+        }
+    }
+}
+
+// ============================================
+// IMPACT CARD
+// ============================================
+.impact-card {
+    background: $primary;
+    border-radius: $radius-lg;
+    padding: 24px 28px;
+    color: white;
+}
+
+.impact-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: rgba(255, 255, 255, 0.6);
+    margin: 0 0 18px 0;
+}
+
+.impact-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.impact-stat {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+
+    &:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    &__label {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    &__value {
+        font-size: 18px;
+        font-weight: 700;
+        color: white;
+
+        &.positive {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: #4ade80;
+
+            svg {
+                stroke: #4ade80;
+            }
+        }
+    }
+}
+
+// ============================================
+// RESPONSIVE
+// ============================================
+@media (max-width: 1024px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .preview-column {
+        position: static;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+    }
+}
+
+@media (max-width: 768px) {
+    .membership-form-container {
+        padding: 16px;
+    }
+
+    .form-header {
+        flex-direction: column;
+        gap: 16px;
+
+        &__right {
+            width: 100%;
+            flex-direction: column;
+        }
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .preview-column {
+        grid-template-columns: 1fr;
+    }
+
+    .form-section {
+        padding: 18px 16px;
+    }
+
+    .add-benefit {
+        flex-direction: column;
+    }
+}

@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';  // ← IMPORTAR Router
 
 interface Plan {
   id: number;
@@ -130,6 +131,9 @@ export class MembershipListComponent implements OnInit {
   paginaActual: number = 1;
   itemsPorPagina: number = 10;
 
+  // ==================== CONSTRUCTOR ====================
+  constructor(private router: Router) {}  // ← INYECTAR Router
+
   get miembrosFiltrados(): Miembro[] {
     if (!this.searchTerm.trim()) {
       return this.miembros;
@@ -176,13 +180,12 @@ export class MembershipListComponent implements OnInit {
   }
 
   crearNuevaMembresia(): void {
-    console.log('Abrir modal para crear nueva membresía');
-    // TODO: Implementar modal de creación
+    // Navegar a crear nueva membresía
+    this.router.navigate(['/dashboard-admin/memberships/new']);
   }
 
   editarPlan(plan: Plan): void {
-    console.log('Editar plan:', plan.nombre);
-    // TODO: Abrir modal de edición
+    this.router.navigate(['/dashboard-admin/memberships/edit', plan.id]);
   }
 
   toggleFiltros(): void {

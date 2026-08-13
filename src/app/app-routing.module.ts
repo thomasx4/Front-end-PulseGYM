@@ -29,25 +29,11 @@ const routes: Routes = [
                 path: 'users',
                 component: CredentialsListComponent,
             },
-            {
-                path: 'memberships',
-                children: [
-                    {
-                        path: 'assign',
-                        loadChildren: () => 
-                            import('./features/membership/membership.module').then((m) => m.MembershipModule),
-                    },
-                    {
-                        path: 'list',
-                        component: MembershipListComponent,
-                    },
-                    {
-                        path: '',
-                        redirectTo: 'assign',
-                        pathMatch: 'full',
-                    },
-                ],
-            },
+{
+    path: 'memberships',
+    loadChildren: () => 
+        import('./features/membership/membership.module').then((m) => m.MembershipModule),
+},
         ],
     },
     {
