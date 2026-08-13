@@ -7,25 +7,36 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <line x1="12" y1="5" x2="12" y2="19" />
                 <line x1="5" y1="12" x2="19" y2="12" />
-            </svg>  
+            </svg>
             Nueva Membresía
         </button>
-
     </div>
 
-    <!-- ==================== PLAN CARDS ==================== -->
-    <div class="plans-section">
+    <!-- ==================== SPINNER DE CARGA ==================== -->
+    <div *ngIf="loading" class="loading-overlay">
+        <div class="spinner"></div>
+        <span>Cargando...</span>
+    </div>
+
+    <!-- ==================== PLAN CARDS (SIN FILTROS) ==================== -->
+    <div class="plans-section" *ngIf="!loading">
         <h2 class="section-subtitle">Planes Disponibles</h2>
         <div class="plans-grid">
-            <!-- Plan 1: Essential -->
             <div class="plan-card" *ngFor="let plan of planes">
                 <div class="plan-card__header">
-                    <span class="plan-card__badge" [class]="plan.badgeClass">{{ plan.badge }}</span>
+                    <span class="plan-card__badge" [class]="plan.badgeClass">
+                        {{ plan.badge }}
+                        <span *ngIf="plan.incluyeIA" class="ia-badge">IA</span>
+                    </span>
                     <h3 class="plan-card__title">{{ plan.nombre }}</h3>
                 </div>
                 <div class="plan-card__price">
-                    <span class="plan-card__amount">{{ plan.precio | currency:'USD':'symbol':'1.0-0' }}</span>
-                    <span class="plan-card__period">/mo</span>
+                    <span class="plan-card__amount">{{ plan.precio | currency:'COP':'symbol':'1.0-0' }}</span>
+                    <span class="plan-card__period">/ total</span>
+                </div>
+                <div class="plan-card__stats">
+                    <span class="plan-card__stat">{{ plan.totalSociosAsignados }} socios</span>
+                    <span class="plan-card__stat" *ngIf="plan.esFlexible">Flexible</span>
                 </div>
                 <ul class="plan-card__benefits">
                     <li *ngFor="let beneficio of plan.beneficios">
@@ -36,6 +47,9 @@
                     </li>
                 </ul>
                 <div class="plan-card__actions">
+                    <button class="btn-detail" (click)="verDetallePlan(plan)">
+                        Ver Detalle
+                    </button>
                     <button class="btn-outline" (click)="editarPlan(plan)">
                         {{ plan.accion }}
                     </button>
@@ -44,33 +58,41 @@
         </div>
     </div>
 
-    <!-- ==================== TABLA DE MIEMBROS ==================== -->
-    <div class="members-table-section">
+    <!-- ==================== TABLA DE MIEMBROS CON FILTROS ==================== -->
+    <div class="members-table-section" *ngIf="!loading">
         <div class="table-header">
             <h2 class="section-subtitle">Active Memberships</h2>
             <div class="table-controls">
-                <button class="btn-filter" (click)="toggleFiltros()">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="4" y1="21" x2="4" y2="14" />
-                        <line x1="4" y1="10" x2="4" y2="3" />
-                        <line x1="12" y1="21" x2="12" y2="12" />
-                        <line x1="12" y1="8" x2="12" y2="3" />
-                        <line x1="20" y1="21" x2="20" y2="16" />
-                        <line x1="20" y1="12" x2="20" y2="3" />
-                        <line x1="1" y1="14" x2="7" y2="14" />
-                        <line x1="9" y1="8" x2="15" y2="8" />
-                        <line x1="17" y1="16" x2="23" y2="16" />
-                    </svg>
-                    Filter List
-                </button>
-                <div class="search-box" *ngIf="mostrarFiltros">
+                <!-- FILTROS SOLO PARA LA TABLA -->
+                <div class="filter-group">
+                    <select [(ngModel)]="filtroIA" (change)="aplicarFiltrosTabla()">
+                        <option value="todos">Todos</option>
+                        <option value="conIA">Con IA</option>
+                        <option value="sinIA">Sin IA</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <select [(ngModel)]="filtroFlexible" (change)="aplicarFiltrosTabla()">
+                        <option value="todos">Todos</option>
+                        <option value="flexible">Flexibles</option>
+                        <option value="noFlexible">No Flexibles</option>
+                    </select>
+                </div>
+                <div class="search-box">
                     <input type="text" placeholder="Buscar miembro..." [(ngModel)]="searchTerm"
-                        (input)="filtrarMiembros()" />
+                        (input)="aplicarFiltrosTabla()" />
                     <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="11" cy="11" r="8" />
                         <line x1="21" y1="21" x2="16.65" y2="16.65" />
                     </svg>
                 </div>
+                <button class="btn-clear-filters" (click)="limpiarFiltros()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                    Limpiar filtros
+                </button>
             </div>
         </div>
 
@@ -79,11 +101,11 @@
                 <thead>
                     <tr>
                         <th>MEMBER</th>
-                        <th>PLAN TIER</th>
-                        <th>JOIN DATE</th>
-                        <th>STATUS</th>
-                        <th>NEXT BILLING</th>
-                        <th class="text-right">ACTIONS</th>
+                        <th>PLAN</th>
+                        <th>FECHA INICIO</th>
+                        <th>FECHA FIN</th>
+                        <th>DÍAS RESTANTES</th>
+                        <th>ESTADO</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -91,39 +113,37 @@
                         <td>
                             <div class="member-info">
                                 <div class="member-avatar">
-                                    {{ miembro.nombre.charAt(0) }}{{ miembro.apellido.charAt(0) }}
+                                    {{ miembro.nombre.charAt(0) }}{{ miembro.apellido?.charAt(0) || '' }}
                                 </div>
                                 <div>
-                                    <div class="member-name">{{ miembro.nombre }} {{ miembro.apellido }}</div>
+                                    <div class="member-name">{{ miembro.nombre }} {{ miembro.apellido || '' }}</div>
                                     <div class="member-email">{{ miembro.email }}</div>
+                                    <div class="member-phone" *ngIf="miembro.telefono">{{ miembro.telefono }}</div>
                                 </div>
                             </div>
                         </td>
                         <td>
                             <span class="plan-tier" [class]="miembro.planClass">
-                                {{ miembro.plan }}
+                                {{ miembro.nombreMembresia || miembro.plan || 'Sin plan' }}
                             </span>
                         </td>
-                        <td>{{ miembro.joinDate }}</td>
+                        <td>{{ miembro.fechaInicio || miembro.joinDate }}</td>
+                        <td>{{ miembro.fechaFin || miembro.nextBilling }}</td>
+                        <td>
+                            <span class="days-badge"
+                                [class.urgente]="miembro.diasRestantes !== undefined && miembro.diasRestantes <= 3"
+                                [class.alerta]="miembro.diasRestantes !== undefined && miembro.diasRestantes > 3 && miembro.diasRestantes <= 7">
+                                {{ miembro.diasRestantes !== undefined ? miembro.diasRestantes : '--' }} días
+                            </span>
+                        </td>
                         <td>
                             <span class="status-badge" [class]="miembro.statusClass">
                                 <span class="status-dot"></span>
-                                {{ miembro.status }}
+                                {{ miembro.estado || miembro.status || 'Activo' }}
                             </span>
                         </td>
-                        <td>{{ miembro.nextBilling }}</td>
-                        <td class="text-right">
-                            <button class="btn-actions" (click)="accionesMiembro(miembro)">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
-                                    <circle cx="12" cy="12" r="1" />
-                                    <circle cx="12" cy="5" r="1" />
-                                    <circle cx="12" cy="19" r="1" />
-                                </svg>
-                            </button>
-                        </td>
                     </tr>
-                    <tr *ngIf="miembrosFiltrados.length === 0">
+                    <tr *ngIf="miembrosFiltradosList.length === 0">
                         <td colspan="6" class="empty-state">No se encontraron miembros</td>
                     </tr>
                 </tbody>
@@ -133,7 +153,7 @@
         <!-- PAGINACIÓN -->
         <div class="table-footer">
             <span class="table-info">
-                Showing {{ inicio + 1 }}–{{ fin }} of {{ miembrosFiltrados.length }} members
+                Showing {{ inicio + 1 }}–{{ fin }} of {{ miembrosFiltradosList.length }} members
             </span>
             <div class="pagination">
                 <button class="page-btn" (click)="paginaAnterior()" [disabled]="paginaActual === 1">

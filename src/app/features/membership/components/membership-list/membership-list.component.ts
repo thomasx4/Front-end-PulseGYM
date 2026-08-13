@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';  // ← IMPORTAR Router
+import { Router } from '@angular/router';
+import { MembershipService } from '../../../../core/services/membership.service';
+import Swal from 'sweetalert2';
 
 interface Plan {
   id: number;
@@ -9,6 +11,9 @@ interface Plan {
   badgeClass: string;
   beneficios: string[];
   accion: string;
+  incluyeIA: boolean;
+  esFlexible: boolean;
+  totalSociosAsignados: number;
 }
 
 interface Miembro {
@@ -22,6 +27,14 @@ interface Miembro {
   status: string;
   statusClass: string;
   nextBilling: string;
+  nombreMembresia?: string;
+  fechaInicio?: string;
+  fechaFin?: string;
+  estado?: string;
+  telefono?: string;
+  diasRestantes?: number;
+  incluyeIA?: boolean;
+  esFlexible?: boolean;
 }
 
 @Component({
@@ -30,125 +43,137 @@ interface Miembro {
   styleUrls: ['./membership-list.component.scss']
 })
 export class MembershipListComponent implements OnInit {
-  // ==================== PLANES ====================
-  planes: Plan[] = [
-    {
-      id: 1,
-      nombre: 'ESSENTIAL',
-      precio: 49,
-      badge: 'STANDARD',
-      badgeClass: 'badge-essential',
-      beneficios: [
-        '24/7 Gym Access',
-        'Locker Room Access',
-        'Personal Training'
-      ],
-      accion: 'Edit Plan'
-    },
-    {
-      id: 2,
-      nombre: 'ELITE PERFORMANCE',
-      precio: 89,
-      badge: 'PREMIUM',
-      badgeClass: 'badge-elite',
-      beneficios: [
-        'Everything in Standard',
-        '4 Personal Training sessions',
-        'Nutritional Consultations'
-      ],
-      accion: 'Manage Tier'
-    },
-    {
-      id: 3,
-      nombre: 'VIP SANCTUARY',
-      precio: 199,
-      badge: 'VIP',
-      badgeClass: 'badge-vip',
-      beneficios: [
-        'Unlimited PT Sessions',
-        'Private Lounge & Spa',
-        'Priority Equipment Booking'
-      ],
-      accion: 'Edit Plan'
-    }
-  ];
+  // ==================== PLANES (TODOS) ====================
+  planes: Plan[] = [];
 
   // ==================== MIEMBROS ====================
-  miembros: Miembro[] = [
-    {
-      id: 1,
-      nombre: 'Elena',
-      apellido: 'Rodriguez',
-      email: 'elena.riguez@example.com',
-      plan: 'ELITTER',
-      planClass: 'tier-elite',
-      joinDate: 'Mar 12, 2023',
-      status: 'Active',
-      statusClass: 'active',
-      nextBilling: 'Oct 12, 2023'
-    },
-    {
-      id: 2,
-      nombre: 'Julian',
-      apellido: 'Vance',
-      email: 'jvance@workmail.com',
-      plan: 'VIP SANCTUARY',
-      planClass: 'tier-vip',
-      joinDate: 'Jan 05, 2023',
-      status: 'Active',
-      statusClass: 'active',
-      nextBilling: 'Oct 05, 2023'
-    },
-    {
-      id: 3,
-      nombre: 'Sarah',
-      apellido: 'Jenkins',
-      email: 'sarahj@web.com',
-      plan: 'STANDARD',
-      planClass: 'tier-essential',
-      joinDate: 'Aug 22, 2023',
-      status: 'Grace Period',
-      statusClass: 'grace',
-      nextBilling: 'Sep 22, 2023'
-    },
-    {
-      id: 4,
-      nombre: 'Liam',
-      apellido: "O'Connell",
-      email: 'liam.oc@mail.com',
-      plan: 'ELITTER',
-      planClass: 'tier-elite',
-      joinDate: 'May 15, 2023',
-      status: 'Cancelled',
-      statusClass: 'cancelled',
-      nextBilling: '--'
-    }
-  ];
+  miembros: Miembro[] = [];
+  miembrosFiltradosList: Miembro[] = [];
 
-  // ==================== FILTROS Y PAGINACIÓN ====================
+  // ==================== FILTROS (SOLO PARA TABLA) ====================
   searchTerm: string = '';
-  mostrarFiltros: boolean = false;
+  filtroIA: string = 'todos';
+  filtroFlexible: string = 'todos';
+
+  // ==================== PAGINACIÓN ====================
   paginaActual: number = 1;
   itemsPorPagina: number = 10;
+  loading: boolean = false;
 
-  // ==================== CONSTRUCTOR ====================
-  constructor(private router: Router) {}  // ← INYECTAR Router
+  constructor(
+    private router: Router,
+    private membershipService: MembershipService
+  ) {}
 
-  get miembrosFiltrados(): Miembro[] {
-    if (!this.searchTerm.trim()) {
-      return this.miembros;
-    }
-    const term = this.searchTerm.toLowerCase().trim();
-    return this.miembros.filter(m =>
-      m.nombre.toLowerCase().includes(term) ||
-      m.apellido.toLowerCase().includes(term) ||
-      m.email.toLowerCase().includes(term) ||
-      m.plan.toLowerCase().includes(term)
-    );
+  ngOnInit(): void {
+    this.cargarDatos();
   }
 
+  cargarDatos(): void {
+    this.loading = true;
+    
+    this.membershipService.getMembresiasConSocios().subscribe({
+      next: (data: any[]) => {
+        // Mapear planes (TODOS, sin filtros)
+        this.planes = data.map((item: any) => ({
+          id: item.idMembresia,
+          nombre: item.nombre,
+          precio: item.precioTotal || 0,
+          badge: item.incluyeIA ? 'PREMIUM' : 'STANDARD',
+          badgeClass: item.incluyeIA ? 'badge-elite' : 'badge-essential',
+          beneficios: item.beneficios ? item.beneficios.split(',').map((b: string) => b.trim()) : ['Sin beneficios'],
+          accion: 'Edit Plan',
+          incluyeIA: item.incluyeIA,
+          esFlexible: item.esFlexible,
+          totalSociosAsignados: item.totalSociosAsignados || 0
+        }));
+
+        // Mapear socios asignados (con datos de membresía para filtrar)
+        this.miembros = [];
+        data.forEach((membresia: any) => {
+          if (membresia.sociosAsignados && membresia.sociosAsignados.length > 0) {
+            membresia.sociosAsignados.forEach((socio: any) => {
+              this.miembros.push({
+                id: socio.idSocio,
+                nombre: socio.nombreCompleto?.split(' ')[0] || 'Usuario',
+                apellido: socio.nombreCompleto?.split(' ').slice(1).join(' ') || '',
+                email: socio.email || '',
+                telefono: socio.telefono || '',
+                plan: membresia.nombre,
+                planClass: membresia.incluyeIA ? 'tier-elite' : 'tier-essential',
+                joinDate: socio.fechaInicio ? new Date(socio.fechaInicio).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '',
+                status: socio.estado === 'ACTIVA' ? 'Active' : 'Inactive',
+                statusClass: socio.estado === 'ACTIVA' ? 'active' : 'cancelled',
+                nextBilling: socio.fechaVencimiento ? new Date(socio.fechaVencimiento).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '--',
+                nombreMembresia: membresia.nombre,
+                fechaInicio: socio.fechaInicio ? new Date(socio.fechaInicio).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '',
+                fechaFin: socio.fechaVencimiento ? new Date(socio.fechaVencimiento).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '--',
+                estado: socio.estado === 'ACTIVA' ? 'Activo' : 'Inactivo',
+                diasRestantes: socio.diasRestantes,
+                incluyeIA: membresia.incluyeIA,
+                esFlexible: membresia.esFlexible
+              });
+            });
+          }
+        });
+
+        this.aplicarFiltrosTabla();
+        this.loading = false;
+      },
+      error: (error: any) => {
+        console.error('Error al cargar datos:', error);
+        this.loading = false;
+        Swal.fire('Error', 'No se pudieron cargar los datos', 'error');
+      }
+    });
+  }
+
+  // ==================== FILTROS SOLO PARA LA TABLA ====================
+  aplicarFiltrosTabla(): void {
+    let filtrados = [...this.miembros];
+
+    // Filtro por IA
+    if (this.filtroIA === 'conIA') {
+      filtrados = filtrados.filter(m => m.incluyeIA === true);
+    } else if (this.filtroIA === 'sinIA') {
+      filtrados = filtrados.filter(m => m.incluyeIA === false);
+    }
+
+    // Filtro por Flexible
+    if (this.filtroFlexible === 'flexible') {
+      filtrados = filtrados.filter(m => m.esFlexible === true);
+    } else if (this.filtroFlexible === 'noFlexible') {
+      filtrados = filtrados.filter(m => m.esFlexible === false);
+    }
+
+    // Filtro por búsqueda (acepta espacios)
+    if (this.searchTerm.trim()) {
+      const term = this.searchTerm.toLowerCase().trim();
+      filtrados = filtrados.filter(m =>
+        m.nombre.toLowerCase().includes(term) ||
+        m.apellido.toLowerCase().includes(term) ||
+        (m.nombre + ' ' + m.apellido).toLowerCase().includes(term) ||
+        m.email.toLowerCase().includes(term) ||
+        m.plan.toLowerCase().includes(term) ||
+        (m.nombreMembresia?.toLowerCase().includes(term) || false)
+      );
+    }
+
+    this.miembrosFiltradosList = filtrados;
+    this.paginaActual = 1;
+  }
+
+  // ==================== LIMPIAR FILTROS ====================
+  limpiarFiltros(): void {
+    this.searchTerm = '';
+    this.filtroIA = 'todos';
+    this.filtroFlexible = 'todos';
+    this.aplicarFiltrosTabla();
+  }
+
+  // ==================== PAGINACIÓN ====================
   get totalPaginas(): number {
-    return Math.ceil(this.miembrosFiltrados.length / this.itemsPorPagina) || 1;
+    return Math.ceil(this.miembrosFiltradosList.length / this.itemsPorPagina) || 1;
   }
 
   get paginas(): number[] {
@@ -167,20 +192,15 @@ export class MembershipListComponent implements OnInit {
   }
 
   get fin(): number {
-    return Math.min(this.inicio + this.itemsPorPagina, this.miembrosFiltrados.length);
+    return Math.min(this.inicio + this.itemsPorPagina, this.miembrosFiltradosList.length);
   }
 
   get miembrosPaginados(): Miembro[] {
-    return this.miembrosFiltrados.slice(this.inicio, this.fin);
+    return this.miembrosFiltradosList.slice(this.inicio, this.fin);
   }
 
   // ==================== MÉTODOS ====================
-  ngOnInit(): void {
-    // Cargar datos desde el backend si es necesario
-  }
-
   crearNuevaMembresia(): void {
-    // Navegar a crear nueva membresía
     this.router.navigate(['/dashboard-admin/memberships/new']);
   }
 
@@ -188,17 +208,8 @@ export class MembershipListComponent implements OnInit {
     this.router.navigate(['/dashboard-admin/memberships/edit', plan.id]);
   }
 
-  toggleFiltros(): void {
-    this.mostrarFiltros = !this.mostrarFiltros;
-  }
-
-  filtrarMiembros(): void {
-    this.paginaActual = 1;
-  }
-
-  accionesMiembro(miembro: Miembro): void {
-    console.log('Acciones para:', miembro.nombre);
-    // TODO: Mostrar menú de acciones (renovar, suspender, cancelar)
+  verDetallePlan(plan: Plan): void {
+    this.router.navigate(['/dashboard-admin/memberships/detail', plan.id]);
   }
 
   irPagina(pagina: number): void {
