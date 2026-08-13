@@ -8,11 +8,13 @@ import { MembershipRoutingModule } from './membership-routing.module';
 import { AssignMembershipComponent } from './components/assign-membership/assign-membership.component';
 import { SharedModule } from '../../shared/shared.module';
 import { MembershipListComponent } from './components/membership-list/membership-list.component';
+import { MembershipFormComponent } from './components/membership-form/membership-form.component';
 
 @NgModule({
   declarations: [
     AssignMembershipComponent,
-    MembershipListComponent
+    MembershipListComponent,
+    MembershipFormComponent
   ],
   imports: [
     CommonModule,
