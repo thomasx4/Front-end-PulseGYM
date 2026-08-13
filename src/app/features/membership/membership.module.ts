@@ -7,10 +7,12 @@ import { FormsModule } from '@angular/forms';
 import { MembershipRoutingModule } from './membership-routing.module';
 import { AssignMembershipComponent } from './components/assign-membership/assign-membership.component';
 import { SharedModule } from '../../shared/shared.module';
+import { MembershipListComponent } from './components/membership-list/membership-list.component';
 
 @NgModule({
   declarations: [
-    AssignMembershipComponent
+    AssignMembershipComponent,
+    MembershipListComponent
   ],
   imports: [
     CommonModule,
