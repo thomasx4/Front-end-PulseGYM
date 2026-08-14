@@ -1,13 +1,9 @@
-// SERVICIO DE MEMBRESÍAS - CONEXIÓN CON EL BACKEND
-
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 
-// ============================================
 // INTERFACES
-// ============================================
 
 export interface AsignacionRequest {
     idSocio: number;
@@ -47,7 +43,7 @@ export class MembershipService {
 
     constructor(private http: HttpClient) { }
 
-    // 1. MEMBRESÍAS
+    // 1. MEMBRESÍAS CRUD
 
     /**
      * Obtiene todas las membresías activas
@@ -57,10 +53,45 @@ export class MembershipService {
     }
 
     /**
+     * Obtiene todas las membresías con sus socios activos asignados
+     */
+    getMembresiasConSocios(): Observable<any> {
+        return this.http.get(`${this.apiUrl}/membresias/todos-con-socios-activos`);
+    }
+
+    /**
      * Obtiene una membresía con sus socios ACTIVOS asignados
      */
     getMembresiaConSociosActivos(idMembresia: number): Observable<any> {
         return this.http.get(`${this.apiUrl}/membresias/${idMembresia}/socios-activos`);
+    }
+
+    /**
+     * Obtiene membresías filtradas por categoría (IA)
+     */
+    getMembresiasPorCategoria(incluyeIA: boolean): Observable<any> {
+        return this.http.get(`${this.apiUrl}/membresias/categoria?incluyeIA=${incluyeIA}`);
+    }
+
+    /**
+     * Crea una nueva membresía
+     */
+    crearMembresia(data: any): Observable<any> {
+        return this.http.post(`${this.apiUrl}/membresias`, data);
+    }
+
+    /**
+     * Actualiza una membresía existente
+     */
+    actualizarMembresia(id: number, data: any): Observable<any> {
+        return this.http.put(`${this.apiUrl}/membresias/${id}`, data);
+    }
+
+    /**
+     * Elimina/desactiva una membresía
+     */
+    eliminarMembresia(id: number): Observable<any> {
+        return this.http.delete(`${this.apiUrl}/membresias/${id}`);
     }
 
     // 2. USUARIOS (SOCIOS)
@@ -72,7 +103,7 @@ export class MembershipService {
         return this.http.get(`${this.apiUrl}/usuarios/activo`);
     }
 
-    // ASIGNACIÓN DE MEMBRESÍAS
+    // 3. ASIGNACIÓN DE MEMBRESÍAS
 
     /**
      * Asigna una membresía a un socio
@@ -102,7 +133,7 @@ export class MembershipService {
         return this.http.get(`${this.apiUrl}/socios-membresias/socio/${idSocio}/activa`);
     }
 
-    // OPERACIONES SOBRE MEMBRESÍAS
+    // 4. OPERACIONES SOBRE MEMBRESÍAS DE SOCIOS
 
     /**
      * Renueva una membresía (PUT)
@@ -128,7 +159,7 @@ export class MembershipService {
         );
     }
 
-    // REPORTES
+    // 5. REPORTES
 
     /**
      * Obtiene membresías por vencer (1-5 días)

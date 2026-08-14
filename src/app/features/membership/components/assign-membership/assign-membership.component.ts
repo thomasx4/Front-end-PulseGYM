@@ -57,6 +57,7 @@ export class AssignMembershipComponent implements OnInit {
   loading: boolean = false;
   errorMessage: string = '';
   successMessage: string = '';
+  isInfoAlert: boolean = false;
 
   // MODAL FLEXIBLE
   diasFlexibles: number = 1;
@@ -64,6 +65,10 @@ export class AssignMembershipComponent implements OnInit {
 
   // FILTROS
   searchTermSocios: string = '';
+
+  // PAGINACIÓN MEMBRESÍAS (TARJETAS)
+  paginaMembresiasActual: number = 1;
+  itemsPorPaginaMembresias: number = 6;
 
   // SOCIOS ASIGNADOS (PAGINACIÓN)
   sociosAsignados: SocioUI[] = [];
@@ -80,14 +85,80 @@ export class AssignMembershipComponent implements OnInit {
   // ACCIONES - Estado de carga
   accionEnProceso: boolean = false;
 
-  constructor(private membershipService: MembershipService) {}
+  // PAGINACIÓN POR VENCER
+  paginaPorVencerActual: number = 1;
+  readonly itemsPorPaginaPorVencer: number = 6;
+
+  constructor(private membershipService: MembershipService) { }
 
   ngOnInit(): void {
     this.cargarMembresias();
     this.cargarPorVencer();
   }
 
-  // CARGA DE DATOS DESDE EL BACKEND
+  // GETTERS PAGINACIÓN MEMBRESÍAS
+
+  get membresiasPaginadas(): MembresiaUI[] {
+    const inicio = (this.paginaMembresiasActual - 1) * this.itemsPorPaginaMembresias;
+    return this.membresias.slice(inicio, inicio + this.itemsPorPaginaMembresias);
+  }
+
+  get totalPaginasMembresias(): number {
+    return Math.ceil(this.membresias.length / this.itemsPorPaginaMembresias) || 1;
+  }
+
+  get paginasMembresias(): number[] {
+    return Array.from({ length: this.totalPaginasMembresias }, (_, i) => i + 1);
+  }
+
+
+// GETTERS PAGINACIÓN POR VENCER
+
+get membresiasPorVencerPaginadas(): any[] {
+    const inicio = (this.paginaPorVencerActual - 1) * this.itemsPorPaginaPorVencer;
+    const fin = inicio + this.itemsPorPaginaPorVencer;
+    return this.membresiasPorVencer.slice(inicio, fin);
+}
+
+get totalPaginasPorVencer(): number {
+    return Math.ceil(this.membresiasPorVencer.length / this.itemsPorPaginaPorVencer);
+}
+
+get paginasPorVencer(): number[] {
+    return Array.from({ length: this.totalPaginasPorVencer }, (_, i) => i + 1);
+}
+
+  // GETTERS PAGINACIÓN SOCIOS 
+
+  get sociosPaginados(): SocioUI[] {
+    const inicio = (this.sociosPaginaActual - 1) * this.sociosItemsPorPagina;
+    return this.sociosAsignadosFiltrados.slice(inicio, inicio + this.sociosItemsPorPagina);
+  }
+
+  get totalSociosPaginas(): number {
+    return Math.ceil(this.sociosAsignadosFiltrados.length / this.sociosItemsPorPagina) || 1;
+  }
+
+  get paginasSocios(): number[] {
+    return Array.from({ length: this.totalSociosPaginas }, (_, i) => i + 1);
+  }
+
+  //  GETTERS PAGINACIÓN MODAL 
+
+  get sociosModalPaginados(): SocioUI[] {
+    const inicio = (this.sociosModalPaginaActual - 1) * this.sociosModalItemsPorPagina;
+    return this.sociosFiltradosModal.slice(inicio, inicio + this.sociosModalItemsPorPagina);
+  }
+
+  get totalSociosModalPaginas(): number {
+    return Math.ceil(this.sociosFiltradosModal.length / this.sociosModalItemsPorPagina) || 1;
+  }
+
+  get paginasModal(): number[] {
+    return Array.from({ length: this.totalSociosModalPaginas }, (_, i) => i + 1);
+  }
+
+  //  CARGA DE DATOS 
 
   cargarMembresias(): void {
     this.loading = true;
@@ -108,12 +179,12 @@ export class AssignMembershipComponent implements OnInit {
           incluyeIA: !!item.incluyeIA,
           esFlexible: !!item.esFlexible,
         }));
+        this.paginaMembresiasActual = 1;
         this.actualizarConteoSocios();
         this.loading = false;
       },
       error: (error) => {
-        this.errorMessage =
-          error.error?.message || 'Error al cargar membresías.';
+        this.errorMessage = error.error?.message || 'Error al cargar membresías.';
         this.loading = false;
       },
     });
@@ -125,7 +196,14 @@ export class AssignMembershipComponent implements OnInit {
     const observables = this.membresias.map((m) =>
       this.membershipService
         .getMembresiaConSociosActivos(m.id)
-        .pipe(catchError(() => of({ sociosAsignados: [] }))),
+        .pipe(
+          catchError((error) => {
+            if (error.status === 404 || error.status === 400) {
+              return of({ sociosAsignados: [] });
+            }
+            return of({ sociosAsignados: [] });
+          })
+        )
     );
 
     forkJoin(observables).subscribe((respuestas: any[]) => {
@@ -140,6 +218,7 @@ export class AssignMembershipComponent implements OnInit {
     this.membershipService.getPorVencer().subscribe({
       next: (response: any) => {
         this.membresiasPorVencer = response || [];
+        this.paginaPorVencerActual = 1;
       },
       error: () => {
         this.membresiasPorVencer = [];
@@ -147,52 +226,135 @@ export class AssignMembershipComponent implements OnInit {
     });
   }
 
-  verSocios(id: number): void {
-    this.loading = true;
-    this.errorMessage = '';
+  //  MÉTODOS DE PAGINACIÓN MEMBRESÍAS 
 
-    this.membershipService.getMembresiaConSociosActivos(id).subscribe({
-      next: (response: any) => {
-        const seleccionada = this.membresias.find((m) => m.id === id);
-        if (seleccionada) {
-          this.membresiaSeleccionada = seleccionada;
-          const sociosData = response.sociosAsignados || response.data || [];
-
-          this.sociosAsignados = sociosData.map((s: any) => ({
-            id: s.idSocio || s.id,
-            idSocioMembresia: s.idSocioMembresia,
-            nombre: s.nombreCompleto || s.nombre || 'Usuario',
-            telefono: s.telefono || 'No disponible',
-            precioTotal:
-              s.precioReal !== undefined && s.precioReal !== null
-                ? s.precioReal
-                : s.precioTotal || seleccionada.precio || 0,
-            fechaAsignacion: this.formatearFecha(
-              s.fechaAsignacion || s.fechaCreacion,
-            ),
-            fechaVencimiento: this.formatearFecha(s.fechaVencimiento),
-            avatarUrl: this.generarAvatar(
-              s.nombreCompleto || s.nombre || 'Usuario',
-            ),
-            estado: s.estado || 'ACTIVA',
-          }));
-
-          this.membresiaSeleccionada.sociosActivos =
-            this.sociosAsignados.length;
-          this.sociosAsignadosFiltrados = [...this.sociosAsignados];
-          this.sociosPaginaActual = 1;
-          this.vistaActual = 'socios';
-        }
-        this.loading = false;
-      },
-      error: (error) => {
-        this.errorMessage = error.error?.message || 'Error al cargar socios.';
-        this.loading = false;
-      },
-    });
+  cambiarPaginaMembresias(pagina: number): void {
+    if (pagina >= 1 && pagina <= this.totalPaginasMembresias) {
+      this.paginaMembresiasActual = pagina;
+    }
   }
 
-  // MODAL DE ASIGNACIÓN
+  paginaAnteriorMembresias(): void {
+    if (this.paginaMembresiasActual > 1) {
+      this.paginaMembresiasActual--;
+    }
+  }
+
+  paginaSiguienteMembresias(): void {
+    if (this.paginaMembresiasActual < this.totalPaginasMembresias) {
+      this.paginaMembresiasActual++;
+    }
+  }
+
+  //  MÉTODOS DE PAGINACIÓN POR VENCER 
+
+  paginaAnteriorPorVencer(): void {
+    if (this.paginaPorVencerActual > 1) {
+      this.paginaPorVencerActual--;
+    }
+  }
+
+  paginaSiguientePorVencer(): void {
+    if (this.paginaPorVencerActual < this.totalPaginasPorVencer) {
+      this.paginaPorVencerActual++;
+    }
+  }
+
+  irAPaginaPorVencer(pagina: number): void {
+    this.paginaPorVencerActual = pagina;
+  }
+
+  //  MÉTODOS DE PAGINACIÓN SOCIOS 
+
+  cambiarPaginaSocios(pagina: number): void {
+    if (pagina >= 1 && pagina <= this.totalSociosPaginas) {
+      this.sociosPaginaActual = pagina;
+    }
+  }
+
+  //  MÉTODOS DE PAGINACIÓN MODAL 
+
+  cambiarPaginaModal(pagina: number): void {
+    if (pagina >= 1 && pagina <= this.totalSociosModalPaginas) {
+      this.sociosModalPaginaActual = pagina;
+    }
+  }
+
+  //  VER SOCIOS 
+
+verSocios(id: number): void {
+  this.loading = true;
+  this.errorMessage = '';
+  this.successMessage = '';
+
+  this.membershipService.getMembresiaConSociosActivos(id).subscribe({
+    next: (response: any) => {
+      const seleccionada = this.membresias.find((m) => m.id === id);
+      if (seleccionada) {
+        this.membresiaSeleccionada = seleccionada;
+
+        const sociosData = response?.sociosAsignados || response?.data || [];
+
+        if (!sociosData || sociosData.length === 0) {
+          this.loading = false;
+          Swal.fire({
+            icon: 'info',
+            title: 'Sin socios asignados',
+            text: `La membresía "${seleccionada.nombre}" no tiene socios asignados actualmente.`,
+            confirmButtonText: 'Entendido',
+            confirmButtonColor: '#0f1c3f',
+            customClass: {
+              popup: 'custom-swal-popup',
+              confirmButton: 'custom-swal-confirm-btn',
+            },
+            buttonsStyling: false,
+          });
+          return;
+        }
+
+        this.sociosAsignados = sociosData.map((s: any) => ({
+          id: s.idSocio || s.id,
+          idSocioMembresia: s.idSocioMembresia,
+          nombre: s.nombreCompleto || s.nombre || 'Usuario',
+          telefono: s.telefono || 'No disponible',
+          precioTotal: s.precioReal !== undefined && s.precioReal !== null
+            ? s.precioReal
+            : s.precioTotal || seleccionada.precio || 0,
+          fechaAsignacion: this.formatearFecha(s.fechaAsignacion || s.fechaCreacion),
+          fechaVencimiento: this.formatearFecha(s.fechaVencimiento),
+          avatarUrl: this.generarAvatar(s.nombreCompleto || s.nombre || 'Usuario'),
+          estado: s.estado || 'ACTIVA',
+        }));
+
+        this.membresiaSeleccionada.sociosActivos = this.sociosAsignados.length;
+        this.sociosAsignadosFiltrados = [...this.sociosAsignados];
+        this.sociosPaginaActual = 1;
+        this.vistaActual = 'socios';
+      }
+      this.loading = false;
+    },
+    error: (error) => {
+      this.loading = false;
+      const seleccionada = this.membresias.find((m) => m.id === id);
+      Swal.fire({
+        icon: 'info',
+        title: 'Sin socios asignados',
+        text: `La membresía "${seleccionada?.nombre || 'seleccionada'}" no tiene socios asignados actualmente.`,
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#0f1c3f',
+        customClass: {
+          popup: 'custom-swal-popup',
+          confirmButton: 'custom-swal-confirm-btn',
+        },
+        buttonsStyling: false,
+      });
+    },
+  });
+}
+
+
+
+  //  MODAL DE ASIGNACIÓN 
 
   async asignarMembresia(id: number): Promise<void> {
     const seleccionada = this.membresias.find((m) => m.id === id);
@@ -243,8 +405,7 @@ export class AssignMembershipComponent implements OnInit {
       }));
       this.sociosFiltradosModal = [...this.sociosModal];
     } catch (error: any) {
-      this.errorMessage =
-        error.error?.message || 'Error al cargar usuarios activos.';
+      this.errorMessage = error.error?.message || 'Error al cargar usuarios activos.';
       this.sociosModal = [];
       this.sociosFiltradosModal = [];
     } finally {
@@ -252,7 +413,7 @@ export class AssignMembershipComponent implements OnInit {
     }
   }
 
-  // CONFIRMACIONES Y ACCIONES CON SWEETALERT2
+  //  CONFIRMACIONES Y ACCIONES 
 
   async confirmarAsignacion(socio: SocioUI) {
     if (!this.membresiaSeleccionada) return;
@@ -260,18 +421,18 @@ export class AssignMembershipComponent implements OnInit {
     const result = await Swal.fire({
       title: '¿Confirmar Asignación?',
       html: `
-                <p class="swal-text-description">
-                    ¿Estás seguro de que deseas asignar la membresía <strong>${this.membresiaSeleccionada.nombre}</strong> a <strong>${socio.nombre}</strong> en Pulse Gym?
-                </p>
-                <div class="swal-user-card">
-                    <img src="${socio.avatarUrl}" alt="Avatar" class="swal-avatar">
-                    <div class="swal-user-info">
-                        <span class="swal-user-name">${socio.nombre}</span>
-                        <span class="swal-user-id">ID: #${socio.id}</span>
-                    </div>
-                    <span class="swal-user-badge">${socio.estado || 'ACTIVO'}</span>
-                </div>
-            `,
+        <p class="swal-text-description">
+          ¿Estás seguro de que deseas asignar la membresía <strong>${this.membresiaSeleccionada.nombre}</strong> a <strong>${socio.nombre}</strong> en Pulse Gym?
+        </p>
+        <div class="swal-user-card">
+          <img src="${socio.avatarUrl}" alt="Avatar" class="swal-avatar">
+          <div class="swal-user-info">
+            <span class="swal-user-name">${socio.nombre}</span>
+            <span class="swal-user-id">ID: #${socio.id}</span>
+          </div>
+          <span class="swal-user-badge">${socio.estado || 'ACTIVO'}</span>
+        </div>
+      `,
       showCancelButton: true,
       confirmButtonText: 'Confirmar y Asignar',
       cancelButtonText: 'Cancelar',
@@ -305,7 +466,6 @@ export class AssignMembershipComponent implements OnInit {
         if (this.membresiaSeleccionada) {
           this.membresiaSeleccionada.sociosActivos += 1;
         }
-
         this.mostrarAlertaExito(
           '¡Membresía Asignada!',
           `La membresía se ha asignado correctamente a ${socio.nombre}.`,
@@ -314,9 +474,7 @@ export class AssignMembershipComponent implements OnInit {
       },
       error: (error) => {
         this.loading = false;
-        this.mostrarAlertaError(
-          error.error?.message || 'Error al asignar la membresía.',
-        );
+        this.mostrarAlertaError(error.error?.message || 'Error al asignar la membresía.');
       },
     });
   }
@@ -327,18 +485,18 @@ export class AssignMembershipComponent implements OnInit {
     const result = await Swal.fire({
       title: '¿Confirmar Asignación Flexible?',
       html: `
-                <p class="swal-text-description">
-                    ¿Estás seguro de asignar <strong>${this.diasFlexibles} día(s)</strong> de la membresía <strong>${this.membresiaSeleccionada.nombre}</strong> a <strong>${socio.nombre}</strong>?
-                </p>
-                <div class="swal-user-card">
-                    <img src="${socio.avatarUrl}" alt="Avatar" class="swal-avatar">
-                    <div class="swal-user-info">
-                        <span class="swal-user-name">${socio.nombre}</span>
-                        <span class="swal-user-id">ID: #${socio.id}</span>
-                    </div>
-                    <span class="swal-user-badge">${socio.estado || 'ACTIVO'}</span>
-                </div>
-            `,
+        <p class="swal-text-description">
+          ¿Estás seguro de asignar <strong>${this.diasFlexibles} día(s)</strong> de la membresía <strong>${this.membresiaSeleccionada.nombre}</strong> a <strong>${socio.nombre}</strong>?
+        </p>
+        <div class="swal-user-card">
+          <img src="${socio.avatarUrl}" alt="Avatar" class="swal-avatar">
+          <div class="swal-user-info">
+            <span class="swal-user-name">${socio.nombre}</span>
+            <span class="swal-user-id">ID: #${socio.id}</span>
+          </div>
+          <span class="swal-user-badge">${socio.estado || 'ACTIVO'}</span>
+        </div>
+      `,
       showCancelButton: true,
       confirmButtonText: 'Confirmar y Asignar',
       cancelButtonText: 'Cancelar',
@@ -362,9 +520,7 @@ export class AssignMembershipComponent implements OnInit {
       idSocio: socio.id,
       idMembresia: this.membresiaSeleccionada.id,
       cantidadDias: this.diasFlexibles,
-      observaciones:
-        this.observacionesFlexible ||
-        `Asignación flexible desde panel admin - ${new Date().toLocaleDateString('es-ES')}`,
+      observaciones: this.observacionesFlexible || `Asignación flexible desde panel admin - ${new Date().toLocaleDateString('es-ES')}`,
     };
 
     this.loading = true;
@@ -375,7 +531,6 @@ export class AssignMembershipComponent implements OnInit {
         if (this.membresiaSeleccionada) {
           this.membresiaSeleccionada.sociosActivos += 1;
         }
-
         this.mostrarAlertaExito(
           '¡Membresía Flexible Asignada!',
           `Se han asignado ${this.diasFlexibles} día(s) a ${socio.nombre}.`,
@@ -384,36 +539,34 @@ export class AssignMembershipComponent implements OnInit {
       },
       error: (error) => {
         this.loading = false;
-        this.mostrarAlertaError(
-          error.error?.message || 'Error al asignar la membresía flexible.',
-        );
+        this.mostrarAlertaError(error.error?.message || 'Error al asignar la membresía flexible.');
       },
     });
   }
 
+  //  RENOVAR, SUSPENDER, CANCELAR 
+
   async abrirModalRenovar(socio: SocioUI) {
     if (!socio.idSocioMembresia) {
-      this.mostrarAlertaError(
-        'No se puede renovar: falta el ID de la membresía.',
-      );
+      this.mostrarAlertaError('No se puede renovar: falta el ID de la membresía.');
       return;
     }
 
     const result = await Swal.fire({
       title: '¿Renovar Membresía?',
       html: `
-                <p class="swal-text-description">
-                    ¿Estás seguro de que deseas renovar el periodo activo para <strong>${socio.nombre}</strong>?
-                </p>
-                <div class="swal-user-card">
-                    <img src="${socio.avatarUrl}" alt="Avatar" class="swal-avatar">
-                    <div class="swal-user-info">
-                        <span class="swal-user-name">${socio.nombre}</span>
-                        <span class="swal-user-id">ID: #${socio.id}</span>
-                    </div>
-                    <span class="swal-user-badge">${socio.estado || 'ACTIVA'}</span>
-                </div>
-            `,
+        <p class="swal-text-description">
+          ¿Estás seguro de que deseas renovar el periodo activo para <strong>${socio.nombre}</strong>?
+        </p>
+        <div class="swal-user-card">
+          <img src="${socio.avatarUrl}" alt="Avatar" class="swal-avatar">
+          <div class="swal-user-info">
+            <span class="swal-user-name">${socio.nombre}</span>
+            <span class="swal-user-id">ID: #${socio.id}</span>
+          </div>
+          <span class="swal-user-badge">${socio.estado || 'ACTIVA'}</span>
+        </div>
+      `,
       showCancelButton: true,
       confirmButtonText: 'Renovar Membresía',
       cancelButtonText: 'Cancelar',
@@ -432,17 +585,12 @@ export class AssignMembershipComponent implements OnInit {
 
   async ejecutarRenovar(socio: SocioUI): Promise<void> {
     if (!socio.idSocioMembresia) {
-      this.mostrarAlertaError(
-        'No se encontró el ID de la membresía del socio.',
-      );
+      this.mostrarAlertaError('No se encontró el ID de la membresía del socio.');
       return;
     }
 
-    const esFlexible =
-      this.membresiaSeleccionada?.esFlexible ??
-      (socio as any).esFlexible ??
-      (socio as any).flexible ??
-      false;
+    const esFlexible = this.membresiaSeleccionada?.esFlexible ??
+      (socio as any).esFlexible ?? (socio as any).flexible ?? false;
 
     let cantidadDias: number | undefined;
 
@@ -478,10 +626,7 @@ export class AssignMembershipComponent implements OnInit {
     this.membershipService.renovarMembresia(request).subscribe({
       next: () => {
         this.accionEnProceso = false;
-        this.mostrarAlertaExito(
-          '¡Membresía Renovada!',
-          `La membresía de ${socio.nombre} ha sido renovada con éxito.`,
-        );
+        this.mostrarAlertaExito('¡Membresía Renovada!', `La membresía de ${socio.nombre} ha sido renovada con éxito.`);
         this.cargarMembresias();
         this.cargarPorVencer();
         if (this.membresiaSeleccionada) {
@@ -490,40 +635,35 @@ export class AssignMembershipComponent implements OnInit {
       },
       error: (error) => {
         this.accionEnProceso = false;
-        this.mostrarAlertaError(
-          error.error?.message || 'Error al renovar la membresía.',
-        );
+        this.mostrarAlertaError(error.error?.message || 'Error al renovar la membresía.');
       },
     });
   }
+
   async abrirModalSuspender(socio: SocioUI) {
     if (!socio.idSocioMembresia) {
-      this.mostrarAlertaError(
-        'No se puede suspender: falta el ID de la membresía.',
-      );
+      this.mostrarAlertaError('No se puede suspender: falta el ID de la membresía.');
       return;
     }
 
     const { value: motivo, isConfirmed } = await Swal.fire({
       title: '¿Suspender Membresía?',
       html: `
-                <p class="swal-text-description">
-                    ¿Estás seguro de que deseas suspender temporalmente el acceso a <strong>${socio.nombre}</strong>?
-                </p>
-                <div class="swal-user-card">
-                    <img src="${socio.avatarUrl}" alt="Avatar" class="swal-avatar">
-                    <div class="swal-user-info">
-                        <span class="swal-user-name">${socio.nombre}</span>
-                        <span class="swal-user-id">ID: #${socio.id}</span>
-                    </div>
-                    <span class="swal-user-badge">${socio.estado || 'ACTIVA'}</span>
-                </div>
-            `,
+        <p class="swal-text-description">
+          ¿Estás seguro de que deseas suspender temporalmente el acceso a <strong>${socio.nombre}</strong>?
+        </p>
+        <div class="swal-user-card">
+          <img src="${socio.avatarUrl}" alt="Avatar" class="swal-avatar">
+          <div class="swal-user-info">
+            <span class="swal-user-name">${socio.nombre}</span>
+            <span class="swal-user-id">ID: #${socio.id}</span>
+          </div>
+          <span class="swal-user-badge">${socio.estado || 'ACTIVA'}</span>
+        </div>
+      `,
       input: 'textarea',
       inputPlaceholder: 'Escribe el motivo de la suspensión...',
-      inputAttributes: {
-        'aria-label': 'Motivo de la suspensión',
-      },
+      inputAttributes: { 'aria-label': 'Motivo de la suspensión' },
       showCancelButton: true,
       confirmButtonText: 'Suspender Membresía',
       cancelButtonText: 'Cancelar',
@@ -553,10 +693,7 @@ export class AssignMembershipComponent implements OnInit {
     this.membershipService.suspenderMembresia(request).subscribe({
       next: () => {
         this.accionEnProceso = false;
-        this.mostrarAlertaExito(
-          '¡Membresía Suspendida!',
-          `La membresía de ${socio.nombre} fue suspendida.`,
-        );
+        this.mostrarAlertaExito('¡Membresía Suspendida!', `La membresía de ${socio.nombre} fue suspendida.`);
         this.cargarMembresias();
         if (this.membresiaSeleccionada) {
           this.verSocios(this.membresiaSeleccionada.id);
@@ -564,43 +701,38 @@ export class AssignMembershipComponent implements OnInit {
       },
       error: (error) => {
         this.accionEnProceso = false;
-        this.mostrarAlertaError(
-          error.error?.message || 'Error al suspender la membresía.',
-        );
+        this.mostrarAlertaError(error.error?.message || 'Error al suspender la membresía.');
       },
     });
   }
 
   async abrirModalCancelar(socio: SocioUI) {
     if (!socio.idSocioMembresia) {
-      this.mostrarAlertaError(
-        'No se puede cancelar: falta el ID de la membresía.',
-      );
+      this.mostrarAlertaError('No se puede cancelar: falta el ID de la membresía.');
       return;
     }
 
     const { value: motivo, isConfirmed } = await Swal.fire({
       title: '¿Confirmar Eliminación?',
       html: `
-                <p class="swal-text-description">
-                    ¿Estás seguro de que deseas cancelar permanentemente la membresía de <strong>${socio.nombre}</strong> en Pulse Gym? Esta acción no se puede deshacer.
-                </p>
-                <div class="swal-user-card">
-                    <img src="${socio.avatarUrl}" alt="Avatar" class="swal-avatar">
-                    <div class="swal-user-info">
-                        <span class="swal-user-name">${socio.nombre}</span>
-                        <span class="swal-user-id">ID: #${socio.id}</span>
-                    </div>
-                    <span class="swal-user-badge">${socio.estado || 'PENDIENTE'}</span>
-                </div>
-            `,
+        <p class="swal-text-description">
+          ¿Estás seguro de que deseas cancelar permanentemente la membresía de <strong>${socio.nombre}</strong> en Pulse Gym? Esta acción no se puede deshacer.
+        </p>
+        <div class="swal-user-card">
+          <img src="${socio.avatarUrl}" alt="Avatar" class="swal-avatar">
+          <div class="swal-user-info">
+            <span class="swal-user-name">${socio.nombre}</span>
+            <span class="swal-user-id">ID: #${socio.id}</span>
+          </div>
+          <span class="swal-user-badge">${socio.estado || 'PENDIENTE'}</span>
+        </div>
+      `,
       input: 'textarea',
       inputPlaceholder: 'Escribe el motivo de la cancelación...',
       showCancelButton: true,
       confirmButtonText: 'Eliminar / Cancelar',
       cancelButtonText: 'Cancelar',
-      iconHtml:
-        '<div class="custom-danger-icon"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg></div>',
+      iconHtml: '<div class="custom-danger-icon"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg></div>',
       customClass: {
         popup: 'custom-swal-popup',
         confirmButton: 'custom-swal-confirm-btn',
@@ -627,10 +759,7 @@ export class AssignMembershipComponent implements OnInit {
     this.membershipService.cancelarMembresia(request).subscribe({
       next: () => {
         this.accionEnProceso = false;
-        this.mostrarAlertaExito(
-          '¡Membresía Cancelada!',
-          `La membresía de ${socio.nombre} ha sido cancelada definitivamente.`,
-        );
+        this.mostrarAlertaExito('¡Membresía Cancelada!', `La membresía de ${socio.nombre} ha sido cancelada definitivamente.`);
         this.cargarMembresias();
         if (this.membresiaSeleccionada) {
           this.verSocios(this.membresiaSeleccionada.id);
@@ -638,20 +767,14 @@ export class AssignMembershipComponent implements OnInit {
       },
       error: (error) => {
         this.accionEnProceso = false;
-        this.mostrarAlertaError(
-          error.error?.message || 'Error al cancelar la membresía.',
-        );
+        this.mostrarAlertaError(error.error?.message || 'Error al cancelar la membresía.');
       },
     });
   }
 
   async renovarDesdePorVencer(item: any): Promise<void> {
-    const esFlexible =
-      item.esFlexible ??
-      item.flexible ??
-      item.membresiaEsFlexible ??
-      item.membresia?.esFlexible ??
-      (item.cantidadDias !== undefined && item.cantidadDias !== null);
+    const esFlexible = item.esFlexible ?? item.flexible ?? item.membresiaEsFlexible ??
+      item.membresia?.esFlexible ?? (item.cantidadDias !== undefined && item.cantidadDias !== null);
 
     let cantidadDias: number | undefined = item.cantidadDias;
 
@@ -685,27 +808,20 @@ export class AssignMembershipComponent implements OnInit {
     this.accionEnProceso = true;
 
     this.membershipService.renovarMembresia(dto).subscribe({
-      next: (res: any) => {
+      next: () => {
         this.accionEnProceso = false;
-        Swal.fire(
-          'Éxito',
-          'La membresía ha sido renovada correctamente',
-          'success',
-        );
+        Swal.fire('Éxito', 'La membresía ha sido renovada correctamente', 'success');
         this.cargarPorVencer();
         this.cargarMembresias();
       },
       error: (err: any) => {
         this.accionEnProceso = false;
-        const msgError =
-          err.error?.message ||
-          'Ocurrió un error al intentar renovar la membresía.';
-        Swal.fire('Error', msgError, 'error');
+        Swal.fire('Error', err.error?.message || 'Ocurrió un error al intentar renovar la membresía.', 'error');
       },
     });
   }
 
-  // ALERTAS DE ÉXITO Y ERROR
+  //  ALERTAS 
 
   mostrarAlertaExito(titulo: string, mensaje: string): void {
     Swal.fire({
@@ -737,65 +853,7 @@ export class AssignMembershipComponent implements OnInit {
     });
   }
 
-  // PAGINACIÓN Y GETTERS PARA TEMPLATE
-
-  get sociosPaginados(): SocioUI[] {
-    const inicio = (this.sociosPaginaActual - 1) * this.sociosItemsPorPagina;
-    return this.sociosAsignadosFiltrados.slice(
-      inicio,
-      inicio + this.sociosItemsPorPagina,
-    );
-  }
-
-  get totalSociosPaginas(): number {
-    return (
-      Math.ceil(
-        this.sociosAsignadosFiltrados.length / this.sociosItemsPorPagina,
-      ) || 1
-    );
-  }
-
-  get paginasSocios(): number[] {
-    return Array.from({ length: this.totalSociosPaginas }, (_, i) => i + 1);
-  }
-
-  cambiarPaginaSocios(pagina: number): void {
-    if (pagina >= 1 && pagina <= this.totalSociosPaginas) {
-      this.sociosPaginaActual = pagina;
-    }
-  }
-
-  get sociosModalPaginados(): SocioUI[] {
-    const inicio =
-      (this.sociosModalPaginaActual - 1) * this.sociosModalItemsPorPagina;
-    return this.sociosFiltradosModal.slice(
-      inicio,
-      inicio + this.sociosModalItemsPorPagina,
-    );
-  }
-
-  get totalSociosModalPaginas(): number {
-    return (
-      Math.ceil(
-        this.sociosFiltradosModal.length / this.sociosModalItemsPorPagina,
-      ) || 1
-    );
-  }
-
-  get paginasModal(): number[] {
-    return Array.from(
-      { length: this.totalSociosModalPaginas },
-      (_, i) => i + 1,
-    );
-  }
-
-  cambiarPaginaModal(pagina: number): void {
-    if (pagina >= 1 && pagina <= this.totalSociosModalPaginas) {
-      this.sociosModalPaginaActual = pagina;
-    }
-  }
-
-  // NAVEGACIÓN Y FILTROS
+  //  NAVEGACIÓN Y FILTROS 
 
   volverAMembresias(): void {
     this.vistaActual = 'tarjetas';
@@ -810,9 +868,7 @@ export class AssignMembershipComponent implements OnInit {
     const value = (event.target as HTMLInputElement).value.toLowerCase().trim();
     this.searchTermModal = value;
     this.sociosFiltradosModal = this.sociosModal.filter(
-      (s) =>
-        s.nombre?.toLowerCase().includes(value) ||
-        s.telefono?.toLowerCase().includes(value),
+      (s) => s.nombre?.toLowerCase().includes(value) || s.telefono?.toLowerCase().includes(value),
     );
     this.sociosModalPaginaActual = 1;
   }
@@ -821,14 +877,12 @@ export class AssignMembershipComponent implements OnInit {
     const value = (event.target as HTMLInputElement).value.toLowerCase().trim();
     this.searchTermSocios = value;
     this.sociosAsignadosFiltrados = this.sociosAsignados.filter(
-      (s) =>
-        s.nombre?.toLowerCase().includes(value) ||
-        s.telefono?.toLowerCase().includes(value),
+      (s) => s.nombre?.toLowerCase().includes(value) || s.telefono?.toLowerCase().includes(value),
     );
     this.sociosPaginaActual = 1;
   }
 
-  // UTILIDADES
+  //  UTILIDADES 
 
   generarAvatar(nombre: string): string {
     const encoded = encodeURIComponent(nombre || 'Usuario');
@@ -839,7 +893,6 @@ export class AssignMembershipComponent implements OnInit {
     if (!fecha) return '-';
     const parsedDate = new Date(fecha);
     if (isNaN(parsedDate.getTime())) return '-';
-
     return parsedDate.toLocaleDateString('es-ES', {
       day: '2-digit',
       month: 'short',
@@ -858,16 +911,11 @@ export class AssignMembershipComponent implements OnInit {
 
   getEstadoColor(estado: string): string {
     switch (estado?.toUpperCase()) {
-      case 'ACTIVA':
-        return '#22c55e';
-      case 'SUSPENDIDA':
-        return '#f59e0b';
-      case 'VENCIDA':
-        return '#ef4444';
-      case 'CANCELADA':
-        return '#6b7280';
-      default:
-        return '#94a3b8';
+      case 'ACTIVA': return '#22c55e';
+      case 'SUSPENDIDA': return '#f59e0b';
+      case 'VENCIDA': return '#ef4444';
+      case 'CANCELADA': return '#6b7280';
+      default: return '#94a3b8';
     }
   }
 
@@ -889,37 +937,5 @@ export class AssignMembershipComponent implements OnInit {
 
   trackByIndex(index: number): number {
     return index;
-  }
-
-  paginaPorVencerActual: number = 1;
-  readonly itemsPorPaginaPorVencer: number = 6;
-
-  get membresiasPorVencerPaginadas(): any[] {
-    const inicio =
-      (this.paginaPorVencerActual - 1) * this.itemsPorPaginaPorVencer;
-    const fin = inicio + this.itemsPorPaginaPorVencer;
-    return this.membresiasPorVencer.slice(inicio, fin);
-  }
-
-  get totalPaginasPorVencer(): number {
-    return Math.ceil(
-      this.membresiasPorVencer.length / this.itemsPorPaginaPorVencer,
-    );
-  }
-
-  paginaAnteriorPorVencer(): void {
-    if (this.paginaPorVencerActual > 1) {
-      this.paginaPorVencerActual--;
-    }
-  }
-
-  paginaSiguientePorVencer(): void {
-    if (this.paginaPorVencerActual < this.totalPaginasPorVencer) {
-      this.paginaPorVencerActual++;
-    }
-  }
-
-  irAPaginaPorVencer(pagina: number): void {
-    this.paginaPorVencerActual = pagina;
   }
 }

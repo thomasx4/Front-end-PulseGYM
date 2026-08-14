@@ -7,7 +7,7 @@ import { LoginComponent } from './features/auth/components/login/login.component
 import { ForgotComponent } from '../app/features/auth/components/forgot/forgot.component';
 import { HomeComponent } from './features/user/components/home/home.component';
 import { AuthGuard } from '../app/core/guards/auth.guard';
-
+import { MembershipListComponent } from './features/membership/components/membership-list/membership-list.component';
 const routes: Routes = [
     {
         path: 'auth',
@@ -29,25 +29,11 @@ const routes: Routes = [
                 path: 'users',
                 component: CredentialsListComponent,
             },
-            {
-                path: 'memberships',
-                children: [
-                    {
-                        path: 'assign',
-                        loadChildren: () => 
-                            import('./features/membership/membership.module').then((m) => m.MembershipModule),
-                    },
-                    {
-                        path: 'list',
-                        component: CredentialsListComponent,
-                    },
-                    {
-                        path: '',
-                        redirectTo: 'assign',
-                        pathMatch: 'full',
-                    },
-                ],
-            },
+{
+    path: 'memberships',
+    loadChildren: () => 
+        import('./features/membership/membership.module').then((m) => m.MembershipModule),
+},
         ],
     },
     {

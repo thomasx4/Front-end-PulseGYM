@@ -1,0 +1,867 @@
+// VARIABLES (MISMAS QUE ASSIGN-MEMBERSHIP)
+$color-primary: #0f1c3f;
+$color-primary-hover: #1a2b5c;
+$color-dark: #0b1a30;
+$color-dark-alt: #081936;
+
+// Neutrales
+$color-bg-light: #f8fafc;
+$color-bg-muted: #f1f5f9;
+$color-border: #e2e8f0;
+$color-border-subtle: #edf2f7;
+$color-text-main: #334155;
+$color-text-muted: #64748b;
+$color-text-subtle: #94a3b8;
+
+// Estados y Alertas
+$color-success: #10b981;
+$color-success-bg: #ecfdf5;
+$color-success-border: #a7f3d0;
+$color-success-text: #065f46;
+
+$color-danger: #ef4444;
+$color-danger-bg: #fee2e2;
+$color-danger-border: #fca5a5;
+$color-danger-text: #dc2626;
+
+$color-warning: #d97706;
+$color-warning-bg: #fef3c7;
+$color-warning-text: #92400e;
+
+$color-info-bg: #dbeafe;
+$color-info-text: #1e40af;
+
+// Bordes Redondeados
+$radius-sm: 8px;
+$radius-md: 12px;
+$radius-lg: 16px;
+$radius-xl: 20px;
+$radius-pill: 9999px;
+
+// Transiciones
+$transition-fast: all 0.2s ease;
+
+// FUENTE GLOBAL PARA ESTE COMPONENTE
+* {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+// PAGE HEADER
+.membership-management {
+    padding: 36px 40px;
+    max-width: 1400px;
+    margin: 0 auto;
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 32px;
+
+    .page-title {
+        font-size: 32px;
+        font-weight: 800;
+        color: $color-dark;
+        margin: 0 0 6px 0;
+        letter-spacing: -0.5px;
+    }
+}
+
+.btn-primary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: $color-primary;
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: $radius-md;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: $transition-fast;
+
+    &:hover {
+        background: $color-primary-hover;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(15, 28, 63, 0.25);
+    }
+
+    svg {
+        stroke: #ffffff;
+    }
+}
+
+// SECTION TITLES
+.section-subtitle {
+    font-size: 18px;
+    font-weight: 700;
+    color: $color-dark;
+    margin: 0 0 16px 0;
+}
+
+// PLAN CARDS GRID
+.plans-section {
+    margin-bottom: 40px;
+}
+
+.plans-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+    align-items: stretch;
+}
+
+.plan-card {
+    background: #ffffff;
+    border-radius: 22px;
+    padding: 32px 28px 28px 28px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    border: 1px solid $color-border-subtle;
+
+    &:hover {
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        transform: translateY(-4px);
+        border-color: $color-primary;
+    }
+
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+    }
+
+    &__badge {
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        padding: 4px 12px;
+        border-radius: 20px;
+
+        &.badge-essential {
+            background: #e0e7ff;
+            color: #4338ca;
+        }
+
+        &.badge-elite {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        &.badge-vip {
+            background: #fce4ec;
+            color: #9a1f3c;
+        }
+    }
+
+    &__title {
+        font-size: 13px;
+        font-weight: 800;
+        color: $color-text-muted;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+        margin: 0;
+    }
+
+    &__price {
+        display: flex;
+        align-items: baseline;
+        margin-bottom: 24px;
+
+        &-amount {
+            font-size: 38px;
+            font-weight: 800;
+            color: $color-dark;
+            line-height: 1;
+        }
+
+        &-period {
+            font-size: 15px;
+            font-weight: 600;
+            color: $color-text-subtle;
+            margin-left: 4px;
+        }
+    }
+
+    &__stats {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 16px;
+        font-size: 12px;
+        color: $color-text-muted;
+
+        .plan-card__stat {
+            background: $color-bg-light;
+            padding: 2px 10px;
+            border-radius: 12px;
+        }
+    }
+
+    &__benefits {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 24px 0;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+
+        li {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            color: $color-text-main;
+
+            svg {
+                width: 18px;
+                height: 18px;
+                color: #475569;
+                flex-shrink: 0;
+                stroke: $color-success;
+            }
+        }
+    }
+
+    &__actions {
+        display: flex;
+        gap: 8px;
+        margin-top: auto;
+
+        .btn-detail {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid $color-primary;
+            background: transparent;
+            border-radius: $radius-sm;
+            font-weight: 600;
+            font-size: 13px;
+            color: $color-primary;
+            cursor: pointer;
+            transition: $transition-fast;
+
+            &:hover {
+                background: $color-primary;
+                color: white;
+            }
+        }
+
+        .btn-outline {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid $color-border;
+            background: transparent;
+            border-radius: $radius-sm;
+            font-weight: 600;
+            font-size: 13px;
+            color: $color-dark;
+            cursor: pointer;
+            transition: $transition-fast;
+
+            &:hover {
+                background: $color-primary;
+                color: white;
+                border-color: $color-primary;
+            }
+        }
+    }
+}
+
+.ia-badge {
+    font-size: 10px;
+    margin-left: 4px;
+}
+
+// FILTROS PLANES
+.filters-plans {
+    background: #ffffff;
+    border-radius: $radius-xl;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    border: 1px solid $color-border;
+
+    &__row {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        align-items: center;
+
+        .filter-group {
+
+            select,
+            input {
+                padding: 6px 10px;
+                border: 1px solid $color-border;
+                border-radius: $radius-sm;
+                font-size: 12px;
+                background: $color-bg-light;
+                min-width: 120px;
+                height: 34px;
+                box-sizing: border-box;
+
+                &:focus {
+                    outline: none;
+                    border-color: $color-primary;
+                }
+            }
+
+            input {
+                min-width: 120px;
+                padding-right: 10px;
+            }
+
+            input::placeholder {
+                color: $color-text-subtle;
+                font-size: 12px;
+            }
+        }
+
+        .btn-clear-filters {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: $color-bg-light;
+            border: 1px solid $color-border;
+            border-radius: $radius-sm;
+            font-size: 12px;
+            font-weight: 600;
+            color: $color-text-muted;
+            cursor: pointer;
+            transition: $transition-fast;
+            white-space: nowrap;
+            height: 34px;
+
+            &:hover {
+                background: $color-border;
+                color: $color-dark;
+            }
+
+            svg {
+                stroke: currentColor;
+                width: 14px;
+                height: 14px;
+            }
+        }
+    }
+}
+
+// TABLE SECTION
+.members-table-section {
+    background: #ffffff;
+    border-radius: $radius-xl;
+    border: 1px solid $color-border;
+    overflow: hidden;
+}
+
+.table-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid $color-border;
+    flex-wrap: wrap;
+    gap: 12px;
+
+    .section-subtitle {
+        margin: 0;
+    }
+}
+
+// TABLE CONTROLS (FILTROS SOCIOS)
+.table-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: nowrap;
+
+    .filter-group {
+        select {
+            padding: 6px 10px;
+            border: 1px solid $color-border;
+            border-radius: $radius-sm;
+            font-size: 12px;
+            background: $color-bg-light;
+            min-width: 110px;
+            height: 34px;
+
+            &:focus {
+                outline: none;
+                border-color: $color-primary;
+            }
+        }
+    }
+
+    .search-box {
+        position: relative;
+        flex: 0 1 180px;
+        min-width: 110px;
+
+        input {
+            width: 100%;
+            padding: 6px 32px 6px 12px;
+            border: 1px solid $color-border;
+            border-radius: $radius-sm;
+            font-size: 12px;
+            outline: none;
+            background: $color-bg-light;
+            height: 34px;
+            box-sizing: border-box;
+
+            &:focus {
+                border-color: $color-primary;
+                box-shadow: 0 0 0 2px rgba(15, 28, 63, 0.08);
+            }
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 14px;
+            height: 14px;
+            stroke: $color-text-muted;
+        }
+    }
+
+    .btn-clear-filters {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 14px;
+        background: $color-bg-light;
+        border: 1px solid $color-border;
+        border-radius: $radius-sm;
+        font-size: 12px;
+        font-weight: 600;
+        color: $color-text-muted;
+        cursor: pointer;
+        transition: $transition-fast;
+        white-space: nowrap;
+        height: 34px;
+        flex-shrink: 0;
+
+        &:hover {
+            background: $color-border;
+            color: $color-dark;
+        }
+
+        svg {
+            stroke: currentColor;
+            width: 14px;
+            height: 14px;
+        }
+    }
+}
+
+// TABLE
+.table-wrapper {
+    overflow-x: auto;
+}
+
+.members-table {
+    width: 100%;
+    border-collapse: collapse;
+
+    th {
+        text-align: left;
+        font-size: 11px;
+        font-weight: 800;
+        color: $color-text-muted;
+        letter-spacing: 0.8px;
+        padding: 20px 24px;
+        border-bottom: 1px solid $color-bg-muted;
+    }
+
+    td {
+        padding: 16px 24px;
+        border-bottom: 1px solid $color-bg-light;
+        vertical-align: middle;
+        font-size: 14px;
+    }
+
+    .text-right {
+        text-align: right;
+    }
+}
+
+// MEMBER INFO
+.member-info {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    .member-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: $color-primary;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 14px;
+        flex-shrink: 0;
+    }
+
+    .member-name {
+        font-weight: 700;
+        color: $color-dark;
+    }
+
+    .member-email {
+        font-size: 12px;
+        color: $color-text-subtle;
+    }
+
+    .member-phone {
+        font-size: 11px;
+        color: $color-text-subtle;
+    }
+}
+
+// PLAN TIER
+.plan-tier {
+    font-weight: 700;
+    font-size: 12px;
+    padding: 4px 12px;
+    border-radius: 4px;
+    display: inline-block;
+
+    &.tier-essential {
+        background: #e0e7ff;
+        color: #4338ca;
+    }
+
+    &.tier-elite {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    &.tier-vip {
+        background: #fce4ec;
+        color: #9a1f3c;
+    }
+}
+
+// STATUS BADGE
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    font-size: 13px;
+
+    .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+
+    &.active {
+        color: $color-success;
+
+        .status-dot {
+            background: $color-success;
+        }
+    }
+
+    &.grace {
+        color: $color-warning;
+
+        .status-dot {
+            background: $color-warning;
+        }
+    }
+
+    &.cancelled {
+        color: $color-text-muted;
+
+        .status-dot {
+            background: $color-text-muted;
+        }
+    }
+}
+
+// DÍAS RESTANTES
+.days-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+
+    &.urgente {
+        background: $color-danger-bg;
+        color: $color-danger;
+        border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    &.alerta {
+        background: $color-warning-bg;
+        color: $color-warning;
+        border: 1px solid rgba(217, 119, 6, 0.2);
+    }
+}
+
+// EMPTY STATE
+.empty-state {
+    text-align: center;
+    color: $color-text-subtle;
+    padding: 36px !important;
+}
+
+// TABLE FOOTER - PAGINACIÓN
+.table-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    border-top: 1px solid $color-border;
+
+    flex-wrap: wrap;
+    gap: 12px;
+
+    .table-info {
+        font-size: 13px;
+        color: $color-text-muted;
+    }
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    .page-btn {
+        width: 32px;
+        height: 32px;
+        border: 1px solid $color-border;
+        background: transparent;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 13px;
+        color: $color-text-muted;
+        transition: all 0.2s ease;
+
+        &:hover:not(:disabled) {
+            background: $color-bg-light;
+            border-color: $color-primary;
+            color: $color-primary;
+        }
+
+        &:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        &.active {
+            background: $color-primary;
+            color: white;
+            border-color: $color-primary;
+        }
+    }
+}
+
+// PAGINACIÓN PLANES
+.plans-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid $color-border;
+
+    .page-btn {
+        width: 32px;
+        height: 32px;
+        border: 1px solid $color-border;
+        background: transparent;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        &:hover:not(:disabled) {
+            background: $color-bg-light;
+            border-color: $color-primary;
+        }
+
+        &:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        svg {
+            stroke: $color-text-muted;
+            width: 14px;
+            height: 14px;
+        }
+    }
+
+    .page-indicator {
+        font-size: 13px;
+        font-weight: 600;
+        color: $color-text-muted;
+    }
+}
+
+// SPINNER
+.loading-overlay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px;
+    gap: 16px;
+
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid $color-border;
+        border-top-color: $color-primary;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    span {
+        font-size: 14px;
+        color: $color-text-muted;
+        font-weight: 600;
+    }
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+// RESPONSIVE
+@media (max-width: 1024px) {
+    .plans-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .membership-management {
+        padding: 16px;
+    }
+
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .plans-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .table-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .table-controls {
+        width: 100%;
+        flex-wrap: wrap;
+
+        .search-box {
+            flex: 1 1 100%;
+            min-width: 100%;
+        }
+
+        .filter-group {
+            flex: 1 1 auto;
+            min-width: 80px;
+        }
+    }
+
+    .table-footer {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .filters-plans {
+        &__row {
+            .filter-group {
+                flex: 1 1 100%;
+                min-width: 100%;
+
+                select,
+                input {
+                    min-width: 100%;
+                }
+            }
+        }
+    }
+}
+
+// PAGINACIÓN MEMBRESÍAS (MISMO ESTILO QUE ASSIGN-MEMBERSHIP)
+.membresias-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 28px;
+    padding-top: 20px;
+    border-top: 1px solid $color-border;
+
+    .page-btn {
+        width: 34px;
+        height: 34px;
+        border: 1px solid $color-border;
+        background: #ffffff;
+        border-radius: $radius-sm;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 14px;
+        color: $color-text-muted;
+        transition: all 0.2s ease;
+
+        &:hover:not(:disabled) {
+            background: $color-bg-light;
+            border-color: $color-primary;
+            color: $color-primary;
+        }
+
+        &:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        &.active {
+            background: $color-primary;
+            color: white;
+            border-color: $color-primary;
+        }
+
+        svg {
+            stroke: currentColor;
+        }
+    }
+}

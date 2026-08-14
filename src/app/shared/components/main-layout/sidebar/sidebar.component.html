@@ -1,5 +1,3 @@
-<!-- src/app/shared/components/main-layout/sidebar/sidebar.component.html -->
-
 <aside class="sidebar">
     <div class="sidebar__brand">
         <img src="../../../../../favicon.ico" class="sidebar__brand-icon">
@@ -19,11 +17,12 @@
             </a>
         </ng-container>
 
-        <!-- ITEM CON SUBMENÚ (MEMBRESÍAS) -->
+        <!-- ITEM CON SUBMENÚ (MEMBRESÍAS) - AHORA EL PADRE NAVEGA A LISTA -->
         <div class="sidebar__nav-item--parent" [class.open]="isMembershipOpen" (mouseenter)="isMembershipOpen = true"
             (mouseleave)="isMembershipOpen = false">
 
-            <div class="sidebar__nav-item" [class.sidebar__nav-item--active]="isMembershipActive()">
+            <!-- EL PADRE AHORA ES UN BOTÓN QUE NAVEGA A LISTA -->
+            <div class="sidebar__nav-item" [class.sidebar__nav-item--active]="isMembershipActive()" (click)="goToMembershipList()">
                 <span [innerHTML]="getMembershipIcon()" class="sidebar__icon-wrapper"></span>
                 <span>Membresías</span>
                 <svg class="sidebar__dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
@@ -32,7 +31,7 @@
                 </svg>
             </div>
 
-            <!-- SUBMENÚ -->
+            <!-- SUBMENÚ (SOLO ASIGNAR MEMBRESÍA) -->
             <div class="sidebar__submenu" *ngIf="isMembershipOpen">
                 <a *ngFor="let child of membershipChildren" [routerLink]="child.route"
                     routerLinkActive="sidebar__submenu-item--active" class="sidebar__submenu-item">

@@ -1,0 +1,210 @@
+<div class="membership-form-container">
+
+    <!--  HEADER  -->
+    <div class="form-header">
+        <div class="form-header__left">
+            <div class="breadcrumb">
+                <a routerLink="/dashboard-admin/memberships/list">Membresías</a>
+                <span class="breadcrumb-separator">/</span>
+                <span class="breadcrumb-current">{{ esEdicion ? 'Editar' : 'Crear' }} Membresía</span>
+            </div>
+            <h1 class="form-title">{{ esEdicion ? 'Editar' : 'Crear' }} Membresía</h1>
+            <p class="form-subtitle" *ngIf="esEdicion">
+                Actualice los parámetros del plan <strong>{{ plan?.nombre || 'Elite Performance' }}</strong>
+                para optimizar la oferta comercial y la experiencia del usuario.
+            </p>
+            <p class="form-subtitle" *ngIf="!esEdicion">
+                Complete los datos para crear un nuevo plan de membresía.
+            </p>
+        </div>
+        <div class="form-header__right">
+            <!-- BOTÓN ELIMINAR (solo en modo edición) -->
+            <button class="btn-danger" *ngIf="esEdicion" (click)="eliminarMembresia()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 6h18" />
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                </svg>
+                Eliminar
+            </button>
+            <button class="btn-outline" (click)="cancelar()">
+                Cancelar
+            </button>
+            <button class="btn-primary" (click)="guardar()" [disabled]="!formularioValido">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                    <polyline points="17 21 17 13 7 13 7 21" />
+                    <polyline points="7 3 7 8 15 8" />
+                </svg>
+                {{ esEdicion ? 'Guardar Cambios' : 'Crear Membresía' }}
+            </button>
+        </div>
+    </div>
+
+    <!--  FORMULARIO  -->
+    <div class="form-grid">
+
+        <!-- COLUMNA IZQUIERDA: FORMULARIO -->
+        <div class="form-column">
+
+            <!-- INFORMACIÓN GENERAL -->
+            <div class="form-section">
+                <h2 class="section-title">Información General</h2>
+
+                <div class="form-group">
+                    <label for="nombrePlan">NOMBRE DEL PLAN</label>
+                    <input type="text" id="nombrePlan" [(ngModel)]="plan.nombre" placeholder="Ej: 1 mes basica"
+                        class="form-control" />
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="cantidad">CANTIDAD</label>
+                        <input type="number" id="cantidad" [(ngModel)]="plan.cantidad" min="1" max="365" placeholder="1"
+                            class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label for="tipoDuracion">TIPO DURACIÓN</label>
+                        <select id="tipoDuracion" [(ngModel)]="plan.tipoDuracion" class="form-control">
+                            <option value="DIA">Día(s)</option>
+                            <option value="SEMANA">Semana(s)</option>
+                            <option value="MES">Mes(es)</option>
+                            <option value="TRIMESTRE">Trimestre(s)</option>
+                            <option value="SEMESTRE">Semestre(s)</option>
+                            <option value="ANUAL">Año(s)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="precioPorDia">PRECIO POR DÍA (COP)</label>
+                        <div class="input-prefix">
+                            <span class="prefix">$</span>
+                            <input type="number" id="precioPorDia" [(ngModel)]="plan.precioPorDia"
+                                placeholder="2300" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="precioTotal">PRECIO TOTAL (COP)</label>
+                        <div class="input-prefix">
+                            <span class="prefix">$</span>
+                            <input type="text" id="precioTotal" [value]="formatearPrecio(calcularPrecioTotal())"
+                                class="form-control" disabled />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="descripcion">DESCRIPCIÓN DEL PLAN</label>
+                    <textarea id="descripcion" [(ngModel)]="plan.descripcion"
+                        placeholder="Descripción detallada del plan..." class="form-control" rows="3"></textarea>
+                </div>
+            </div>
+
+            <!-- BENEFICIOS -->
+            <div class="form-section">
+                <h2 class="section-title">Beneficios del Plan</h2>
+
+                <div class="benefits-list">
+                    <div class="benefit-item" *ngFor="let beneficio of plan.beneficios; let i = index">
+                        <span class="benefit-dot"></span>
+                        <span class="benefit-text">{{ beneficio }}</span>
+                        <button class="benefit-remove" (click)="eliminarBeneficio(i)">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <line x1="18" y1="6" x2="6" y2="18" />
+                                <line x1="6" y1="6" x2="18" y2="18" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="add-benefit">
+                    <input type="text" [(ngModel)]="nuevoBeneficio" placeholder="Agregar nuevo beneficio..."
+                        class="form-control" (keyup.enter)="agregarBeneficio()" />
+                    <button class="btn-add" (click)="agregarBeneficio()">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19" />
+                            <line x1="5" y1="12" x2="19" y2="12" />
+                        </svg>
+                        Agregar
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!--  COLUMNA DERECHA: VISTA PREVIA, CONFIGURACIÓN  -->
+        <div class="preview-column">
+
+            <!-- VISTA PREVIA -->
+            <div class="preview-card">
+                <h3 class="preview-title">VISTA PREVIA</h3>
+                <div class="preview-plan">
+                    <div class="preview-plan__header">
+                        <span class="preview-plan__badge" [class]="getBadgeClass(plan.nombre)">
+                            {{ getBadgeText(plan.nombre) }}
+                        </span>
+                        <h4 class="preview-plan__name">{{ plan.nombre || 'Nombre del Plan' }}</h4>
+                    </div>
+                    <div class="preview-plan__price">
+                        <span class="preview-plan__amount">${{ calcularPrecioTotal() || 0 }}</span>
+                        <span class="preview-plan__period">
+                            / {{ plan.cantidad || 1 }} {{ getNombreDuracion(plan.tipoDuracion) }}
+                        </span>
+                    </div>
+                    <ul class="preview-plan__benefits">
+                        <li *ngFor="let beneficio of plan.beneficios.slice(0, 3)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            {{ beneficio }}
+                        </li>
+                        <li *ngIf="plan.beneficios.length > 3" class="more-benefits">
+                            +{{ plan.beneficios.length - 3 }} beneficios más
+                        </li>
+                    </ul>
+                    <div class="preview-plan__actions">
+                        <button class="btn-preview-select">SELECCIONAR PLAN</button>
+                    </div>
+                </div>
+            </div>
+
+            <!--  CONFIGURACIÓN ADICIONAL (MOVIDA A LA COLUMNA DERECHA) -->
+            <div class="config-card">
+                <h3 class="config-card__title">Configuración Adicional</h3>
+                <div class="toggle-group">
+                    <label class="toggle-item">
+                        <input type="checkbox" [(ngModel)]="plan.incluyeIA" />
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-label">Incluye Asistente IA</span>
+                    </label>
+                    <label class="toggle-item">
+                        <input type="checkbox" [(ngModel)]="plan.esFlexible" />
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-label">Membresía Flexible (días personalizados)</span>
+                    </label>
+                    <label class="toggle-item">
+                        <input type="checkbox" [(ngModel)]="plan.activo" />
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-label">Plan Activo</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- INFO ADICIONAL EN EDICIÓN -->
+            <div class="impact-card" *ngIf="esEdicion">
+                <h3 class="impact-title">SOCIOS ASIGNADOS</h3>
+                <div class="impact-stats">
+                    <div class="impact-stat">
+                        <span class="impact-stat__label">Total Socios</span>
+                        <span class="impact-stat__value">{{ totalSocios || 0 }}</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div> 
+</div>
