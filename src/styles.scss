@@ -1,6 +1,4 @@
-// ============================================
 // FUENTE GLOBAL
-// ============================================
 * {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   box-sizing: border-box;
@@ -16,7 +14,7 @@ html, body {
 
 @import 'sweetalert2/dist/sweetalert2.min.css';
 
-/* Contenedor del Modal */
+// Contenedor del Modal
 .custom-swal-popup {
   border-radius: 20px !important;
   padding: 2rem 1.5rem !important;
@@ -36,5 +34,3 @@ html, body {
     margin: 0.5rem 0 !important;
   }
 }
-
-// ... resto del CSS
