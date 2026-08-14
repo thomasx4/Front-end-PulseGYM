@@ -47,7 +47,7 @@ const DIAS_POR_UNIDAD: { [key: string]: number } = {
   styleUrls: ['./membership-form.component.scss'],
 })
 export class MembershipFormComponent implements OnInit {
-  // ==================== DATOS ====================
+  //  DATOS 
   plan: Plan = {
     nombre: '',
     cantidad: 1,
@@ -121,7 +121,7 @@ export class MembershipFormComponent implements OnInit {
     });
   }
 
-  // ==================== ELIMINAR MEMBRESÍA ====================
+  //  ELIMINAR MEMBRESÍA 
   eliminarMembresia(): void {
     if (!this.planId) return;
 
@@ -209,19 +209,19 @@ export class MembershipFormComponent implements OnInit {
     };
   }
 
-  // ==================== CÁLCULO PRECIO TOTAL ====================
+  //  CÁLCULO PRECIO TOTAL 
   calcularPrecioTotal(): number {
     const diasPorUnidad = DIAS_POR_UNIDAD[this.plan.tipoDuracion] || 30;
     const totalDias = diasPorUnidad * this.plan.cantidad;
     return this.plan.precioPorDia * totalDias;
   }
 
-  // ==================== OBTENER NOMBRE DE DURACIÓN ====================
+  //  OBTENER NOMBRE DE DURACIÓN 
   getNombreDuracion(tipo: string): string {
     return TIPO_DURACION_MAP[tipo] || 'mes(es)';
   }
 
-  // ==================== BENEFICIOS ====================
+  //  BENEFICIOS 
   agregarBeneficio(): void {
     const beneficio = this.nuevoBeneficio.trim();
     if (beneficio) {
@@ -234,7 +234,7 @@ export class MembershipFormComponent implements OnInit {
     this.plan.beneficios.splice(index, 1);
   }
 
-  // ==================== VALIDACIÓN ====================
+  //  VALIDACIÓN 
   get formularioValido(): boolean {
     return (
       this.plan.nombre.trim().length > 0 &&
@@ -244,7 +244,7 @@ export class MembershipFormComponent implements OnInit {
     );
   }
 
-  // ==================== BADGE ====================
+  //  BADGE 
   getBadgeClass(nombre: string): string {
     const nombreUpper = nombre.toUpperCase();
     if (nombreUpper.includes('STANDARD') || nombreUpper.includes('PREMIUM')) {
@@ -261,7 +261,7 @@ export class MembershipFormComponent implements OnInit {
     return 'PLAN';
   }
 
-  // ==================== FORMATEAR PRECIO ====================
+  //  FORMATEAR PRECIO 
   formatearPrecio(precio: number): string {
     return new Intl.NumberFormat('es-CO', {
       style: 'currency',
@@ -270,7 +270,7 @@ export class MembershipFormComponent implements OnInit {
     }).format(precio || 0);
   }
 
-  // ==================== ACCIONES ====================
+  //  ACCIONES 
   guardar(): void {
     if (!this.formularioValido) return;
 

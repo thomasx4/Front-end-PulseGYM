@@ -1,43 +1,69 @@
-// ============================================
-// VARIABLES
-// ============================================
-$primary: #0f1c3f;
-$primary-light: #1a2b5c;
-$primary-hover: #2a3b7c;
-$text-dark: #0b1a30;
-$text-muted: #64748b;
-$text-light: #94a3b8;
-$border-color: #e2e8f0;
-$bg-light: #f8fafc;
-$bg-white: #ffffff;
-$radius: 12px;
+// VARIABLES (MISMAS QUE ASSIGN-MEMBERSHIP)
+$color-primary: #0f1c3f;
+$color-primary-hover: #1a2b5c;
+$color-dark: #0b1a30;
+$color-dark-alt: #081936;
+
+// Neutrales
+$color-bg-light: #f8fafc;
+$color-bg-muted: #f1f5f9;
+$color-border: #e2e8f0;
+$color-border-subtle: #edf2f7;
+$color-text-main: #334155;
+$color-text-muted: #64748b;
+$color-text-subtle: #94a3b8;
+
+// Estados y Alertas
+$color-success: #10b981;
+$color-success-bg: #ecfdf5;
+$color-success-border: #a7f3d0;
+$color-success-text: #065f46;
+
+$color-danger: #ef4444;
+$color-danger-bg: #fee2e2;
+$color-danger-border: #fca5a5;
+$color-danger-text: #dc2626;
+
+$color-warning: #d97706;
+$color-warning-bg: #fef3c7;
+$color-warning-text: #92400e;
+
+$color-info-bg: #dbeafe;
+$color-info-text: #1e40af;
+
+// Bordes Redondeados
+$radius-sm: 8px;
+$radius-md: 12px;
 $radius-lg: 16px;
-$shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-$shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.08);
+$radius-xl: 20px;
+$radius-pill: 9999px;
 
-$success: #22c55e;
-$warning: #f59e0b;
-$danger: #ef4444;
+// Transiciones
+$transition-fast: all 0.2s ease;
 
-// ============================================
-// CONTAINER
-// ============================================
-.membership-form-container {
-    padding: 32px 40px;
-    max-width: 1400px;
-    margin: 0 auto;
+//  FUENTE GLOBAL PARA ESTE COMPONENTE
+* {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-// ============================================
+
+// CONTAINER
+.membership-form-container {
+    padding: 36px 40px;
+    max-width: 1400px;
+    margin: 0 auto;
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+
 // HEADER
-// ============================================
 .form-header {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
     margin-bottom: 32px;
     padding-bottom: 24px;
-    border-bottom: 1px solid $border-color;
+    border-bottom: 1px solid $color-border;
 
     &__left {
         flex: 1;
@@ -59,62 +85,60 @@ $danger: #ef4444;
     margin-bottom: 8px;
 
     a {
-        color: $text-muted;
+        color: $color-text-muted;
         text-decoration: none;
         transition: color 0.2s;
 
         &:hover {
-            color: $primary;
+            color: $color-primary;
         }
     }
 
     &-separator {
-        color: $text-light;
+        color: $color-text-subtle;
     }
 
     &-current {
-        color: $text-dark;
+        color: $color-dark;
         font-weight: 600;
     }
 }
 
 .form-title {
-    font-size: 28px;
+    font-size: 32px;
     font-weight: 800;
-    color: $text-dark;
+    color: $color-dark;
     margin: 0 0 8px 0;
     letter-spacing: -0.5px;
 }
 
 .form-subtitle {
     font-size: 15px;
-    color: $text-muted;
+    color: $color-text-muted;
     margin: 0;
 
     strong {
-        color: $text-dark;
+        color: $color-dark;
     }
 }
 
-// ============================================
 // BUTTONS
-// ============================================
 .btn-primary {
     display: flex;
     align-items: center;
     gap: 8px;
-    background: $primary;
-    color: white;
+    background: $color-primary;
+    color: #ffffff;
     border: none;
     padding: 10px 24px;
-    border-radius: $radius;
+    border-radius: $radius-md;
     font-weight: 700;
     font-size: 14px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: $transition-fast;
 
     &:hover:not(:disabled) {
-        background: $primary-hover;
+        background: $color-primary-hover;
         transform: translateY(-1px);
         box-shadow: 0 4px 12px rgba(15, 28, 63, 0.25);
     }
@@ -125,24 +149,24 @@ $danger: #ef4444;
     }
 
     svg {
-        stroke: white;
+        stroke: #ffffff;
     }
 }
 
 .btn-outline {
     padding: 10px 24px;
     background: transparent;
-    border: 1px solid $border-color;
-    border-radius: $radius;
+    border: 1px solid $color-border;
+    border-radius: $radius-md;
     font-weight: 600;
     font-size: 14px;
-    color: $text-muted;
+    color: $color-text-muted;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: $transition-fast;
 
     &:hover {
-        background: $bg-light;
-        border-color: $text-muted;
+        background: $color-bg-light;
+        border-color: $color-text-muted;
     }
 }
 
@@ -151,19 +175,19 @@ $danger: #ef4444;
     align-items: center;
     gap: 6px;
     padding: 8px 16px;
-    background: $bg-light;
-    border: 1px solid $border-color;
-    border-radius: $radius;
+    background: $color-bg-light;
+    border: 1px solid $color-border;
+    border-radius: $radius-sm;
     font-weight: 600;
     font-size: 13px;
-    color: $text-muted;
+    color: $color-text-muted;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: $transition-fast;
     white-space: nowrap;
 
     &:hover {
-        background: $border-color;
-        color: $text-dark;
+        background: $color-border;
+        color: $color-dark;
     }
 
     svg {
@@ -171,9 +195,33 @@ $danger: #ef4444;
     }
 }
 
-// ============================================
+// BOTÓN ELIMINAR
+.btn-danger {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #ef4444;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: $radius-md;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: $transition-fast;
+
+    &:hover {
+        background: #dc2626;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    }
+
+    svg {
+        stroke: white;
+    }
+}
+
 // FORM GRID
-// ============================================
 .form-grid {
     display: grid;
     grid-template-columns: 1fr 380px;
@@ -195,28 +243,24 @@ $danger: #ef4444;
     align-self: start;
 }
 
-// ============================================
 // FORM SECTIONS
-// ============================================
 .form-section {
-    background: $bg-white;
-    border-radius: $radius-lg;
+    background: #ffffff;
+    border-radius: $radius-xl;
     padding: 24px 28px;
-    border: 1px solid $border-color;
-    box-shadow: $shadow;
+    border: 1px solid $color-border;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
 }
 
 .section-title {
     font-size: 16px;
     font-weight: 700;
-    color: $text-dark;
+    color: $color-dark;
     margin: 0 0 20px 0;
     letter-spacing: 0.3px;
 }
 
-// ============================================
 // FORM GROUPS
-// ============================================
 .form-group {
     margin-bottom: 18px;
 
@@ -224,7 +268,7 @@ $danger: #ef4444;
         display: block;
         font-size: 11px;
         font-weight: 700;
-        color: $text-muted;
+        color: $color-text-muted;
         text-transform: uppercase;
         letter-spacing: 0.8px;
         margin-bottom: 6px;
@@ -240,35 +284,33 @@ $danger: #ef4444;
 .form-control {
     width: 100%;
     padding: 10px 14px;
-    border: 1px solid $border-color;
-    border-radius: $radius;
+    border: 1px solid $color-border;
+    border-radius: $radius-sm;
     font-size: 14px;
     font-weight: 500;
-    color: $text-dark;
-    background: $bg-white;
+    color: $color-dark;
+    background: #ffffff;
     transition: border-color 0.2s, box-shadow 0.2s;
     box-sizing: border-box;
 
     &:focus {
         outline: none;
-        border-color: $primary;
+        border-color: $color-primary;
         box-shadow: 0 0 0 3px rgba(15, 28, 63, 0.08);
     }
 
     &::placeholder {
-        color: $text-light;
+        color: $color-text-subtle;
         font-weight: 400;
     }
 }
 
-// ✅ CORREGIDO: selector para textarea
 textarea.form-control {
     resize: vertical;
     font-family: inherit;
     line-height: 1.5;
 }
 
-// ✅ CORREGIDO: selector para select
 select.form-control {
     appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
@@ -287,7 +329,7 @@ select.form-control {
         transform: translateY(-50%);
         font-size: 14px;
         font-weight: 600;
-        color: $text-muted;
+        color: $color-text-muted;
     }
 
     .form-control {
@@ -295,9 +337,7 @@ select.form-control {
     }
 }
 
-// ============================================
 // BENEFITS
-// ============================================
 .benefits-list {
     display: flex;
     flex-direction: column;
@@ -310,35 +350,35 @@ select.form-control {
     align-items: center;
     gap: 10px;
     padding: 10px 14px;
-    background: $bg-light;
-    border-radius: $radius;
-    border: 1px solid $border-color;
+    background: $color-bg-light;
+    border-radius: $radius-sm;
+    border: 1px solid $color-border;
 
     .benefit-dot {
         width: 6px;
         height: 6px;
         border-radius: 50%;
-        background: $success;
+        background: $color-success;
         flex-shrink: 0;
     }
 
     .benefit-text {
         flex: 1;
         font-size: 14px;
-        color: $text-dark;
+        color: $color-dark;
     }
 
     .benefit-remove {
         background: transparent;
         border: none;
-        color: $text-light;
+        color: $color-text-subtle;
         cursor: pointer;
         padding: 4px;
         border-radius: 4px;
-        transition: all 0.2s ease;
+        transition: $transition-fast;
 
         &:hover {
-            background: $danger;
+            background: $color-danger;
             color: white;
         }
 
@@ -357,9 +397,7 @@ select.form-control {
     }
 }
 
-// ============================================
 // TOGGLES
-// ============================================
 .toggle-group {
     display: flex;
     flex-direction: column;
@@ -376,7 +414,7 @@ select.form-control {
         display: none;
 
         &:checked+.toggle-slider {
-            background: $primary;
+            background: $color-primary;
         }
 
         &:checked+.toggle-slider::after {
@@ -387,7 +425,7 @@ select.form-control {
     .toggle-slider {
         width: 38px;
         height: 22px;
-        background: $border-color;
+        background: $color-border;
         border-radius: 12px;
         position: relative;
         transition: background 0.3s ease;
@@ -410,25 +448,23 @@ select.form-control {
     .toggle-label {
         font-size: 14px;
         font-weight: 500;
-        color: $text-dark;
+        color: $color-dark;
     }
 }
 
-// ============================================
 // PREVIEW CARD
-// ============================================
 .preview-card {
-    background: $bg-white;
-    border-radius: $radius-lg;
+    background: #ffffff;
+    border-radius: $radius-xl;
     padding: 24px 28px;
-    border: 1px solid $border-color;
-    box-shadow: $shadow;
+    border: 1px solid $color-border;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
 }
 
 .preview-title {
     font-size: 11px;
     font-weight: 700;
-    color: $text-muted;
+    color: $color-text-muted;
     text-transform: uppercase;
     letter-spacing: 0.8px;
     margin: 0 0 18px 0;
@@ -474,7 +510,7 @@ select.form-control {
     &__name {
         font-size: 20px;
         font-weight: 800;
-        color: $text-dark;
+        color: $color-dark;
         margin: 0 0 4px 0;
     }
 
@@ -484,13 +520,13 @@ select.form-control {
         &-amount {
             font-size: 32px;
             font-weight: 800;
-            color: $text-dark;
+            color: $color-dark;
         }
 
         &-period {
             font-size: 14px;
             font-weight: 500;
-            color: $text-light;
+            color: $color-text-subtle;
             margin-left: 2px;
         }
     }
@@ -506,18 +542,18 @@ select.form-control {
             gap: 10px;
             padding: 4px 0;
             font-size: 13px;
-            color: $text-muted;
+            color: $color-text-muted;
 
             svg {
                 width: 16px;
                 height: 16px;
-                stroke: $success;
+                stroke: $color-success;
                 flex-shrink: 0;
             }
         }
 
         .more-benefits {
-            color: $text-light;
+            color: $color-text-subtle;
             font-style: italic;
             font-size: 12px;
         }
@@ -527,27 +563,82 @@ select.form-control {
         .btn-preview-select {
             width: 100%;
             padding: 10px;
-            background: $primary;
+            background: $color-primary;
             color: white;
             border: none;
-            border-radius: $radius;
+            border-radius: $radius-sm;
             font-weight: 700;
             font-size: 13px;
             letter-spacing: 0.5px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: $transition-fast;
 
             &:hover {
-                background: $primary-hover;
+                background: $color-primary-hover;
             }
         }
     }
 }
 
+// IMPACT CARD
+.impact-card {
+    background: $color-primary;
+    border-radius: $radius-xl;
+    padding: 24px 28px;
+    color: white;
+}
 
-// ============================================
+.impact-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: rgba(255, 255, 255, 0.6);
+    margin: 0 0 18px 0;
+}
+
+.impact-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.impact-stat {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+
+    &:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    &__label {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    &__value {
+        font-size: 18px;
+        font-weight: 700;
+        color: white;
+
+        &.positive {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: #4ade80;
+
+            svg {
+                stroke: #4ade80;
+            }
+        }
+    }
+}
+
 // RESPONSIVE
-// ============================================
 @media (max-width: 1024px) {
     .form-grid {
         grid-template-columns: 1fr;
@@ -593,30 +684,73 @@ select.form-control {
     }
 }
 
-// ============================================
-// BOTÓN ELIMINAR
-// ============================================
-.btn-danger {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: #ef4444;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: $radius;
-    font-weight: 700;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.2s ease;
+// CONFIG CARD (NUEVA)
+.config-card {
+    background: #ffffff;
+    border-radius: $radius-xl;
+    padding: 24px 28px;
+    border: 1px solid $color-border;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
 
-    &:hover {
-        background: #dc2626;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    &__title {
+        font-size: 14px;
+        font-weight: 700;
+        color: $color-dark;
+        margin: 0 0 18px 0;
+        letter-spacing: 0.3px;
     }
 
-    svg {
-        stroke: white;
+    .toggle-group {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .toggle-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        cursor: pointer;
+
+        input {
+            display: none;
+
+            &:checked + .toggle-slider {
+                background: $color-primary;
+            }
+
+            &:checked + .toggle-slider::after {
+                transform: translateX(18px);
+            }
+        }
+
+        .toggle-slider {
+            width: 38px;
+            height: 22px;
+            background: $color-border;
+            border-radius: 12px;
+            position: relative;
+            transition: background 0.3s ease;
+            flex-shrink: 0;
+
+            &::after {
+                content: '';
+                position: absolute;
+                width: 16px;
+                height: 16px;
+                background: white;
+                border-radius: 50%;
+                top: 3px;
+                left: 3px;
+                transition: transform 0.3s ease;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+            }
+        }
+
+        .toggle-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: $color-dark;
+        }
     }
 }

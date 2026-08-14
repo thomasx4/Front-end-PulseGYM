@@ -1,13 +1,9 @@
-// SERVICIO DE MEMBRESÍAS - CONEXIÓN CON EL BACKEND
-
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 
-// ============================================
 // INTERFACES
-// ============================================
 
 export interface AsignacionRequest {
     idSocio: number;
@@ -47,13 +43,10 @@ export class MembershipService {
 
     constructor(private http: HttpClient) { }
 
-    // ============================================
     // 1. MEMBRESÍAS CRUD
-    // ============================================
 
     /**
      * Obtiene todas las membresías activas
-     * GET /pg-ms-users/api/v1/membresias
      */
     getMembresias(): Observable<any> {
         return this.http.get(`${this.apiUrl}/membresias`);
@@ -61,7 +54,6 @@ export class MembershipService {
 
     /**
      * Obtiene todas las membresías con sus socios activos asignados
-     * GET /pg-ms-users/api/v1/membresias/todos-con-socios-activos
      */
     getMembresiasConSocios(): Observable<any> {
         return this.http.get(`${this.apiUrl}/membresias/todos-con-socios-activos`);
@@ -69,7 +61,6 @@ export class MembershipService {
 
     /**
      * Obtiene una membresía con sus socios ACTIVOS asignados
-     * GET /pg-ms-users/api/v1/membresias/{id}/socios-activos
      */
     getMembresiaConSociosActivos(idMembresia: number): Observable<any> {
         return this.http.get(`${this.apiUrl}/membresias/${idMembresia}/socios-activos`);
@@ -77,7 +68,6 @@ export class MembershipService {
 
     /**
      * Obtiene membresías filtradas por categoría (IA)
-     * GET /pg-ms-users/api/v1/membresias/categoria?incluyeIA=true/false
      */
     getMembresiasPorCategoria(incluyeIA: boolean): Observable<any> {
         return this.http.get(`${this.apiUrl}/membresias/categoria?incluyeIA=${incluyeIA}`);
@@ -85,7 +75,6 @@ export class MembershipService {
 
     /**
      * Crea una nueva membresía
-     * POST /pg-ms-users/api/v1/membresias
      */
     crearMembresia(data: any): Observable<any> {
         return this.http.post(`${this.apiUrl}/membresias`, data);
@@ -93,7 +82,6 @@ export class MembershipService {
 
     /**
      * Actualiza una membresía existente
-     * PUT /pg-ms-users/api/v1/membresias/{id}
      */
     actualizarMembresia(id: number, data: any): Observable<any> {
         return this.http.put(`${this.apiUrl}/membresias/${id}`, data);
@@ -101,15 +89,12 @@ export class MembershipService {
 
     /**
      * Elimina/desactiva una membresía
-     * DELETE /pg-ms-users/api/v1/membresias/{id}
      */
     eliminarMembresia(id: number): Observable<any> {
         return this.http.delete(`${this.apiUrl}/membresias/${id}`);
     }
 
-    // ============================================
     // 2. USUARIOS (SOCIOS)
-    // ============================================
 
     /**
      * Obtiene todos los usuarios activos para asignar membresía
@@ -118,9 +103,7 @@ export class MembershipService {
         return this.http.get(`${this.apiUrl}/usuarios/activo`);
     }
 
-    // ============================================
     // 3. ASIGNACIÓN DE MEMBRESÍAS
-    // ============================================
 
     /**
      * Asigna una membresía a un socio
@@ -150,9 +133,7 @@ export class MembershipService {
         return this.http.get(`${this.apiUrl}/socios-membresias/socio/${idSocio}/activa`);
     }
 
-    // ============================================
     // 4. OPERACIONES SOBRE MEMBRESÍAS DE SOCIOS
-    // ============================================
 
     /**
      * Renueva una membresía (PUT)
@@ -178,9 +159,7 @@ export class MembershipService {
         );
     }
 
-    // ============================================
     // 5. REPORTES
-    // ============================================
 
     /**
      * Obtiene membresías por vencer (1-5 días)

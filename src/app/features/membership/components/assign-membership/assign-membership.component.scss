@@ -41,8 +41,12 @@ $radius-pill: 9999px;
 // Transiciones
 $transition-fast: all 0.2s ease;
 
-// ANIMACIONES
+// FUENTE GLOBAL PARA ESTE COMPONENTE
+* {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
 
+// ANIMACIONES
 @keyframes slideDown {
     from {
         opacity: 0;
@@ -1212,5 +1216,53 @@ $transition-fast: all 0.2s ease;
     .acciones-buttons {
         flex-direction: column;
         gap: 4px;
+    }
+}
+
+// PAGINACIÓN MEMBRESÍAS
+.membresias-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 28px;
+    padding-top: 20px;
+    border-top: 1px solid $color-border;
+
+    .page-btn {
+        width: 34px;
+        height: 34px;
+        border: 1px solid $color-border;
+        background: #ffffff;
+        border-radius: $radius-sm;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 14px;
+        color: $color-text-muted;
+        transition: all 0.2s ease;
+
+        &:hover:not(:disabled) {
+            background: $color-bg-light;
+            border-color: $color-primary;
+            color: $color-primary;
+        }
+
+        &:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        &.active {
+            background: $color-primary;
+            color: white;
+            border-color: $color-primary;
+        }
+
+        svg {
+            stroke: currentColor;
+        }
     }
 }

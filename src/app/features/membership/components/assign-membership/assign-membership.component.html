@@ -23,66 +23,69 @@
         <span>Cargando...</span>
     </div>
 
-    <!-- SECCIÓN POR VENCER -->
-<div class="por-vencer-container" *ngIf="vistaActual === 'tarjetas' && membresiasPorVencer.length > 0">
-    <div class="por-vencer-header">
-        <div class="por-vencer-header__title">
-            <div class="icon-pulse-wrapper">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <polyline points="12 6 12 16 14"></polyline>
+    <!-- SECCIÓN POR VENCER (ÚNICA) -->
+    <div class="por-vencer-container" *ngIf="vistaActual === 'tarjetas' && membresiasPorVencer.length > 0">
+        <div class="por-vencer-header">
+            <div class="por-vencer-header__title">
+                <div class="icon-pulse-wrapper">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 16 14"></polyline>
+                    </svg>
+                </div>
+                <div>
+                    <h2>Membresías por vencer</h2>
+                    <p>Atención requerida para renovaciones próximas</p>
+                </div>
+            </div>
+            <span class="por-vencer-badge-total">{{ membresiasPorVencer.length }} socios</span>
+        </div>
+
+        <div class="por-vencer-grid">
+            <div *ngFor="let item of membresiasPorVencerPaginadas; trackBy: trackByItemId" class="por-vencer-card">
+                <div class="por-vencer-card__user">
+                    <img [src]="generarAvatar(item.nombreSocio || item.nombre)" [alt]="item.nombreSocio || item.nombre"
+                        class="user-avatar">
+                    <div class="user-details">
+                        <span class="user-name">{{ item.nombreSocio || item.nombre }}</span>
+                        <span class="user-membership">{{ item.tipoMembresia || item.nombreMembresia || 'Plan Activo'
+                            }}</span>
+                    </div>
+                </div>
+                <div class="por-vencer-card__right">
+                    <div class="days-badge" [class.urgente]="item.diasRestantes <= 2"
+                        [class.alerta]="item.diasRestantes > 2">
+                        {{ item.diasRestantes }} {{ item.diasRestantes === 1 ? 'día' : 'días' }}
+                    </div>
+                    <button type="button" class="btn-renovar-action" (click)="renovarDesdePorVencer(item)">
+                        Renovar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAGINACIÓN POR VENCER (NUEVO ESTILO) -->
+        <div class="membresias-pagination" *ngIf="totalPaginasPorVencer > 1">
+            <button class="page-btn" (click)="paginaAnteriorPorVencer()" [disabled]="paginaPorVencerActual === 1">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="15 18 9 12 15 6" />
                 </svg>
-            </div>
-            <div>
-                <h2>Membresías por vencer</h2>
-                <p>Atención requerida para renovaciones próximas</p>
-            </div>
-        </div>
-        <span class="por-vencer-badge-total">{{ membresiasPorVencer.length }} socios</span>
-    </div>
-
-    <!-- Muestra máximo 6 ítems por página (3 arriba, 3 abajo) -->
-    <div class="por-vencer-grid">
-        <div *ngFor="let item of membresiasPorVencerPaginadas; trackBy: trackByItemId" class="por-vencer-card">
-
-            <div class="por-vencer-card__user">
-                <img [src]="generarAvatar(item.nombreSocio || item.nombre)" [alt]="item.nombreSocio || item.nombre"
-                    class="user-avatar">
-                <div class="user-details">
-                    <span class="user-name">{{ item.nombreSocio || item.nombre }}</span>
-                    <span class="user-membership">{{ item.tipoMembresia || item.nombreMembresia || 'Plan Activo' }}</span>
-                </div>
-            </div>
-
-            <div class="por-vencer-card__right">
-                <div class="days-badge" [class.urgente]="item.diasRestantes <= 2" [class.alerta]="item.diasRestantes > 2">
-                    {{ item.diasRestantes }} {{ item.diasRestantes === 1 ? 'día' : 'días' }}
-                </div>
-                <button type="button" class="btn-renovar-action" (click)="renovarDesdePorVencer(item)">
-                    Renovar
-                </button>
-            </div>
-
+            </button>
+            <button class="page-btn" *ngFor="let p of paginasPorVencer" [class.active]="p === paginaPorVencerActual"
+                (click)="irAPaginaPorVencer(p)">
+                {{ p }}
+            </button>
+            <button class="page-btn" (click)="paginaSiguientePorVencer()"
+                [disabled]="paginaPorVencerActual === totalPaginasPorVencer">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6" />
+                </svg>
+            </button>
         </div>
     </div>
 
-    <!-- Paginación (solo se muestra si hay más de 6 registros) -->
-    <div class="por-vencer-pagination" *ngIf="totalPaginasPorVencer > 1">
-        <button type="button" class="btn-page" [disabled]="paginaPorVencerActual === 1" (click)="paginaAnteriorPorVencer()">
-            ‹
-        </button>
-
-        <span class="page-indicator">
-            Página {{ paginaPorVencerActual }} de {{ totalPaginasPorVencer }}
-        </span>
-
-        <button type="button" class="btn-page" [disabled]="paginaPorVencerActual === totalPaginasPorVencer" (click)="paginaSiguientePorVencer()">
-            ›
-        </button>
-    </div>
-</div>
-    <!-- VISTA 1: TARJETAS DE MEMBRESÍAS -->
+    <!-- VISTA 1: TARJETAS DE MEMBRESÍAS CON PAGINACIÓN -->
     <ng-container *ngIf="vistaActual === 'tarjetas'">
         <div class="membership-header">
             <h1>Asignar Membresía</h1>
@@ -90,13 +93,12 @@
         </div>
 
         <div class="membership-grid">
-            <div *ngFor="let membresia of membresias; trackBy: trackByMembresiaId" class="membership-card">
+            <div *ngFor="let membresia of membresiasPaginadas; trackBy: trackByMembresiaId" class="membership-card">
                 <div class="membership-card__body">
                     <h2 class="membership-card__title">{{ membresia.nombre }}</h2>
                     <div class="membership-card__price">
                         <span class="price-value">{{ formatearPrecio(membresia.precio) }}</span>
                     </div>
-
                     <ul class="membership-card__benefits">
                         <li *ngIf="membresia.incluyeIA" class="benefit-ia">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
@@ -120,13 +122,11 @@
                             <span>{{ beneficio }}</span>
                         </li>
                     </ul>
-
                     <div class="membership-card__status">
                         <span class="status-dot"></span>
                         <span class="status-text">{{ membresia.estado }}</span>
                     </div>
                 </div>
-
                 <div class="membership-card__footer">
                     <button type="button" class="btn btn--primary" (click)="asignarMembresia(membresia.id)">
                         {{ membresia.esFlexible ? 'Asignar flexible' : 'Asignar a socio' }}
@@ -136,6 +136,25 @@
                     </button>
                 </div>
             </div>
+        </div>
+
+        <!-- PAGINACIÓN MEMBRESÍAS -->
+        <div class="membresias-pagination" *ngIf="totalPaginasMembresias > 1">
+            <button class="page-btn" (click)="paginaAnteriorMembresias()" [disabled]="paginaMembresiasActual === 1">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="15 18 9 12 15 6" />
+                </svg>
+            </button>
+            <button class="page-btn" *ngFor="let p of paginasMembresias" [class.active]="p === paginaMembresiasActual"
+                (click)="cambiarPaginaMembresias(p)">
+                {{ p }}
+            </button>
+            <button class="page-btn" (click)="paginaSiguienteMembresias()"
+                [disabled]="paginaMembresiasActual === totalPaginasMembresias">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6" />
+                </svg>
+            </button>
         </div>
     </ng-container>
 
@@ -158,7 +177,6 @@
                     <span class="price-val">{{ formatearPrecio(membresiaSeleccionada.precio) }}</span>
                 </div>
             </div>
-
             <div class="summary-banner__benefits">
                 <ul>
                     <li *ngIf="membresiaSeleccionada.incluyeIA">
@@ -184,7 +202,6 @@
                     </li>
                 </ul>
             </div>
-
             <div class="summary-banner__stats">
                 <div class="summary-banner__status">
                     <span class="status-dot"></span>
@@ -273,19 +290,30 @@
                     </tbody>
                 </table>
 
+                <!-- ✅ PAGINACIÓN SOCIOS ASIGNADOS (NUEVO ESTILO) -->
                 <div class="table-footer" *ngIf="sociosAsignadosFiltrados.length > 0">
                     <span class="table-footer__info">
                         Mostrando {{ sociosPaginados.length }} de {{ sociosAsignadosFiltrados.length }} socios
                     </span>
-                    <div class="table-footer__pagination">
-                        <button type="button" class="p-arrow" (click)="cambiarPaginaSocios(sociosPaginaActual - 1)"
-                            [disabled]="sociosPaginaActual === 1">&lt;</button>
-                        <button *ngFor="let page of paginasSocios; trackBy: trackByIndex" type="button" class="p-num"
+                    <div class="membresias-pagination" *ngIf="totalSociosPaginas > 1">
+                        <button class="page-btn" (click)="cambiarPaginaSocios(sociosPaginaActual - 1)"
+                            [disabled]="sociosPaginaActual === 1">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <polyline points="15 18 9 12 15 6" />
+                            </svg>
+                        </button>
+                        <button class="page-btn" *ngFor="let page of paginasSocios"
                             [class.active]="sociosPaginaActual === page" (click)="cambiarPaginaSocios(page)">
                             {{ page }}
                         </button>
-                        <button type="button" class="p-arrow" (click)="cambiarPaginaSocios(sociosPaginaActual + 1)"
-                            [disabled]="sociosPaginaActual === totalSociosPaginas">&gt;</button>
+                        <button class="page-btn" (click)="cambiarPaginaSocios(sociosPaginaActual + 1)"
+                            [disabled]="sociosPaginaActual === totalSociosPaginas">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <polyline points="9 18 15 12 9 6" />
+                            </svg>
+                        </button>
                     </div>
                 </div>
             </div>

@@ -1,5 +1,3 @@
-// src/app/shared/components/main-layout/sidebar/sidebar.component.ts
-
 import { Component } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Router } from '@angular/router';
@@ -40,25 +38,12 @@ export class SidebarComponent {
       </svg>
     `);
 
-    // ICONO PARA VER MEMBRESÍAS
-    const listIcon = this.sanitizer.bypassSecurityTrustHtml(`
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
-        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
-      </svg>
-    `);
-
-    // ITEMS DEL SUBMENÚ DE MEMBRESÍAS
+    // ITEMS DEL SUBMENÚ DE MEMBRESÍAS (SOLO ASIGNAR)
     this.membershipChildren = [
       {
         label: 'Asignar Membresía',
         route: '/dashboard-admin/memberships/assign',
         iconHtml: assignIcon,
-      },
-      {
-        label: 'Lista de Membresías',
-        route: '/dashboard-admin/memberships/list',
-        iconHtml: listIcon,
       }
     ];
 
@@ -138,6 +123,10 @@ export class SidebarComponent {
   isMembershipActive(): boolean {
     const url = this.router.url;
     return url.includes('/dashboard-admin/memberships');
+  }
+
+  goToMembershipList(): void {
+    this.router.navigate(['/dashboard-admin/memberships/list']);
   }
 
   onLogout() {

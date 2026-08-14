@@ -1,6 +1,6 @@
 <div class="membership-form-container">
 
-    <!-- ==================== HEADER ==================== -->
+    <!--  HEADER  -->
     <div class="form-header">
         <div class="form-header__left">
             <div class="breadcrumb">
@@ -40,7 +40,7 @@
         </div>
     </div>
 
-    <!-- ==================== FORMULARIO ==================== -->
+    <!--  FORMULARIO  -->
     <div class="form-grid">
 
         <!-- COLUMNA IZQUIERDA: FORMULARIO -->
@@ -133,32 +133,9 @@
                 </div>
             </div>
 
-            <!-- CONFIGURACIÓN ADICIONAL -->
-            <div class="form-section">
-                <h2 class="section-title">Configuración Adicional</h2>
+        </div>
 
-                <div class="toggle-group">
-                    <label class="toggle-item">
-                        <input type="checkbox" [(ngModel)]="plan.incluyeIA" />
-                        <span class="toggle-slider"></span>
-                        <span class="toggle-label">Incluye Asistente IA</span>
-                    </label>
-                    <label class="toggle-item">
-                        <input type="checkbox" [(ngModel)]="plan.esFlexible" />
-                        <span class="toggle-slider"></span>
-                        <span class="toggle-label">Membresía Flexible (días personalizados)</span>
-                    </label>
-                    <label class="toggle-item">
-                        <input type="checkbox" [(ngModel)]="plan.activo" />
-                        <span class="toggle-slider"></span>
-                        <span class="toggle-label">Plan Activo</span>
-                    </label>
-                </div>
-            </div>
-
-        </div> <!-- FIN form-column -->
-
-        <!-- ==================== COLUMNA DERECHA: VISTA PREVIA E IMPACTO ==================== -->
+        <!--  COLUMNA DERECHA: VISTA PREVIA, CONFIGURACIÓN  -->
         <div class="preview-column">
 
             <!-- VISTA PREVIA -->
@@ -194,6 +171,28 @@
                 </div>
             </div>
 
+            <!--  CONFIGURACIÓN ADICIONAL (MOVIDA A LA COLUMNA DERECHA) -->
+            <div class="config-card">
+                <h3 class="config-card__title">Configuración Adicional</h3>
+                <div class="toggle-group">
+                    <label class="toggle-item">
+                        <input type="checkbox" [(ngModel)]="plan.incluyeIA" />
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-label">Incluye Asistente IA</span>
+                    </label>
+                    <label class="toggle-item">
+                        <input type="checkbox" [(ngModel)]="plan.esFlexible" />
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-label">Membresía Flexible (días personalizados)</span>
+                    </label>
+                    <label class="toggle-item">
+                        <input type="checkbox" [(ngModel)]="plan.activo" />
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-label">Plan Activo</span>
+                    </label>
+                </div>
+            </div>
+
             <!-- INFO ADICIONAL EN EDICIÓN -->
             <div class="impact-card" *ngIf="esEdicion">
                 <h3 class="impact-title">SOCIOS ASIGNADOS</h3>
@@ -207,5 +206,5 @@
 
         </div>
 
-    </div>
+    </div> 
 </div>

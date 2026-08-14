@@ -1,6 +1,6 @@
 <div class="membership-management">
 
-    <!-- ==================== HEADER ==================== -->
+    <!--  HEADER  -->
     <div class="page-header">
         <h1 class="page-title">Gestion Membresias</h1>
         <button class="btn-primary" (click)="crearNuevaMembresia()">
@@ -12,17 +12,48 @@
         </button>
     </div>
 
-    <!-- ==================== SPINNER DE CARGA ==================== -->
+    <!--  SPINNER DE CARGA  -->
     <div *ngIf="loading" class="loading-overlay">
         <div class="spinner"></div>
         <span>Cargando...</span>
     </div>
 
-    <!-- ==================== PLAN CARDS (SIN FILTROS) ==================== -->
+    <!--  FILTROS PARA PLANES  -->
+    <div class="filters-plans" *ngIf="!loading">
+        <div class="filters-plans__row">
+            <div class="filter-group">
+                <select [(ngModel)]="filtroPlanTipo" (change)="aplicarFiltrosPlanes()">
+                    <option value="todos">Todos</option>
+                    <option value="premium">Premium (Con IA)</option>
+                    <option value="standard">Standard (Sin IA)</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <select [(ngModel)]="filtroPlanFlexible" (change)="aplicarFiltrosPlanes()">
+                    <option value="todos">Todos</option>
+                    <option value="flexible">Flexibles</option>
+                    <option value="noFlexible">No Flexibles</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <input type="text" placeholder="Buscar plan..." [(ngModel)]="searchTermPlan"
+                    (input)="aplicarFiltrosPlanes()" />
+            </div>
+            <button class="btn-clear-filters" (click)="limpiarFiltrosPlanes()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+                Limpiar
+            </button>
+        </div>
+    </div>
+
+    <!--  PLAN CARDS CON PAGINACIÓN  -->
     <div class="plans-section" *ngIf="!loading">
         <h2 class="section-subtitle">Planes Disponibles</h2>
         <div class="plans-grid">
-            <div class="plan-card" *ngFor="let plan of planes">
+            <div class="plan-card" *ngFor="let plan of planesPaginados">
                 <div class="plan-card__header">
                     <span class="plan-card__badge" [class]="plan.badgeClass">
                         {{ plan.badge }}
@@ -56,14 +87,32 @@
                 </div>
             </div>
         </div>
+
+        <!-- PAGINACIÓN PLANES -->
+        <div class="membresias-pagination" *ngIf="totalPaginasPlanes > 1">
+            <button class="page-btn" (click)="paginaPlanesAnterior()" [disabled]="paginaPlanesActual === 1">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="15 18 9 12 15 6" />
+                </svg>
+            </button>
+            <button class="page-btn" *ngFor="let p of paginasPlanes" [class.active]="p === paginaPlanesActual"
+                (click)="cambiarPaginaPlanes(p)">
+                {{ p }}
+            </button>
+            <button class="page-btn" (click)="paginaPlanesSiguiente()"
+                [disabled]="paginaPlanesActual === totalPaginasPlanes">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6" />
+                </svg>
+            </button>
+        </div>
     </div>
 
-    <!-- ==================== TABLA DE MIEMBROS CON FILTROS ==================== -->
+    <!--  TABLA DE MIEMBROS CON FILTROS  -->
     <div class="members-table-section" *ngIf="!loading">
         <div class="table-header">
             <h2 class="section-subtitle">Active Memberships</h2>
             <div class="table-controls">
-                <!-- FILTROS SOLO PARA LA TABLA -->
                 <div class="filter-group">
                     <select [(ngModel)]="filtroIA" (change)="aplicarFiltrosTabla()">
                         <option value="todos">Todos</option>
@@ -76,6 +125,14 @@
                         <option value="todos">Todos</option>
                         <option value="flexible">Flexibles</option>
                         <option value="noFlexible">No Flexibles</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <select [(ngModel)]="filtroMembresia" (change)="aplicarFiltrosTabla()">
+                        <option value="todos">Todas</option>
+                        <option *ngFor="let plan of planes" [value]="plan.id">
+                            {{ plan.nombre }}
+                        </option>
                     </select>
                 </div>
                 <div class="search-box">
@@ -91,7 +148,7 @@
                         <line x1="18" y1="6" x2="6" y2="18" />
                         <line x1="6" y1="6" x2="18" y2="18" />
                     </svg>
-                    Limpiar filtros
+                    Limpiar
                 </button>
             </div>
         </div>
@@ -150,7 +207,7 @@
             </table>
         </div>
 
-        <!-- PAGINACIÓN -->
+        <!-- PAGINACIÓN SOCIOS (CENTRADA COMO LA DE MEMBRESÍAS) -->
         <div class="table-footer">
             <span class="table-info">
                 Showing {{ inicio + 1 }}–{{ fin }} of {{ miembrosFiltradosList.length }} members

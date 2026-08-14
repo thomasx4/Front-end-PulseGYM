@@ -35,6 +35,7 @@ interface Miembro {
   diasRestantes?: number;
   incluyeIA?: boolean;
   esFlexible?: boolean;
+  idMembresia?: number;
 }
 
 @Component({
@@ -43,27 +44,39 @@ interface Miembro {
   styleUrls: ['./membership-list.component.scss']
 })
 export class MembershipListComponent implements OnInit {
-  // ==================== PLANES (TODOS) ====================
+  //  PLANES 
   planes: Plan[] = [];
+  planesFiltrados: Plan[] = [];
 
-  // ==================== MIEMBROS ====================
+  //  MIEMBROS 
   miembros: Miembro[] = [];
   miembrosFiltradosList: Miembro[] = [];
 
-  // ==================== FILTROS (SOLO PARA TABLA) ====================
+  //  FILTROS PLANES 
+  searchTermPlan: string = '';
+  filtroPlanTipo: string = 'todos';
+  filtroPlanFlexible: string = 'todos';
+
+  //  FILTROS TABLA SOCIOS 
   searchTerm: string = '';
   filtroIA: string = 'todos';
   filtroFlexible: string = 'todos';
+  filtroMembresia: string = 'todos';
 
-  // ==================== PAGINACIÓN ====================
+  //  PAGINACIÓN PLANES 
+  paginaPlanesActual: number = 1;
+  itemsPorPaginaPlanes: number = 6;
+
+  //  PAGINACIÓN SOCIOS 
   paginaActual: number = 1;
-  itemsPorPagina: number = 10;
+  itemsPorPagina: number = 6; 
+
   loading: boolean = false;
 
   constructor(
     private router: Router,
     private membershipService: MembershipService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.cargarDatos();
@@ -71,11 +84,10 @@ export class MembershipListComponent implements OnInit {
 
   cargarDatos(): void {
     this.loading = true;
-    
-    this.membershipService.getMembresiasConSocios().subscribe({
-      next: (data: any[]) => {
-        // Mapear planes (TODOS, sin filtros)
-        this.planes = data.map((item: any) => ({
+
+    this.membershipService.getMembresias().subscribe({
+      next: (membresiasData: any[]) => {
+        this.planes = membresiasData.map((item: any) => ({
           id: item.idMembresia,
           nombre: item.nombre,
           precio: item.precioTotal || 0,
@@ -85,68 +97,117 @@ export class MembershipListComponent implements OnInit {
           accion: 'Edit Plan',
           incluyeIA: item.incluyeIA,
           esFlexible: item.esFlexible,
-          totalSociosAsignados: item.totalSociosAsignados || 0
+          totalSociosAsignados: 0
         }));
 
-        // Mapear socios asignados (con datos de membresía para filtrar)
-        this.miembros = [];
-        data.forEach((membresia: any) => {
-          if (membresia.sociosAsignados && membresia.sociosAsignados.length > 0) {
-            membresia.sociosAsignados.forEach((socio: any) => {
-              this.miembros.push({
-                id: socio.idSocio,
-                nombre: socio.nombreCompleto?.split(' ')[0] || 'Usuario',
-                apellido: socio.nombreCompleto?.split(' ').slice(1).join(' ') || '',
-                email: socio.email || '',
-                telefono: socio.telefono || '',
-                plan: membresia.nombre,
-                planClass: membresia.incluyeIA ? 'tier-elite' : 'tier-essential',
-                joinDate: socio.fechaInicio ? new Date(socio.fechaInicio).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '',
-                status: socio.estado === 'ACTIVA' ? 'Active' : 'Inactive',
-                statusClass: socio.estado === 'ACTIVA' ? 'active' : 'cancelled',
-                nextBilling: socio.fechaVencimiento ? new Date(socio.fechaVencimiento).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '--',
-                nombreMembresia: membresia.nombre,
-                fechaInicio: socio.fechaInicio ? new Date(socio.fechaInicio).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '',
-                fechaFin: socio.fechaVencimiento ? new Date(socio.fechaVencimiento).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '--',
-                estado: socio.estado === 'ACTIVA' ? 'Activo' : 'Inactivo',
-                diasRestantes: socio.diasRestantes,
-                incluyeIA: membresia.incluyeIA,
-                esFlexible: membresia.esFlexible
-              });
+        this.membershipService.getMembresiasConSocios().subscribe({
+          next: (dataConSocios: any[]) => {
+            dataConSocios.forEach((item: any) => {
+              const plan = this.planes.find(p => p.id === item.idMembresia);
+              if (plan) {
+                plan.totalSociosAsignados = item.totalSociosAsignados || 0;
+              }
             });
+
+            this.miembros = [];
+            dataConSocios.forEach((membresia: any) => {
+              if (membresia.sociosAsignados && membresia.sociosAsignados.length > 0) {
+                membresia.sociosAsignados.forEach((socio: any) => {
+                  this.miembros.push({
+                    id: socio.idSocio,
+                    nombre: socio.nombreCompleto?.split(' ')[0] || 'Usuario',
+                    apellido: socio.nombreCompleto?.split(' ').slice(1).join(' ') || '',
+                    email: socio.email || '',
+                    telefono: socio.telefono || '',
+                    plan: membresia.nombre,
+                    planClass: membresia.incluyeIA ? 'tier-elite' : 'tier-essential',
+                    joinDate: socio.fechaInicio ? new Date(socio.fechaInicio).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '',
+                    status: socio.estado === 'ACTIVA' ? 'Active' : 'Inactive',
+                    statusClass: socio.estado === 'ACTIVA' ? 'active' : 'cancelled',
+                    nextBilling: socio.fechaVencimiento ? new Date(socio.fechaVencimiento).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '--',
+                    nombreMembresia: membresia.nombre,
+                    fechaInicio: socio.fechaInicio ? new Date(socio.fechaInicio).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '',
+                    fechaFin: socio.fechaVencimiento ? new Date(socio.fechaVencimiento).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '--',
+                    estado: socio.estado === 'ACTIVA' ? 'Activo' : 'Inactivo',
+                    diasRestantes: socio.diasRestantes,
+                    incluyeIA: membresia.incluyeIA,
+                    esFlexible: membresia.esFlexible,
+                    idMembresia: membresia.idMembresia
+                  });
+                });
+              }
+            });
+
+            this.aplicarFiltrosPlanes();
+            this.aplicarFiltrosTabla();
+            this.loading = false;
+          },
+          error: () => {
+            this.aplicarFiltrosPlanes();
+            this.loading = false;
           }
         });
-
-        this.aplicarFiltrosTabla();
-        this.loading = false;
       },
       error: (error: any) => {
-        console.error('Error al cargar datos:', error);
+        console.error('Error al cargar membresías:', error);
         this.loading = false;
         Swal.fire('Error', 'No se pudieron cargar los datos', 'error');
       }
     });
   }
 
-  // ==================== FILTROS SOLO PARA LA TABLA ====================
+  //  FILTROS PLANES 
+  aplicarFiltrosPlanes(): void {
+    let filtrados = [...this.planes];
+
+    if (this.filtroPlanTipo === 'premium') {
+      filtrados = filtrados.filter(p => p.incluyeIA === true);
+    } else if (this.filtroPlanTipo === 'standard') {
+      filtrados = filtrados.filter(p => p.incluyeIA === false);
+    }
+
+    if (this.filtroPlanFlexible === 'flexible') {
+      filtrados = filtrados.filter(p => p.esFlexible === true);
+    } else if (this.filtroPlanFlexible === 'noFlexible') {
+      filtrados = filtrados.filter(p => p.esFlexible === false);
+    }
+
+    if (this.searchTermPlan.trim()) {
+      const term = this.searchTermPlan.toLowerCase().trim();
+      filtrados = filtrados.filter(p => p.nombre.toLowerCase().includes(term));
+    }
+
+    this.planesFiltrados = filtrados;
+    this.paginaPlanesActual = 1;
+  }
+
+  limpiarFiltrosPlanes(): void {
+    this.searchTermPlan = '';
+    this.filtroPlanTipo = 'todos';
+    this.filtroPlanFlexible = 'todos';
+    this.aplicarFiltrosPlanes();
+  }
+
+  //  FILTROS TABLA SOCIOS 
   aplicarFiltrosTabla(): void {
     let filtrados = [...this.miembros];
 
-    // Filtro por IA
     if (this.filtroIA === 'conIA') {
       filtrados = filtrados.filter(m => m.incluyeIA === true);
     } else if (this.filtroIA === 'sinIA') {
       filtrados = filtrados.filter(m => m.incluyeIA === false);
     }
 
-    // Filtro por Flexible
     if (this.filtroFlexible === 'flexible') {
       filtrados = filtrados.filter(m => m.esFlexible === true);
     } else if (this.filtroFlexible === 'noFlexible') {
       filtrados = filtrados.filter(m => m.esFlexible === false);
     }
 
-    // Filtro por búsqueda (acepta espacios)
+    if (this.filtroMembresia !== 'todos') {
+      filtrados = filtrados.filter(m => m.idMembresia === +this.filtroMembresia);
+    }
+
     if (this.searchTerm.trim()) {
       const term = this.searchTerm.toLowerCase().trim();
       filtrados = filtrados.filter(m =>
@@ -163,15 +224,47 @@ export class MembershipListComponent implements OnInit {
     this.paginaActual = 1;
   }
 
-  // ==================== LIMPIAR FILTROS ====================
   limpiarFiltros(): void {
     this.searchTerm = '';
     this.filtroIA = 'todos';
     this.filtroFlexible = 'todos';
+    this.filtroMembresia = 'todos';
     this.aplicarFiltrosTabla();
   }
 
-  // ==================== PAGINACIÓN ====================
+  //  PAGINACIÓN PLANES 
+  get totalPaginasPlanes(): number {
+    return Math.ceil(this.planesFiltrados.length / this.itemsPorPaginaPlanes) || 1;
+  }
+
+  get paginasPlanes(): number[] {
+    return Array.from({ length: this.totalPaginasPlanes }, (_, i) => i + 1);
+  }
+
+  get planesPaginados(): Plan[] {
+    const inicio = (this.paginaPlanesActual - 1) * this.itemsPorPaginaPlanes;
+    return this.planesFiltrados.slice(inicio, inicio + this.itemsPorPaginaPlanes);
+  }
+
+  cambiarPaginaPlanes(pagina: number): void {
+    if (pagina >= 1 && pagina <= this.totalPaginasPlanes) {
+      this.paginaPlanesActual = pagina;
+    }
+  }
+
+  paginaPlanesAnterior(): void {
+    if (this.paginaPlanesActual > 1) {
+      this.paginaPlanesActual--;
+    }
+  }
+
+  paginaPlanesSiguiente(): void {
+    if (this.paginaPlanesActual < this.totalPaginasPlanes) {
+      this.paginaPlanesActual++;
+    }
+  }
+
+  //  PAGINACIÓN SOCIOS 
   get totalPaginas(): number {
     return Math.ceil(this.miembrosFiltradosList.length / this.itemsPorPagina) || 1;
   }
@@ -199,19 +292,6 @@ export class MembershipListComponent implements OnInit {
     return this.miembrosFiltradosList.slice(this.inicio, this.fin);
   }
 
-  // ==================== MÉTODOS ====================
-  crearNuevaMembresia(): void {
-    this.router.navigate(['/dashboard-admin/memberships/new']);
-  }
-
-  editarPlan(plan: Plan): void {
-    this.router.navigate(['/dashboard-admin/memberships/edit', plan.id]);
-  }
-
-  verDetallePlan(plan: Plan): void {
-    this.router.navigate(['/dashboard-admin/memberships/detail', plan.id]);
-  }
-
   irPagina(pagina: number): void {
     if (pagina >= 1 && pagina <= this.totalPaginas) {
       this.paginaActual = pagina;
@@ -224,5 +304,18 @@ export class MembershipListComponent implements OnInit {
 
   paginaSiguiente(): void {
     if (this.paginaActual < this.totalPaginas) this.paginaActual++;
+  }
+
+  //  MÉTODOS 
+  crearNuevaMembresia(): void {
+    this.router.navigate(['/dashboard-admin/memberships/new']);
+  }
+
+  editarPlan(plan: Plan): void {
+    this.router.navigate(['/dashboard-admin/memberships/edit', plan.id]);
+  }
+
+  verDetallePlan(plan: Plan): void {
+    this.router.navigate(['/dashboard-admin/memberships/detail', plan.id]);
   }
 }

@@ -9,12 +9,14 @@ import { AssignMembershipComponent } from './components/assign-membership/assign
 import { SharedModule } from '../../shared/shared.module';
 import { MembershipListComponent } from './components/membership-list/membership-list.component';
 import { MembershipFormComponent } from './components/membership-form/membership-form.component';
+import { MembershipDetailComponent } from './components/membership-detail/membership-detail.component';
 
 @NgModule({
   declarations: [
     AssignMembershipComponent,
     MembershipListComponent,
-    MembershipFormComponent
+    MembershipFormComponent,
+    MembershipDetailComponent
   ],
   imports: [
     CommonModule,
