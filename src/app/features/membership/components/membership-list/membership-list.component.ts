@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { MembershipService } from '../../../../core/services/membership.service';
 import Swal from 'sweetalert2';
 
-interface Plan {
+export interface Plan {
   id: number;
   nombre: string;
   precio: number;
@@ -16,7 +16,7 @@ interface Plan {
   totalSociosAsignados: number;
 }
 
-interface Miembro {
+export interface Miembro {
   id: number;
   nombre: string;
   apellido: string;
@@ -33,6 +33,7 @@ interface Miembro {
   estado?: string;
   telefono?: string;
   diasRestantes?: number;
+  diasClass?: string;
   incluyeIA?: boolean;
   esFlexible?: boolean;
   idMembresia?: number;
@@ -44,34 +45,33 @@ interface Miembro {
   styleUrls: ['./membership-list.component.scss']
 })
 export class MembershipListComponent implements OnInit {
-  //  PLANES 
+  // ESTADOS Y LISTAS DE DATOS
   planes: Plan[] = [];
   planesFiltrados: Plan[] = [];
 
-  //  MIEMBROS 
   miembros: Miembro[] = [];
   miembrosFiltradosList: Miembro[] = [];
 
-  //  FILTROS PLANES 
+  loading: boolean = false;
+
+  // FILTROS PLANES
   searchTermPlan: string = '';
   filtroPlanTipo: string = 'todos';
   filtroPlanFlexible: string = 'todos';
 
-  //  FILTROS TABLA SOCIOS 
+  // FILTROS TABLA SOCIOS
   searchTerm: string = '';
   filtroIA: string = 'todos';
   filtroFlexible: string = 'todos';
   filtroMembresia: string = 'todos';
 
-  //  PAGINACIÓN PLANES 
+  // PAGINACIÓN PLANES
   paginaPlanesActual: number = 1;
   itemsPorPaginaPlanes: number = 6;
 
-  //  PAGINACIÓN SOCIOS 
+  // PAGINACIÓN SOCIOS
   paginaActual: number = 1;
-  itemsPorPagina: number = 6; 
-
-  loading: boolean = false;
+  itemsPorPagina: number = 6;
 
   constructor(
     private router: Router,
@@ -82,6 +82,7 @@ export class MembershipListComponent implements OnInit {
     this.cargarDatos();
   }
 
+  // CARGA DE DATOS DESDE EL SERVICE
   cargarDatos(): void {
     this.loading = true;
 
@@ -89,14 +90,14 @@ export class MembershipListComponent implements OnInit {
       next: (membresiasData: any[]) => {
         this.planes = membresiasData.map((item: any) => ({
           id: item.idMembresia,
-          nombre: item.nombre,
+          nombre: item.nombre || 'Sin Nombre',
           precio: item.precioTotal || 0,
           badge: item.incluyeIA ? 'PREMIUM' : 'STANDARD',
           badgeClass: item.incluyeIA ? 'badge-elite' : 'badge-essential',
-          beneficios: item.beneficios ? item.beneficios.split(',').map((b: string) => b.trim()) : ['Sin beneficios'],
-          accion: 'Edit Plan',
-          incluyeIA: item.incluyeIA,
-          esFlexible: item.esFlexible,
+          beneficios: item.beneficios ? item.beneficios.split(',').map((b: string) => b.trim()) : ['Sin beneficios especificados'],
+          accion: 'Ver Detalle',
+          incluyeIA: !!item.incluyeIA,
+          esFlexible: !!item.esFlexible,
           totalSociosAsignados: 0
         }));
 
@@ -109,27 +110,31 @@ export class MembershipListComponent implements OnInit {
               }
             });
 
+            // Mapear miembros de cada membresía
             this.miembros = [];
             dataConSocios.forEach((membresia: any) => {
               if (membresia.sociosAsignados && membresia.sociosAsignados.length > 0) {
                 membresia.sociosAsignados.forEach((socio: any) => {
+                  const dias = socio.diasRestantes ?? 0;
+
                   this.miembros.push({
                     id: socio.idSocio,
                     nombre: socio.nombreCompleto?.split(' ')[0] || 'Usuario',
                     apellido: socio.nombreCompleto?.split(' ').slice(1).join(' ') || '',
-                    email: socio.email || '',
-                    telefono: socio.telefono || '',
+                    email: socio.email || 'Sin correo',
+                    telefono: socio.telefono || 'N/A',
                     plan: membresia.nombre,
                     planClass: membresia.incluyeIA ? 'tier-elite' : 'tier-essential',
-                    joinDate: socio.fechaInicio ? new Date(socio.fechaInicio).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '',
-                    status: socio.estado === 'ACTIVA' ? 'Active' : 'Inactive',
+                    joinDate: socio.fechaInicio ? new Date(socio.fechaInicio).toLocaleDateString('es-ES', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A',
+                    status: socio.estado === 'ACTIVA' ? 'Activa' : 'Inactiva',
                     statusClass: socio.estado === 'ACTIVA' ? 'active' : 'cancelled',
-                    nextBilling: socio.fechaVencimiento ? new Date(socio.fechaVencimiento).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '--',
+                    nextBilling: socio.fechaVencimiento ? new Date(socio.fechaVencimiento).toLocaleDateString('es-ES', { month: 'short', day: 'numeric', year: 'numeric' }) : '--',
                     nombreMembresia: membresia.nombre,
-                    fechaInicio: socio.fechaInicio ? new Date(socio.fechaInicio).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '',
-                    fechaFin: socio.fechaVencimiento ? new Date(socio.fechaVencimiento).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '--',
+                    fechaInicio: socio.fechaInicio,
+                    fechaFin: socio.fechaVencimiento,
                     estado: socio.estado === 'ACTIVA' ? 'Activo' : 'Inactivo',
-                    diasRestantes: socio.diasRestantes,
+                    diasRestantes: dias,
+                    diasClass: dias <= 3 ? 'urgente' : (dias <= 7 ? 'alerta' : ''),
                     incluyeIA: membresia.incluyeIA,
                     esFlexible: membresia.esFlexible,
                     idMembresia: membresia.idMembresia
@@ -142,7 +147,8 @@ export class MembershipListComponent implements OnInit {
             this.aplicarFiltrosTabla();
             this.loading = false;
           },
-          error: () => {
+          error: (err) => {
+            console.error('Error al cargar socios por membresía:', err);
             this.aplicarFiltrosPlanes();
             this.loading = false;
           }
@@ -151,12 +157,17 @@ export class MembershipListComponent implements OnInit {
       error: (error: any) => {
         console.error('Error al cargar membresías:', error);
         this.loading = false;
-        Swal.fire('Error', 'No se pudieron cargar los datos', 'error');
+        Swal.fire({
+          title: 'Error',
+          text: 'No se pudieron cargar los datos de membresías',
+          icon: 'error',
+          confirmButtonColor: '#0c1838'
+        });
       }
     });
   }
 
-  //  FILTROS PLANES 
+  // FILTROS PLANES
   aplicarFiltrosPlanes(): void {
     let filtrados = [...this.planes];
 
@@ -188,7 +199,7 @@ export class MembershipListComponent implements OnInit {
     this.aplicarFiltrosPlanes();
   }
 
-  //  FILTROS TABLA SOCIOS 
+  // FILTROS TABLA SOCIOS
   aplicarFiltrosTabla(): void {
     let filtrados = [...this.miembros];
 
@@ -213,10 +224,9 @@ export class MembershipListComponent implements OnInit {
       filtrados = filtrados.filter(m =>
         m.nombre.toLowerCase().includes(term) ||
         m.apellido.toLowerCase().includes(term) ||
-        (m.nombre + ' ' + m.apellido).toLowerCase().includes(term) ||
+        `${m.nombre} ${m.apellido}`.toLowerCase().includes(term) ||
         m.email.toLowerCase().includes(term) ||
-        m.plan.toLowerCase().includes(term) ||
-        (m.nombreMembresia?.toLowerCase().includes(term) || false)
+        m.plan.toLowerCase().includes(term)
       );
     }
 
@@ -232,7 +242,7 @@ export class MembershipListComponent implements OnInit {
     this.aplicarFiltrosTabla();
   }
 
-  //  PAGINACIÓN PLANES 
+  // PAGINACIÓN PLANES
   get totalPaginasPlanes(): number {
     return Math.ceil(this.planesFiltrados.length / this.itemsPorPaginaPlanes) || 1;
   }
@@ -264,7 +274,7 @@ export class MembershipListComponent implements OnInit {
     }
   }
 
-  //  PAGINACIÓN SOCIOS 
+  // PAGINACIÓN SOCIOS
   get totalPaginas(): number {
     return Math.ceil(this.miembrosFiltradosList.length / this.itemsPorPagina) || 1;
   }
@@ -306,7 +316,7 @@ export class MembershipListComponent implements OnInit {
     if (this.paginaActual < this.totalPaginas) this.paginaActual++;
   }
 
-  //  MÉTODOS 
+  // NAVEGACIÓN Y ACCIONES
   crearNuevaMembresia(): void {
     this.router.navigate(['/dashboard-admin/memberships/new']);
   }

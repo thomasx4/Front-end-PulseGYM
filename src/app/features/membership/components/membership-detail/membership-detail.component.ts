@@ -1,15 +1,17 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Subject } from 'rxjs';
+import { switchMap, takeUntil } from 'rxjs/operators';
 import { MembershipService } from '../../../../core/services/membership.service';
 import Swal from 'sweetalert2';
 
-interface Plan {
+export interface Plan {
   id?: number;
   nombre: string;
   cantidad: number;
   tipoDuracion: string;
   precioPorDia: number;
-  precioTotal?: number;
+  precioTotal: number;
   descripcion: string;
   beneficios: string[];
   incluyeIA: boolean;
@@ -17,7 +19,7 @@ interface Plan {
   activo: boolean;
 }
 
-interface Socio {
+export interface Socio {
   idSocio: number;
   nombreCompleto: string;
   email: string;
@@ -27,7 +29,21 @@ interface Socio {
   fechaVencimiento: string;
 }
 
-const TIPO_DURACION_MAP: { [key: string]: string } = {
+interface MembershipResponseDTO {
+  idMembresia: number;
+  nombre: string;
+  cantidad?: number;
+  tipoDuracion?: string;
+  precioPorDia?: number;
+  precioTotal?: number;
+  beneficios?: string;
+  incluyeIA?: boolean;
+  esFlexible?: boolean;
+  activo?: boolean;
+  sociosAsignados?: Socio[];
+}
+
+const TIPO_DURACION_MAP: Record<string, string> = {
   'DIA': 'día(s)',
   'SEMANA': 'semana(s)',
   'MES': 'mes(es)',
@@ -41,70 +57,94 @@ const TIPO_DURACION_MAP: { [key: string]: string } = {
   templateUrl: './membership-detail.component.html',
   styleUrls: ['./membership-detail.component.scss']
 })
-export class MembershipDetailComponent implements OnInit {
+export class MembershipDetailComponent implements OnInit, OnDestroy {
   plan: Plan | null = null;
   socios: Socio[] = [];
   totalSocios: number = 0;
+  revenueEstimado: number = 0;
+  precioTotalFormateado: string = '$ 0';
+  precioPorDiaFormateado: string = '$ 0';
+  revenueFormateado: string = '$ 0';
   loading: boolean = true;
   planId: number | null = null;
+
+  private destroy$ = new Subject<void>();
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private membershipService: MembershipService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
-    this.route.params.subscribe((params) => {
-      if (params['id']) {
-        this.planId = +params['id'];
-        this.cargarPlan(this.planId);
-      } else {
-        this.router.navigate(['/dashboard-admin/memberships/list']);
-      }
-    });
+    this.route.params
+      .pipe(
+        takeUntil(this.destroy$),
+        switchMap((params) => {
+          if (!params['id']) {
+            this.router.navigate(['/dashboard-admin/memberships/list']);
+            return [];
+          }
+          this.planId = +params['id'];
+          this.loading = true;
+          return this.membershipService.getMembresiaConSociosActivos(this.planId);
+        })
+      )
+      .subscribe({
+        next: (data: MembershipResponseDTO) => this.procesarDatos(data),
+        error: (error) => this.manejarError(error)
+      });
   }
 
-  cargarPlan(id: number): void {
-    this.loading = true;
-    
-    this.membershipService.getMembresiaConSociosActivos(id).subscribe({
-      next: (data: any) => {
-        const beneficiosArray = data.beneficios 
-          ? data.beneficios.split(',').map((b: string) => b.trim()) 
-          : ['Sin beneficios'];
-
-        this.plan = {
-          id: data.idMembresia,
-          nombre: data.nombre,
-          cantidad: data.cantidad || 1,
-          tipoDuracion: data.tipoDuracion || 'MES',
-          precioPorDia: data.precioPorDia || 0,
-          precioTotal: data.precioTotal || 0,
-          descripcion: this.generarDescripcion(data),
-          beneficios: beneficiosArray,
-          incluyeIA: data.incluyeIA || false,
-          esFlexible: data.esFlexible || false,
-          activo: data.activo !== undefined ? data.activo : true,
-        };
-
-        this.socios = data.sociosAsignados || [];
-        this.totalSocios = this.socios.length;
-
-        this.loading = false;
-      },
-      error: (error: any) => {
-        console.error('Error al cargar el plan:', error);
-        this.loading = false;
-        Swal.fire('Error', 'No se pudo cargar la membresía', 'error');
-        this.router.navigate(['/dashboard-admin/memberships/list']);
-      }
-    });
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
-  generarDescripcion(data: any): string {
+  private procesarDatos(data: MembershipResponseDTO): void {
+    const beneficiosArray = data.beneficios
+      ? data.beneficios.split(',').map((b: string) => b.trim())
+      : ['Sin beneficios'];
+
+    const precioTotal = data.precioTotal || 0;
+    const precioPorDia = data.precioPorDia || 0;
+
+    this.plan = {
+      id: data.idMembresia,
+      nombre: data.nombre,
+      cantidad: data.cantidad || 1,
+      tipoDuracion: data.tipoDuracion || 'MES',
+      precioPorDia,
+      precioTotal,
+      descripcion: this.generarDescripcion(data),
+      beneficios: beneficiosArray,
+      incluyeIA: data.incluyeIA ?? false,
+      esFlexible: data.esFlexible ?? false,
+      activo: data.activo ?? true,
+    };
+
+    this.socios = data.sociosAsignados || [];
+    this.totalSocios = this.socios.length;
+
+    // Métricas precalculadas para evitar cálculos repetitivos en el template
+    this.revenueEstimado = precioTotal * this.totalSocios;
+    this.precioTotalFormateado = this.formatearPrecio(precioTotal);
+    this.precioPorDiaFormateado = this.formatearPrecio(precioPorDia);
+    this.revenueFormateado = this.formatearPrecio(this.revenueEstimado);
+
+    this.loading = false;
+  }
+
+  private manejarError(error: unknown): void {
+    console.error('Error al cargar el plan:', error);
+    this.loading = false;
+    Swal.fire('Error', 'No se pudo cargar la membresía', 'error');
+    this.router.navigate(['/dashboard-admin/memberships/list']);
+  }
+
+  generarDescripcion(data: MembershipResponseDTO): string {
     const duracion = data.cantidad || 1;
-    const tipo = TIPO_DURACION_MAP[data.tipoDuracion] || 'mes(es)';
+    const tipo = TIPO_DURACION_MAP[data.tipoDuracion || 'MES'] || 'mes(es)';
     const ia = data.incluyeIA ? ' con IA' : '';
     return `Plan ${data.nombre} - ${duracion} ${tipo}${ia}`;
   }
@@ -119,11 +159,6 @@ export class MembershipDetailComponent implements OnInit {
       currency: 'COP',
       minimumFractionDigits: 0,
     }).format(precio || 0);
-  }
-
-  calcularRevenue(): number {
-    if (!this.plan) return 0;
-    return (this.plan.precioTotal || 0) * this.totalSocios;
   }
 
   volver(): void {

@@ -1,4 +1,3 @@
-// VARIABLES (MISMAS QUE ASSIGN-MEMBERSHIP)
 $color-primary: #0f1c3f;
 $color-primary-hover: #1a2b5c;
 $color-dark: #0b1a30;
@@ -41,14 +40,9 @@ $radius-pill: 9999px;
 // Transiciones
 $transition-fast: all 0.2s ease;
 
-//  FUENTE GLOBAL PARA ESTE COMPONENTE
-* {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-}
-
-
-// CONTAINER
+// CONTAINER PRINCIPAL
 .membership-form-container {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     padding: 36px 40px;
     max-width: 1400px;
     margin: 0 auto;
@@ -122,7 +116,7 @@ $transition-fast: all 0.2s ease;
     }
 }
 
-// BUTTONS
+// BOTONES
 .btn-primary {
     display: flex;
     align-items: center;
@@ -195,12 +189,11 @@ $transition-fast: all 0.2s ease;
     }
 }
 
-// BOTÓN ELIMINAR
 .btn-danger {
     display: flex;
     align-items: center;
     gap: 8px;
-    background: #ef4444;
+    background: $color-danger;
     color: white;
     border: none;
     padding: 10px 20px;
@@ -211,7 +204,7 @@ $transition-fast: all 0.2s ease;
     transition: $transition-fast;
 
     &:hover {
-        background: #dc2626;
+        background: $color-danger-text;
         transform: translateY(-1px);
         box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
     }
@@ -221,7 +214,7 @@ $transition-fast: all 0.2s ease;
     }
 }
 
-// FORM GRID
+// FORM GRID & COLUMNS
 .form-grid {
     display: grid;
     grid-template-columns: 1fr 380px;
@@ -260,7 +253,7 @@ $transition-fast: all 0.2s ease;
     letter-spacing: 0.3px;
 }
 
-// FORM GROUPS
+// FORM GROUPS & CONTROLS
 .form-group {
     margin-bottom: 18px;
 
@@ -337,7 +330,7 @@ select.form-control {
     }
 }
 
-// BENEFITS
+// BENEFICIOS
 .benefits-list {
     display: flex;
     flex-direction: column;
@@ -397,7 +390,7 @@ select.form-control {
     }
 }
 
-// TOGGLES
+// TOGGLES (REUTILIZABLE)
 .toggle-group {
     display: flex;
     flex-direction: column;
@@ -415,10 +408,10 @@ select.form-control {
 
         &:checked+.toggle-slider {
             background: $color-primary;
-        }
 
-        &:checked+.toggle-slider::after {
-            transform: translateX(18px);
+            &::after {
+                transform: translateX(18px);
+            }
         }
     }
 
@@ -452,13 +445,24 @@ select.form-control {
     }
 }
 
-// PREVIEW CARD
-.preview-card {
+// TARJETAS LATERALES (PREVIEW, & CONFIG)
+.preview-card,
+.config-card {
     background: #ffffff;
     border-radius: $radius-xl;
     padding: 24px 28px;
     border: 1px solid $color-border;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+}
+
+.config-card {
+    &__title {
+        font-size: 14px;
+        font-weight: 700;
+        color: $color-dark;
+        margin: 0 0 18px 0;
+        letter-spacing: 0.3px;
+    }
 }
 
 .preview-title {
@@ -559,28 +563,8 @@ select.form-control {
         }
     }
 
-    &__actions {
-        .btn-preview-select {
-            width: 100%;
-            padding: 10px;
-            background: $color-primary;
-            color: white;
-            border: none;
-            border-radius: $radius-sm;
-            font-weight: 700;
-            font-size: 13px;
-            letter-spacing: 0.5px;
-            cursor: pointer;
-            transition: $transition-fast;
-
-            &:hover {
-                background: $color-primary-hover;
-            }
-        }
-    }
 }
 
-// IMPACT CARD
 .impact-card {
     background: $color-primary;
     border-radius: $radius-xl;
@@ -681,76 +665,5 @@ select.form-control {
 
     .add-benefit {
         flex-direction: column;
-    }
-}
-
-// CONFIG CARD (NUEVA)
-.config-card {
-    background: #ffffff;
-    border-radius: $radius-xl;
-    padding: 24px 28px;
-    border: 1px solid $color-border;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-
-    &__title {
-        font-size: 14px;
-        font-weight: 700;
-        color: $color-dark;
-        margin: 0 0 18px 0;
-        letter-spacing: 0.3px;
-    }
-
-    .toggle-group {
-        display: flex;
-        flex-direction: column;
-        gap: 14px;
-    }
-
-    .toggle-item {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        cursor: pointer;
-
-        input {
-            display: none;
-
-            &:checked + .toggle-slider {
-                background: $color-primary;
-            }
-
-            &:checked + .toggle-slider::after {
-                transform: translateX(18px);
-            }
-        }
-
-        .toggle-slider {
-            width: 38px;
-            height: 22px;
-            background: $color-border;
-            border-radius: 12px;
-            position: relative;
-            transition: background 0.3s ease;
-            flex-shrink: 0;
-
-            &::after {
-                content: '';
-                position: absolute;
-                width: 16px;
-                height: 16px;
-                background: white;
-                border-radius: 50%;
-                top: 3px;
-                left: 3px;
-                transition: transform 0.3s ease;
-                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
-            }
-        }
-
-        .toggle-label {
-            font-size: 14px;
-            font-weight: 500;
-            color: $color-dark;
-        }
     }
 }

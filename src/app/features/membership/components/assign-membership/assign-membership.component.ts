@@ -111,24 +111,23 @@ export class AssignMembershipComponent implements OnInit {
     return Array.from({ length: this.totalPaginasMembresias }, (_, i) => i + 1);
   }
 
+  // GETTERS PAGINACIÓN POR VENCER
 
-// GETTERS PAGINACIÓN POR VENCER
-
-get membresiasPorVencerPaginadas(): any[] {
+  get membresiasPorVencerPaginadas(): any[] {
     const inicio = (this.paginaPorVencerActual - 1) * this.itemsPorPaginaPorVencer;
     const fin = inicio + this.itemsPorPaginaPorVencer;
     return this.membresiasPorVencer.slice(inicio, fin);
-}
+  }
 
-get totalPaginasPorVencer(): number {
-    return Math.ceil(this.membresiasPorVencer.length / this.itemsPorPaginaPorVencer);
-}
+  get totalPaginasPorVencer(): number {
+    return Math.ceil(this.membresiasPorVencer.length / this.itemsPorPaginaPorVencer) || 1;
+  }
 
-get paginasPorVencer(): number[] {
+  get paginasPorVencer(): number[] {
     return Array.from({ length: this.totalPaginasPorVencer }, (_, i) => i + 1);
-}
+  }
 
-  // GETTERS PAGINACIÓN SOCIOS 
+  // GETTERS PAGINACIÓN SOCIOS
 
   get sociosPaginados(): SocioUI[] {
     const inicio = (this.sociosPaginaActual - 1) * this.sociosItemsPorPagina;
@@ -143,7 +142,7 @@ get paginasPorVencer(): number[] {
     return Array.from({ length: this.totalSociosPaginas }, (_, i) => i + 1);
   }
 
-  //  GETTERS PAGINACIÓN MODAL 
+  // GETTERS PAGINACIÓN MODAL
 
   get sociosModalPaginados(): SocioUI[] {
     const inicio = (this.sociosModalPaginaActual - 1) * this.sociosModalItemsPorPagina;
@@ -158,7 +157,7 @@ get paginasPorVencer(): number[] {
     return Array.from({ length: this.totalSociosModalPaginas }, (_, i) => i + 1);
   }
 
-  //  CARGA DE DATOS 
+  // CARGA DE DATOS
 
   cargarMembresias(): void {
     this.loading = true;
@@ -226,7 +225,7 @@ get paginasPorVencer(): number[] {
     });
   }
 
-  //  MÉTODOS DE PAGINACIÓN MEMBRESÍAS 
+  // MÉTODOS DE PAGINACIÓN MEMBRESÍAS
 
   cambiarPaginaMembresias(pagina: number): void {
     if (pagina >= 1 && pagina <= this.totalPaginasMembresias) {
@@ -246,7 +245,7 @@ get paginasPorVencer(): number[] {
     }
   }
 
-  //  MÉTODOS DE PAGINACIÓN POR VENCER 
+  // MÉTODOS DE PAGINACIÓN POR VENCER
 
   paginaAnteriorPorVencer(): void {
     if (this.paginaPorVencerActual > 1) {
@@ -264,7 +263,7 @@ get paginasPorVencer(): number[] {
     this.paginaPorVencerActual = pagina;
   }
 
-  //  MÉTODOS DE PAGINACIÓN SOCIOS 
+  // MÉTODOS DE PAGINACIÓN SOCIOS
 
   cambiarPaginaSocios(pagina: number): void {
     if (pagina >= 1 && pagina <= this.totalSociosPaginas) {
@@ -272,7 +271,7 @@ get paginasPorVencer(): number[] {
     }
   }
 
-  //  MÉTODOS DE PAGINACIÓN MODAL 
+  // MÉTODOS DE PAGINACIÓN MODAL
 
   cambiarPaginaModal(pagina: number): void {
     if (pagina >= 1 && pagina <= this.totalSociosModalPaginas) {
@@ -280,81 +279,79 @@ get paginasPorVencer(): number[] {
     }
   }
 
-  //  VER SOCIOS 
+  // VER SOCIOS
 
-verSocios(id: number): void {
-  this.loading = true;
-  this.errorMessage = '';
-  this.successMessage = '';
+  verSocios(id: number): void {
+    this.loading = true;
+    this.errorMessage = '';
+    this.successMessage = '';
 
-  this.membershipService.getMembresiaConSociosActivos(id).subscribe({
-    next: (response: any) => {
-      const seleccionada = this.membresias.find((m) => m.id === id);
-      if (seleccionada) {
-        this.membresiaSeleccionada = seleccionada;
+    this.membershipService.getMembresiaConSociosActivos(id).subscribe({
+      next: (response: any) => {
+        const seleccionada = this.membresias.find((m) => m.id === id);
+        if (seleccionada) {
+          this.membresiaSeleccionada = seleccionada;
 
-        const sociosData = response?.sociosAsignados || response?.data || [];
+          const sociosData = response?.sociosAsignados || response?.data || [];
 
-        if (!sociosData || sociosData.length === 0) {
-          this.loading = false;
-          Swal.fire({
-            icon: 'info',
-            title: 'Sin socios asignados',
-            text: `La membresía "${seleccionada.nombre}" no tiene socios asignados actualmente.`,
-            confirmButtonText: 'Entendido',
-            confirmButtonColor: '#0f1c3f',
-            customClass: {
-              popup: 'custom-swal-popup',
-              confirmButton: 'custom-swal-confirm-btn',
-            },
-            buttonsStyling: false,
-          });
-          return;
+          if (!sociosData || sociosData.length === 0) {
+            this.loading = false;
+            Swal.fire({
+              icon: 'info',
+              title: 'Sin socios asignados',
+              text: `La membresía "${seleccionada.nombre}" no tiene socios asignados actualmente.`,
+              confirmButtonText: 'Entendido',
+              confirmButtonColor: '#0f1c3f',
+              customClass: {
+                popup: 'custom-swal-popup',
+                confirmButton: 'custom-swal-confirm-btn',
+              },
+              buttonsStyling: false,
+            });
+            return;
+          }
+
+          this.sociosAsignados = sociosData.map((s: any) => ({
+            id: s.idSocio || s.id,
+            idSocioMembresia: s.idSocioMembresia,
+            nombre: s.nombreCompleto || s.nombre || 'Usuario',
+            telefono: s.telefono || 'No disponible',
+            precioTotal: s.precioReal !== undefined && s.precioReal !== null
+              ? s.precioReal
+              : s.precioTotal || seleccionada.precio || 0,
+            fechaAsignacion: this.formatearFecha(s.fechaAsignacion || s.fechaCreacion),
+            fechaVencimiento: this.formatearFecha(s.fechaVencimiento),
+            avatarUrl: this.generarAvatar(s.nombreCompleto || s.nombre || 'Usuario'),
+            estado: s.estado || 'ACTIVA',
+          }));
+
+          this.membresiaSeleccionada.sociosActivos = this.sociosAsignados.length;
+          this.sociosAsignadosFiltrados = [...this.sociosAsignados];
+          this.sociosPaginaActual = 1;
+          this.vistaActual = 'socios';
         }
+        this.loading = false;
+      },
+      error: (error) => {
+        this.loading = false;
+        const seleccionada = this.membresias.find((m) => m.id === id);
+        Swal.fire({
+          icon: 'info',
+          title: 'Sin socios asignados',
+          text: `La membresía "${seleccionada?.nombre || 'seleccionada'}" no tiene socios asignados actualmente.`,
+          confirmButtonText: 'Entendido',
+          confirmButtonColor: '#0f1c3f',
+          customClass: {
+            popup: 'custom-swal-popup',
+            confirmButton: 'custom-swal-confirm-btn',
+          },
+          buttonsStyling: false,
+        });
+      },
+    });
+  }
 
-        this.sociosAsignados = sociosData.map((s: any) => ({
-          id: s.idSocio || s.id,
-          idSocioMembresia: s.idSocioMembresia,
-          nombre: s.nombreCompleto || s.nombre || 'Usuario',
-          telefono: s.telefono || 'No disponible',
-          precioTotal: s.precioReal !== undefined && s.precioReal !== null
-            ? s.precioReal
-            : s.precioTotal || seleccionada.precio || 0,
-          fechaAsignacion: this.formatearFecha(s.fechaAsignacion || s.fechaCreacion),
-          fechaVencimiento: this.formatearFecha(s.fechaVencimiento),
-          avatarUrl: this.generarAvatar(s.nombreCompleto || s.nombre || 'Usuario'),
-          estado: s.estado || 'ACTIVA',
-        }));
-
-        this.membresiaSeleccionada.sociosActivos = this.sociosAsignados.length;
-        this.sociosAsignadosFiltrados = [...this.sociosAsignados];
-        this.sociosPaginaActual = 1;
-        this.vistaActual = 'socios';
-      }
-      this.loading = false;
-    },
-    error: (error) => {
-      this.loading = false;
-      const seleccionada = this.membresias.find((m) => m.id === id);
-      Swal.fire({
-        icon: 'info',
-        title: 'Sin socios asignados',
-        text: `La membresía "${seleccionada?.nombre || 'seleccionada'}" no tiene socios asignados actualmente.`,
-        confirmButtonText: 'Entendido',
-        confirmButtonColor: '#0f1c3f',
-        customClass: {
-          popup: 'custom-swal-popup',
-          confirmButton: 'custom-swal-confirm-btn',
-        },
-        buttonsStyling: false,
-      });
-    },
-  });
-}
-
-
-
-  //  MODAL DE ASIGNACIÓN 
+  // MODAL DE ASIGNACIÓN
 
   async asignarMembresia(id: number): Promise<void> {
     const seleccionada = this.membresias.find((m) => m.id === id);
@@ -413,7 +410,7 @@ verSocios(id: number): void {
     }
   }
 
-  //  CONFIRMACIONES Y ACCIONES 
+  // CONFIRMACIONES Y ACCIONES
 
   async confirmarAsignacion(socio: SocioUI) {
     if (!this.membresiaSeleccionada) return;
@@ -544,7 +541,7 @@ verSocios(id: number): void {
     });
   }
 
-  //  RENOVAR, SUSPENDER, CANCELAR 
+  // RENOVAR, SUSPENDER, CANCELAR
 
   async abrirModalRenovar(socio: SocioUI) {
     if (!socio.idSocioMembresia) {
@@ -821,7 +818,7 @@ verSocios(id: number): void {
     });
   }
 
-  //  ALERTAS 
+  // ALERTAS
 
   mostrarAlertaExito(titulo: string, mensaje: string): void {
     Swal.fire({
@@ -853,7 +850,7 @@ verSocios(id: number): void {
     });
   }
 
-  //  NAVEGACIÓN Y FILTROS 
+  // NAVEGACIÓN Y FILTROS
 
   volverAMembresias(): void {
     this.vistaActual = 'tarjetas';
@@ -868,7 +865,7 @@ verSocios(id: number): void {
     const value = (event.target as HTMLInputElement).value.toLowerCase().trim();
     this.searchTermModal = value;
     this.sociosFiltradosModal = this.sociosModal.filter(
-      (s) => s.nombre?.toLowerCase().includes(value) || s.telefono?.toLowerCase().includes(value),
+      (s) => (s.nombre || '').toLowerCase().includes(value) || (s.telefono || '').toLowerCase().includes(value),
     );
     this.sociosModalPaginaActual = 1;
   }
@@ -877,12 +874,12 @@ verSocios(id: number): void {
     const value = (event.target as HTMLInputElement).value.toLowerCase().trim();
     this.searchTermSocios = value;
     this.sociosAsignadosFiltrados = this.sociosAsignados.filter(
-      (s) => s.nombre?.toLowerCase().includes(value) || s.telefono?.toLowerCase().includes(value),
+      (s) => (s.nombre || '').toLowerCase().includes(value) || (s.telefono || '').toLowerCase().includes(value),
     );
     this.sociosPaginaActual = 1;
   }
 
-  //  UTILIDADES 
+  // UTILIDADES
 
   generarAvatar(nombre: string): string {
     const encoded = encodeURIComponent(nombre || 'Usuario');
