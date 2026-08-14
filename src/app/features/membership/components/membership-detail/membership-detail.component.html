@@ -1,6 +1,6 @@
 <div class="membership-detail-container">
 
-    <!--  HEADER  -->
+    <!-- HEADER -->
     <div class="detail-header">
         <div class="detail-header__left">
             <div class="breadcrumb">
@@ -30,13 +30,13 @@
         </div>
     </div>
 
-    <!--  SPINNER  -->
+    <!-- SPINNER -->
     <div *ngIf="loading" class="loading-overlay">
         <div class="spinner"></div>
         <span>Cargando...</span>
     </div>
 
-    <!--  CONTENIDO  -->
+    <!-- CONTENIDO -->
     <div class="detail-grid" *ngIf="!loading && plan">
 
         <!-- COLUMNA IZQUIERDA: INFORMACIÓN -->
@@ -134,7 +134,8 @@
                     </div>
                     <div class="stat-item">
                         <span class="stat-item__label">Revenue Estimado</span>
-                        <span class="stat-item__value">{{ formatearPrecio(calcularRevenue()) }}</span>
+                        <span class="stat-item__value">{{ formatearPrecio((plan.precioTotal || 0) * totalSocios)
+                            }}</span>
                     </div>
                 </div>
 

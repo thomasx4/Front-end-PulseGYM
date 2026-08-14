@@ -65,7 +65,7 @@
             </div>
         </div>
 
-        <!-- PAGINACIÓN POR VENCER (NUEVO ESTILO) -->
+        <!-- PAGINACIÓN POR VENCER -->
         <div class="membresias-pagination" *ngIf="totalPaginasPorVencer > 1">
             <button class="page-btn" (click)="paginaAnteriorPorVencer()" [disabled]="paginaPorVencerActual === 1">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -217,8 +217,8 @@
 
             <div class="assigned-section__toolbar">
                 <div class="search-box">
-                    <input type="text" placeholder="Buscar socio..." [value]="searchTermSocios"
-                        (input)="onSearchSociosAsignados($event)" />
+                    <input type="text" placeholder="Buscar socio..." aria-label="Buscar socio asignado"
+                        [value]="searchTermSocios" (input)="onSearchSociosAsignados($event)" />
                     <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="11" cy="11" r="8" />
                         <path d="M21 21l-4.35-4.35" stroke-linecap="round" stroke-linejoin="round" />
@@ -284,13 +284,14 @@
                                 </div>
                             </td>
                         </tr>
+                        <!-- ✅ CORREGIDO: colspan="6" para abarcar todas las columnas de la tabla -->
                         <tr *ngIf="sociosAsignadosFiltrados.length === 0">
-                            <td colspan="5" class="empty-state">No hay socios asignados.</td>
+                            <td colspan="6" class="empty-state">No hay socios asignados.</td>
                         </tr>
                     </tbody>
                 </table>
 
-                <!-- ✅ PAGINACIÓN SOCIOS ASIGNADOS (NUEVO ESTILO) -->
+                <!-- PAGINACIÓN SOCIOS ASIGNADOS -->
                 <div class="table-footer" *ngIf="sociosAsignadosFiltrados.length > 0">
                     <span class="table-footer__info">
                         Mostrando {{ sociosPaginados.length }} de {{ sociosAsignadosFiltrados.length }} socios
@@ -336,7 +337,8 @@
         </div>
 
         <div class="modal-dialog__search">
-            <input type="text" placeholder="Buscar socio por nombre o teléfono..." [value]="searchTermModal"
+            <input type="text" placeholder="Buscar socio por nombre o teléfono..."
+                aria-label="Buscar socio por nombre o teléfono" [value]="searchTermModal"
                 (input)="onSearchModal($event)" />
             <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="11" cy="11" r="8" />
@@ -406,7 +408,8 @@
         </div>
 
         <div class="modal-dialog__search">
-            <input type="text" placeholder="Buscar socio por nombre o teléfono..." [value]="searchTermModal"
+            <input type="text" placeholder="Buscar socio por nombre o teléfono..."
+                aria-label="Buscar socio por nombre o teléfono" [value]="searchTermModal"
                 (input)="onSearchModal($event)" />
             <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="11" cy="11" r="8" />

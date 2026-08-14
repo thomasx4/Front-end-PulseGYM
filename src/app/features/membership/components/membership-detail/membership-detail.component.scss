@@ -1,6 +1,4 @@
-// ============================================
-// VARIABLES (MISMAS QUE ASSIGN-MEMBERSHIP)
-// ============================================
+// VARIABLES
 $color-primary: #0f1c3f;
 $color-primary-hover: #1a2b5c;
 $color-dark: #0b1a30;
@@ -43,9 +41,17 @@ $radius-pill: 9999px;
 // Transiciones
 $transition-fast: all 0.2s ease;
 
-// FUENTE GLOBAL PARA ESTE COMPONENTE
-* {
+// HOST ENCAPSULATION & BASE
+:host {
+    display: block;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    box-sizing: border-box;
+
+    *,
+    *::before,
+    *::after {
+        box-sizing: inherit;
+    }
 }
 
 // CONTAINER
@@ -54,7 +60,6 @@ $transition-fast: all 0.2s ease;
     max-width: 1400px;
     margin: 0 auto;
     min-height: 100vh;
-    box-sizing: border-box;
 }
 
 // HEADER
@@ -140,6 +145,11 @@ $transition-fast: all 0.2s ease;
         box-shadow: 0 4px 12px rgba(15, 28, 63, 0.25);
     }
 
+    &:focus-visible {
+        outline: 2px solid $color-primary;
+        outline-offset: 2px;
+    }
+
     svg {
         stroke: #ffffff;
     }
@@ -163,6 +173,11 @@ $transition-fast: all 0.2s ease;
         background: $color-bg-light;
         border-color: $color-text-muted;
         color: $color-dark;
+    }
+
+    &:focus-visible {
+        outline: 2px solid $color-primary;
+        outline-offset: 2px;
     }
 
     svg {
@@ -199,6 +214,7 @@ $transition-fast: all 0.2s ease;
     padding: 24px 28px;
     border: 1px solid $color-border;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    transition: $transition-fast;
 
     &__title {
         font-size: 14px;
@@ -301,8 +317,8 @@ $transition-fast: all 0.2s ease;
             color: $color-text-muted;
 
             &.tag-active {
-                background: #d1fae5;
-                color: #065f46;
+                background: $color-success-bg;
+                color: $color-success-text;
             }
         }
     }
@@ -315,12 +331,12 @@ $transition-fast: all 0.2s ease;
     border-radius: 20px;
     font-size: 12px;
     font-weight: 700;
-    background: #fef2f2;
-    color: $color-text-muted;
+    background: $color-danger-bg;
+    color: $color-danger-text;
 
     &.active {
-        background: #d1fae5;
-        color: #065f46;
+        background: $color-success-bg;
+        color: $color-success-text;
     }
 }
 
@@ -329,7 +345,7 @@ $transition-fast: all 0.2s ease;
     background: $color-primary;
     border-radius: $radius-xl;
     padding: 24px 28px;
-    color: white;
+    color: #ffffff;
 
     &__title {
         font-size: 11px;
@@ -347,7 +363,7 @@ $transition-fast: all 0.2s ease;
             width: 100%;
             justify-content: center;
             background: rgba(255, 255, 255, 0.15);
-            color: white;
+            color: #ffffff;
 
             &:hover {
                 background: rgba(255, 255, 255, 0.25);
@@ -382,7 +398,7 @@ $transition-fast: all 0.2s ease;
     &__value {
         font-size: 18px;
         font-weight: 700;
-        color: white;
+        color: #ffffff;
 
         &.positive {
             color: #4ade80;
@@ -438,7 +454,7 @@ $transition-fast: all 0.2s ease;
         height: 36px;
         border-radius: 50%;
         background: $color-primary;
-        color: white;
+        color: #ffffff;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -473,13 +489,13 @@ $transition-fast: all 0.2s ease;
         font-weight: 600;
         padding: 2px 10px;
         border-radius: 12px;
-        background: #fef2f2;
-        color: $color-text-muted;
+        background: $color-danger-bg;
+        color: $color-danger-text;
         flex-shrink: 0;
 
         &.active {
-            background: #d1fae5;
-            color: #065f46;
+            background: $color-success-bg;
+            color: $color-success-text;
         }
     }
 

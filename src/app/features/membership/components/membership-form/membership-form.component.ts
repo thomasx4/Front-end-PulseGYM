@@ -1,15 +1,16 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MembershipService } from '../../../../core/services/membership.service';
 import Swal from 'sweetalert2';
 
-interface Plan {
+// INTERFACES & DTOs
+export interface Plan {
   id?: number;
   nombre: string;
   cantidad: number;
   tipoDuracion: string;
   precioPorDia: number;
-  precioTotal?: number;
   descripcion: string;
   beneficios: string[];
   incluyeIA: boolean;
@@ -21,24 +22,49 @@ interface Plan {
   badgeClass?: string;
 }
 
-// Mapeo de tipos de duración a nombres legibles
-const TIPO_DURACION_MAP: { [key: string]: string } = {
-  'DIA': 'día(s)',
-  'SEMANA': 'semana(s)',
-  'MES': 'mes(es)',
-  'TRIMESTRE': 'trimestre(s)',
-  'SEMESTRE': 'semestre(s)',
-  'ANUAL': 'año(s)'
+export interface MembresiaResponseDTO {
+  idMembresia: number;
+  nombre: string;
+  cantidad?: number;
+  tipoDuracion?: string;
+  precioPorDia?: number;
+  precioTotal?: number;
+  beneficios?: string;
+  incluyeIA?: boolean;
+  esFlexible?: boolean;
+  activo?: boolean;
+  sociosAsignados?: unknown[];
+}
+
+export interface MembresiaRequestDTO {
+  nombre: string;
+  cantidad: number;
+  tipoDuracion: string;
+  incluyeIA: boolean;
+  esFlexible: boolean;
+  precioPorDia: number;
+  beneficios: string;
+  restricciones: string;
+  activo: boolean;
+}
+
+// Mapeos constantes
+const TIPO_DURACION_MAP: Record<string, string> = {
+  DIA: 'día(s)',
+  SEMANA: 'semana(s)',
+  MES: 'mes(es)',
+  TRIMESTRE: 'trimestre(s)',
+  SEMESTRE: 'semestre(s)',
+  ANUAL: 'año(s)'
 };
 
-// Días por unidad según el enum del backend
-const DIAS_POR_UNIDAD: { [key: string]: number } = {
-  'DIA': 1,
-  'SEMANA': 7,
-  'MES': 30,
-  'TRIMESTRE': 90,
-  'SEMESTRE': 180,
-  'ANUAL': 365
+const DIAS_POR_UNIDAD: Record<string, number> = {
+  DIA: 1,
+  SEMANA: 7,
+  MES: 30,
+  TRIMESTRE: 90,
+  SEMESTRE: 180,
+  ANUAL: 365
 };
 
 @Component({
@@ -47,54 +73,56 @@ const DIAS_POR_UNIDAD: { [key: string]: number } = {
   styleUrls: ['./membership-form.component.scss'],
 })
 export class MembershipFormComponent implements OnInit {
-  //  DATOS 
-  plan: Plan = {
-    nombre: '',
-    cantidad: 1,
-    tipoDuracion: 'MES',
-    precioPorDia: 0,
-    precioTotal: 0,
-    descripcion: '',
-    beneficios: [],
-    incluyeIA: false,
-    esFlexible: false,
-    activo: true,
-    miembrosActivos: '0',
-    revenueEstimado: '0',
-  };
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private membershipService = inject(MembershipService);
+  private destroyRef = inject(DestroyRef);
 
+  // ESTADO
+  plan: Plan = this.crearPlanInicial();
   nuevoBeneficio: string = '';
   esEdicion: boolean = false;
   planId: number | null = null;
   totalSocios: number = 0;
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private membershipService: MembershipService,
-  ) {}
-
   ngOnInit(): void {
-    this.route.params.subscribe((params) => {
-      if (params['id']) {
-        this.esEdicion = true;
-        this.planId = +params['id'];
-        this.cargarPlan(this.planId);
-      } else {
-        this.esEdicion = false;
-        this.resetearPlan();
-      }
-    });
+    this.route.params
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((params) => {
+        if (params['id']) {
+          this.esEdicion = true;
+          this.planId = +params['id'];
+          this.cargarPlan(this.planId);
+        } else {
+          this.esEdicion = false;
+          this.resetearPlan();
+        }
+      });
+  }
+
+  private crearPlanInicial(): Plan {
+    return {
+      nombre: '',
+      cantidad: 1,
+      tipoDuracion: 'MES',
+      precioPorDia: 0,
+      descripcion: '',
+      beneficios: [],
+      incluyeIA: false,
+      esFlexible: false,
+      activo: true,
+      miembrosActivos: '0',
+      revenueEstimado: '0',
+    };
   }
 
   cargarPlan(id: number): void {
     this.membershipService.getMembresiaConSociosActivos(id).subscribe({
-      next: (data: any) => {
-        const beneficiosArray = data.beneficios 
-          ? data.beneficios.split(',').map((b: string) => b.trim()) 
-          : ['Sin beneficios'];
+      next: (data: MembresiaResponseDTO) => {
+        const beneficiosArray = data.beneficios
+          ? data.beneficios.split(',').map((b) => b.trim()).filter(Boolean)
+          : [];
 
-        // Contar socios activos
         const socios = data.sociosAsignados || [];
         this.totalSocios = socios.length;
 
@@ -104,30 +132,41 @@ export class MembershipFormComponent implements OnInit {
           cantidad: data.cantidad || 1,
           tipoDuracion: data.tipoDuracion || 'MES',
           precioPorDia: data.precioPorDia || 0,
-          precioTotal: data.precioTotal || 0,
           descripcion: this.generarDescripcion(data),
           beneficios: beneficiosArray,
-          incluyeIA: data.incluyeIA || false,
-          esFlexible: data.esFlexible || false,
-          activo: data.activo !== undefined ? data.activo : true,
+          incluyeIA: data.incluyeIA ?? false,
+          esFlexible: data.esFlexible ?? false,
+          activo: data.activo ?? true,
           miembrosActivos: this.totalSocios.toString(),
           revenueEstimado: '0',
         };
       },
-      error: (error: any) => {
+      error: (error: Error) => {
         console.error('Error al cargar el plan:', error);
         Swal.fire('Error', 'No se pudo cargar la membresía', 'error');
       }
     });
   }
 
-  //  ELIMINAR MEMBRESÍA 
+  // CÁLCULOS DINÁMICOS
+  get precioTotalCalculado(): number {
+    const diasPorUnidad = DIAS_POR_UNIDAD[this.plan.tipoDuracion] || 30;
+    const totalDias = diasPorUnidad * this.plan.cantidad;
+    return this.plan.precioPorDia * totalDias;
+  }
+
+  get formularioValido(): boolean {
+    return (
+      this.plan.nombre.trim().length > 0 &&
+      this.plan.cantidad > 0 &&
+      this.plan.precioPorDia > 0 &&
+      this.plan.beneficios.length > 0
+    );
+  }
+
+  // ELIMINAR MEMBRESÍA
   eliminarMembresia(): void {
     if (!this.planId) return;
-
-    const mensaje = this.totalSocios > 0 
-      ? `Esta acción afectará a ${this.totalSocios} socios activos que perderán su membresía.`
-      : 'No hay socios asignados a este plan.';
 
     Swal.fire({
       title: '¿Confirmar eliminación de membresía?',
@@ -144,15 +183,15 @@ export class MembershipFormComponent implements OnInit {
               <th style="padding: 6px 8px; color: #94a3b8; font-weight: 600;">Socios Activos</th>
             </tr>
             <tr>
-              <td style="padding: 6px 8px; font-weight: 600;">${this.plan.nombre}</td>
-              <td style="padding: 6px 8px;">${this.formatearPrecio(this.plan.precioTotal || 0)}</td>
+              <td style="padding: 6px 8px; font-weight: 600;">${this.escapeHtml(this.plan.nombre)}</td>
+              <td style="padding: 6px 8px;">${this.formatearPrecio(this.precioTotalCalculado)}</td>
               <td style="padding: 6px 8px; text-align: center;">${this.totalSocios}</td>
             </tr>
           </table>
         </div>
         <div style="text-align: left; font-size: 13px; color: #64748b; padding: 8px 0;">
-          <p>1. Al eliminar esta membresía, los <strong>${this.totalSocios} socios activos</strong> pasarán a no tener membresias asignadas y tendran que volver a asignaler una.</p>
-          <p>2. Entiendo que los datos históricos de facturación se conservarán, pero el plan "<strong>${this.plan.nombre}</strong>" dejará de estar disponible de forma permanente.</p>
+          <p>1. Al eliminar esta membresía, los <strong>${this.totalSocios} socios activos</strong> pasarán a no tener membresías asignadas y se les deberá reasignar una.</p>
+          <p>2. Entiendo que los datos históricos de facturación se conservarán, pero el plan "<strong>${this.escapeHtml(this.plan.nombre)}</strong>" dejará de estar disponible de forma permanente.</p>
         </div>
       `,
       icon: 'warning',
@@ -173,7 +212,7 @@ export class MembershipFormComponent implements OnInit {
               this.router.navigate(['/dashboard-admin/memberships/list']);
             });
           },
-          error: (error: any) => {
+          error: (error: { error?: { message?: string } }) => {
             Swal.fire({
               icon: 'error',
               title: 'Error',
@@ -185,43 +224,7 @@ export class MembershipFormComponent implements OnInit {
     });
   }
 
-  generarDescripcion(data: any): string {
-    const duracion = data.cantidad || 1;
-    const tipo = TIPO_DURACION_MAP[data.tipoDuracion] || 'mes(es)';
-    const ia = data.incluyeIA ? ' con IA' : '';
-    return `Plan ${data.nombre} - ${duracion} ${tipo}${ia}`;
-  }
-
-  resetearPlan(): void {
-    this.plan = {
-      nombre: '',
-      cantidad: 1,
-      tipoDuracion: 'MES',
-      precioPorDia: 0,
-      precioTotal: 0,
-      descripcion: '',
-      beneficios: [],
-      incluyeIA: false,
-      esFlexible: false,
-      activo: true,
-      miembrosActivos: '0',
-      revenueEstimado: '0',
-    };
-  }
-
-  //  CÁLCULO PRECIO TOTAL 
-  calcularPrecioTotal(): number {
-    const diasPorUnidad = DIAS_POR_UNIDAD[this.plan.tipoDuracion] || 30;
-    const totalDias = diasPorUnidad * this.plan.cantidad;
-    return this.plan.precioPorDia * totalDias;
-  }
-
-  //  OBTENER NOMBRE DE DURACIÓN 
-  getNombreDuracion(tipo: string): string {
-    return TIPO_DURACION_MAP[tipo] || 'mes(es)';
-  }
-
-  //  BENEFICIOS 
+  // BENEFICIOS
   agregarBeneficio(): void {
     const beneficio = this.nuevoBeneficio.trim();
     if (beneficio) {
@@ -234,48 +237,12 @@ export class MembershipFormComponent implements OnInit {
     this.plan.beneficios.splice(index, 1);
   }
 
-  //  VALIDACIÓN 
-  get formularioValido(): boolean {
-    return (
-      this.plan.nombre.trim().length > 0 &&
-      this.plan.cantidad > 0 &&
-      this.plan.precioPorDia > 0 &&
-      this.plan.beneficios.length > 0
-    );
-  }
-
-  //  BADGE 
-  getBadgeClass(nombre: string): string {
-    const nombreUpper = nombre.toUpperCase();
-    if (nombreUpper.includes('STANDARD') || nombreUpper.includes('PREMIUM')) {
-      return 'badge-essential';
-    }
-    return 'badge-premium';
-  }
-
-  getBadgeText(nombre: string): string {
-    const nombreUpper = nombre.toUpperCase();
-    if (nombreUpper.includes('STANDARD') || nombreUpper.includes('PREMIUM')) {
-      return 'PREMIUM';
-    }
-    return 'PLAN';
-  }
-
-  //  FORMATEAR PRECIO 
-  formatearPrecio(precio: number): string {
-    return new Intl.NumberFormat('es-CO', {
-      style: 'currency',
-      currency: 'COP',
-      minimumFractionDigits: 0,
-    }).format(precio || 0);
-  }
-
-  //  ACCIONES 
+  // ACCIONES
   guardar(): void {
     if (!this.formularioValido) return;
 
-    const request = {
-      nombre: this.plan.nombre,
+    const request: MembresiaRequestDTO = {
+      nombre: this.plan.nombre.trim(),
       cantidad: this.plan.cantidad,
       tipoDuracion: this.plan.tipoDuracion,
       incluyeIA: this.plan.incluyeIA,
@@ -286,41 +253,73 @@ export class MembershipFormComponent implements OnInit {
       activo: this.plan.activo,
     };
 
-    const mensaje = this.esEdicion ? 'actualizado' : 'creado';
+    const accion = this.esEdicion ? 'actualizar' : 'crear';
+    const mensajeExito = this.esEdicion ? 'actualizado' : 'creado';
 
     Swal.fire({
       title: `¿Confirmar ${this.esEdicion ? 'actualización' : 'creación'}?`,
-      text: `¿Estás seguro de que deseas ${this.esEdicion ? 'actualizar' : 'crear'} el plan "${this.plan.nombre}"?`,
+      text: `¿Estás seguro de que deseas ${accion} el plan "${this.plan.nombre}"?`,
       icon: 'question',
       showCancelButton: true,
-      confirmButtonText: `Sí, ${this.esEdicion ? 'actualizar' : 'crear'}`,
+      confirmButtonText: `Sí, ${accion}`,
       cancelButtonText: 'Cancelar',
     }).then((result) => {
       if (result.isConfirmed) {
-        if (this.esEdicion && this.planId) {
-          this.membershipService.actualizarMembresia(this.planId, request).subscribe({
-            next: () => {
-              this.mostrarExito(mensaje);
-            },
-            error: (error: any) => {
-              this.mostrarError(error);
-            }
-          });
-        } else {
-          this.membershipService.crearMembresia(request).subscribe({
-            next: () => {
-              this.mostrarExito(mensaje);
-            },
-            error: (error: any) => {
-              this.mostrarError(error);
-            }
-          });
-        }
+        const obs$ = (this.esEdicion && this.planId)
+          ? this.membershipService.actualizarMembresia(this.planId, request)
+          : this.membershipService.crearMembresia(request);
+
+        obs$.subscribe({
+          next: () => this.mostrarExito(mensajeExito),
+          error: (err) => this.mostrarError(err)
+        });
       }
     });
   }
 
-  mostrarExito(mensaje: string): void {
+  // HELPERS Y FORMATOS
+  getNombreDuracion(tipo: string): string {
+    return TIPO_DURACION_MAP[tipo] || 'mes(es)';
+  }
+
+  getBadgeClass(nombre: string): string {
+    const nombreUpper = nombre.toUpperCase();
+    return (nombreUpper.includes('STANDARD') || nombreUpper.includes('PREMIUM'))
+      ? 'badge-essential'
+      : 'badge-premium';
+  }
+
+  getBadgeText(nombre: string): string {
+    const nombreUpper = nombre.toUpperCase();
+    return (nombreUpper.includes('STANDARD') || nombreUpper.includes('PREMIUM'))
+      ? 'PREMIUM'
+      : 'PLAN';
+  }
+
+  formatearPrecio(precio: number): string {
+    return new Intl.NumberFormat('es-CO', {
+      style: 'currency',
+      currency: 'COP',
+      minimumFractionDigits: 0,
+    }).format(precio || 0);
+  }
+
+  cancelar(): void {
+    this.router.navigate(['/dashboard-admin/memberships/list']);
+  }
+
+  resetearPlan(): void {
+    this.plan = this.crearPlanInicial();
+  }
+
+  private generarDescripcion(data: MembresiaResponseDTO): string {
+    const duracion = data.cantidad || 1;
+    const tipo = TIPO_DURACION_MAP[data.tipoDuracion || 'MES'] || 'mes(es)';
+    const ia = data.incluyeIA ? ' con IA' : '';
+    return `Plan ${data.nombre} - ${duracion} ${tipo}${ia}`;
+  }
+
+  private mostrarExito(mensaje: string): void {
     Swal.fire({
       icon: 'success',
       title: '¡Éxito!',
@@ -330,7 +329,7 @@ export class MembershipFormComponent implements OnInit {
     });
   }
 
-  mostrarError(error: any): void {
+  private mostrarError(error: { error?: { message?: string } }): void {
     Swal.fire({
       icon: 'error',
       title: 'Error',
@@ -338,7 +337,12 @@ export class MembershipFormComponent implements OnInit {
     });
   }
 
-  cancelar(): void {
-    this.router.navigate(['/dashboard-admin/memberships/list']);
+  private escapeHtml(text: string): string {
+    return text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
   }
 }
