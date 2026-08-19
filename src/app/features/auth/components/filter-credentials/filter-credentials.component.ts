@@ -1,6 +1,7 @@
 import { Component, Output, EventEmitter } from '@angular/core';
 
 export interface FiltrosCredenciales {
+  username?: string;
   rol?: string;
   activo?: boolean;
   direccion?: string;
@@ -13,21 +14,30 @@ export interface FiltrosCredenciales {
 })
 export class FilterCredentialsComponent {
   abierto = false;
+  usernameBusqueda = '';
   rolSeleccionado = '';
   estadoSeleccionado = '';
   direccionSeleccionado: string = 'desc';
   roles = ['administrador', 'entrenador', 'recepcionista', 'socio'];
 
-  @Output() aplicar = new EventEmitter<{ rol?: string; activo?: boolean; direccion?: string }>();
+  @Output() aplicar = new EventEmitter<FiltrosCredenciales>();
 
   toggle(): void {
     this.abierto = !this.abierto;
   }
 
   onAplicar(): void {
-    const filtros: { rol?: string; activo?: boolean; direccion?: string } = {};
-    if (this.rolSeleccionado) filtros.rol = this.rolSeleccionado;
-    if (this.estadoSeleccionado) filtros.activo = this.estadoSeleccionado === 'activo';
+    const filtros: FiltrosCredenciales = {};
+
+    if (this.usernameBusqueda.trim()) {
+      filtros.username = this.usernameBusqueda.trim();
+    }
+    if (this.rolSeleccionado) {
+      filtros.rol = this.rolSeleccionado;
+    }
+    if (this.estadoSeleccionado) {
+      filtros.activo = this.estadoSeleccionado === 'activo';
+    }
     filtros.direccion = this.direccionSeleccionado;
 
     this.aplicar.emit(filtros);
@@ -35,9 +45,10 @@ export class FilterCredentialsComponent {
   }
 
   onLimpiar(): void {
+    this.usernameBusqueda = '';
     this.rolSeleccionado = '';
     this.estadoSeleccionado = '';
-    this.direccionSeleccionado = '';
+    this.direccionSeleccionado = 'desc';
     this.aplicar.emit({});
     this.abierto = false;
   }

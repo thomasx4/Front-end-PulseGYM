@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { RespuestaPaginadaCredenciales, Credencial } from '../../models/auth/auth.model';
 import { AuthService } from '../../../../core/services/auth.service';
+import { FiltrosCredenciales } from '../filter-credentials/filter-credentials.component';
 
 @Component({
   selector: 'app-credentials-list',
@@ -9,7 +10,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 })
 export class CredentialsListComponent implements OnInit {
   credenciales: Credencial[] = [];
-  filtrosActuales: { rol?: string; activo?: boolean; direccion?: string } = {};
+  filtrosActuales: FiltrosCredenciales = {};
   cargando: boolean = false;
   errorMensaje: string = '';
 
@@ -41,7 +42,8 @@ export class CredentialsListComponent implements OnInit {
       'id',
       this.filtrosActuales.direccion || 'desc',
       this.filtrosActuales.rol,
-      this.filtrosActuales.activo
+      this.filtrosActuales.activo,
+      this.filtrosActuales.username
     ).subscribe({
       next: (res: RespuestaPaginadaCredenciales) => {
         this.credenciales = res.contenido;
@@ -127,7 +129,7 @@ export class CredentialsListComponent implements OnInit {
     return Math.min((this.numeroPagina + 1) * this.tamanioPagina, this.totalElementos);
   }
 
-  onFiltrosAplicados(filtros: { rol?: string; activo?: boolean; direccion?: string }): void {
+  onFiltrosAplicados(filtros: FiltrosCredenciales): void {
     this.filtrosActuales = filtros;
     this.cargarCredenciales(0);
   }
