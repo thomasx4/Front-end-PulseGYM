@@ -84,6 +84,7 @@ export class MembershipFormComponent implements OnInit {
   esEdicion: boolean = false;
   planId: number | null = null;
   totalSocios: number = 0;
+  loading: boolean = false;
 
   ngOnInit(): void {
     this.route.params
@@ -117,6 +118,7 @@ export class MembershipFormComponent implements OnInit {
   }
 
   cargarPlan(id: number): void {
+    this.loading = true;
     this.membershipService.getMembresiaConSociosActivos(id).subscribe({
       next: (data: MembresiaResponseDTO) => {
         const beneficiosArray = data.beneficios
@@ -140,9 +142,11 @@ export class MembershipFormComponent implements OnInit {
           miembrosActivos: this.totalSocios.toString(),
           revenueEstimado: '0',
         };
+        this.loading = false;
       },
       error: (error: Error) => {
         console.error('Error al cargar el plan:', error);
+        this.loading = false;
         Swal.fire('Error', 'No se pudo cargar la membresía', 'error');
       }
     });
@@ -202,8 +206,10 @@ export class MembershipFormComponent implements OnInit {
       cancelButtonText: 'Cancelar',
     }).then((result) => {
       if (result.isConfirmed) {
+        this.loading = true;
         this.membershipService.eliminarMembresia(this.planId!).subscribe({
           next: () => {
+            this.loading = false;
             Swal.fire({
               icon: 'success',
               title: '¡Membresía Eliminada!',
@@ -213,6 +219,7 @@ export class MembershipFormComponent implements OnInit {
             });
           },
           error: (error: { error?: { message?: string } }) => {
+            this.loading = false;
             Swal.fire({
               icon: 'error',
               title: 'Error',
@@ -265,13 +272,20 @@ export class MembershipFormComponent implements OnInit {
       cancelButtonText: 'Cancelar',
     }).then((result) => {
       if (result.isConfirmed) {
+        this.loading = true;
         const obs$ = (this.esEdicion && this.planId)
           ? this.membershipService.actualizarMembresia(this.planId, request)
           : this.membershipService.crearMembresia(request);
 
         obs$.subscribe({
-          next: () => this.mostrarExito(mensajeExito),
-          error: (err) => this.mostrarError(err)
+          next: () => {
+            this.loading = false;
+            this.mostrarExito(mensajeExito);
+          },
+          error: (err) => {
+            this.loading = false;
+            this.mostrarError(err);
+          }
         });
       }
     });

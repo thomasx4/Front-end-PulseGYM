@@ -12,12 +12,6 @@
         </button>
     </div>
 
-    <!--  SPINNER DE CARGA  -->
-    <div *ngIf="loading" class="loading-overlay">
-        <div class="spinner"></div>
-        <span>Cargando...</span>
-    </div>
-
     <!--  FILTROS PARA PLANES  -->
     <div class="filters-plans" *ngIf="!loading">
         <div class="filters-plans__row">
@@ -206,7 +200,7 @@
             </table>
         </div>
 
-        <!-- PAGINACIÓN SOCIOS (CENTRADA COMO LA DE MEMBRESÍAS) -->
+        <!-- PAGINACIÓN SOCIOS -->
         <div class="table-footer">
             <span class="table-info">
                 Showing {{ inicio + 1 }}–{{ fin }} of {{ miembrosFiltradosList.length }} members
