@@ -3,6 +3,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MembershipService } from '../../../../core/services/membership.service';
 import Swal from 'sweetalert2';
+import { forkJoin } from 'rxjs';
+import { catchError, of } from 'rxjs';
 
 // INTERFACES & DTOs
 export interface Plan {
@@ -84,6 +86,7 @@ export class MembershipFormComponent implements OnInit {
   esEdicion: boolean = false;
   planId: number | null = null;
   totalSocios: number = 0;
+  loading: boolean = false;
 
   ngOnInit(): void {
     this.route.params
@@ -117,14 +120,14 @@ export class MembershipFormComponent implements OnInit {
   }
 
   cargarPlan(id: number): void {
-    this.membershipService.getMembresiaConSociosActivos(id).subscribe({
+    this.loading = true;
+    
+    // ✅ PRIMERO: Obtener la membresía por ID (siempre disponible)
+    this.membershipService.getMembresiaById(id).subscribe({
       next: (data: MembresiaResponseDTO) => {
         const beneficiosArray = data.beneficios
           ? data.beneficios.split(',').map((b) => b.trim()).filter(Boolean)
           : [];
-
-        const socios = data.sociosAsignados || [];
-        this.totalSocios = socios.length;
 
         this.plan = {
           id: data.idMembresia,
@@ -137,12 +140,36 @@ export class MembershipFormComponent implements OnInit {
           incluyeIA: data.incluyeIA ?? false,
           esFlexible: data.esFlexible ?? false,
           activo: data.activo ?? true,
-          miembrosActivos: this.totalSocios.toString(),
+          miembrosActivos: '0',
           revenueEstimado: '0',
         };
+
+        // ✅ SEGUNDO: Intentar cargar socios (si no hay, solo es 0)
+        this.membershipService.getMembresiaConSociosActivos(id).subscribe({
+          next: (sociosData: any) => {
+            const socios = sociosData?.sociosAsignados || sociosData?.data || [];
+            this.totalSocios = socios.length;
+            this.plan.miembrosActivos = this.totalSocios.toString();
+            this.loading = false;
+          },
+          error: (error: any) => {
+            // ✅ Si es 404 o 400, simplemente no hay socios
+            if (error.status === 404 || error.status === 400) {
+              this.totalSocios = 0;
+              this.plan.miembrosActivos = '0';
+              this.loading = false;
+            } else {
+              console.warn('Error al cargar socios:', error);
+              this.totalSocios = 0;
+              this.plan.miembrosActivos = '0';
+              this.loading = false;
+            }
+          }
+        });
       },
       error: (error: Error) => {
         console.error('Error al cargar el plan:', error);
+        this.loading = false;
         Swal.fire('Error', 'No se pudo cargar la membresía', 'error');
       }
     });
@@ -202,8 +229,10 @@ export class MembershipFormComponent implements OnInit {
       cancelButtonText: 'Cancelar',
     }).then((result) => {
       if (result.isConfirmed) {
+        this.loading = true;
         this.membershipService.eliminarMembresia(this.planId!).subscribe({
           next: () => {
+            this.loading = false;
             Swal.fire({
               icon: 'success',
               title: '¡Membresía Eliminada!',
@@ -213,6 +242,7 @@ export class MembershipFormComponent implements OnInit {
             });
           },
           error: (error: { error?: { message?: string } }) => {
+            this.loading = false;
             Swal.fire({
               icon: 'error',
               title: 'Error',
@@ -265,13 +295,20 @@ export class MembershipFormComponent implements OnInit {
       cancelButtonText: 'Cancelar',
     }).then((result) => {
       if (result.isConfirmed) {
+        this.loading = true;
         const obs$ = (this.esEdicion && this.planId)
           ? this.membershipService.actualizarMembresia(this.planId, request)
           : this.membershipService.crearMembresia(request);
 
         obs$.subscribe({
-          next: () => this.mostrarExito(mensajeExito),
-          error: (err) => this.mostrarError(err)
+          next: () => {
+            this.loading = false;
+            this.mostrarExito(mensajeExito);
+          },
+          error: (err) => {
+            this.loading = false;
+            this.mostrarError(err);
+          }
         });
       }
     });

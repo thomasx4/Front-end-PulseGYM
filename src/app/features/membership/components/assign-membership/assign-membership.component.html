@@ -17,14 +17,8 @@
         <span>{{ errorMessage }}</span>
     </div>
 
-    <!-- SPINNER DE CARGA -->
-    <div *ngIf="loading" class="loading-overlay">
-        <div class="spinner"></div>
-        <span>Cargando...</span>
-    </div>
-
     <!-- SECCIÓN POR VENCER (ÚNICA) -->
-    <div class="por-vencer-container" *ngIf="vistaActual === 'tarjetas' && membresiasPorVencer.length > 0">
+    <div class="por-vencer-container" *ngIf="!loading && vistaActual === 'tarjetas' && membresiasPorVencer.length > 0">
         <div class="por-vencer-header">
             <div class="por-vencer-header__title">
                 <div class="icon-pulse-wrapper">
@@ -58,7 +52,8 @@
                         [class.alerta]="item.diasRestantes > 2">
                         {{ item.diasRestantes }} {{ item.diasRestantes === 1 ? 'día' : 'días' }}
                     </div>
-                    <button type="button" class="btn-renovar-action" (click)="renovarDesdePorVencer(item)">
+                    <button type="button" class="btn-renovar-action" [disabled]="loading || accionEnProceso"
+                        (click)="renovarDesdePorVencer(item)">
                         Renovar
                     </button>
                 </div>
@@ -67,17 +62,18 @@
 
         <!-- PAGINACIÓN POR VENCER -->
         <div class="membresias-pagination" *ngIf="totalPaginasPorVencer > 1">
-            <button class="page-btn" (click)="paginaAnteriorPorVencer()" [disabled]="paginaPorVencerActual === 1">
+            <button class="page-btn" (click)="paginaAnteriorPorVencer()"
+                [disabled]="paginaPorVencerActual === 1 || loading">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="15 18 9 12 15 6" />
                 </svg>
             </button>
             <button class="page-btn" *ngFor="let p of paginasPorVencer" [class.active]="p === paginaPorVencerActual"
-                (click)="irAPaginaPorVencer(p)">
+                [disabled]="loading" (click)="irAPaginaPorVencer(p)">
                 {{ p }}
             </button>
             <button class="page-btn" (click)="paginaSiguientePorVencer()"
-                [disabled]="paginaPorVencerActual === totalPaginasPorVencer">
+                [disabled]="paginaPorVencerActual === totalPaginasPorVencer || loading">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="9 18 15 12 9 6" />
                 </svg>
@@ -86,7 +82,7 @@
     </div>
 
     <!-- VISTA 1: TARJETAS DE MEMBRESÍAS CON PAGINACIÓN -->
-    <ng-container *ngIf="vistaActual === 'tarjetas'">
+    <ng-container *ngIf="!loading && vistaActual === 'tarjetas'">
         <div class="membership-header">
             <h1>Asignar Membresía</h1>
             <p class="membership-subtitle">Selecciona una membresía activa para asignarla a un socio.</p>
@@ -128,10 +124,12 @@
                     </div>
                 </div>
                 <div class="membership-card__footer">
-                    <button type="button" class="btn btn--primary" (click)="asignarMembresia(membresia.id)">
+                    <button type="button" class="btn btn--primary" [disabled]="loading"
+                        (click)="asignarMembresia(membresia.id)">
                         {{ membresia.esFlexible ? 'Asignar flexible' : 'Asignar a socio' }}
                     </button>
-                    <button type="button" class="btn btn--outline" (click)="verSocios(membresia.id)">
+                    <button type="button" class="btn btn--outline" [disabled]="loading"
+                        (click)="verSocios(membresia.id)">
                         Ver socios ({{ membresia.sociosActivos }})
                     </button>
                 </div>
@@ -140,17 +138,18 @@
 
         <!-- PAGINACIÓN MEMBRESÍAS -->
         <div class="membresias-pagination" *ngIf="totalPaginasMembresias > 1">
-            <button class="page-btn" (click)="paginaAnteriorMembresias()" [disabled]="paginaMembresiasActual === 1">
+            <button class="page-btn" (click)="paginaAnteriorMembresias()"
+                [disabled]="paginaMembresiasActual === 1 || loading">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="15 18 9 12 15 6" />
                 </svg>
             </button>
             <button class="page-btn" *ngFor="let p of paginasMembresias" [class.active]="p === paginaMembresiasActual"
-                (click)="cambiarPaginaMembresias(p)">
+                [disabled]="loading" (click)="cambiarPaginaMembresias(p)">
                 {{ p }}
             </button>
             <button class="page-btn" (click)="paginaSiguienteMembresias()"
-                [disabled]="paginaMembresiasActual === totalPaginasMembresias">
+                [disabled]="paginaMembresiasActual === totalPaginasMembresias || loading">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="9 18 15 12 9 6" />
                 </svg>
@@ -159,7 +158,7 @@
     </ng-container>
 
     <!-- VISTA 2: VER SOCIOS ASIGNADOS -->
-    <ng-container *ngIf="vistaActual === 'socios' && membresiaSeleccionada">
+    <ng-container *ngIf="!loading && vistaActual === 'socios' && membresiaSeleccionada">
         <div class="detail-header">
             <h1 class="detail-title">{{ membresiaSeleccionada.nombre }}</h1>
             <button type="button" class="back-link" (click)="volverAMembresias()">
@@ -256,7 +255,7 @@
                             <td class="text-right">
                                 <div class="acciones-buttons">
                                     <button type="button" class="btn-accion btn-renovar"
-                                        (click)="abrirModalRenovar(socio)" [disabled]="accionEnProceso"
+                                        (click)="abrirModalRenovar(socio)" [disabled]="accionEnProceso || loading"
                                         title="Renovar membresía">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <path d="M1 4v6h6" stroke-linecap="round" stroke-linejoin="round" />
@@ -265,7 +264,7 @@
                                         </svg>
                                     </button>
                                     <button type="button" class="btn-accion btn-suspender"
-                                        (click)="abrirModalSuspender(socio)" [disabled]="accionEnProceso"
+                                        (click)="abrirModalSuspender(socio)" [disabled]="accionEnProceso || loading"
                                         title="Suspender membresía">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <circle cx="12" cy="12" r="10" />
@@ -274,7 +273,7 @@
                                         </svg>
                                     </button>
                                     <button type="button" class="btn-accion btn-cancelar"
-                                        (click)="abrirModalCancelar(socio)" [disabled]="accionEnProceso"
+                                        (click)="abrirModalCancelar(socio)" [disabled]="accionEnProceso || loading"
                                         title="Cancelar membresía">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <path d="M18 6L6 18" stroke-linecap="round" stroke-linejoin="round" />
@@ -284,7 +283,6 @@
                                 </div>
                             </td>
                         </tr>
-                        <!-- ✅ CORREGIDO: colspan="6" para abarcar todas las columnas de la tabla -->
                         <tr *ngIf="sociosAsignadosFiltrados.length === 0">
                             <td colspan="6" class="empty-state">No hay socios asignados.</td>
                         </tr>
@@ -298,18 +296,19 @@
                     </span>
                     <div class="membresias-pagination" *ngIf="totalSociosPaginas > 1">
                         <button class="page-btn" (click)="cambiarPaginaSocios(sociosPaginaActual - 1)"
-                            [disabled]="sociosPaginaActual === 1">
+                            [disabled]="sociosPaginaActual === 1 || loading">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2">
                                 <polyline points="15 18 9 12 15 6" />
                             </svg>
                         </button>
                         <button class="page-btn" *ngFor="let page of paginasSocios"
-                            [class.active]="sociosPaginaActual === page" (click)="cambiarPaginaSocios(page)">
+                            [class.active]="sociosPaginaActual === page" [disabled]="loading"
+                            (click)="cambiarPaginaSocios(page)">
                             {{ page }}
                         </button>
                         <button class="page-btn" (click)="cambiarPaginaSocios(sociosPaginaActual + 1)"
-                            [disabled]="sociosPaginaActual === totalSociosPaginas">
+                            [disabled]="sociosPaginaActual === totalSociosPaginas || loading">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2">
                                 <polyline points="9 18 15 12 9 6" />
@@ -384,13 +383,14 @@
 
         <div class="modal-dialog__pagination" *ngIf="sociosFiltradosModal.length > 0">
             <button type="button" class="page-arrow" (click)="cambiarPaginaModal(sociosModalPaginaActual - 1)"
-                [disabled]="sociosModalPaginaActual === 1">&lt;</button>
+                [disabled]="sociosModalPaginaActual === 1 || loading">&lt;</button>
             <button *ngFor="let page of paginasModal; trackBy: trackByIndex" type="button" class="page-num"
-                [class.active]="sociosModalPaginaActual === page" (click)="cambiarPaginaModal(page)">
+                [class.active]="sociosModalPaginaActual === page" [disabled]="loading"
+                (click)="cambiarPaginaModal(page)">
                 {{ page }}
             </button>
             <button type="button" class="page-arrow" (click)="cambiarPaginaModal(sociosModalPaginaActual + 1)"
-                [disabled]="sociosModalPaginaActual === totalSociosModalPaginas">&gt;</button>
+                [disabled]="sociosModalPaginaActual === totalSociosModalPaginas || loading">&gt;</button>
         </div>
     </div>
 </div>
@@ -469,13 +469,14 @@
 
         <div class="modal-dialog__pagination" *ngIf="sociosFiltradosModal.length > 0">
             <button type="button" class="page-arrow" (click)="cambiarPaginaModal(sociosModalPaginaActual - 1)"
-                [disabled]="sociosModalPaginaActual === 1">&lt;</button>
+                [disabled]="sociosModalPaginaActual === 1 || loading">&lt;</button>
             <button *ngFor="let page of paginasModal; trackBy: trackByIndex" type="button" class="page-num"
-                [class.active]="sociosModalPaginaActual === page" (click)="cambiarPaginaModal(page)">
+                [class.active]="sociosModalPaginaActual === page" [disabled]="loading"
+                (click)="cambiarPaginaModal(page)">
                 {{ page }}
             </button>
             <button type="button" class="page-arrow" (click)="cambiarPaginaModal(sociosModalPaginaActual + 1)"
-                [disabled]="sociosModalPaginaActual === totalSociosModalPaginas">&gt;</button>
+                [disabled]="sociosModalPaginaActual === totalSociosModalPaginas || loading">&gt;</button>
         </div>
     </div>
 </div>

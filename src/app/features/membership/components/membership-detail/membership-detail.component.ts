@@ -1,7 +1,8 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
-import { switchMap, takeUntil } from 'rxjs/operators';
+import { switchMap, takeUntil, catchError } from 'rxjs/operators';
+import { of } from 'rxjs';
 import { MembershipService } from '../../../../core/services/membership.service';
 import Swal from 'sweetalert2';
 
@@ -87,12 +88,22 @@ export class MembershipDetailComponent implements OnInit, OnDestroy {
           }
           this.planId = +params['id'];
           this.loading = true;
-          return this.membershipService.getMembresiaConSociosActivos(this.planId);
+
+          // ✅ PRIMERO: Obtener la membresía por ID (siempre disponible)
+          return this.membershipService.getMembresiaById(this.planId).pipe(
+            catchError((error) => {
+              this.manejarError(error);
+              return of(null);
+            })
+          );
         })
       )
       .subscribe({
-        next: (data: MembershipResponseDTO) => this.procesarDatos(data),
-        error: (error) => this.manejarError(error)
+        next: (data: MembershipResponseDTO | null) => {
+          if (data) {
+            this.procesarDatos(data);
+          }
+        }
       });
   }
 
@@ -123,23 +134,66 @@ export class MembershipDetailComponent implements OnInit, OnDestroy {
       activo: data.activo ?? true,
     };
 
-    this.socios = data.sociosAsignados || [];
-    this.totalSocios = this.socios.length;
+    // ✅ SEGUNDO: Intentar cargar socios asignados (si falla, solo no hay socios)
+    this.membershipService.getMembresiaConSociosActivos(data.idMembresia).subscribe({
+      next: (sociosData: any) => {
+        this.socios = sociosData?.sociosAsignados || sociosData?.data || [];
+        this.totalSocios = this.socios.length;
+        this.actualizarMetricas();
+        this.loading = false;
+      },
+      error: (error: any) => {
+        // ✅ Si es 404 o 400, simplemente no hay socios
+        if (error.status === 404 || error.status === 400) {
+          this.socios = [];
+          this.totalSocios = 0;
+          this.actualizarMetricas();
+          this.loading = false;
+        } else {
+          console.warn('Error al cargar socios:', error);
+          this.socios = [];
+          this.totalSocios = 0;
+          this.actualizarMetricas();
+          this.loading = false;
+        }
+      }
+    });
+  }
 
-    // Métricas precalculadas para evitar cálculos repetitivos en el template
+  private actualizarMetricas(): void {
+    const precioTotal = this.plan?.precioTotal || 0;
     this.revenueEstimado = precioTotal * this.totalSocios;
     this.precioTotalFormateado = this.formatearPrecio(precioTotal);
-    this.precioPorDiaFormateado = this.formatearPrecio(precioPorDia);
+    this.precioPorDiaFormateado = this.formatearPrecio(this.plan?.precioPorDia || 0);
     this.revenueFormateado = this.formatearPrecio(this.revenueEstimado);
-
-    this.loading = false;
   }
 
   private manejarError(error: unknown): void {
     console.error('Error al cargar el plan:', error);
     this.loading = false;
-    Swal.fire('Error', 'No se pudo cargar la membresía', 'error');
-    this.router.navigate(['/dashboard-admin/memberships/list']);
+
+    const err = error as any;
+    if (err.status === 404) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Membresía no encontrada',
+        text: 'La membresía que buscas no existe o ha sido eliminada.',
+        confirmButtonText: 'Volver',
+        confirmButtonColor: '#0f1c3f',
+      }).then(() => {
+        this.router.navigate(['/dashboard-admin/memberships/list']);
+      });
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No se pudo cargar la membresía.',
+        confirmButtonText: 'Volver',
+        confirmButtonColor: '#0f1c3f',
+      }).then(() => {
+        this.router.navigate(['/dashboard-admin/memberships/list']);
+      });
+    }
   }
 
   generarDescripcion(data: MembershipResponseDTO): string {

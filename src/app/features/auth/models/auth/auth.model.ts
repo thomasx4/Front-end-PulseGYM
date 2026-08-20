@@ -44,6 +44,7 @@ export interface Credencial {
   username: string;
   rol: string;
   estado: boolean;
+  fechaRegistro?: string;
 }
 
 export interface RespuestaPaginadaCredenciales {

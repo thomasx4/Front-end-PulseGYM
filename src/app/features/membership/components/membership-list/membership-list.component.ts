@@ -82,7 +82,6 @@ export class MembershipListComponent implements OnInit {
     this.cargarDatos();
   }
 
-  // CARGA DE DATOS DESDE EL SERVICE
   cargarDatos(): void {
     this.loading = true;
 
@@ -110,7 +109,6 @@ export class MembershipListComponent implements OnInit {
               }
             });
 
-            // Mapear miembros de cada membresía
             this.miembros = [];
             dataConSocios.forEach((membresia: any) => {
               if (membresia.sociosAsignados && membresia.sociosAsignados.length > 0) {
@@ -148,8 +146,9 @@ export class MembershipListComponent implements OnInit {
             this.loading = false;
           },
           error: (err) => {
-            console.error('Error al cargar socios por membresía:', err);
+            console.warn('No se pudieron cargar los socios asociados, mostrando solo planes base:', err);
             this.aplicarFiltrosPlanes();
+            this.aplicarFiltrosTabla();
             this.loading = false;
           }
         });

@@ -10,7 +10,7 @@
             </div>
             <h1 class="form-title">{{ esEdicion ? 'Editar' : 'Crear' }} Membresía</h1>
             <p class="form-subtitle" *ngIf="esEdicion">
-                Actualice los parámetros del plan <strong>{{ plan?.nombre || 'Cargando...' }}</strong>
+                Actualice los parámetros del plan <strong>{{ plan.nombre || 'Cargando...' }}</strong>
                 para optimizar la oferta comercial y la experiencia del usuario.
             </p>
             <p class="form-subtitle" *ngIf="!esEdicion">
@@ -19,17 +19,17 @@
         </div>
         <div class="form-header__right">
             <!-- BOTÓN ELIMINAR (solo en modo edición) -->
-            <button class="btn-danger" *ngIf="esEdicion" (click)="eliminarMembresia()">
+            <button class="btn-danger" *ngIf="esEdicion" (click)="eliminarMembresia()" [disabled]="loading">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M3 6h18" />
                     <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
                 </svg>
                 Eliminar
             </button>
-            <button class="btn-outline" (click)="cancelar()">
+            <button class="btn-outline" (click)="cancelar()" [disabled]="loading">
                 Cancelar
             </button>
-            <button class="btn-primary" (click)="guardar()" [disabled]="!formularioValido">
+            <button class="btn-primary" (click)="guardar()" [disabled]="!formularioValido || loading">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
                     <polyline points="17 21 17 13 7 13 7 21" />
@@ -40,8 +40,8 @@
         </div>
     </div>
 
-    <!-- FORMULARIO -->
-    <div class="form-grid" *ngIf="plan">
+    <!-- FORMULARIO (Se mantiene renderizado de fondo con los valores por defecto mientras carga) -->
+    <div class="form-grid">
 
         <!-- COLUMNA IZQUIERDA: FORMULARIO -->
         <div class="form-column">
@@ -53,18 +53,18 @@
                 <div class="form-group">
                     <label for="nombrePlan">NOMBRE DEL PLAN</label>
                     <input type="text" id="nombrePlan" [(ngModel)]="plan.nombre" placeholder="Ej: 1 mes básica"
-                        class="form-control" />
+                        class="form-control" [disabled]="loading" />
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
                         <label for="cantidad">CANTIDAD</label>
                         <input type="number" id="cantidad" [(ngModel)]="plan.cantidad" min="1" max="365" placeholder="1"
-                            class="form-control" />
+                            class="form-control" [disabled]="loading" />
                     </div>
                     <div class="form-group">
                         <label for="tipoDuracion">TIPO DURACIÓN</label>
-                        <select id="tipoDuracion" [(ngModel)]="plan.tipoDuracion" class="form-control">
+                        <select id="tipoDuracion" [(ngModel)]="plan.tipoDuracion" class="form-control" [disabled]="loading">
                             <option value="DIA">Día(s)</option>
                             <option value="SEMANA">Semana(s)</option>
                             <option value="MES">Mes(es)</option>
@@ -81,7 +81,7 @@
                         <div class="input-prefix">
                             <span class="prefix">$</span>
                             <input type="number" id="precioPorDia" [(ngModel)]="plan.precioPorDia" placeholder="2300"
-                                class="form-control" />
+                                class="form-control" [disabled]="loading" />
                         </div>
                     </div>
                     <div class="form-group">
@@ -97,7 +97,7 @@
                 <div class="form-group">
                     <label for="descripcion">DESCRIPCIÓN DEL PLAN</label>
                     <textarea id="descripcion" [(ngModel)]="plan.descripcion"
-                        placeholder="Descripción detallada del plan..." class="form-control" rows="3"></textarea>
+                        placeholder="Descripción detallada del plan..." class="form-control" rows="3" [disabled]="loading"></textarea>
                 </div>
             </div>
 
@@ -109,7 +109,7 @@
                     <div class="benefit-item" *ngFor="let beneficio of plan.beneficios; let i = index">
                         <span class="benefit-dot"></span>
                         <span class="benefit-text">{{ beneficio }}</span>
-                        <button class="benefit-remove" (click)="eliminarBeneficio(i)" type="button">
+                        <button class="benefit-remove" (click)="eliminarBeneficio(i)" type="button" [disabled]="loading">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2">
                                 <line x1="18" y1="6" x2="6" y2="18" />
@@ -121,8 +121,8 @@
 
                 <div class="add-benefit">
                     <input type="text" [(ngModel)]="nuevoBeneficio" placeholder="Agregar nuevo beneficio..."
-                        class="form-control" (keyup.enter)="agregarBeneficio()" />
-                    <button class="btn-add" (click)="agregarBeneficio()" type="button">
+                        class="form-control" (keyup.enter)="agregarBeneficio()" [disabled]="loading" />
+                    <button class="btn-add" (click)="agregarBeneficio()" type="button" [disabled]="loading">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2">
                             <line x1="12" y1="5" x2="12" y2="19" />
@@ -173,17 +173,17 @@
                 <h3 class="config-card__title">Configuración Adicional</h3>
                 <div class="toggle-group">
                     <label class="toggle-item">
-                        <input type="checkbox" [(ngModel)]="plan.incluyeIA" />
+                        <input type="checkbox" [(ngModel)]="plan.incluyeIA" [disabled]="loading" />
                         <span class="toggle-slider"></span>
                         <span class="toggle-label">Incluye Asistente IA</span>
                     </label>
                     <label class="toggle-item">
-                        <input type="checkbox" [(ngModel)]="plan.esFlexible" />
+                        <input type="checkbox" [(ngModel)]="plan.esFlexible" [disabled]="loading" />
                         <span class="toggle-slider"></span>
                         <span class="toggle-label">Membresía Flexible (días personalizados)</span>
                     </label>
                     <label class="toggle-item">
-                        <input type="checkbox" [(ngModel)]="plan.activo" />
+                        <input type="checkbox" [(ngModel)]="plan.activo" [disabled]="loading" />
                         <span class="toggle-slider"></span>
                         <span class="toggle-label">Plan Activo</span>
                     </label>

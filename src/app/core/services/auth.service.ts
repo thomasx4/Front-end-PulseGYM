@@ -34,16 +34,18 @@ export class AuthService {
     ordenarPor: string = 'id',
     direccion?: string,
     rol?: string,
-    activo?: boolean
+    activo?: boolean,
+    username?: string
   ): Observable<RespuestaPaginadaCredenciales> {
     let params = new HttpParams()
       .set('pagina', pagina.toString())
       .set('tamanio', tamanio.toString())
-      .set('ordenarPor', ordenarPor)
+      .set('ordenarPor', ordenarPor);
 
     if (rol) params = params.set('rol', rol);
     if (activo !== undefined) params = params.set('activo', activo);
     if (direccion) params = params.set('direccion', direccion);
+    if (username) params = params.set('username', username);
 
     return this.http.get<RespuestaPaginadaCredenciales>(
       `${this.apiUrl}/usuarios`,
@@ -294,4 +296,8 @@ export class AuthService {
     }
     return throwError(() => new Error(errorMessage));
   }
+
+  changePasswordByAdmin(data: { email: string; newPassword: string; confirmPassword: string }): Observable<MessageGlobalDTO> {
+  return this.http.post<MessageGlobalDTO>(`${this.apiUrl}/change-password-by-admin`, data);
+}
 }
