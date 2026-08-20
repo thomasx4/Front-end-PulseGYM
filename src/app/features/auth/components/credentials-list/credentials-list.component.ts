@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { RespuestaPaginadaCredenciales, Credencial } from '../../models/auth/auth.model';
 import { AuthService } from '../../../../core/services/auth.service';
 import { FiltrosCredenciales } from '../filter-credentials/filter-credentials.component';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-credentials-list',
@@ -22,8 +23,18 @@ export class CredentialsListComponent implements OnInit {
 
   totalActivosGeneral: number = 0;
   totalInactivosGeneral: number = 0;
+  totalMesActual: number = 0;
 
   mostrarFormulario: boolean = false;
+
+  mostrarModalPassword: boolean = false;
+  usuarioSeleccionado: any = null;
+  nuevaPassword: string = '';
+  confirmarPassword: string = '';
+  mostrarPassword: boolean = false;
+  mostrarConfirmacion: boolean = false;
+  cargandoPassword: boolean = false;
+  errorPassword: string = '';
 
   constructor(private authService: AuthService) { }
 
@@ -72,6 +83,26 @@ export class CredentialsListComponent implements OnInit {
       next: (res) => this.totalInactivosGeneral = res.totalElementos,
       error: (err) => console.error('Error al obtener métricas inactivas:', err)
     });
+
+    this.authService.listarCredenciales(0, 1000, 'id', 'desc').subscribe({
+      next: (res) => {
+        this.calcularCredencialesMesActual(res.contenido);
+      },
+      error: (err) => console.error('Error al obtener métricas de crecimiento:', err)
+    });
+  }
+
+  private calcularCredencialesMesActual(lista: Credencial[]): void {
+    const ahora = new Date();
+    const mesActual = ahora.getMonth();
+    const anioActual = ahora.getFullYear();
+
+    this.totalMesActual = lista.filter(item => {
+      if (!item.fechaRegistro) return false;
+      const fechaRegistro = new Date(item.fechaRegistro);
+      return fechaRegistro.getMonth() === mesActual &&
+        fechaRegistro.getFullYear() === anioActual;
+    }).length;
   }
 
   toggleEstado(item: Credencial): void {
@@ -88,6 +119,68 @@ export class CredentialsListComponent implements OnInit {
       }
     });
   }
+
+
+  abrirModalCambiarPassword(usuario: any): void {
+    this.usuarioSeleccionado = usuario;
+    this.nuevaPassword = '';
+    this.confirmarPassword = '';
+    this.errorPassword = '';
+    this.mostrarPassword = false;
+    this.mostrarConfirmacion = false;
+    this.mostrarModalPassword = true;
+  }
+
+  cerrarModalPassword(): void {
+    this.mostrarModalPassword = false;
+    this.usuarioSeleccionado = null;
+    this.nuevaPassword = '';
+    this.confirmarPassword = '';
+    this.errorPassword = '';
+    this.cargandoPassword = false;
+  }
+
+  cambiarPasswordUsuario(): void {
+    const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.])[A-Za-z\d@$!%*?&.]{8,}$/;
+
+    if (!passwordRegex.test(this.nuevaPassword)) {
+      this.errorPassword = 'La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un carácter especial.';
+      return;
+    }
+
+    if (this.nuevaPassword !== this.confirmarPassword) {
+      this.errorPassword = 'Las contraseñas no coinciden';
+      return;
+    }
+
+    this.errorPassword = '';
+    this.cargandoPassword = true;
+
+    const request = {
+      email: this.usuarioSeleccionado.email,
+      newPassword: this.nuevaPassword,
+      confirmPassword: this.confirmarPassword
+    };
+
+    this.authService.changePasswordByAdmin(request).subscribe({
+      next: () => {
+        this.cargandoPassword = false;
+        Swal.fire({
+          icon: 'success',
+          title: '¡Contraseña Actualizada!',
+          text: `La contraseña de "${this.usuarioSeleccionado.username}" ha sido cambiada exitosamente.`,
+          confirmButtonText: 'Entendido',
+          confirmButtonColor: '#0f1c3f',
+        });
+        this.cerrarModalPassword();
+      },
+      error: (error) => {
+        this.cargandoPassword = false;
+        this.errorPassword = error.error?.message || 'Error al cambiar la contraseña';
+      }
+    });
+  }
+
 
   get paginasVisibles(): number[] {
     if (this.totalPaginas <= 2) {
@@ -146,5 +239,17 @@ export class CredentialsListComponent implements OnInit {
     this.cerrarFormulario();
     this.cargarCredenciales(0);
     this.cargarMetricasGenerales();
+  }
+
+  formatearFecha(fechaStr?: string | Date): string {
+    if (!fechaStr) return 'N/D';
+    const fecha = new Date(fechaStr);
+    if (isNaN(fecha.getTime())) return 'N/D';
+
+    return fecha.toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    });
   }
 }

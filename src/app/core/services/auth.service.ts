@@ -296,4 +296,8 @@ export class AuthService {
     }
     return throwError(() => new Error(errorMessage));
   }
+
+  changePasswordByAdmin(data: { email: string; newPassword: string; confirmPassword: string }): Observable<MessageGlobalDTO> {
+  return this.http.post<MessageGlobalDTO>(`${this.apiUrl}/change-password-by-admin`, data);
+}
 }

@@ -26,7 +26,18 @@ export class FilterCredentialsComponent {
     this.abierto = !this.abierto;
   }
 
+  onSearchInput(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.usernameBusqueda = value;
+    this.dispararFiltros();
+  }
+
   onAplicar(): void {
+    this.dispararFiltros();
+    this.abierto = false;
+  }
+
+  private dispararFiltros(): void {
     const filtros: FiltrosCredenciales = {};
 
     if (this.usernameBusqueda.trim()) {
@@ -41,7 +52,6 @@ export class FilterCredentialsComponent {
     filtros.direccion = this.direccionSeleccionado;
 
     this.aplicar.emit(filtros);
-    this.abierto = false;
   }
 
   onLimpiar(): void {
