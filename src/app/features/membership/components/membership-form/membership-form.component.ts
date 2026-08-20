@@ -3,6 +3,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MembershipService } from '../../../../core/services/membership.service';
 import Swal from 'sweetalert2';
+import { forkJoin } from 'rxjs';
+import { catchError, of } from 'rxjs';
 
 // INTERFACES & DTOs
 export interface Plan {
@@ -119,14 +121,13 @@ export class MembershipFormComponent implements OnInit {
 
   cargarPlan(id: number): void {
     this.loading = true;
-    this.membershipService.getMembresiaConSociosActivos(id).subscribe({
+    
+    // ✅ PRIMERO: Obtener la membresía por ID (siempre disponible)
+    this.membershipService.getMembresiaById(id).subscribe({
       next: (data: MembresiaResponseDTO) => {
         const beneficiosArray = data.beneficios
           ? data.beneficios.split(',').map((b) => b.trim()).filter(Boolean)
           : [];
-
-        const socios = data.sociosAsignados || [];
-        this.totalSocios = socios.length;
 
         this.plan = {
           id: data.idMembresia,
@@ -139,10 +140,32 @@ export class MembershipFormComponent implements OnInit {
           incluyeIA: data.incluyeIA ?? false,
           esFlexible: data.esFlexible ?? false,
           activo: data.activo ?? true,
-          miembrosActivos: this.totalSocios.toString(),
+          miembrosActivos: '0',
           revenueEstimado: '0',
         };
-        this.loading = false;
+
+        // ✅ SEGUNDO: Intentar cargar socios (si no hay, solo es 0)
+        this.membershipService.getMembresiaConSociosActivos(id).subscribe({
+          next: (sociosData: any) => {
+            const socios = sociosData?.sociosAsignados || sociosData?.data || [];
+            this.totalSocios = socios.length;
+            this.plan.miembrosActivos = this.totalSocios.toString();
+            this.loading = false;
+          },
+          error: (error: any) => {
+            // ✅ Si es 404 o 400, simplemente no hay socios
+            if (error.status === 404 || error.status === 400) {
+              this.totalSocios = 0;
+              this.plan.miembrosActivos = '0';
+              this.loading = false;
+            } else {
+              console.warn('Error al cargar socios:', error);
+              this.totalSocios = 0;
+              this.plan.miembrosActivos = '0';
+              this.loading = false;
+            }
+          }
+        });
       },
       error: (error: Error) => {
         console.error('Error al cargar el plan:', error);

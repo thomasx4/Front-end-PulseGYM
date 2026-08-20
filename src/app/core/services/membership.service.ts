@@ -53,6 +53,13 @@ export class MembershipService {
     }
 
     /**
+     * Obtiene una membresía por ID (siempre devuelve la membresía, incluso sin socios)
+     */
+    getMembresiaById(idMembresia: number): Observable<any> {
+        return this.http.get(`${this.apiUrl}/membresias/${idMembresia}`);
+    }
+    
+    /**
      * Obtiene todas las membresías con sus socios activos asignados
      */
     getMembresiasConSocios(): Observable<any> {
