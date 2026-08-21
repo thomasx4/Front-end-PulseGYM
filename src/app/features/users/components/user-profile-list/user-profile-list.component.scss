@@ -761,3 +761,85 @@ $radius-xl: 20px;
     background-color: #fef3c7;
     color: #d97706;
 }
+
+// ACCIONES
+
+.acciones-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    flex-wrap: wrap;
+
+    // 👁️ NUEVO BOTÓN VER DETALLE
+    .btn-view {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 6px;
+        border-radius: $radius-sm;
+        font-size: 0.75rem;
+        font-weight: 600;
+        cursor: pointer;
+        background-color: #f0f9ff;
+        color: #0284c7;
+        border: 1px solid #bae6fd;
+        transition: all 0.2s ease;
+        width: 32px;
+        height: 32px;
+
+        &:hover {
+            background-color: #bae6fd;
+            transform: scale(1.05);
+        }
+
+        svg {
+            stroke: currentColor;
+            width: 16px;
+            height: 16px;
+        }
+    }
+
+    .btn-toggle-status {
+        padding: 6px 14px;
+        border-radius: $radius-sm;
+        font-size: 0.75rem;
+        font-weight: 600;
+        cursor: pointer;
+        background-color: #f0fdf4;
+        color: #16a34a;
+        border: 1px solid #bbf7d0;
+        transition: all 0.2s ease;
+
+        &.active {
+            background-color: #fff1f2;
+            color: #e11d48;
+            border-color: #fecdd3;
+        }
+    }
+
+    .btn-edit {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 6px 12px;
+        border-radius: $radius-sm;
+        font-size: 0.75rem;
+        font-weight: 600;
+        cursor: pointer;
+        background-color: #dbeafe;
+        color: #1e40af;
+        border: 1px solid #bfdbfe;
+        transition: all 0.2s ease;
+
+        &:hover {
+            background-color: #bfdbfe;
+        }
+
+        svg {
+            stroke: currentColor;
+            width: 14px;
+            height: 14px;
+        }
+    }
+}

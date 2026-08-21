@@ -229,4 +229,49 @@ export class UserProfileListComponent implements OnInit {
   getTotalInactivos(): number {
     return this.perfiles.filter(p => p.estado === 'INACTIVO').length;
   }
+
+  //  VER DETALLE DEL USUARIO 
+verDetalle(perfil: UserProfile): void {
+    Swal.fire({
+        title: `${perfil.nombre} ${perfil.apellido}`,
+        html: `
+            <div style="text-align: left; font-size: 14px;">
+                <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px;">
+                    <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #1e293b, #0f172a); display: flex; align-items: center; justify-content: center; color: white; font-size: 28px; font-weight: 700; flex-shrink: 0;">
+                        ${perfil.nombre.charAt(0)}${perfil.apellido.charAt(0)}
+                    </div>
+                    <div>
+                        <div style="font-weight: 700; font-size: 18px; color: #0b1a30;">${perfil.nombre} ${perfil.apellido}</div>
+                        <div style="color: #64748b; font-size: 14px;">${perfil.email}</div>
+                        <span style="display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; background: ${perfil.estado === 'ACTIVO' ? '#e6f9f0' : '#f1f3f5'}; color: ${perfil.estado === 'ACTIVO' ? '#00b865' : '#868e96'}; margin-top: 4px;">
+                            ${perfil.estado === 'ACTIVO' ? 'ACTIVO' : 'INACTIVO'}
+                        </span>
+                    </div>
+                </div>
+                
+                <div style="border-top: 1px solid #edf2f7; padding-top: 16px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px;">
+                        <div><strong style="color: #64748b; font-size: 12px;">DOCUMENTO</strong><br><span style="color: #0b1a30;">${perfil.documentoIdentidad || 'N/D'}</span></div>
+                        <div><strong style="color: #64748b; font-size: 12px;">TELÉFONO</strong><br><span style="color: #0b1a30;">${perfil.telefono || 'N/D'}</span></div>
+                        <div><strong style="color: #64748b; font-size: 12px;">ROL</strong><br><span style="color: #0b1a30; text-transform: capitalize;">${perfil.rol || 'Sin rol'}</span></div>
+                        <div><strong style="color: #64748b; font-size: 12px;">FECHA REGISTRO</strong><br><span style="color: #0b1a30;">${this.formatearFecha(perfil.fechaRegistro)}</span></div>
+                        ${perfil.fechaNacimiento ? `<div><strong style="color: #64748b; font-size: 12px;">FECHA NACIMIENTO</strong><br><span style="color: #0b1a30;">${this.formatearFecha(perfil.fechaNacimiento)}</span></div>` : ''}
+                        ${perfil.idSede ? `<div><strong style="color: #64748b; font-size: 12px;">SEDE</strong><br><span style="color: #0b1a30;">${perfil.idSede}</span></div>` : ''}
+                    </div>
+                </div>
+                
+                ${perfil.objetivoPrincipal ? `
+                <div style="border-top: 1px solid #edf2f7; padding-top: 12px; margin-top: 12px;">
+                    <strong style="color: #64748b; font-size: 12px;">OBJETIVO PRINCIPAL</strong>
+                    <p style="color: #0b1a30; margin: 4px 0 0 0;">${perfil.objetivoPrincipal}</p>
+                </div>` : ''}
+            </div>
+        `,
+        icon: 'info',
+        confirmButtonText: 'Cerrar',
+        confirmButtonColor: '#0f1c3f',
+        width: 500,
+        padding: '20px',
+    });
+}
 }
