@@ -1,1 +1,224 @@
-<p>complete-profile works!</p>
+<div class="complete-profile-container">
+
+    <!-- HEADER -->
+    <div class="profile-header">
+        <div class="profile-header__left">
+            <div class="breadcrumb">
+                <a routerLink="/dashboard-admin">Dashboard</a>
+                <span class="breadcrumb-separator">/</span>
+                <span class="breadcrumb-current">Completar Perfil</span>
+            </div>
+            <h1 class="profile-title">Completar Perfil</h1>
+            <p class="profile-subtitle">
+                Complete su información personal para activar su cuenta en Pulse Gym.
+            </p>
+        </div>
+        <div class="profile-header__right">
+            <button class="btn-outline" (click)="cancelar()">
+                Cancelar
+            </button>
+            <button class="btn-primary" (click)="guardar()" [disabled]="!formularioValido || loading">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                    <polyline points="17 21 17 13 7 13 7 21" />
+                    <polyline points="7 3 7 8 15 8" />
+                </svg>
+                {{ loading ? 'Guardando...' : 'Guardar Perfil' }}
+            </button>
+        </div>
+    </div>
+
+    <!-- SPINNER -->
+<!--     <div *ngIf="loading" class="loading-overlay">
+        <div class="spinner"></div>
+        <span>Cargando...</span>
+    </div> -->
+
+    <!-- FORMULARIO -->
+    <div class="profile-form" *ngIf="!loading">
+
+        <!-- FILA 1: Información Personal -->
+        <div class="form-section">
+            <h2 class="section-title">Información Personal</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="nombre">Nombre</label>
+                    <input type="text" id="nombre" [(ngModel)]="perfil.nombre" placeholder="Ej: Juan"
+                        class="form-control" required />
+                </div>
+                <div class="form-group">
+                    <label for="apellido">Apellido</label>
+                    <input type="text" id="apellido" [(ngModel)]="perfil.apellido" placeholder="Ej: Pérez"
+                        class="form-control" required />
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="documento">Documento de Identidad</label>
+                    <input type="text" id="documento" [(ngModel)]="perfil.documentoIdentidad"
+                        placeholder="Ej: 1234567890" class="form-control" required />
+                </div>
+                <div class="form-group">
+                    <label for="telefono">Teléfono</label>
+                    <input type="text" id="telefono" [(ngModel)]="perfil.telefono" placeholder="Ej: +573001234567"
+                        class="form-control" required />
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="fechaNacimiento">Fecha de Nacimiento</label>
+                    <input type="date" id="fechaNacimiento" [(ngModel)]="perfil.fechaNacimiento" class="form-control"
+                        required />
+                </div>
+                <div class="form-group">
+                    <label for="sede">Sede</label>
+                    <select id="sede" [(ngModel)]="perfil.idSede" class="form-control" required>
+                        <option value="">Seleccione una sede</option>
+                        <option value="1">Sede Principal - Centro</option>
+                        <option value="2">Sede Norte</option>
+                        <option value="3">Sede Sur</option>
+                        <option value="4">Sede Este</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="fotoUrl">URL de Foto de Perfil</label>
+                <input type="text" id="fotoUrl" [(ngModel)]="perfil.fotoUrl" placeholder="https://ejemplo.com/foto.jpg"
+                    class="form-control" />
+                <small class="hint">Ingrese una URL válida para su foto de perfil</small>
+            </div>
+        </div>
+
+        <!-- FILA 2: Contacto de Emergencia -->
+        <div class="form-section">
+            <h2 class="section-title">Contacto de Emergencia</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="emergenciaNombre">Nombre del Contacto</label>
+                    <input type="text" id="emergenciaNombre" [(ngModel)]="perfil.contactoEmergenciaNombre"
+                        placeholder="Ej: María Gómez" class="form-control" required />
+                </div>
+                <div class="form-group">
+                    <label for="emergenciaTelefono">Teléfono del Contacto</label>
+                    <input type="text" id="emergenciaTelefono" [(ngModel)]="perfil.contactoEmergenciaTelefono"
+                        placeholder="Ej: +573009876543" class="form-control" required />
+                </div>
+            </div>
+        </div>
+
+        <!-- FILA 3: Información Específica según Rol -->
+        <div class="form-section" *ngIf="esSocio || esEntrenador">
+            <h2 class="section-title">Información de {{ esSocio ? 'Socio' : 'Entrenador' }}</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="objetivo">Objetivo Principal</label>
+                    <input type="text" id="objetivo" [(ngModel)]="perfil.objetivoPrincipal"
+                        placeholder="Ej: Aumentar masa muscular" class="form-control" required />
+                </div>
+                <div class="form-group">
+                    <label for="nivel">Nivel de Experiencia</label>
+                    <select id="nivel" [(ngModel)]="perfil.nivelExperiencia" class="form-control" required>
+                        <option value="principiante">Principiante</option>
+                        <option value="intermedio">Intermedio</option>
+                        <option value="avanzado">Avanzado</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- FILA 4: Información para Entrenador -->
+        <div class="form-section" *ngIf="esEntrenador">
+            <h2 class="section-title">Información Profesional</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="fechaContratacion">Fecha de Contratación</label>
+                    <input type="date" id="fechaContratacion" [(ngModel)]="perfil.fechaContratacion"
+                        class="form-control" required />
+                </div>
+                <div class="form-group">
+                    <label for="especialidad">Especialidad</label>
+                    <input type="text" id="especialidad" [(ngModel)]="perfil.especialidad"
+                        placeholder="Ej: Entrenamiento Funcional" class="form-control" required />
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="anosExperiencia">Años de Experiencia</label>
+                    <input type="number" id="anosExperiencia" [(ngModel)]="perfil.anosExperiencia" min="0" max="50"
+                        placeholder="5" class="form-control" required />
+                </div>
+                <div class="form-group">
+                    <label for="tarifaHora">Tarifa por Hora (COP)</label>
+                    <div class="input-prefix">
+                        <span class="prefix">$</span>
+                        <input type="number" id="tarifaHora" [(ngModel)]="perfil.tarifaHora" placeholder="50000"
+                            class="form-control" required />
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="horario">Horario de Disponibilidad</label>
+                <input type="text" id="horario" [(ngModel)]="perfil.horarioDisponibilidad"
+                    placeholder="Ej: Lunes a Viernes 8am - 6pm" class="form-control" required />
+            </div>
+            <div class="form-group">
+                <label for="turno">Turno de Trabajo</label>
+                <select id="turno" [(ngModel)]="perfil.turno" class="form-control" required>
+                    <option value="">Seleccione un turno</option>
+                    <option value="MAÑANA">Mañana</option>
+                    <option value="TARDE">Tarde</option>
+                    <option value="NOCHE">Noche</option>
+                    <option value="COMPLETO">Completo</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- FILA 5: Información para Recepcionista -->
+        <div class="form-section" *ngIf="esRecepcionista">
+            <h2 class="section-title">Información Laboral</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="fechaContratacion">Fecha de Contratación</label>
+                    <input type="date" id="fechaContratacion" [(ngModel)]="perfil.fechaContratacion"
+                        class="form-control" required />
+                </div>
+                <div class="form-group">
+                    <label for="turno">Turno de Trabajo</label>
+                    <select id="turno" [(ngModel)]="perfil.turno" class="form-control" required>
+                        <option value="">Seleccione un turno</option>
+                        <option value="MAÑANA">Mañana</option>
+                        <option value="TARDE">Tarde</option>
+                        <option value="NOCHE">Noche</option>
+                        <option value="COMPLETO">Completo</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- FILA 6: Información para Administrador -->
+        <div class="form-section" *ngIf="esAdmin">
+            <h2 class="section-title">Información Administrativa</h2>
+            <div class="form-group">
+                <label for="fechaContratacion">Fecha de Contratación</label>
+                <input type="date" id="fechaContratacion" [(ngModel)]="perfil.fechaContratacion" class="form-control"
+                    required />
+            </div>
+        </div>
+
+        <!-- BOTONES -->
+        <div class="form-actions">
+            <button class="btn-outline" (click)="cancelar()">
+                Cancelar
+            </button>
+            <button class="btn-primary" (click)="guardar()" [disabled]="!formularioValido || loading">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                    <polyline points="17 21 17 13 7 13 7 21" />
+                    <polyline points="7 3 7 8 15 8" />
+                </svg>
+                {{ loading ? 'Guardando...' : 'Guardar Perfil' }}
+            </button>
+        </div>
+
+    </div>
+</div>
