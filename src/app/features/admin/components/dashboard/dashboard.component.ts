@@ -97,7 +97,7 @@ export class DashboardComponent implements OnInit {
   }
 
   irAAsignarMembresia(): void {
-    this.router.navigate(['/dashboard-admin/memberships/assign']); 
+    this.router.navigate(['/dashboard-admin/memberships/assign']);
   }
 
   // LIFECYCLE HOOKS
@@ -147,21 +147,38 @@ export class DashboardComponent implements OnInit {
       });
   }
 
-  // CARGAR ESTADÍSTICAS DE USUARIOS
   private async cargarEstadisticasUsuarios(): Promise<void> {
     try {
-      const [total, activos, inactivos, nuevos] = await Promise.all([
-        this.dashboardService.getTotalUsuarios().toPromise(),
-        this.dashboardService.getUsuariosActivos().toPromise(),
-        this.dashboardService.getUsuariosInactivos().toPromise(),
-        this.dashboardService.getNuevosDelMes().toPromise(),
-      ]);
-      this.statsUsuarios[0].valor = total?.length || 0;
-      this.statsUsuarios[1].valor = activos?.length || 0;
-      this.statsUsuarios[2].valor = inactivos?.length || 0;
-      this.statsUsuarios[3].valor = nuevos?.length || 0;
+      const usuarios = await this.dashboardService.getTotalUsuarios().toPromise();
+
+      const totalUsuarios = usuarios?.length || 0;
+      const usuariosActivos = usuarios?.filter((u: any) => u.estado === 'ACTIVO') || [];
+      const usuariosInactivos = usuarios?.filter((u: any) => u.estado === 'INACTIVO') || [];
+
+      const ahora = new Date();
+      const mesActual = ahora.getMonth();
+      const anioActual = ahora.getFullYear();
+
+      const nuevosDelMes = usuarios?.filter((u: any) => {
+        if (!u.fechaRegistro) return false;
+
+        const fechaRegistro = new Date(u.fechaRegistro);
+
+        return fechaRegistro.getMonth() === mesActual &&
+          fechaRegistro.getFullYear() === anioActual;
+      }) || [];
+
+      this.statsUsuarios[0].valor = totalUsuarios;
+      this.statsUsuarios[1].valor = usuariosActivos.length;
+      this.statsUsuarios[2].valor = usuariosInactivos.length;
+      this.statsUsuarios[3].valor = nuevosDelMes.length;
+
     } catch (error) {
       console.error('Error al cargar estadísticas de usuarios:', error);
+      this.statsUsuarios[0].valor = 0;
+      this.statsUsuarios[1].valor = 0;
+      this.statsUsuarios[2].valor = 0;
+      this.statsUsuarios[3].valor = 0;
     }
   }
 
