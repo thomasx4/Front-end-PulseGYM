@@ -9,7 +9,6 @@ import { CredentialsListComponent } from './components/credentials-list/credenti
 import { ForgotComponent } from './components/forgot/forgot.component';
 import { SharedModule } from '../../shared/shared.module';
 import { FilterCredentialsComponent } from './components/filter-credentials/filter-credentials.component';
-import { CompleteProfileComponent } from './components/complete-profile/complete-profile.component';
 
 @NgModule({
   declarations: [
@@ -17,8 +16,7 @@ import { CompleteProfileComponent } from './components/complete-profile/complete
     RegisterCredentialsComponent,
     CredentialsListComponent,
     ForgotComponent,
-    FilterCredentialsComponent,
-    CompleteProfileComponent
+    FilterCredentialsComponent
   ],
   imports: [
     CommonModule,
