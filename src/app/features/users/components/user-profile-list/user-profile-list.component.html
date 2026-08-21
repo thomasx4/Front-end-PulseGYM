@@ -1,1 +1,235 @@
-<p>user-profile-list works!</p>
+<div class="user-profile-container">
+
+    <!--  HEADER  -->
+    <header class="page-header">
+        <div>
+            <h1 class="page-title">Gestión de Usuarios</h1>
+            <p class="page-subtitle">Administra los perfiles de usuarios registrados en el sistema.</p>
+        </div>
+        <button class="btn-primary" (click)="editarPerfil(undefined)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            Agregar Usuario
+        </button>
+    </header>
+
+    <!--  FILTROS  -->
+    <div class="filters-section" *ngIf="!loading">
+        <div class="filters-row">
+            <div class="filter-group">
+                <input type="text" placeholder="Buscar usuarios..." [(ngModel)]="searchTerm"
+                    (input)="aplicarFiltros()" />
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+            </div>
+            <div class="filter-group">
+                <select [(ngModel)]="filtroRol" (change)="aplicarFiltros()">
+                    <option value="todos">Todos los roles</option>
+                    <option value="administrador">Administrador</option>
+                    <option value="entrenador">Entrenador</option>
+                    <option value="recepcionista">Recepcionista</option>
+                    <option value="socio">Socio</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <select [(ngModel)]="filtroEstado" (change)="aplicarFiltros()">
+                    <option value="todos">Todos los estados</option>
+                    <option value="activo">Activo</option>
+                    <option value="inactivo">Inactivo</option>
+                </select>
+            </div>
+            <!-- BOTÓN LIMPIAR FILTROS -->
+            <button class="btn-clear-filters" (click)="limpiarFiltros()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+                Limpiar filtros
+            </button>
+        </div>
+    </div>
+
+    <!--  TABLA  -->
+    <section class="table-card">
+        <div *ngIf="errorMensaje" class="alert-error">
+            {{ errorMensaje }}
+        </div>
+
+        <div class="table-responsive" *ngIf="perfilesFiltrados.length > 0">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>USUARIO</th>
+                        <th>ROL / RANGO</th>
+                        <th>ESTADO</th>
+                        <th>MIEMBRO DESDE</th>
+                        <th class="text-right">ACCIONES</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let perfil of perfilesPaginados">
+                        <td>
+                            <div class="user-cell">
+                                <div class="avatar-circle">
+                                    <span class="avatar-initials">{{ perfil.nombre.charAt(0) }}{{
+                                        perfil.apellido.charAt(0) }}</span>
+                                </div>
+                                <div class="user-details">
+                                    <span class="user-name">{{ perfil.nombre }} {{ perfil.apellido }}</span>
+                                    <span class="user-email">{{ perfil.email }}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="role-cell">
+                                <span class="role-dot"></span>
+                                <span class="role-name">{{ perfil.rol || 'Sin rol' }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge-status" [class.activo]="perfil.estado === 'ACTIVO'"
+                                [class.inactivo]="perfil.estado === 'INACTIVO'">
+                                {{ perfil.estado === 'ACTIVO' ? 'ACTIVO' : 'INACTIVO' }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="member-date">{{ formatearFecha(perfil.fechaRegistro) }}</span>
+                        </td>
+                        <td class="text-right">
+                            <div class="acciones-container">
+                                <button class="btn-toggle-status" [class.active]="perfil.estado === 'ACTIVO'"
+                                    (click)="toggleEstado(perfil)">
+                                    {{ perfil.estado === 'ACTIVO' ? 'Desactivar' : 'Activar' }}
+                                </button>
+                                <button class="btn-edit" (click)="editarPerfil(perfil)">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                                    </svg>
+                                    Editar
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div *ngIf="perfilesFiltrados.length === 0 && !loading" class="empty-state">
+            No se encontraron usuarios
+        </div>
+
+        <!--  PAGINACIÓN  -->
+        <footer *ngIf="totalPaginas > 0" class="table-footer">
+            <div class="showing-text">
+                Mostrando <strong>{{ inicio }}</strong> a <strong>{{ fin }}</strong> de <strong>{{ totalElementos
+                    }}</strong> usuarios
+            </div>
+
+            <div class="pagination-wrapper">
+                <button class="page-arrow" [disabled]="paginaActual === 1" (click)="paginaAnterior()">‹</button>
+
+                <button *ngFor="let p of paginasVisibles" class="page-number" [class.active]="p === paginaActual"
+                    (click)="irPagina(p)">
+                    {{ p }}
+                </button>
+
+                <button class="page-arrow" [disabled]="paginaActual === totalPaginas"
+                    (click)="paginaSiguiente()">›</button>
+            </div>
+        </footer>
+    </section>
+
+    <!--  MÉTRICAS  -->
+    <section class="metrics-section">
+        <div class="metrics-header">
+            <h2 class="metrics-title">Panel de Métricas</h2>
+        </div>
+
+        <div class="metrics-grid">
+            <!-- Total de Usuarios - Tarjeta Principal -->
+            <div class="metric-card main-card">
+                <div class="metric-icon main-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                        <circle cx="9" cy="7" r="4" />
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                    </svg>
+                </div>
+                <div class="metric-content">
+                    <span class="metric-label">Total Usuarios</span>
+                    <span class="metric-value">{{ perfiles.length }}</span>
+                </div>
+            </div>
+
+            <!-- Administradores -->
+            <div class="metric-card admin-card">
+                <div class="metric-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                        <polyline points="22 4 12 14.01 9 11.01" />
+                    </svg>
+                </div>
+                <div class="metric-content">
+                    <span class="metric-label">Administrador</span>
+                    <span class="metric-value">{{ getTotalPorRol('administrador') }}</span>
+                    <span class="metric-sub">En servicio</span>
+                </div>
+            </div>
+
+            <!-- Entrenadores -->
+            <div class="metric-card trainer-card">
+                <div class="metric-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                        <path d="M9 12l2 2 4-4" />
+                    </svg>
+                </div>
+                <div class="metric-content">
+                    <span class="metric-label">Entrenadores</span>
+                    <span class="metric-value">{{ getTotalPorRol('entrenador') }}</span>
+                    <span class="metric-sub">En activo</span>
+                </div>
+            </div>
+
+            <!-- Recepcionistas -->
+            <div class="metric-card receptionist-card">
+                <div class="metric-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                        <path d="M2 17l10 5 10-5" />
+                        <path d="M2 12l10 5 10-5" />
+                    </svg>
+                </div>
+                <div class="metric-content">
+                    <span class="metric-label">Recepcionistas</span>
+                    <span class="metric-value">{{ getTotalPorRol('recepcionista') }}</span>
+                    <span class="metric-sub">En servicio</span>
+                </div>
+            </div>
+
+            <!-- Socios -->
+            <div class="metric-card member-card">
+                <div class="metric-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                        <circle cx="9" cy="7" r="4" />
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                    </svg>
+                </div>
+                <div class="metric-content">
+                    <span class="metric-label">Socios</span>
+                    <span class="metric-value">{{ getTotalPorRol('socio') }}</span>
+                    <span class="metric-sub">Activos</span>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
