@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { UserService } from '../../../../core/services/user.service';
 import Swal from 'sweetalert2';
 
@@ -48,10 +49,23 @@ export class UserProfileListComponent implements OnInit {
   filtroRol: string = 'todos';
   filtroEstado: string = 'todos';
 
-  constructor(private userService: UserService) {}
+  constructor(
+    private userService: UserService,
+    private router: Router
+  ) { }
 
   ngOnInit(): void {
     this.cargarPerfiles();
+  }
+
+  onImageError(perfil: UserProfile): void {
+    perfil.fotoUrl = '';
+  }
+
+  private ordenarPerfiles(perfiles: UserProfile[]): UserProfile[] {
+    return perfiles.sort((a, b) => {
+      return b.idUsuario - a.idUsuario;
+    });
   }
 
   cargarPerfiles(): void {
@@ -60,7 +74,7 @@ export class UserProfileListComponent implements OnInit {
 
     this.userService.obtenerTodosLosPerfiles().subscribe({
       next: (data: UserProfile[]) => {
-        this.perfiles = data;
+        this.perfiles = this.ordenarPerfiles(data);
         this.aplicarFiltros();
         this.loading = false;
       },
@@ -75,7 +89,6 @@ export class UserProfileListComponent implements OnInit {
   aplicarFiltros(): void {
     let filtrados = [...this.perfiles];
 
-    // Filtro por búsqueda
     if (this.searchTerm.trim()) {
       const term = this.searchTerm.toLowerCase().trim();
       filtrados = filtrados.filter(p =>
@@ -86,18 +99,16 @@ export class UserProfileListComponent implements OnInit {
       );
     }
 
-    // Filtro por rol
     if (this.filtroRol !== 'todos') {
       filtrados = filtrados.filter(p => p.rol?.toLowerCase() === this.filtroRol);
     }
 
-    // Filtro por estado
     if (this.filtroEstado !== 'todos') {
       filtrados = filtrados.filter(p => p.estado.toLowerCase() === this.filtroEstado);
     }
 
-    this.perfilesFiltrados = filtrados;
-    this.totalElementos = filtrados.length;
+    this.perfilesFiltrados = this.ordenarPerfiles(filtrados);
+    this.totalElementos = this.perfilesFiltrados.length;
     this.paginaActual = 1;
   }
 
@@ -152,10 +163,30 @@ export class UserProfileListComponent implements OnInit {
     if (this.paginaActual < this.totalPaginas) this.paginaActual++;
   }
 
-  //  ACCIONES 
+  
+  // ACCIONES
+  
+
+  // VER DETALLE
+verDetalle(perfil: UserProfile): void {
+    this.router.navigate(['/dashboard-admin/users/profiles/detail', perfil.idUsuario]);
+}
+
+  // EDITAR PERFIL
+  editarPerfil(perfil?: UserProfile): void {
+    if (perfil) {
+      console.log('✏️ Editar perfil:', perfil.idUsuario);
+      this.router.navigate(['/dashboard-admin/users/profiles/edit', perfil.idUsuario]);
+    } else {
+      console.log('➕ Crear nuevo perfil');
+      this.router.navigate(['/dashboard-admin/users/profiles/new']);
+    }
+  }
+
+  // CAMBIAR ESTADO
   toggleEstado(perfil: UserProfile): void {
     const nuevoEstado = perfil.estado === 'ACTIVO' ? 'INACTIVO' : 'ACTIVO';
-    
+
     Swal.fire({
       title: '¿Confirmar cambio de estado?',
       text: `¿Estás seguro de que deseas ${nuevoEstado === 'ACTIVO' ? 'activar' : 'desactivar'} a "${perfil.nombre} ${perfil.apellido}"?`,
@@ -189,16 +220,6 @@ export class UserProfileListComponent implements OnInit {
     });
   }
 
-  editarPerfil(perfil?: UserProfile): void {
-    if (perfil) {
-      console.log('Editar perfil:', perfil);
-      // TODO: Navegar a editar perfil
-    } else {
-      console.log('Crear nuevo perfil');
-      // TODO: Navegar a crear perfil
-    }
-  }
-
   //  OBTENER CLASE DEL ROL 
   getRolClass(rol: string): string {
     if (!rol) return 'rol-default';
@@ -217,7 +238,6 @@ export class UserProfileListComponent implements OnInit {
     return date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
   }
 
-  //  MÉTRICAS 
   getTotalPorRol(rol: string): number {
     return this.perfiles.filter(p => p.rol?.toLowerCase() === rol.toLowerCase()).length;
   }
@@ -229,49 +249,4 @@ export class UserProfileListComponent implements OnInit {
   getTotalInactivos(): number {
     return this.perfiles.filter(p => p.estado === 'INACTIVO').length;
   }
-
-  //  VER DETALLE DEL USUARIO 
-verDetalle(perfil: UserProfile): void {
-    Swal.fire({
-        title: `${perfil.nombre} ${perfil.apellido}`,
-        html: `
-            <div style="text-align: left; font-size: 14px;">
-                <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px;">
-                    <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #1e293b, #0f172a); display: flex; align-items: center; justify-content: center; color: white; font-size: 28px; font-weight: 700; flex-shrink: 0;">
-                        ${perfil.nombre.charAt(0)}${perfil.apellido.charAt(0)}
-                    </div>
-                    <div>
-                        <div style="font-weight: 700; font-size: 18px; color: #0b1a30;">${perfil.nombre} ${perfil.apellido}</div>
-                        <div style="color: #64748b; font-size: 14px;">${perfil.email}</div>
-                        <span style="display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; background: ${perfil.estado === 'ACTIVO' ? '#e6f9f0' : '#f1f3f5'}; color: ${perfil.estado === 'ACTIVO' ? '#00b865' : '#868e96'}; margin-top: 4px;">
-                            ${perfil.estado === 'ACTIVO' ? 'ACTIVO' : 'INACTIVO'}
-                        </span>
-                    </div>
-                </div>
-                
-                <div style="border-top: 1px solid #edf2f7; padding-top: 16px;">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px;">
-                        <div><strong style="color: #64748b; font-size: 12px;">DOCUMENTO</strong><br><span style="color: #0b1a30;">${perfil.documentoIdentidad || 'N/D'}</span></div>
-                        <div><strong style="color: #64748b; font-size: 12px;">TELÉFONO</strong><br><span style="color: #0b1a30;">${perfil.telefono || 'N/D'}</span></div>
-                        <div><strong style="color: #64748b; font-size: 12px;">ROL</strong><br><span style="color: #0b1a30; text-transform: capitalize;">${perfil.rol || 'Sin rol'}</span></div>
-                        <div><strong style="color: #64748b; font-size: 12px;">FECHA REGISTRO</strong><br><span style="color: #0b1a30;">${this.formatearFecha(perfil.fechaRegistro)}</span></div>
-                        ${perfil.fechaNacimiento ? `<div><strong style="color: #64748b; font-size: 12px;">FECHA NACIMIENTO</strong><br><span style="color: #0b1a30;">${this.formatearFecha(perfil.fechaNacimiento)}</span></div>` : ''}
-                        ${perfil.idSede ? `<div><strong style="color: #64748b; font-size: 12px;">SEDE</strong><br><span style="color: #0b1a30;">${perfil.idSede}</span></div>` : ''}
-                    </div>
-                </div>
-                
-                ${perfil.objetivoPrincipal ? `
-                <div style="border-top: 1px solid #edf2f7; padding-top: 12px; margin-top: 12px;">
-                    <strong style="color: #64748b; font-size: 12px;">OBJETIVO PRINCIPAL</strong>
-                    <p style="color: #0b1a30; margin: 4px 0 0 0;">${perfil.objetivoPrincipal}</p>
-                </div>` : ''}
-            </div>
-        `,
-        icon: 'info',
-        confirmButtonText: 'Cerrar',
-        confirmButtonColor: '#0f1c3f',
-        width: 500,
-        padding: '20px',
-    });
-}
 }

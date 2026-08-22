@@ -13,7 +13,6 @@ export class UserService {
 
     /**
      * Completa el perfil de un usuario
-     * POST /pg-ms-users/api/v1/usuarios/completar-perfil
      */
     completarPerfil(data: any): Observable<any> {
         return this.http.post(`${this.apiUrl}/completar-perfil`, data);
@@ -21,7 +20,6 @@ export class UserService {
 
     /**
      * Obtiene el perfil de un usuario por email
-     * GET /pg-ms-users/api/v1/usuarios/email/{email}
      */
     obtenerPerfilPorEmail(email: string): Observable<any> {
         return this.http.get(`${this.apiUrl}/email/${email}`);
@@ -29,7 +27,6 @@ export class UserService {
 
     /**
      * Obtiene el perfil de un usuario por ID
-     * GET /pg-ms-users/api/v1/usuarios/{id}
      */
     obtenerPerfilPorId(id: number): Observable<any> {
         return this.http.get(`${this.apiUrl}/${id}`);
@@ -37,7 +34,6 @@ export class UserService {
 
     /**
      * Obtiene todos los perfiles de usuarios
-     * GET /pg-ms-users/api/v1/usuarios
      */
     obtenerTodosLosPerfiles(): Observable<any> {
         return this.http.get(`${this.apiUrl}`);
@@ -45,7 +41,6 @@ export class UserService {
 
     /**
      * Actualiza el perfil de un usuario
-     * PUT /pg-ms-users/api/v1/usuarios/{id}
      */
     actualizarPerfil(id: number, data: any): Observable<any> {
         return this.http.put(`${this.apiUrl}/${id}`, data);
@@ -53,9 +48,18 @@ export class UserService {
 
     /**
      * Cambia el estado de un perfil de usuario
-     * PATCH /pg-ms-users/api/v1/usuarios/{id}/estado
      */
     cambiarEstadoPerfil(id: number, estado: string): Observable<any> {
         return this.http.patch(`${this.apiUrl}/${id}/estado?estado=${estado}`, {});
+    }
+
+
+    /**
+     * Verificar usuario en Auth
+     */
+    verificarUsuarioAuth(email: string): Observable<any> {
+        return this.http.get(`${this.apiUrl}/auth/verificar-usuario`, {
+            params: { email }
+        });
     }
 }

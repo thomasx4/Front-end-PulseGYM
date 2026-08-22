@@ -75,8 +75,14 @@
                         <td>
                             <div class="user-cell">
                                 <div class="avatar-circle">
-                                    <span class="avatar-initials">{{ perfil.nombre.charAt(0) }}{{
-                                        perfil.apellido.charAt(0) }}</span>
+                                    <img *ngIf="perfil.fotoUrl && perfil.fotoUrl !== ''; else initials"
+                                        [src]="perfil.fotoUrl" [alt]="perfil.nombre + ' ' + perfil.apellido"
+                                        class="avatar-image" crossOrigin="anonymous" loading="lazy"
+                                        (error)="onImageError(perfil)" />
+                                    <ng-template #initials>
+                                        <span class="avatar-initials">{{ perfil.nombre.charAt(0) }}{{
+                                            perfil.apellido.charAt(0) }}</span>
+                                    </ng-template>
                                 </div>
                                 <div class="user-details">
                                     <span class="user-name">{{ perfil.nombre }} {{ perfil.apellido }}</span>
