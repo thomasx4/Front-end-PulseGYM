@@ -4,11 +4,13 @@ import { FormsModule } from '@angular/forms';
 
 import { UsersRoutingModule } from './users-routing.module';
 import { UserProfileListComponent } from './components/user-profile-list/user-profile-list.component';
+import { UserFormComponent } from './components/user-form/user-form.component';
 
 
 @NgModule({
   declarations: [
-    UserProfileListComponent
+    UserProfileListComponent,
+    UserFormComponent
   ],
   imports: [
     CommonModule,
