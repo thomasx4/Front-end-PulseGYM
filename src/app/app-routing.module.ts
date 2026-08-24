@@ -29,11 +29,16 @@ const routes: Routes = [
                 path: 'users',
                 component: CredentialsListComponent,
             },
-{
-    path: 'memberships',
-    loadChildren: () => 
-        import('./features/membership/membership.module').then((m) => m.MembershipModule),
-},
+            {
+                path: 'memberships',
+                loadChildren: () =>
+                    import('./features/membership/membership.module').then((m) => m.MembershipModule),
+            },
+            {
+                path: 'attendance',
+                loadChildren: () =>
+                    import('./features/attendance/attendance.module').then((m) => m.AttendanceModule),
+            },
         ],
     },
     {

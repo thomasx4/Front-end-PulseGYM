@@ -3,13 +3,13 @@ import { CommonModule } from '@angular/common';
 
 import { AttendanceRoutingModule } from './attendance-routing.module';
 import { AttendanceListComponent } from './components/attendance-list/attendance-list.component';
-import { AttendanceSummaryComponent } from './components/attendance-summary/attendance-summary.component';
+import { AttendanceHistoryComponent } from './components/attendance-history/attendance-history.component';
 
 
 @NgModule({
   declarations: [
     AttendanceListComponent,
-    AttendanceSummaryComponent
+    AttendanceHistoryComponent,
   ],
   imports: [
     CommonModule,

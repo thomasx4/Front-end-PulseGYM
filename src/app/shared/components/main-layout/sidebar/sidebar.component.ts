@@ -18,7 +18,9 @@ interface MenuItem {
 export class SidebarComponent {
   menuItems: MenuItem[] = [];
   membershipChildren: MenuItem[] = [];
+  attendanceChildren: MenuItem[] = [];
   isMembershipOpen: boolean = false;
+  isAttendanceOpen: boolean = false;
 
   constructor(
     private sanitizer: DomSanitizer,
@@ -38,12 +40,29 @@ export class SidebarComponent {
       </svg>
     `);
 
+    const historyIcon = this.sanitizer.bypassSecurityTrustHtml(`
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+        <g id="SVGRepo_iconCarrier"> 
+        <path d="M7 3V6M17 3V6M7.10002 20C7.56329 17.7178 9.58104 16 12 16C14.419 16 16.4367 17.7178 16.9 20M6.2 21H17.8C18.9201 21 19.4802 21 19.908 20.782C20.2843 20.5903 20.5903 20.2843 20.782 19.908C21 19.4802 21 18.9201 21 17.8V8.2C21 7.07989 21 6.51984 20.782 6.09202C20.5903 5.71569 20.2843 5.40973 19.908 5.21799C19.4802 5 18.9201 5 17.8 5H6.2C5.0799 5 4.51984 5 4.09202 5.21799C3.71569 5.40973 3.40973 5.71569 3.21799 6.09202C3 6.51984 3 7.07989 3 8.2V17.8C3 18.9201 3 19.4802 3.21799 19.908C3.40973 20.2843 3.71569 20.5903 4.09202 20.782C4.51984 21 5.07989 21 6.2 21ZM14 11C14 12.1046 13.1046 13 12 13C10.8954 13 10 12.1046 10 11C10 9.89543 10.8954 9 12 9C13.1046 9 14 9.89543 14 11Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g>
+      </svg>
+    `);
+
     // ITEMS DEL SUBMENÚ DE MEMBRESÍAS (SOLO ASIGNAR)
     this.membershipChildren = [
       {
         label: 'Asignar Membresía',
         route: '/dashboard-admin/memberships/assign',
         iconHtml: assignIcon,
+      }
+    ];
+
+    this.attendanceChildren = [
+      {
+        label: 'Historial Accesos',
+        route: '/dashboard-admin/attendance/history',
+        iconHtml: historyIcon,
       }
     ];
 
@@ -69,16 +88,6 @@ export class SidebarComponent {
           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="sidebar__nav-icon">
             <g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
             <g id="SVGRepo_iconCarrier"> <path d="M13 20V18C13 15.2386 10.7614 13 8 13C5.23858 13 3 15.2386 3 18V20H13ZM13 20H21V19C21 16.0545 18.7614 14 16 14C14.5867 14 13.3103 14.6255 12.4009 15.6311M11 7C11 8.65685 9.65685 10 8 10C6.34315 10 5 8.65685 5 7C5 5.34315 6.34315 4 8 4C9.65685 4 11 5.34315 11 7ZM18 9C18 10.1046 17.1046 11 16 11C14.8954 11 14 10.1046 14 9C14 7.89543 14.8954 7 16 7C17.1046 7 18 7.89543 18 9Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g>
-          </svg>
-        `),
-      },
-      {
-        label: 'Attendance',
-        route: 'dashboard-admin/attendance',
-        iconHtml: this.sanitizer.bypassSecurityTrustHtml(`
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="sidebar__nav-icon">
-            <g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-            <g id="SVGRepo_iconCarrier"> <path d="M14 19.2857L15.8 21L20 17M4 21C4 17.134 7.13401 14 11 14C12.4872 14 13.8662 14.4638 15 15.2547M15 7C15 9.20914 13.2091 11 11 11C8.79086 11 7 9.20914 7 7C7 4.79086 8.79086 3 11 3C13.2091 3 15 4.79086 15 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g>
           </svg>
         `),
       },
@@ -119,14 +128,31 @@ export class SidebarComponent {
     `);
   }
 
+  getAttendanceIcon(): SafeHtml {
+    return this.sanitizer.bypassSecurityTrustHtml(`
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> 
+        <path d="M14 19.2857L15.8 21L20 17M4 21C4 17.134 7.13401 14 11 14C12.4872 14 13.8662 14.4638 15 15.2547M15 7C15 9.20914 13.2091 11 11 11C8.79086 11 7 9.20914 7 7C7 4.79086 8.79086 3 11 3C13.2091 3 15 4.79086 15 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g>
+      </svg>
+    `)
+  }
+
   // VERIFICAR SI ALGUNA RUTA DE MEMBRESÍAS ESTÁ ACTIVA
   isMembershipActive(): boolean {
     const url = this.router.url;
     return url.includes('/dashboard-admin/memberships');
   }
 
+  isAttendanceActive(): boolean {
+    const url = this.router.url;
+    return url.includes('/dashboard-admin/attendance');
+  }
+
   goToMembershipList(): void {
     this.router.navigate(['/dashboard-admin/memberships/list']);
+  }
+
+  goToAttendanceList(): void {
+    this.router.navigate(['/dashboard-admin/attendance/list']);
   }
 
   onLogout() {
