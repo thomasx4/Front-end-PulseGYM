@@ -1,0 +1,232 @@
+<div class="profile-layout">
+    <app-user-sidebar></app-user-sidebar>
+
+    <main class="profile-main">
+        <!-- Header -->
+        <header class="profile-header">
+            <div class="header-title">
+                <h1>Mi Perfil</h1>
+                <p>Gestiona tu informacion personal y membresia</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn-edit" (click)="editProfile()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                    Editar perfil
+                </button>
+            </div>
+        </header>
+
+        <!-- Grid de contenido -->
+        <div class="profile-grid">
+            <!-- Columna izquierda -->
+            <div class="profile-left">
+                <!-- Tarjeta de perfil -->
+                <div class="profile-card">
+                    <div class="profile-avatar">
+                        <div class="avatar-placeholder">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.5">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                        </div>
+                        <button class="btn-change-photo">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path
+                                    d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z">
+                                </path>
+                                <circle cx="12" cy="13" r="4"></circle>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="profile-info" *ngIf="user">
+                        <h2 class="profile-name">{{ user.nombre }} {{ user.apellido }}</h2>
+                        <p class="profile-username">&#64;{{ user.username }}</p>
+                        <span class="profile-role" *ngIf="user.role">{{ user.role }}</span>
+                    </div>
+                </div>
+
+                <!-- Datos basicos -->
+                <div class="info-section">
+                    <h3 class="section-title">Datos basicos</h3>
+                    
+                    <div class="info-grid" *ngIf="user">
+                        <div class="info-item">
+                            <span class="info-label">Nombre completo</span>
+                            <span class="info-value">{{ user.nombre }} {{ user.apellido }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Documento</span>
+                            <span class="info-value">{{ user.documentoIdentidad }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Teléfono</span>
+                            <span class="info-value">{{ user.telefono }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Fecha de nacimiento</span>
+                            <span class="info-value">{{ user.fechaNacimiento | date:'dd/MM/yyyy' }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Objetivo</span>
+                            <span class="info-value">{{ user.objetivoPrincipal }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Nivel</span>
+                            <span class="info-value">{{ user.nivelExperiencia | titlecase }}</span>
+                        </div>
+                    </div>
+
+                    <div class="empty-state" *ngIf="!user">
+                        <p style="color: #8898aa; font-size: 14px; padding: 12px 0;">No hay datos personales registrados.</p>
+                    </div>
+                </div>
+
+                <!-- Documentos -->
+                <div class="info-section">
+                    <h3 class="section-title">Documentos</h3>
+                    
+                    <div class="documents-list" *ngIf="documents && documents.length > 0">
+                        <div class="document-item" *ngFor="let doc of documents">
+                            <span>{{ doc.tipoDocumento }}</span>
+                            <button class="btn-download" (click)="downloadDocument(doc.urlArchivoFirmado)">
+                                Descargar
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="empty-state" *ngIf="!documents || documents.length === 0">
+                        <p style="color: #8898aa; font-size: 14px; padding: 12px 0;">No hay documentos disponibles.</p>
+                    </div>
+                </div>
+
+                <!-- Contacto de emergencia -->
+                <div class="info-section">
+                    <h3 class="section-title">Contacto de emergencia</h3>
+                    
+                    <div class="emergency-card" *ngIf="emergencyContact">
+                        <div class="emergency-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path
+                                    d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z">
+                                </path>
+                                <line x1="12" y1="9" x2="12" y2="13"></line>
+                                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                            </svg>
+                        </div>
+                        <div class="emergency-info">
+                            <h4>{{ emergencyContact.name }}</h4>
+                            <p>{{ emergencyContact.relationship }}</p>
+                            <span>{{ emergencyContact.phone }}</span>
+                        </div>
+                    </div>
+
+                    <div class="empty-state" *ngIf="!emergencyContact">
+                        <p style="color: #8898aa; font-size: 14px; padding: 12px 0;">No hay contacto de emergencia registrado.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Columna derecha -->
+            <div class="profile-right">
+                <!-- Membresia -->
+                <div class="membership-section">
+                    <h3 class="section-title">Mi membresia</h3>
+                    
+                    <div class="membership-card" *ngIf="membership" [class.active]="membership.active">
+                        <div class="membership-header">
+                            <span class="membership-badge" [class.active]="membership.active">
+                                {{ membership.active ? 'Activa' : 'Inactiva' }}
+                            </span>
+                            <h4 class="membership-plan">{{ membership.planName }}</h4>
+                        </div>
+                        <div class="membership-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Precio</span>
+                                <span class="detail-value">{{ membership.price }}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Inicio</span>
+                                <span class="detail-value">{{ membership.startDate }}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Proximo pago</span>
+                                <span class="detail-value">{{ membership.nextPaymentDate }}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Dias restantes</span>
+                                <span class="detail-value highlight">{{ membership.daysRemaining }} dias</span>
+                            </div>
+                        </div>
+                        <div class="membership-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" [style.width.%]="membership.progress"></div>
+                            </div>
+                            <span class="progress-text">{{ membership.progress }}% completado</span>
+                        </div>
+                    </div>
+
+                    <div class="empty-state" *ngIf="!membership">
+                        <p style="color: #8898aa; font-size: 14px; padding: 12px 0;">No tienes una membresía activa.</p>
+                    </div>
+                </div>
+
+                <!-- Historial fisico -->
+                <div class="history-section">
+                    <h3 class="section-title">Historial fisico</h3>
+                    
+                    <div class="history-list" *ngIf="physicalHistory && physicalHistory.length > 0">
+                        <div class="history-item" *ngFor="let record of physicalHistory">
+                            <div class="history-date">
+                                <span class="date-month">{{ record.fecha | date:'MMM' }}</span>
+                                <span class="date-year">{{ record.fecha | date:'yyyy' }}</span>
+                            </div>
+                            <div class="history-data">
+                                <div class="data-row">
+                                    <span class="data-label">Peso</span>
+                                    <span class="data-value">{{ record.pesoKg }} kg</span>
+                                </div>
+                                <div class="data-row">
+                                    <span class="data-label">% Grasa</span>
+                                    <span class="data-value">{{ record.porcentajeGrasa }}%</span>
+                                </div>
+                                <div class="data-row">
+                                    <span class="data-label">% Músculo</span>
+                                    <span class="data-value">{{ record.porcentajeMusculo }}%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="empty-state" *ngIf="!physicalHistory || physicalHistory.length === 0">
+                        <p style="color: #8898aa; font-size: 14px; padding: 12px 0;">Aún no hay registros de historial físico.</p>
+                    </div>
+                </div>
+
+                <!-- Acciones de cuenta -->
+                <div class="account-actions">
+                    <h3 class="section-title">Cuenta</h3>
+                    <button class="action-row" (click)="changePassword()">
+                        <div class="action-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                            </svg>
+                        </div>
+                        <span>Cambiar contrasena</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="m9 18 6-6-6-6"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
