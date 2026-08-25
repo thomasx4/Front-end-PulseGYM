@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { Document, DocumentFilter, DocumentMetric } from '../models/document';
 
@@ -27,7 +27,7 @@ export class DocumentService {
   }
 
   /**
-   * Obtener documentos legales de un socio específico
+   * Obtener documentos legales de un socio específico por su idUsuario
    * GET /api/v1/usuarios/documentos/socio/{idUsuario}
    */
   obtenerDocumentosPorSocio(idUsuario: number): Observable<Document[]> {
@@ -35,11 +35,18 @@ export class DocumentService {
   }
 
   /**
-   * Obtener un documento por ID
-   * GET /api/v1/usuarios/documentos/{id}
+   * Obtener un documento por idDocumento buscando en la lista general
    */
-  obtenerDocumentoPorId(id: number): Observable<Document> {
-    return this.http.get<Document>(`${this.apiUrl}/socio/${id}`);
+  obtenerDocumentoPorId(idDocumento: number): Observable<Document> {
+    return this.obtenerDocumentos().pipe(
+      map(documentos => {
+        const doc = documentos.find(d => d.idDocumento === idDocumento);
+        if (!doc) {
+          throw new Error(`No se encontró el documento con ID #${idDocumento}`);
+        }
+        return doc;
+      })
+    );
   }
 
   /**
@@ -67,7 +74,7 @@ export class DocumentService {
   }
 
   /**
-   * Obtener métricas de documentos (simuladas ya que no hay endpoint real)
+   * Obtener métricas de documentos
    */
   obtenerMetricas(): Observable<DocumentMetric> {
     return new Observable(observer => {

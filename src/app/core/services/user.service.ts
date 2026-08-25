@@ -40,6 +40,14 @@ export class UserService {
     }
 
     /**
+     * Obtiene todos los perfiles de usuarios activos
+     */
+    obtenerTodosLosPerfilesActivos(): Observable<any> {
+        return this.http.get(`${this.apiUrl}/activo`);
+    }
+
+
+    /**
      * Actualiza el perfil de un usuario
      */
     actualizarPerfil(id: number, data: any): Observable<any> {

@@ -66,7 +66,7 @@ export class DocumentsFormComponent implements OnInit {
   }
 
   private cargarUsuarios(): void {
-    this.userService.obtenerTodosLosPerfiles().subscribe({
+    this.userService.obtenerTodosLosPerfilesActivos().subscribe({
       next: (data: any[]) => {
         this.usuarios = data || [];
         this.sociosFiltradosModal = [...this.usuarios];
