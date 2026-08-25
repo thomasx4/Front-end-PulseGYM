@@ -62,7 +62,7 @@
             background-color: #0E3B72E8;
             color: #ffffff;
             font-weight: 600;
-            box-shadow: 0 2px 8px 0 rgba(0,0,0,0.6);
+            box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.6);
         }
     }
 
@@ -117,6 +117,12 @@
         padding-left: 0.5rem;
         margin-left: 0.5rem;
         border-left: 2px solid rgba(14, 59, 114, 0.2);
+
+        &.open {
+            max-height: 300px;
+            opacity: 1;
+            visibility: visible;
+        }
     }
 
     &__submenu-item {
@@ -137,9 +143,10 @@
         }
 
         &--active {
-            background-color: #0E3B72E8;
-            color: #ffffff;
+            background-color: #0E3B72E8 !important;
+            color: #ffffff !important;
             font-weight: 600;
+            box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.4);
         }
 
         .sidebar__icon-wrapper {

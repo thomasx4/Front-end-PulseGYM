@@ -45,20 +45,6 @@
             </div>
         </div>
 
-        <div class="metric-card metric-card--vencidos">
-            <div class="metric-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10" />
-                    <line x1="12" y1="8" x2="12" y2="12" />
-                    <line x1="12" y1="16" x2="12.01" y2="16" />
-                </svg>
-            </div>
-            <div class="metric-content">
-                <span class="metric-value">{{ metricas?.vencidos || 0 }}</span>
-                <span class="metric-label">Documentos Vencidos</span>
-                <span class="metric-trend text-danger">Requieren atención</span>
-            </div>
-        </div>
     </div>
 
     <!-- FILTROS -->
@@ -113,7 +99,7 @@
                     <tr *ngFor="let doc of documentosPaginados">
                         <td>
                             <div class="doc-name">
-                                <span class="doc-icon">📄</span>
+                                <span class="doc-icon"></span>
                                 <span>{{ doc.nombreUsuario }}</span>
                             </div>
                         </td>

@@ -225,10 +225,6 @@ export class DocumentsListComponent implements OnInit {
     this.router.navigate(['/dashboard-admin/users/documents/detail', id]);
   }
 
-  editarDocumento(id: number): void {
-    this.router.navigate(['/dashboard-admin/users/documents/detail', id]);
-  }
-
   eliminarDocumento(documento: Document): void {
     Swal.fire({
       title: '¿Eliminar documento?',

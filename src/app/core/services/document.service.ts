@@ -39,7 +39,7 @@ export class DocumentService {
    * GET /api/v1/usuarios/documentos/{id}
    */
   obtenerDocumentoPorId(id: number): Observable<Document> {
-    return this.http.get<Document>(`${this.apiUrl}/${id}`);
+    return this.http.get<Document>(`${this.apiUrl}/socio/${id}`);
   }
 
   /**
