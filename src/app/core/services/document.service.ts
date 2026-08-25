@@ -70,7 +70,6 @@ export class DocumentService {
    * Obtener métricas de documentos (simuladas ya que no hay endpoint real)
    */
   obtenerMetricas(): Observable<DocumentMetric> {
-    // Como no hay endpoint de métricas, las calculamos desde el listado
     return new Observable(observer => {
       this.obtenerDocumentos().subscribe({
         next: (documentos) => {
