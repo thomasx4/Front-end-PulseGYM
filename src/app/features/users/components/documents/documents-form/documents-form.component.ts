@@ -3,13 +3,14 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { DocumentService } from '../../../../../core/services/document.service';
 import { UserService } from '../../../../../core/services/user.service';
+import { CloudinaryService } from '../../../../../core/services/cloudinary.service';
 import { getTipoDocumentoLabel } from '../../../../../core/models/document';
 import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-documents-form',
   templateUrl: './documents-form.component.html',
-  styleUrls: ['./documents-form.component.scss']
+  styleUrls: ['./documents-form.component.scss'],
 })
 export class DocumentsFormComponent implements OnInit {
   documentForm!: FormGroup;
@@ -18,45 +19,67 @@ export class DocumentsFormComponent implements OnInit {
   loading: boolean = false;
   submitting: boolean = false;
   tiposDocumento: string[] = [];
+
   usuarios: any[] = [];
+  sociosFiltradosModal: any[] = [];
+  selectedUsuario: any = null;
   searchUsuario: string = '';
+
+  showPartnerModal: boolean = false;
+  paginaModalActual: number = 1;
+  itemsPorPaginaModal: number = 5;
+
+  selectedFile: File | null = null;
+  uploadingFile: boolean = false;
 
   constructor(
     private fb: FormBuilder,
     private router: Router,
     private route: ActivatedRoute,
     private documentService: DocumentService,
-    private userService: UserService
+    private userService: UserService,
+    private cloudinaryService: CloudinaryService
   ) {}
 
   ngOnInit(): void {
     this.initForm();
     this.cargarTiposDocumento();
+    this.cargarUsuarios();
     this.verificarModoEdicion();
   }
 
   private initForm(): void {
     this.documentForm = this.fb.group({
       idUsuario: ['', Validators.required],
-      nombreUsuario: [''],
       tipoDocumento: ['', Validators.required],
-      urlArchivoFirmado: ['']
+      urlArchivoFirmado: [''],
     });
   }
 
   private cargarTiposDocumento(): void {
     this.documentService.obtenerTiposDocumento().subscribe({
-      next: (data) => {
-        this.tiposDocumento = data;
-      },
+      next: (data) => (this.tiposDocumento = data),
       error: () => {
         this.tiposDocumento = ['CONSENTIEMIENTO_INFORMADO', 'CONTRATO', 'EXONERACION'];
-      }
+      },
+    });
+  }
+
+  private cargarUsuarios(): void {
+    this.userService.obtenerTodosLosPerfiles().subscribe({
+      next: (data: any[]) => {
+        this.usuarios = data || [];
+        this.sociosFiltradosModal = [...this.usuarios];
+      },
+      error: () => {
+        this.usuarios = [];
+        this.sociosFiltradosModal = [];
+      },
     });
   }
 
   private verificarModoEdicion(): void {
-    this.route.params.subscribe(params => {
+    this.route.params.subscribe((params) => {
       const id = params['id'];
       if (id) {
         this.isEditMode = true;
@@ -66,107 +89,216 @@ export class DocumentsFormComponent implements OnInit {
     });
   }
 
-  private cargarDocumento(id: number): void {
+private cargarDocumento(id: number): void {
     this.loading = true;
     this.documentService.obtenerDocumentoPorId(id).subscribe({
-      next: (data) => {
+      next: (data: any) => {
         this.documentForm.patchValue({
           idUsuario: data.idUsuario,
-          nombreUsuario: data.nombreUsuario,
           tipoDocumento: data.tipoDocumento,
-          urlArchivoFirmado: data.urlArchivoFirmado
+          urlArchivoFirmado: data.urlArchivoFirmado,
         });
-        this.loading = false;
-      },
-      error: (error) => {
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'No se pudo cargar el documento.',
-          confirmButtonColor: '#0f1c3f'
-        });
-        this.loading = false;
-        this.volver();
-      }
-    });
-  }
 
-  buscarUsuario(): void {
-    if (!this.searchUsuario || this.searchUsuario.length < 3) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Búsqueda',
-        text: 'Ingresa al menos 3 caracteres para buscar.',
-        confirmButtonColor: '#0f1c3f'
-      });
-      return;
-    }
+        const usuarioEncontrado = this.usuarios.find((u) => u.idUsuario === data.idUsuario);
 
-    this.userService.obtenerTodosLosPerfiles().subscribe({
-      next: (data: any[]) => {
-        const results = data.filter(u =>
-          u.nombre.toLowerCase().includes(this.searchUsuario.toLowerCase()) ||
-          u.email.toLowerCase().includes(this.searchUsuario.toLowerCase())
-        );
-        if (results.length === 0) {
-          Swal.fire({
-            icon: 'info',
-            title: 'Sin resultados',
-            text: 'No se encontraron usuarios con ese criterio.',
-            confirmButtonColor: '#0f1c3f'
-          });
-          return;
-        }
-        this.mostrarSeleccionUsuario(results);
+        this.selectedUsuario = usuarioEncontrado || {
+          idUsuario: data.idUsuario,
+          nombre: data.nombreUsuario || 'Usuario',
+          apellido: '',
+          email: 'Sin email',
+          rol: data.rolUsuario || 'SOCIO'
+        };
+        
+        this.loading = false;
       },
       error: () => {
         Swal.fire({
           icon: 'error',
           title: 'Error',
-          text: 'No se pudieron cargar los usuarios.',
-          confirmButtonColor: '#0f1c3f'
+          text: 'No se pudo cargar el documento.',
+          confirmButtonColor: '#0f1c3f',
         });
-      }
+        this.loading = false;
+        this.volver();
+      },
     });
   }
 
-  private mostrarSeleccionUsuario(usuarios: any[]): void {
-    const html = usuarios.map(u =>
-      `<div style="padding: 8px 12px; border-bottom: 1px solid #f1f5f9; cursor: pointer;" onclick="window.selectUser(${u.idUsuario}, '${u.nombre} ${u.apellido}')">
-        <strong>${u.nombre} ${u.apellido}</strong><br>
-        <span style="font-size: 0.8rem; color: #64748b;">${u.email} - ${u.documentoIdentidad}</span>
-      </div>`
-    ).join('');
+  // --- MODAL Y NAVEGACIÓN DE USUARIOS ---
 
-    (window as any).selectUser = (id: number, nombre: string) => {
-      this.documentForm.patchValue({
-        idUsuario: id,
-        nombreUsuario: nombre
-      });
-      this.searchUsuario = nombre;
-      Swal.close();
-    };
+  abrirModalSeleccionSocio(): void {
+    this.searchUsuario = '';
+    this.sociosFiltradosModal = [...this.usuarios];
+    this.paginaModalActual = 1;
+    this.showPartnerModal = true;
+  }
+
+  cerrarModalSeleccionSocio(): void {
+    this.showPartnerModal = false;
+  }
+
+  filtrarSociosModal(): void {
+    const term = this.searchUsuario.toLowerCase().trim();
+    if (!term) {
+      this.sociosFiltradosModal = [...this.usuarios];
+    } else {
+      this.sociosFiltradosModal = this.usuarios.filter(
+        (u) =>
+          u.nombre?.toLowerCase().includes(term) ||
+          u.apellido?.toLowerCase().includes(term) ||
+          (u.telefono && u.telefono.includes(term)) ||
+          u.email?.toLowerCase().includes(term) ||
+          u.rol?.toLowerCase().includes(term)
+      );
+    }
+    this.paginaModalActual = 1;
+  }
+
+  get sociosPaginados(): any[] {
+    const inicio = (this.paginaModalActual - 1) * this.itemsPorPaginaModal;
+    return this.sociosFiltradosModal.slice(inicio, inicio + this.itemsPorPaginaModal);
+  }
+
+  get totalPaginasModal(): number {
+    return Math.ceil(this.sociosFiltradosModal.length / this.itemsPorPaginaModal) || 1;
+  }
+
+  get paginasVisiblesModal(): number[] {
+    const total = this.totalPaginasModal;
+    return Array.from({ length: total }, (_, i) => i + 1);
+  }
+
+  seleccionarSocioDesdeModal(usuario: any): void {
+    this.selectedUsuario = usuario;
+    this.documentForm.patchValue({ idUsuario: usuario.idUsuario });
+    this.cerrarModalSeleccionSocio();
 
     Swal.fire({
-      title: 'Seleccionar usuario',
-      html: `<div style="max-height: 300px; overflow-y: auto;">${html}</div>`,
-      confirmButtonText: 'Cerrar',
-      confirmButtonColor: '#0f1c3f',
-      width: 500
+      icon: 'success',
+      title: 'Usuario asignado',
+      text: `${usuario.nombre} ${usuario.apellido} ha sido asignado al documento.`,
+      timer: 1400,
+      showConfirmButton: false,
     });
   }
 
-  onSubmit(): void {
-    if (this.documentForm.invalid) {
-      Object.keys(this.documentForm.controls).forEach(key => {
-        const control = this.documentForm.get(key);
-        if (control?.invalid) control.markAsTouched();
+  limpiarSeleccion(): void {
+    this.selectedUsuario = null;
+    this.documentForm.patchValue({ idUsuario: '' });
+  }
+
+  // --- FORMATO DE ROLES PARA LA VISTA ---
+
+  getRolLabel(rol: string): string {
+    if (!rol) return 'Socio';
+    switch (rol.toUpperCase()) {
+      case 'ADMIN':
+      case 'ADMINISTRADOR':
+        return 'Administrador';
+      case 'RECEPCIONISTA':
+      case 'RECP':
+        return 'Recepcionista';
+      case 'ENTRENADOR':
+      case 'TRAINER':
+        return 'Entrenador';
+      case 'SOCIO':
+      case 'USER':
+      case 'CLIENTE':
+        return 'Socio';
+      default:
+        return rol;
+    }
+  }
+
+  getRolClass(rol: string): string {
+    if (!rol) return 'rol-socio';
+    switch (rol.toUpperCase()) {
+      case 'ADMIN':
+      case 'ADMINISTRADOR':
+        return 'rol-admin';
+      case 'RECEPCIONISTA':
+      case 'RECP':
+        return 'rol-recep';
+      case 'ENTRENADOR':
+      case 'TRAINER':
+        return 'rol-entrenador';
+      default:
+        return 'rol-socio';
+    }
+  }
+
+  // --- ARCHIVO PDF Y ENVÍO ---
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+
+      if (file.type !== 'application/pdf') {
+        Swal.fire({
+          icon: 'error',
+          title: 'Formato no válido',
+          text: 'Solo se permiten archivos PDF.',
+          confirmButtonColor: '#0f1c3f',
+        });
+        return;
+      }
+
+      if (file.size > 10 * 1024 * 1024) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Archivo excede límite',
+          text: 'El tamaño máximo permitido es 10MB.',
+          confirmButtonColor: '#0f1c3f',
+        });
+        return;
+      }
+
+      this.selectedFile = file;
+    }
+  }
+
+  private async subirArchivo(): Promise<string> {
+    if (!this.selectedFile) return '';
+
+    this.uploadingFile = true;
+    try {
+      Swal.fire({
+        title: 'Subiendo documento...',
+        text: 'Por favor espera un momento.',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
       });
+
+      const response = await this.cloudinaryService.uploadImage(this.selectedFile).toPromise();
+      Swal.close();
+
+      if (response && response.secure_url) {
+        return response.secure_url;
+      }
+      throw new Error('No se recibió la URL del archivo');
+    } catch (error: any) {
+      Swal.close();
+      Swal.fire({
+        icon: 'error',
+        title: 'Error al subir archivo',
+        text: error.message || 'No se pudo subir el archivo PDF.',
+        confirmButtonColor: '#0f1c3f',
+      });
+      throw error;
+    } finally {
+      this.uploadingFile = false;
+    }
+  }
+
+  async onSubmit(): Promise<void> {
+    if (this.documentForm.invalid) {
+      this.documentForm.markAllAsTouched();
       Swal.fire({
         icon: 'warning',
         title: 'Formulario incompleto',
-        text: 'Por favor completa todos los campos obligatorios.',
-        confirmButtonColor: '#0f1c3f'
+        text: 'Por favor asigna un usuario y elige un tipo de documento.',
+        confirmButtonColor: '#0f1c3f',
       });
       return;
     }
@@ -174,32 +306,41 @@ export class DocumentsFormComponent implements OnInit {
     this.submitting = true;
     const formValues = this.documentForm.value;
 
-    const payload = {
-      idUsuario: formValues.idUsuario,
-      tipoDocumento: formValues.tipoDocumento,
-      urlArchivoFirmado: formValues.urlArchivoFirmado || null
-    };
-
-    this.documentService.crearDocumento(payload).subscribe({
-      next: () => {
-        Swal.fire({
-          icon: 'success',
-          title: 'Documento creado',
-          text: 'El documento legal ha sido cargado correctamente.',
-          confirmButtonColor: '#0f1c3f'
-        });
-        this.volver();
-      },
-      error: (error) => {
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: error.error?.message || 'No se pudo crear el documento.',
-          confirmButtonColor: '#0f1c3f'
-        });
-        this.submitting = false;
+    try {
+      let urlArchivo = formValues.urlArchivoFirmado;
+      if (this.selectedFile) {
+        urlArchivo = await this.subirArchivo();
       }
-    });
+
+      const payload = {
+        idUsuario: formValues.idUsuario,
+        tipoDocumento: formValues.tipoDocumento,
+        urlArchivoFirmado: urlArchivo || null,
+      };
+
+      this.documentService.crearDocumento(payload).subscribe({
+        next: () => {
+          Swal.fire({
+            icon: 'success',
+            title: 'Documento Guardado',
+            text: 'El documento se registró correctamente.',
+            confirmButtonColor: '#0f1c3f',
+          });
+          this.volver();
+        },
+        error: (error) => {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: error.error?.message || 'No se pudo guardar el documento.',
+            confirmButtonColor: '#0f1c3f',
+          });
+          this.submitting = false;
+        },
+      });
+    } catch {
+      this.submitting = false;
+    }
   }
 
   getTipoDocumentoLabel(tipo: string): string {
