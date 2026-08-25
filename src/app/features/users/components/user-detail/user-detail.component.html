@@ -1,0 +1,199 @@
+<div class="user-detail-container">
+    <!-- HEADER -->
+    <header class="detail-header">
+        <div class="header-left">
+            <h1 class="detail-title">Detalle del Usuario</h1>
+            <p class="detail-subtitle">Información completa del perfil del miembro.</p>
+        </div>
+        <div class="header-actions">
+            <button class="btn-back" (click)="volver()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+                Volver
+            </button>
+            <button class="btn-edit" (click)="editarUsuario()" *ngIf="user">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                </svg>
+                Editar Usuario
+            </button>
+        </div>
+    </header>
+    <!-- ERROR -->
+    <div *ngIf="errorMensaje && !loading" class="error-state">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+        </svg>
+        <p>{{ errorMensaje }}</p>
+        <button class="btn-back" (click)="volver()">Volver</button>
+    </div>
+
+    <!-- CONTENIDO -->
+    <div *ngIf="user && !loading" class="detail-content">
+        <!-- SECCIÓN 1: PERFIL -->
+        <div class="detail-section profile-section">
+            <div class="profile-header">
+                <div class="profile-avatar">
+                    <img *ngIf="user.fotoUrl" [src]="user.fotoUrl" [alt]="user.nombre" />
+                    <div *ngIf="!user.fotoUrl" class="avatar-placeholder">
+                        <span>{{ (user.nombre?.charAt(0) || '?') }}{{ (user.apellido?.charAt(0) || '?') }}</span>
+                    </div>
+                </div>
+                <div class="profile-info">
+                    <h2>{{ user.nombre }} {{ user.apellido }}</h2>
+                    <p class="profile-email">{{ user.email }}</p>
+                    <div class="profile-badges">
+                        <span class="badge-role" [class]="getRolClass(user.rol || '')">
+                            {{ user.rol || 'Sin rol' }}
+                        </span>
+                        <span class="badge-status" [class]="getEstadoClass(user.estado || '')">
+                            {{ user.estado === 'ACTIVO' ? 'ACTIVO' : 'INACTIVO' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 2: INFORMACIÓN PERSONAL -->
+        <div class="detail-section">
+            <div class="section-header">
+                <h3>Información Personal</h3>
+            </div>
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">Nombre Completo</span>
+                    <span class="info-value">{{ user.nombre }} {{ user.apellido }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Documento de Identidad</span>
+                    <span class="info-value">{{ user.documentoIdentidad || 'N/D' }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Teléfono</span>
+                    <span class="info-value">{{ user.telefono || 'N/D' }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Email</span>
+                    <span class="info-value">{{ user.email }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Fecha de Nacimiento</span>
+                    <span class="info-value">{{ formatearFecha(user.fechaNacimiento) }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Sede</span>
+                    <span class="info-value">{{ user.nombreSede || user.idSede || 'N/D' }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Fecha de Registro</span>
+                    <span class="info-value">{{ formatearFecha(user.fechaRegistro) }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Rol</span>
+                    <span class="info-value" style="text-transform: capitalize;">{{ user.rol || 'Sin rol' }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 3: CONTACTO DE EMERGENCIA -->
+        <div class="detail-section" *ngIf="user.contactoEmergenciaNombre || user.contactoEmergenciaTelefono">
+            <div class="section-header">
+                <h3>Contacto de Emergencia</h3>
+            </div>
+            <div class="info-grid">
+                <div class="info-item" *ngIf="user.contactoEmergenciaNombre">
+                    <span class="info-label">Nombre</span>
+                    <span class="info-value">{{ user.contactoEmergenciaNombre }}</span>
+                </div>
+                <div class="info-item" *ngIf="user.contactoEmergenciaTelefono">
+                    <span class="info-label">Teléfono</span>
+                    <span class="info-value">{{ user.contactoEmergenciaTelefono }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 4: DETALLES DEL ROL (SOCIO/ENTRENADOR) -->
+        <div class="detail-section" *ngIf="user.objetivoPrincipal || user.nivelExperiencia">
+            <div class="section-header">
+                <h3>Detalles del Rol</h3>
+            </div>
+            <div class="info-grid">
+                <div class="info-item" *ngIf="user.objetivoPrincipal">
+                    <span class="info-label">Objetivo Principal</span>
+                    <span class="info-value">{{ user.objetivoPrincipal }}</span>
+                </div>
+                <div class="info-item" *ngIf="user.nivelExperiencia">
+                    <span class="info-label">Nivel de Experiencia</span>
+                    <span class="info-value" style="text-transform: capitalize;">{{ user.nivelExperiencia }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 5: DETALLES DE ENTRENADOR -->
+        <div class="detail-section" *ngIf="esRol('entrenador') || esRol('trainer')">
+            <div class="section-header">
+                <h3>Detalles del Entrenador</h3>
+            </div>
+            <div class="info-grid">
+                <div class="info-item" *ngIf="user.fechaContratacion">
+                    <span class="info-label">Fecha de Contratación</span>
+                    <span class="info-value">{{ formatearFecha(user.fechaContratacion) }}</span>
+                </div>
+                <div class="info-item" *ngIf="user.especialidad">
+                    <span class="info-label">Especialidad</span>
+                    <span class="info-value">{{ user.especialidad }}</span>
+                </div>
+                <div class="info-item" *ngIf="user.anosExperiencia !== undefined && user.anosExperiencia !== null">
+                    <span class="info-label">Años de Experiencia</span>
+                    <span class="info-value">{{ user.anosExperiencia }} años</span>
+                </div>
+                <div class="info-item" *ngIf="user.tarifaHora">
+                    <span class="info-label">Tarifa por Hora</span>
+                    <span class="info-value">$ {{ user.tarifaHora | number }}</span>
+                </div>
+                <div class="info-item" *ngIf="user.horarioDisponibilidad">
+                    <span class="info-label">Horario de Disponibilidad</span>
+                    <span class="info-value">{{ user.horarioDisponibilidad }}</span>
+                </div>
+                <div class="info-item" *ngIf="user.turno">
+                    <span class="info-label">Turno</span>
+                    <span class="info-value" style="text-transform: capitalize;">{{ user.turno }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 6: DETALLES DE ADMINISTRADOR -->
+        <div class="detail-section" *ngIf="esRol('administrador') || esRol('admin')">
+            <div class="section-header">
+                <h3>Detalles del Administrador</h3>
+            </div>
+            <div class="info-grid">
+                <div class="info-item" *ngIf="user.fechaContratacion">
+                    <span class="info-label">Fecha de Contratación</span>
+                    <span class="info-value">{{ formatearFecha(user.fechaContratacion) }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 7: DETALLES DE RECEPCIONISTA -->
+        <div class="detail-section" *ngIf="esRol('recepcionista') || esRol('receptionist')">
+            <div class="section-header">
+                <h3>Detalles del Recepcionista</h3>
+            </div>
+            <div class="info-grid">
+                <div class="info-item" *ngIf="user.fechaContratacion">
+                    <span class="info-label">Fecha de Contratación</span>
+                    <span class="info-value">{{ formatearFecha(user.fechaContratacion) }}</span>
+                </div>
+                <div class="info-item" *ngIf="user.turno">
+                    <span class="info-label">Turno</span>
+                    <span class="info-value" style="text-transform: capitalize;">{{ user.turno }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

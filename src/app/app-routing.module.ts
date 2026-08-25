@@ -1,13 +1,12 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { MainLayoutComponent } from './shared/components/main-layout/main-layout.component';
-import { RegisterCredentialsComponent } from './features/auth/components/register-credentials/register-credentials.component';
 import { CredentialsListComponent } from './features/auth/components/credentials-list/credentials-list.component';
 import { LoginComponent } from './features/auth/components/login/login.component';
 import { ForgotComponent } from '../app/features/auth/components/forgot/forgot.component';
 import { HomeComponent } from './features/user/components/home/home.component';
 import { AuthGuard } from '../app/core/guards/auth.guard';
-import { MembershipListComponent } from './features/membership/components/membership-list/membership-list.component';
+
 const routes: Routes = [
     {
         path: 'auth',
@@ -27,13 +26,23 @@ const routes: Routes = [
             },
             {
                 path: 'users',
-                component: CredentialsListComponent,
+                children: [
+                    {
+                        path: '',
+                        component: CredentialsListComponent,
+                    },
+                    {
+                        path: 'profiles',
+                        loadChildren: () =>
+                            import('./features/users/users.module').then((m) => m.UsersModule),
+                    }
+                ]
             },
-{
-    path: 'memberships',
-    loadChildren: () => 
-        import('./features/membership/membership.module').then((m) => m.MembershipModule),
-},
+            {
+                path: 'memberships',
+                loadChildren: () =>
+                    import('./features/membership/membership.module').then((m) => m.MembershipModule),
+            },
         ],
     },
     {
