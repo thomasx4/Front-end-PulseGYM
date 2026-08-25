@@ -1,1 +1,101 @@
-<p>documents-form works!</p>
+<div class="document-form-container">
+    <!-- HEADER -->
+    <header class="form-header">
+        <div>
+            <h1 class="form-title">{{ isEditMode ? 'Editar Documento' : 'Nuevo Documento' }}</h1>
+            <p class="form-subtitle">
+                {{ isEditMode ? 'Actualiza la información del documento legal.' : 'Carga un nuevo documento legal para un socio.' }}
+            </p>
+        </div>
+        <button class="btn-back" (click)="volver()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+            Volver
+        </button>
+    </header>
+
+    <form [formGroup]="documentForm" (ngSubmit)="onSubmit()">
+
+        <!-- FORMULARIO -->
+        <div *ngIf="!loading" class="form-content">
+            <div class="form-section">
+                <div class="section-header">
+                    <h3>📋 Datos del Documento</h3>
+                    <p>Información del socio y tipo de documento.</p>
+                </div>
+
+                <!-- BUSCAR USUARIO -->
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label>Buscar Socio <span class="required">*</span></label>
+                        <div class="search-usuario-wrapper">
+                            <input
+                                type="text"
+                                placeholder="Buscar por nombre o email del socio..."
+                                [(ngModel)]="searchUsuario"
+                                [ngModelOptions]="{standalone: true}"
+                                (keyup.enter)="buscarUsuario()"
+                            />
+                            <button type="button" class="btn-search" (click)="buscarUsuario()">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="11" cy="11" r="8" />
+                                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                                </svg>
+                                Buscar
+                            </button>
+                        </div>
+                        <div class="form-hint" *ngIf="documentForm.get('idUsuario')?.value">
+                            ✅ Socio seleccionado: <strong>{{ documentForm.get('nombreUsuario')?.value }}</strong>
+                            <span style="font-size: 0.8rem; color: #64748b; margin-left: 8px;">ID: {{ documentForm.get('idUsuario')?.value }}</span>
+                        </div>
+                        <div class="form-error" *ngIf="documentForm.get('idUsuario')?.invalid && documentForm.get('idUsuario')?.touched">
+                            <span>Debes seleccionar un socio válido</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Tipo de Documento <span class="required">*</span></label>
+                        <select formControlName="tipoDocumento">
+                            <option value="">Seleccionar tipo</option>
+                            <option *ngFor="let tipo of tiposDocumento" [value]="tipo">
+                                {{ getTipoDocumentoLabel(tipo) }}
+                            </option>
+                        </select>
+                        <div class="form-error" *ngIf="documentForm.get('tipoDocumento')?.invalid && documentForm.get('tipoDocumento')?.touched">
+                            <span *ngIf="documentForm.get('tipoDocumento')?.errors?.['required']">El tipo de documento es obligatorio</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>URL del Archivo Firmado (opcional)</label>
+                        <input type="url" formControlName="urlArchivoFirmado" placeholder="https://ejemplo.com/documento.pdf" />
+                        <div class="form-hint">Puedes subir el documento a Cloudinary y pegar la URL aquí.</div>
+                    </div>
+                </div>
+
+                <!-- Mostrar datos del socio si está en modo edición -->
+                <div class="user-info-card" *ngIf="isEditMode && documentForm.get('nombreUsuario')?.value">
+                    <div class="user-info-avatar">
+                        <span>{{ (documentForm.get('nombreUsuario')?.value || '?')?.charAt(0) }}</span>
+                    </div>
+                    <div class="user-info-details">
+                        <strong>{{ documentForm.get('nombreUsuario')?.value }}</strong>
+                        <span>ID: {{ documentForm.get('idUsuario')?.value }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BOTONES -->
+            <div class="form-actions">
+                <button type="button" class="btn-cancel" (click)="volver()">Cancelar</button>
+                <button type="submit" class="btn-submit" [disabled]="documentForm.invalid || submitting">
+                    <span class="spinner" *ngIf="submitting"></span>
+                    {{ submitting ? 'Guardando...' : 'Guardar Documento' }}
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
