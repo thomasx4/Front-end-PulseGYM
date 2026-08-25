@@ -1,1 +1,83 @@
-<p>documents-detail works!</p>
+<div class="document-detail-container">
+    <!-- HEADER -->
+    <header class="detail-header">
+        <div>
+            <h1 class="detail-title">Detalle del Documento</h1>
+            <p class="detail-subtitle">Información completa del documento legal.</p>
+        </div>
+        <div class="header-actions">
+            <button class="btn-back" (click)="volver()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+                Volver
+            </button>
+            <button class="btn-delete" (click)="eliminar()" *ngIf="document && document.estado === 'VIGENTE'">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6" />
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                </svg>
+                Eliminar
+            </button>
+        </div>
+    </header>
+
+    <!-- ERROR -->
+    <div *ngIf="errorMensaje && !loading" class="error-state">
+        <p>{{ errorMensaje }}</p>
+        <button class="btn-back" (click)="volver()">Volver</button>
+    </div>
+
+    <!-- CONTENIDO -->
+    <div *ngIf="document && !loading" class="detail-content">
+        <div class="detail-section">
+            <div class="info-header">
+                <div>
+                    <h2>Documento Legal</h2>
+                    <span class="badge-status" [class]="getEstadoClass(document.estado)">
+                        {{ getEstadoLabel(document.estado) }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="detail-section">
+            <div class="section-header">
+                <h3>Detalles del Documento</h3>
+            </div>
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">ID del Documento</span>
+                    <span class="info-value">#{{ document.idDocumento }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Socio</span>
+                    <span class="info-value">{{ document.nombreUsuario }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">ID del Socio</span>
+                    <span class="info-value">#{{ document.idUsuario }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Tipo de Documento</span>
+                    <span class="info-value">
+                        <span class="category-badge">{{ getTipoDocumentoLabel(document.tipoDocumento) }}</span>
+                    </span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Fecha de Firma</span>
+                    <span class="info-value">{{ formatearFecha(document.fechaFirma) }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">URL del Archivo</span>
+                    <span class="info-value">
+                        <a *ngIf="document.urlArchivoFirmado" [href]="document.urlArchivoFirmado" target="_blank" class="file-link">
+                            Ver archivo
+                        </a>
+                        <span *ngIf="!document.urlArchivoFirmado" style="color: #94a3b8;">No disponible</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
