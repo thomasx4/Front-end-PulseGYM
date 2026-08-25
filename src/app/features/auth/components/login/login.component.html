@@ -28,6 +28,10 @@
                 {{ errorMessage }}
             </div>
 
+            <div *ngIf="isLoginLocked()" class="alert alert-warning">
+                Cuenta bloqueada. Espera <strong>{{ getRemainingSeconds() }}</strong> segundos.
+            </div>
+
             <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
                 <!-- Email -->
                 <div class="form-group">
@@ -103,7 +107,7 @@
                         Entrando...
                     </ng-container>
                     <ng-container *ngIf="!loading && isLoginLocked()">
-                        <span style="opacity: 0.6;">Bloqueado</span>
+                        {{ getRemainingSeconds() }}s
                     </ng-container>
                 </button>
             </form>

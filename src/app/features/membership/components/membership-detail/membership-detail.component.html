@@ -1,0 +1,167 @@
+<div class="membership-detail-container">
+
+    <!-- HEADER -->
+    <div class="detail-header">
+        <div class="detail-header__left">
+            <div class="breadcrumb">
+                <a routerLink="/dashboard-admin/memberships/list">Membresías</a>
+                <span class="breadcrumb-separator">/</span>
+                <span class="breadcrumb-current">Detalle</span>
+            </div>
+            <h1 class="detail-title">{{ plan?.nombre || 'Cargando...' }}</h1>
+            <p class="detail-subtitle">
+                Información completa del plan de membresía
+            </p>
+        </div>
+        <div class="detail-header__right">
+            <button class="btn-outline" (click)="volver()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                Volver
+            </button>
+            <button class="btn-primary" (click)="editar()" [disabled]="loading || !plan">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                </svg>
+                Editar Membresía
+            </button>
+        </div>
+    </div>
+
+    <!-- CONTENIDO -->
+    <div class="detail-grid" *ngIf="!loading && plan">
+
+        <!-- COLUMNA IZQUIERDA: INFORMACIÓN -->
+        <div class="detail-column">
+
+            <!-- INFORMACIÓN GENERAL -->
+            <div class="info-card">
+                <h3 class="info-card__title">Información General</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-item__label">Nombre del Plan</span>
+                        <span class="info-item__value">{{ plan.nombre }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-item__label">Precio Total</span>
+                        <span class="info-item__value">{{ formatearPrecio(plan.precioTotal || 0) }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-item__label">Cantidad</span>
+                        <span class="info-item__value">{{ plan.cantidad }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-item__label">Tipo de Duración</span>
+                        <span class="info-item__value">{{ getNombreDuracion(plan.tipoDuracion) }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-item__label">Precio por Día</span>
+                        <span class="info-item__value">{{ formatearPrecio(plan.precioPorDia) }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-item__label">Estado</span>
+                        <span class="info-item__value">
+                            <span class="status-badge" [class.active]="plan.activo">
+                                {{ plan.activo ? 'Activo' : 'Inactivo' }}
+                            </span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DESCRIPCIÓN -->
+            <div class="info-card" *ngIf="plan.descripcion">
+                <h3 class="info-card__title">Descripción</h3>
+                <p class="info-card__text">{{ plan.descripcion }}</p>
+            </div>
+
+            <!-- BENEFICIOS -->
+            <div class="info-card">
+                <h3 class="info-card__title">Beneficios</h3>
+                <ul class="benefits-list-detail">
+                    <li *ngFor="let beneficio of plan.beneficios">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                        {{ beneficio }}
+                    </li>
+                </ul>
+            </div>
+
+            <!-- CONFIGURACIÓN ADICIONAL -->
+            <div class="info-card">
+                <h3 class="info-card__title">Configuración Adicional</h3>
+                <div class="config-grid">
+                    <div class="config-item">
+                        <span class="config-item__label">Asistente IA</span>
+                        <span class="config-item__value">
+                            <span class="tag" [class.tag-active]="plan.incluyeIA">
+                                {{ plan.incluyeIA ? 'Incluido' : 'No incluido' }}
+                            </span>
+                        </span>
+                    </div>
+                    <div class="config-item">
+                        <span class="config-item__label">Membresía Flexible</span>
+                        <span class="config-item__value">
+                            <span class="tag" [class.tag-active]="plan.esFlexible">
+                                {{ plan.esFlexible ? 'Sí' : 'No' }}
+                            </span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- COLUMNA DERECHA: ESTADÍSTICAS -->
+        <div class="stats-column">
+
+            <!-- STATS CARD -->
+            <div class="stats-card">
+                <h3 class="stats-card__title">Estadísticas del Plan</h3>
+
+                <div class="stats-list">
+                    <div class="stat-item">
+                        <span class="stat-item__label">Socios Activos</span>
+                        <span class="stat-item__value">{{ totalSocios }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-item__label">Revenue Estimado</span>
+                        <span class="stat-item__value">{{ formatearPrecio((plan.precioTotal || 0) * totalSocios)
+                            }}</span>
+                    </div>
+                </div>
+
+                <div class="stats-card__actions">
+                    <button class="btn-primary" (click)="editar()">
+                        Editar Membresía
+                    </button>
+                </div>
+            </div>
+
+            <!-- SOCIOS ASIGNADOS -->
+            <div class="socios-card">
+                <h3 class="socios-card__title">Socios Asignados</h3>
+                <div class="socios-list">
+                    <div *ngFor="let socio of socios" class="socio-item">
+                        <div class="socio-item__avatar">
+                            {{ socio.nombreCompleto?.charAt(0) || 'U' }}
+                        </div>
+                        <div class="socio-item__info">
+                            <span class="socio-item__name">{{ socio.nombreCompleto }}</span>
+                            <span class="socio-item__email">{{ socio.email }}</span>
+                        </div>
+                        <span class="socio-item__status" [class.active]="socio.estado === 'ACTIVA'">
+                            {{ socio.estado === 'ACTIVA' ? 'Activo' : 'Inactivo' }}
+                        </span>
+                    </div>
+                    <div *ngIf="socios.length === 0" class="socio-item--empty">
+                        No hay socios asignados a este plan
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

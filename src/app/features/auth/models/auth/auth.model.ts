@@ -38,14 +38,22 @@ export interface MessageGlobalDTO {
   message: string;
 }
 
-export interface CredencialesListado {
+export interface Credencial {
   id: number;
-  username: string;
   email: string;
+  username: string;
   rol: string;
   estado: boolean;
-  name: string;
-  role: RolUsuario;
+  fechaRegistro?: string;
+}
+
+export interface RespuestaPaginadaCredenciales {
+  contenido: Credencial[];
+  numeroPagina: number;
+  tamanioPagina: number;
+  totalElementos: number;
+  totalPaginas: number;
+  ultima: boolean;
 }
 
 
@@ -53,5 +61,5 @@ export enum RolUsuario {
   ADMIN = 'administrador',
   ENTRENADOR = 'entrenador',
   RECEPCIONISTA = 'recepcionista',
-  USER = 'user'
+  USER = 'socio'
 }

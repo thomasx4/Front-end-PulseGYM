@@ -10,8 +10,9 @@ export class AuthGuard implements CanActivate {
   ) {}
 
   canActivate(route: ActivatedRouteSnapshot): boolean {
-    const startTime = Date.now();
-    while (Date.now() - startTime < 50) {
+    if (this.authService.isLoginGloballyLocked()) {
+      this.router.navigate(['/auth/login']);
+      return false;
     }
 
     if (!this.authService.isLoggedIn()) {

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../../../environments/environment';
-import { CredencialesListado, RegisterRequestDTO, MessageGlobalDTO, HttpGlobalResponse } from '../../features/auth/models/auth/auth.model';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { RespuestaPaginadaCredenciales, RegisterRequestDTO, MessageGlobalDTO, HttpGlobalResponse } from '../../features/auth/models/auth/auth.model';
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Observable, throwError, BehaviorSubject } from 'rxjs';
 import { tap, catchError, map, distinctUntilChanged } from 'rxjs/operators';
 import { Router } from '@angular/router';
@@ -15,6 +15,9 @@ import { jwtDecode } from 'jwt-decode';
 export class AuthService {
   private apiUrl = `${environment.apiUrl}/pg-ms-auth/auth`;
 
+  private readonly LOCK_KEY = 'login_lock_end_time';
+  private readonly LOCK_DURATION = 30000;
+
   /**
    * Registro de credenciales
    */
@@ -25,9 +28,30 @@ export class AuthService {
   /**
    * Listado de credenciales
    */
-listarCredenciales(): Observable<CredencialesListado[]> {
-  return this.http.get<CredencialesListado[]>(`${this.apiUrl}/usuarios`);
-}
+  listarCredenciales(
+    pagina: number = 0,
+    tamanio: number = 5,
+    ordenarPor: string = 'id',
+    direccion?: string,
+    rol?: string,
+    activo?: boolean,
+    username?: string
+  ): Observable<RespuestaPaginadaCredenciales> {
+    let params = new HttpParams()
+      .set('pagina', pagina.toString())
+      .set('tamanio', tamanio.toString())
+      .set('ordenarPor', ordenarPor);
+
+    if (rol) params = params.set('rol', rol);
+    if (activo !== undefined) params = params.set('activo', activo);
+    if (direccion) params = params.set('direccion', direccion);
+    if (username) params = params.set('username', username);
+
+    return this.http.get<RespuestaPaginadaCredenciales>(
+      `${this.apiUrl}/usuarios`,
+      { params }
+    );
+  }
 
   /**
    * Cambio de estado de credencial
@@ -47,14 +71,41 @@ listarCredenciales(): Observable<CredencialesListado[]> {
 
   private authStatus = new BehaviorSubject<boolean>(this.isLoggedIn());
   authStatus$ = this.authStatus.asObservable().pipe(distinctUntilChanged());
-  
+
   private currentUserSubject = new BehaviorSubject<User | null>(this.getUser());
   currentUser$ = this.currentUserSubject.asObservable().pipe(distinctUntilChanged());
 
   constructor(
     private http: HttpClient,
     private router: Router
-  ) {}
+  ) { }
+
+  isLoginGloballyLocked(): boolean {
+    const lockEndTime = localStorage.getItem(this.LOCK_KEY);
+    if (!lockEndTime) return false;
+
+    const endTime = parseInt(lockEndTime, 10);
+    const remaining = endTime - Date.now();
+    return remaining > 0;
+  }
+
+  getLockRemainingSeconds(): number {
+    const lockEndTime = localStorage.getItem(this.LOCK_KEY);
+    if (!lockEndTime) return 0;
+
+    const endTime = parseInt(lockEndTime, 10);
+    const remaining = Math.ceil((endTime - Date.now()) / 1000);
+    return remaining > 0 ? remaining : 0;
+  }
+
+  setGlobalLock(): void {
+    const endTime = Date.now() + this.LOCK_DURATION;
+    localStorage.setItem(this.LOCK_KEY, endTime.toString());
+  }
+
+  clearGlobalLock(): void {
+    localStorage.removeItem(this.LOCK_KEY);
+  }
 
   /**
    * Inicio de sesión
@@ -65,7 +116,7 @@ listarCredenciales(): Observable<CredencialesListado[]> {
       .pipe(
         catchError(this.handleError),
         tap(response => {
-          console.log('Respuesta del backend:', response); 
+          console.log('Respuesta del backend:', response);
 
           let token: string | null = null;
           let userRole: RolUsuario = RolUsuario.USER;
@@ -79,13 +130,13 @@ listarCredenciales(): Observable<CredencialesListado[]> {
 
           if (token) {
             this.setEncryptedItem(this.tokenKey, token);
-            
+
             try {
               const decoded: any = jwtDecode(token);
               console.log('Payload del token:', decoded);
-              
+
               const rawRole = decoded.rol || decoded.role || decoded.Rol || decoded.user_role || null;
-              
+
               if (rawRole === 'administrador' || rawRole === 'admin') {
                 userRole = RolUsuario.ADMIN;
               } else if (rawRole === 'entrenador' || rawRole === 'trainer') {
@@ -98,9 +149,9 @@ listarCredenciales(): Observable<CredencialesListado[]> {
                 console.warn('Rol no reconocido en el token:', rawRole);
                 userRole = RolUsuario.USER;
               }
-              
+
               userEmail = decoded.email || decoded.sub || credentials.email;
-              
+
               console.log('Rol extraído del token:', userRole);
             } catch (error) {
               console.warn('No se pudo decodificar el token. Usando rol por defecto.');
@@ -114,11 +165,11 @@ listarCredenciales(): Observable<CredencialesListado[]> {
             };
 
             this.setEncryptedItem(this.userKey, JSON.stringify(dummyUser));
-            localStorage.setItem(this.roleKey, userRole); 
-            
+            localStorage.setItem(this.roleKey, userRole);
+
             this.currentUserSubject.next(dummyUser);
             this.authStatus.next(true);
-            
+
             console.log('Rol guardado en localStorage:', localStorage.getItem(this.roleKey));
           } else {
             console.warn('El backend no envió un token válido.');
@@ -150,12 +201,13 @@ listarCredenciales(): Observable<CredencialesListado[]> {
   }
 
   /**
-   * Cierre de sesión
+   * Cierre de sesión - También limpia el bloqueo global
    */
   logout(): void {
     localStorage.removeItem(this.tokenKey);
     localStorage.removeItem(this.userKey);
     localStorage.removeItem(this.roleKey);
+    this.clearGlobalLock();
     this.authStatus.next(false);
     this.currentUserSubject.next(null);
     this.router.navigate(['/auth/login']);
@@ -244,4 +296,8 @@ listarCredenciales(): Observable<CredencialesListado[]> {
     }
     return throwError(() => new Error(errorMessage));
   }
+
+  changePasswordByAdmin(data: { email: string; newPassword: string; confirmPassword: string }): Observable<MessageGlobalDTO> {
+  return this.http.post<MessageGlobalDTO>(`${this.apiUrl}/change-password-by-admin`, data);
+}
 }
