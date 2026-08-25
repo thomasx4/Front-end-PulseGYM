@@ -19,6 +19,11 @@ const routes: Routes = [
   {
     path: 'edit/:id',
     component: UserFormComponent
+  },
+  {
+    path: 'documents',
+    loadChildren: () =>
+      import('./documents/documents.module').then((m) => m.DocumentsModule)
   }
 ];
 
