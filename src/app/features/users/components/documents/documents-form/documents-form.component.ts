@@ -1,4 +1,3 @@
-// src/app/features/users/components/documents/documents-form.component.ts
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -118,7 +117,6 @@ export class DocumentsFormComponent implements OnInit {
           });
           return;
         }
-        // Mostrar resultados para seleccionar
         this.mostrarSeleccionUsuario(results);
       },
       error: () => {
