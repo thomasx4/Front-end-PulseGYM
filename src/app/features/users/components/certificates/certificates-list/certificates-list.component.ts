@@ -99,13 +99,13 @@ export class CertificatesListComponent implements OnInit {
     this.aplicarFiltros();
   }
 
-  nuevaCertificacion(): void { 
-    this.router.navigate(['/dashboard-admin/users/certificates/new']); 
+  nuevaCertificacion(): void {
+    this.router.navigate(['/dashboard-admin/users/certificates/new']);
   }
 
-  verCertificacion(urlPdf: string): void {
-    if (urlPdf) {
-      window.open(urlPdf, '_blank');
+  verCertificacion(cert: Certificate): void {
+    if (cert && cert.idCertificacion) {
+      this.router.navigate(['/dashboard-admin/users/certificates/detail', cert.idCertificacion]);
     }
   }
 
