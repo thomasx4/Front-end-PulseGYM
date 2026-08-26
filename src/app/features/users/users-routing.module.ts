@@ -1,4 +1,3 @@
-// src/app/features/users/users-routing.module.ts
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { UserProfileListComponent } from './components/user-profile-list/user-profile-list.component';
@@ -20,6 +19,11 @@ const routes: Routes = [
     path: 'documents',
     loadChildren: () =>
       import('./documents/documents.module').then((m) => m.DocumentsModule)
+  },
+  {
+    path: 'certificates',
+    loadChildren: () =>
+      import('./certificates/certificates.module').then((m) => m.CertificatesModule)
   },
   {
     path: 'new',

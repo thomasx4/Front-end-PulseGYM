@@ -76,6 +76,14 @@ export class SidebarComponent implements OnInit {
       </svg>
     `);
 
+    // ICONO PARA CERTIFICACIONES (MEDALLA/CERTIFICADO)
+    const certificateIcon = this.sanitizer.bypassSecurityTrustHtml(`
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="8" r="7"></circle>
+        <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+      </svg>
+    `);
+
     // ITEMS DEL SUBMENÚ DE MEMBRESÍAS
     this.membershipChildren = [
       {
@@ -108,6 +116,11 @@ export class SidebarComponent implements OnInit {
         label: 'Documentos Legales',
         route: '/dashboard-admin/users/documents',
         iconHtml: documentIcon,
+      },
+      {
+        label: 'Certificaciones',
+        route: '/dashboard-admin/users/certificates',
+        iconHtml: certificateIcon,
       }
     ];
 
