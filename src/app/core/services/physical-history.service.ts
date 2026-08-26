@@ -8,7 +8,7 @@ import { environment } from '../../../../environments/environment';
   providedIn: 'root'
 })
 export class PhysicalHistoryService {
-  private apiUrl = `${environment.apiUrl}/api/v1/usuarios/historial-fisico`;
+  private apiUrl = `${environment.apiUrl}/pg-ms-users/api/v1/usuarios/historial-fisico`;
 
   constructor(private http: HttpClient) {}
 
