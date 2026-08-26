@@ -298,6 +298,16 @@
             }
         }
 
+        &.btn-edit {
+            background-color: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
+
+            &:hover {
+                background-color: #bfdbfe;
+            }
+        }
+
         &.btn-delete {
             background-color: #fee2e2;
             color: #dc2626;
