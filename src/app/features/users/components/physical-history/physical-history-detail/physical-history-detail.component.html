@@ -1,1 +1,464 @@
-<p>physical-history-detail works!</p>
+<div class="physical-detail-page" *ngIf="record; else loadingTpl">
+  <!-- ENCABEZADO Y ACCIONES -->
+  <div class="page-header">
+    <div class="page-header__left">
+      <div class="breadcrumb">
+        <button type="button" class="back-btn" (click)="onBack()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+        </button>
+        <span>Historial Físico</span>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+        <span class="active">Detalle de Medición</span>
+      </div>
+
+      <div class="page-header__title-group">
+        <div class="page-header__icon-wrapper">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+          </svg>
+        </div>
+        <h1 class="page-header__title">Historial Físico</h1>
+      </div>
+      <p class="page-header__subtitle">Monitorea el progreso físico y la evolución del socio.</p>
+    </div>
+
+    <div class="page-header__actions">
+      <button type="button" class="btn btn--outline-dark" (click)="onEdit()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+        </svg>
+        Editar medición
+      </button>
+
+      <button type="button" class="btn btn--primary" (click)="onNewMedicion()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        Registrar medición
+      </button>
+    </div>
+  </div>
+
+  <!-- TARJETA PERFIL SOCIO -->
+  <div class="socio-profile-card">
+    <div class="socio-profile-card__left">
+      <div class="avatar-circle">
+        <span>{{ getInitials(record.nombreSocio) }}</span>
+      </div>
+      <div class="socio-info">
+        <div class="socio-info__header">
+          <h2 class="socio-name">{{ record.nombreSocio }}</h2>
+          <span class="status-badge status-badge--active">SOCIO ACTIVO</span>
+        </div>
+        <div class="socio-contact">
+          <span class="contact-item">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+            socio&#64;pulse-gym.com
+          </span>
+          <span class="contact-item">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+            +57 310 123 4567
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="socio-profile-card__right">
+      <div class="meta-item">
+        <span class="meta-label">Miembro desde</span>
+        <span class="meta-value">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          12 Ene 2024
+        </span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Entrenador asignado</span>
+        <span class="meta-value">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          {{ record.nombreRecepcionista || 'Staff Pulse GYM' }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN RESUMEN ACTUAL (KPIS) -->
+  <div class="section-block">
+    <div class="section-block__header">
+      <h3 class="section-title">Resumen Actual</h3>
+      <span class="section-subtitle">Última medición registrada el {{ record.fechaMedicion | date:'dd MMM yyyy' }}</span>
+    </div>
+
+    <div class="kpi-grid-detail">
+      <!-- PESO -->
+      <div class="kpi-detail-card">
+        <div class="kpi-detail-card__header">
+          <div class="icon-box icon-box--blue">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          </div>
+          <span class="kpi-title">Peso</span>
+        </div>
+        <div class="kpi-detail-card__body">
+          <span class="kpi-num">{{ record.pesoKg | number:'1.2-2' }} <small>kg</small></span>
+          <span class="badge-status badge-status--blue">Normal</span>
+        </div>
+      </div>
+
+      <!-- GRASA -->
+      <div class="kpi-detail-card">
+        <div class="kpi-detail-card__header">
+          <div class="icon-box icon-box--red">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>
+          </div>
+          <span class="kpi-title">Grasa Corporal</span>
+        </div>
+        <div class="kpi-detail-card__body">
+          <span class="kpi-num">{{ record.porcentajeGrasa | number:'1.2-2' }} <small>%</small></span>
+          <span class="badge-status badge-status--green">Saludable</span>
+        </div>
+      </div>
+
+      <!-- MÚSCULO -->
+      <div class="kpi-detail-card">
+        <div class="kpi-detail-card__header">
+          <div class="icon-box icon-box--green">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+          </div>
+          <span class="kpi-title">Masa Muscular</span>
+        </div>
+        <div class="kpi-detail-card__body">
+          <span class="kpi-num">{{ record.porcentajeMusculo | number:'1.2-2' }} <small>%</small></span>
+          <span class="badge-status badge-status--green">Excelente</span>
+        </div>
+      </div>
+
+      <!-- CINTURA -->
+      <div class="kpi-detail-card">
+        <div class="kpi-detail-card__header">
+          <div class="icon-box icon-box--orange">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M8 12h8"></path></svg>
+          </div>
+          <span class="kpi-title">Cintura</span>
+        </div>
+        <div class="kpi-detail-card__body">
+          <span class="kpi-num">{{ record.cinturaCm | number:'1.2-2' }} <small>cm</small></span>
+          <span class="badge-status badge-status--blue">Normal</span>
+        </div>
+      </div>
+
+      <!-- PECHO -->
+      <div class="kpi-detail-card">
+        <div class="kpi-detail-card__header">
+          <div class="icon-box icon-box--purple">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+          </div>
+          <span class="kpi-title">Pecho</span>
+        </div>
+        <div class="kpi-detail-card__body">
+          <span class="kpi-num">{{ record.pechoCm | number:'1.2-2' }} <small>cm</small></span>
+          <span class="badge-status badge-status--green">Excelente</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT GRID (GRÁFICA Y ÚLTIMAS MEDICIONES vs SILUETA) -->
+  <div class="main-detail-grid">
+    <div class="main-detail-grid__left">
+      <!-- EVOLUCIÓN DEL PROGRESO (GRÁFICA SVG REALISTA) -->
+      <div class="chart-card">
+        <div class="chart-card__header">
+          <div class="chart-title-group">
+            <h3 class="chart-title">Evolución del Progreso</h3>
+            <div class="chart-legend">
+              <span class="legend-item"><span class="dot dot--blue"></span> Peso (kg)</span>
+              <span class="legend-item"><span class="dot dot--red"></span> Grasa (%)</span>
+              <span class="legend-item"><span class="dot dot--green"></span> Músculo (%)</span>
+            </div>
+          </div>
+          <div class="chart-timeframe">
+            <button class="tf-btn">1M</button>
+            <button class="tf-btn">3M</button>
+            <button class="tf-btn tf-btn--active">6M</button>
+            <button class="tf-btn">1A</button>
+            <button class="tf-btn">Todo</button>
+          </div>
+        </div>
+
+        <div class="chart-body">
+          <svg viewBox="0 0 500 210" class="svg-chart">
+            <defs>
+              <!-- Gradientes de curva -->
+              <linearGradient id="weightArea" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#2563EB" stop-opacity="0.25"/>
+                <stop offset="100%" stop-color="#2563EB" stop-opacity="0.0"/>
+              </linearGradient>
+              <linearGradient id="muscleArea" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#16A34A" stop-opacity="0.20"/>
+                <stop offset="100%" stop-color="#16A34A" stop-opacity="0.0"/>
+              </linearGradient>
+            </defs>
+
+            <!-- Guías horizontales -->
+            <line x1="40" y1="30" x2="470" y2="30" stroke="#F1F5F9" stroke-width="1"/>
+            <line x1="40" y1="75" x2="470" y2="75" stroke="#F1F5F9" stroke-width="1"/>
+            <line x1="40" y1="120" x2="470" y2="120" stroke="#F1F5F9" stroke-width="1"/>
+            <line x1="40" y1="165" x2="470" y2="165" stroke="#F1F5F9" stroke-width="1"/>
+
+            <!-- Eje Y -->
+            <text x="15" y="34" class="chart-axis-text">100</text>
+            <text x="15" y="79" class="chart-axis-text">75</text>
+            <text x="15" y="124" class="chart-axis-text">50</text>
+            <text x="15" y="169" class="chart-axis-text">25</text>
+
+            <!-- ÁREA Y CURVA DE PESO (AZUL) -->
+            <path d="M 60 78 Q 250 72 440 65 L 440 180 L 60 180 Z" fill="url(#weightArea)"/>
+            <path d="M 60 78 Q 250 72 440 65" fill="none" stroke="#2563EB" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="60" cy="78" r="4" fill="#2563EB"/>
+            <circle cx="250" cy="72" r="4" fill="#2563EB"/>
+            <circle cx="440" cy="65" r="6" fill="#2563EB" stroke="#FFFFFF" stroke-width="2"/>
+
+            <!-- ÁREA Y CURVA DE MÚSCULO (VERDE) -->
+            <path d="M 60 142 Q 250 138 440 132 L 440 180 L 60 180 Z" fill="url(#muscleArea)"/>
+            <path d="M 60 142 Q 250 138 440 132" fill="none" stroke="#16A34A" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="60" cy="142" r="4" fill="#16A34A"/>
+            <circle cx="250" cy="138" r="4" fill="#16A34A"/>
+            <circle cx="440" cy="132" r="6" fill="#16A34A" stroke="#FFFFFF" stroke-width="2"/>
+
+            <!-- CURVA DE GRASA (ROJO) -->
+            <path d="M 60 168 Q 250 166 440 162" fill="none" stroke="#EF4444" stroke-dasharray="4 3" stroke-width="2.5"/>
+            <circle cx="440" cy="162" r="5" fill="#EF4444" stroke="#FFFFFF" stroke-width="2"/>
+
+            <!-- LÍNEA INDICADORA Y TOOLTIP -->
+            <line x1="440" y1="30" x2="440" y2="180" stroke="#0E3B72" stroke-opacity="0.4" stroke-width="1.5" stroke-dasharray="4 2"/>
+
+            <g transform="translate(340, 25)">
+              <rect width="115" height="42" rx="8" fill="#0F172A" opacity="0.92"/>
+              <text x="10" y="16" fill="#FFFFFF" font-size="10" font-weight="bold">Último Registro</text>
+              <text x="10" y="31" fill="#93C5FD" font-size="10">Peso: {{ record.pesoKg }}kg</text>
+            </g>
+          </svg>
+
+          <!-- EJE X -->
+          <div class="chart-x-axis">
+            <span>12 May 2026</span>
+            <span>12 Jun 2026</span>
+            <span class="active-date">{{ record.fechaMedicion | date:'dd MMM yyyy' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- DESGLOSE DE ÚLTIMAS MEDICIONES -->
+      <div class="last-measurements-card">
+        <div class="last-measurements-card__header">
+          <div class="header-info">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            <div class="header-text">
+              <h4>{{ record.fechaMedicion | date:'dd MMM yyyy' }}</h4>
+              <span>{{ record.fechaMedicion | date:'hh:mm a' }} • {{ record.nombreRecepcionista || 'Recepcionista' }}</span>
+            </div>
+          </div>
+          <button class="btn-link" (click)="onBack()">Ver todas</button>
+        </div>
+
+        <div class="measurements-list">
+          <div class="measure-item">
+            <span class="m-label"><svg class="m-icon m-icon--blue" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect></svg> Peso</span>
+            <span class="m-val">{{ record.pesoKg | number:'1.2-2' }} kg</span>
+          </div>
+          <div class="measure-item">
+            <span class="m-label"><svg class="m-icon m-icon--red" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg> Grasa Corporal</span>
+            <span class="m-val">{{ record.porcentajeGrasa | number:'1.2-2' }} %</span>
+          </div>
+          <div class="measure-item">
+            <span class="m-label"><svg class="m-icon m-icon--green" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg> Masa Muscular</span>
+            <span class="m-val">{{ record.porcentajeMusculo | number:'1.2-2' }} %</span>
+          </div>
+          <div class="measure-item">
+            <span class="m-label"><svg class="m-icon m-icon--orange" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle></svg> Cintura</span>
+            <span class="m-val">{{ record.cinturaCm | number:'1.2-2' }} cm</span>
+          </div>
+          <div class="measure-item">
+            <span class="m-label"><svg class="m-icon m-icon--purple" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg> Pecho</span>
+            <span class="m-val">{{ record.pechoCm | number:'1.2-2' }} cm</span>
+          </div>
+          <div class="measure-item" *ngIf="record.brazoIzqCm">
+            <span class="m-label">Brazo Izquierdo</span>
+            <span class="m-val">{{ record.brazoIzqCm | number:'1.2-2' }} cm</span>
+          </div>
+          <div class="measure-item" *ngIf="record.brazoDerCm">
+            <span class="m-label">Brazo Derecho</span>
+            <span class="m-val">{{ record.brazoDerCm | number:'1.2-2' }} cm</span>
+          </div>
+          <div class="measure-item" *ngIf="record.piernaIzqCm">
+            <span class="m-label">Pierna Izquierda</span>
+            <span class="m-val">{{ record.piernaIzqCm | number:'1.2-2' }} cm</span>
+          </div>
+          <div class="measure-item" *ngIf="record.piernaDerCm">
+            <span class="m-label">Pierna Derecha</span>
+            <span class="m-val">{{ record.piernaDerCm | number:'1.2-2' }} cm</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SILUETA ANATÓMICA (DERECHA) -->
+    <div class="main-detail-grid__right">
+      <div class="silhouette-card">
+        <div class="silhouette-card__header">
+          <div>
+            <h3 class="s-title">Tu Silueta</h3>
+            <span class="s-subtitle">Medidas del {{ record.fechaMedicion | date:'dd MMM yyyy' }}</span>
+          </div>
+          <button class="btn-xs-outline" (click)="onEdit()">Ver cambios</button>
+        </div>
+
+        <div class="silhouette-body">
+          <div class="silhouette-container">
+            <svg class="body-svg" viewBox="0 0 200 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="bodyGradient" x1="100" y1="20" x2="100" y2="400" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#0E3B72" stop-opacity="0.25"/>
+                  <stop offset="100%" stop-color="#1E293B" stop-opacity="0.08"/>
+                </linearGradient>
+
+                <filter id="glowPurple" x="-50%" y="-50%" width="200%" height="200%">
+                  <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                  <feMerge>
+                    <feMergeNode in="coloredBlur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                  </feMerge>
+                </filter>
+              </defs>
+
+              <!-- Silueta Anatómica Vectorial Detallada -->
+              <path d="M100 22 C111 22 119 30 119 43 C119 56 111 64 100 64 C89 64 81 56 81 43 C81 30 89 22 100 22 Z
+                       M93 65 L107 65 L116 75 C132 82 148 94 158 115 C164 128 168 145 167 175 C166 185 159 190 152 188 C146 186 144 178 146 160 L140 120 C136 128 135 145 133 170 C131 190 126 215 125 240 L135 375 C137 392 121 398 114 395 L103 260 L97 260 L86 395 C79 398 63 392 65 375 L75 240 C74 215 69 190 67 170 C65 145 64 128 60 120 L54 160 C56 178 54 186 48 188 C41 190 34 185 33 175 C32 145 36 128 42 115 C52 94 68 82 84 75 Z" 
+                    fill="url(#bodyGradient)" stroke="#64748B" stroke-width="1.2" stroke-linejoin="round"/>
+
+              <!-- Pecho -->
+              <line x1="38" y1="122" x2="162" y2="122" stroke="#A855F7" stroke-width="1.5" stroke-dasharray="4 3"/>
+              <circle cx="100" cy="122" r="4.5" fill="#A855F7" filter="url(#glowPurple)"/>
+
+              <!-- Cintura -->
+              <line x1="52" y1="168" x2="148" y2="168" stroke="#EA580C" stroke-width="1.5" stroke-dasharray="4 3"/>
+              <circle cx="100" cy="168" r="4.5" fill="#EA580C"/>
+
+              <!-- Brazos (Izquierdo / Derecho) -->
+              <circle cx="48" cy="155" r="4" fill="#22C55E"/>
+              <circle cx="152" cy="155" r="4" fill="#22C55E"/>
+
+              <!-- Piernas (Izquierda / Derecha) -->
+              <circle cx="84" cy="275" r="4" fill="#0284C7"/>
+              <circle cx="116" cy="275" r="4" fill="#0284C7"/>
+            </svg>
+          </div>
+
+          <!-- DESGLOSE DE MEDIDAS -->
+          <div class="silhouette-labels">
+            <div class="group-block">
+              <span class="group-title">Tronco</span>
+              <div class="s-measure">
+                <span class="sm-name">Pecho</span>
+                <span class="sm-val sm-val--purple">{{ record.pechoCm | number:'1.2-2' }} cm</span>
+              </div>
+              <div class="s-measure">
+                <span class="sm-name">Cintura</span>
+                <span class="sm-val sm-val--orange">{{ record.cinturaCm | number:'1.2-2' }} cm</span>
+              </div>
+            </div>
+
+            <div class="group-block">
+              <span class="group-title">Brazos</span>
+              <div class="s-measure">
+                <span class="sm-name">Izquierdo</span>
+                <span class="sm-val sm-val--green">{{ (record.brazoIzqCm || 32.0) | number:'1.2-2' }} cm</span>
+              </div>
+              <div class="s-measure">
+                <span class="sm-name">Derecho</span>
+                <span class="sm-val sm-val--green">{{ (record.brazoDerCm || 32.5) | number:'1.2-2' }} cm</span>
+              </div>
+            </div>
+
+            <div class="group-block">
+              <span class="group-title">Piernas</span>
+              <div class="s-measure">
+                <span class="sm-name">Izquierda</span>
+                <span class="sm-val sm-val--blue">{{ (record.piernaIzqCm || 55.0) | number:'1.2-2' }} cm</span>
+              </div>
+              <div class="s-measure">
+                <span class="sm-name">Derecha</span>
+                <span class="sm-val sm-val--blue">{{ (record.piernaDerCm || 55.5) | number:'1.2-2' }} cm</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="silhouette-footer-banner">
+          <p><strong>Las medidas se toman en centímetros (cm).</strong> Pasa el cursor sobre cada medida para ver recomendaciones.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN INFERIOR: COMPARACIÓN GENERAL Y FRECUENCIA -->
+  <div class="bottom-grid">
+    <div class="bottom-card">
+      <div class="bottom-card__header">
+        <div class="b-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></div>
+        <div>
+          <h4 class="b-title">Comparación General</h4>
+          <span class="b-subtitle">Comparado con la primera medición registrada</span>
+        </div>
+      </div>
+
+      <div class="comp-grid">
+        <div class="comp-item">
+          <span class="ci-label">Peso</span>
+          <span class="ci-val ci-val--down">-2.10 kg</span>
+        </div>
+        <div class="comp-item">
+          <span class="ci-label">Grasa Corporal</span>
+          <span class="ci-val ci-val--down">-1.30 %</span>
+        </div>
+        <div class="comp-item">
+          <span class="ci-label">Masa Muscular</span>
+          <span class="ci-val ci-val--up">+1.80 %</span>
+        </div>
+        <div class="comp-item">
+          <span class="ci-label">Cintura</span>
+          <span class="ci-val ci-val--down">-1.50 cm</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-card">
+      <div class="bottom-card__header">
+        <div class="b-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>
+        <div>
+          <h4 class="b-title">Frecuencia de medición</h4>
+          <span class="b-subtitle">Mediciones periódicas activas</span>
+        </div>
+      </div>
+
+      <div class="freq-banner">
+        <p><strong>Recomendado:</strong> Al menos 1 vez cada 15 días para un seguimiento efectivo.</p>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SPINNER CARGA -->
+<ng-template #loadingTpl>
+  <div class="loading-state">
+    <div class="spinner"></div>
+    <p>Cargando información del historial físico...</p>
+  </div>
+</ng-template>
