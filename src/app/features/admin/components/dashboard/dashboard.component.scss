@@ -843,3 +843,25 @@
         }
     }
 }
+
+.expiring-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem 1rem;
+    text-align: center;
+    gap: 0.5rem;
+
+    &__icon {
+        color: #10b981;
+        opacity: 0.85;
+    }
+
+    &__text {
+        margin: 0;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #64748b;
+    }
+}

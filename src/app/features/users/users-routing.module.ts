@@ -1,25 +1,29 @@
-// src/app/features/users/users-routing.module.ts
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { UserProfileListComponent } from './components/user-profile-list/user-profile-list.component';
 import { UserFormComponent } from './components/user-form/user-form.component';
 import { UserDetailComponent } from './components/user-detail/user-detail.component';
+import { CredentialsListComponent } from '../auth/components/credentials-list/credentials-list.component';
 
 const routes: Routes = [
   {
     path: '',
-    component: UserProfileListComponent,
+    component: CredentialsListComponent,
     pathMatch: 'full'
   },
   {
     path: 'profiles',
-    redirectTo: '',
-    pathMatch: 'full'
+    component: UserProfileListComponent
   },
   {
     path: 'documents',
     loadChildren: () =>
       import('./documents/documents.module').then((m) => m.DocumentsModule)
+  },
+  {
+    path: 'certificates',
+    loadChildren: () =>
+      import('./certificates/certificates.module').then((m) => m.CertificatesModule)
   },
   {
     path: 'new',
