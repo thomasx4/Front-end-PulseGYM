@@ -1,7 +1,7 @@
 .header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   width: 100%;
   padding: 0.85rem 2rem;
   background-color: #ffffff;
@@ -12,41 +12,6 @@
     display: flex;
     align-items: center;
     gap: 1.5rem;
-  }
-}
-
-// BARRA DE BÚSQUEDA
-.search-bar {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  background-color: #f6f5f5;
-  padding: 0.65rem 1.25rem;
-  border-radius: 999px;
-  width: 100%;
-  max-width: 440px;
-
-  // ICONO DE BÚSQUEDA
-  &__icon {
-    width: 18px;
-    height: 18px;
-    color: #8a94a6;
-    flex-shrink: 0;
-  }
-
-  // INPUT DE BÚSQUEDA
-  &__input {
-    border: none;
-    outline: none;
-    background: transparent;
-    font-size: 0.9rem;
-    color: #1e293b;
-    width: 100%;
-
-    &::placeholder {
-      color: #8a94a6;
-      font-size: 0.875rem;
-    }
   }
 }
 

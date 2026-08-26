@@ -3,13 +3,21 @@
     background-color: #f8fafc;
     color: #0e3b72;
     display: flex;
+
+    /* CAMBIOS PARA FIJAR EL SIDEBAR Y EVITAR ESPACIOS BLANCOS */
     height: 100vh;
+    position: sticky;
+    top: 0;
+    left: 0;
+    flex-shrink: 0;
+
     flex-direction: column;
     padding: 1.5rem 1rem;
     box-sizing: border-box;
     border-right: 1px solid #e2e8f0;
     box-shadow: 2px 0 12px rgba(0, 0, 0, 0.03);
     user-select: none;
+    z-index: 100;
 
     // LOGO & BRANDING
     &__brand {
@@ -116,7 +124,7 @@
         }
     }
 
-    // SUBMENÚ & ANIMACIÓN SUAVE (CSS GRID)
+    // SUBMENÚ & ANIMACIÓN SUAVE
     &__submenu {
         display: grid;
         grid-template-rows: 0fr;
@@ -214,7 +222,7 @@
         }
 
         &:hover {
-            background-color: #ef4444;
+            background-color: #e67171;
             color: #ffffff;
             border-color: #ef4444;
             box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
