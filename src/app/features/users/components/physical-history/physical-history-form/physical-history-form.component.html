@@ -1,1 +1,190 @@
-<p>physical-history-form works!</p>
+<div class="form-container">
+    <!-- ENCABEZADO Y ACCIONES PRINCIPALES -->
+    <div class="form-header">
+        <div class="form-header__left">
+            <div class="breadcrumb">
+                <button type="button" class="back-btn" (click)="onCancel()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.5">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                </button>
+                <span>Historial Físico</span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+                <span class="active">{{ isEditMode ? 'Editar Medición' : 'Registrar Medición' }}</span>
+            </div>
+
+            <h1 class="form-title">{{ isEditMode ? 'Editar Medición Física' : 'Registrar Medición Física' }}</h1>
+            <p class="form-subtitle">
+                {{ isEditMode ? 'Modifica los datos de la medición registrada. Deja en blanco los campos que no deseas
+                cambiar.' : 'Completa los datos para registrar una nueva medición física del socio.' }}
+            </p>
+        </div>
+
+        <div class="form-header__actions">
+            <button type="button" class="btn btn--secondary" (click)="onCancel()">
+                Cancelar
+            </button>
+            <button type="button" class="btn btn--primary" (click)="onSubmit()" [disabled]="submitting">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                    <polyline points="7 3 7 8 15 8"></polyline>
+                </svg>
+                <span>{{ submitting ? 'Guardando...' : (isEditMode ? 'Actualizar Medición' : 'Guardar Medición')
+                    }}</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- BANNER EN MODO EDICIÓN -->
+    <div *ngIf="isEditMode" class="meta-banner">
+        <div class="meta-banner__icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+        </div>
+        <div class="meta-banner__content">
+            <span class="meta-banner__title">Medición del {{ editMetaInfo.fechaFormatted }}</span>
+            <span class="meta-banner__subtitle">Registrado por: {{ editMetaInfo.registradoPor }}</span>
+        </div>
+    </div>
+
+    <!-- FORMULARIO -->
+    <form [formGroup]="form" class="form-card">
+        <!-- SECCIÓN 1: DATOS DE SOCIO Y RECEPCIONISTA -->
+        <div class="form-grid form-grid--2-col">
+            <div class="form-group">
+                <label class="form-label">Socio *</label>
+                <div class="select-wrapper">
+                    <select formControlName="idSocio" class="form-control">
+                        <option [ngValue]="null" disabled>Seleccionar socio</option>
+                        <option *ngFor="let s of sociosList" [value]="s.id">{{ s.name }} (ID: {{ s.id }})</option>
+                    </select>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        class="select-arrow">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Recepcionista</label>
+                <div class="select-wrapper">
+                    <select formControlName="idRecepcionista" class="form-control">
+                        <option [ngValue]="null">Seleccionar recepcionista</option>
+                        <option *ngFor="let r of recepcionistasList" [value]="r.id">{{ r.name }} (ID: {{ r.id }})
+                        </option>
+                    </select>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        class="select-arrow">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 2: FECHA DE MEDICIÓN -->
+        <div *ngIf="!isEditMode" class="form-grid form-grid--3-col">
+            <div class="form-group">
+                <label class="form-label">Fecha de medición</label>
+                <div class="input-with-icon">
+                    <input type="datetime-local" formControlName="fechaMedicion" class="form-control" />
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 3: COMPOSICIÓN CORPORAL -->
+        <div class="form-section">
+            <h3 class="section-title">Composición Corporal</h3>
+            <div class="form-grid form-grid--3-col">
+                <div class="form-group">
+                    <label class="form-label">Peso (kg) *</label>
+                    <input type="number" step="0.01" formControlName="pesoKg" class="form-control" placeholder="75.5" />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Grasa Corporal (%)</label>
+                    <input type="number" step="0.01" formControlName="porcentajeGrasa" class="form-control"
+                        placeholder="18.5" />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Masa Muscular (%)</label>
+                    <input type="number" step="0.01" formControlName="porcentajeMusculo" class="form-control"
+                        placeholder="35.2" />
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 4: MEDIDAS CORPORALES (CM) -->
+        <div class="form-section">
+            <h3 class="section-title">Medidas Corporales (cm)</h3>
+            <div class="form-grid form-grid--4-col">
+                <div class="form-group">
+                    <label class="form-label">Cintura</label>
+                    <input type="number" step="0.01" formControlName="cinturaCm" class="form-control"
+                        placeholder="82.0" />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Pecho</label>
+                    <input type="number" step="0.01" formControlName="pechoCm" class="form-control"
+                        placeholder="98.5" />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Brazo Izquierdo</label>
+                    <input type="number" step="0.01" formControlName="brazoIzqCm" class="form-control"
+                        placeholder="32.0" />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Brazo Derecho</label>
+                    <input type="number" step="0.01" formControlName="brazoDerCm" class="form-control"
+                        placeholder="32.5" />
+                </div>
+            </div>
+
+            <div class="form-grid form-grid--4-col margin-top">
+                <div class="form-group">
+                    <label class="form-label">Pierna Izquierda</label>
+                    <input type="number" step="0.01" formControlName="piernaIzqCm" class="form-control"
+                        placeholder="55.0" />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Pierna Derecha</label>
+                    <input type="number" step="0.01" formControlName="piernaDerCm" class="form-control"
+                        placeholder="55.5" />
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <!-- BANNER INFORMATIVO INFERIOR -->
+    <div class="info-banner" [class.info-banner--success]="isEditMode">
+        <div class="info-banner__icon">
+            <svg *ngIf="!isEditMode" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <svg *ngIf="isEditMode" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2.5">
+                <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+        </div>
+        <span class="info-banner__text">
+            {{ isEditMode ? 'Deja en blanco los campos que no deseas modificar. Solo se actualizarán los campos con
+            valor.' : 'Todos los campos numéricos aceptan decimales.' }}
+        </span>
+    </div>
+</div>
