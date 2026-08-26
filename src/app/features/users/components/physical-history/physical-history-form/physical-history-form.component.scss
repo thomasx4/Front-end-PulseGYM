@@ -1,0 +1,265 @@
+.form-container {
+    padding: 1.5rem 2rem;
+    background-color: #f8fafc;
+    min-height: 100vh;
+}
+
+// ENCABEZADO
+.form-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+
+    &__left {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    &__actions {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+}
+
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: #94a3b8;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+
+    .active {
+        color: #64748b;
+    }
+
+    .back-btn {
+        background: transparent;
+        border: none;
+        color: #0e3b72;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        padding: 0;
+    }
+}
+
+.form-title {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0;
+}
+
+.form-subtitle {
+    font-size: 0.875rem;
+    color: #64748b;
+    margin: 0.25rem 0 0 0;
+}
+
+// BOTONES
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1.25rem;
+    border-radius: 10px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &--primary {
+        background-color: #0e3b72;
+        color: #ffffff;
+        border: none;
+        box-shadow: 0 4px 12px rgba(14, 59, 114, 0.2);
+
+        &:hover:not(:disabled) {
+            background-color: #0a2c56;
+            transform: translateY(-1px);
+        }
+
+        &:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+    }
+
+    &--secondary {
+        background-color: #ffffff;
+        color: #475569;
+        border: 1px solid #e2e8f0;
+
+        &:hover {
+            background-color: #f1f5f9;
+        }
+    }
+}
+
+// META BANNER MODO EDICIÓN
+.meta-banner {
+    background-color: #f0f6ff;
+    border: 1px solid #dbeafe;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+
+    &__icon {
+        color: #2563eb;
+        display: flex;
+        align-items: center;
+    }
+
+    &__content {
+        display: flex;
+        flex-direction: column;
+    }
+
+    &__title {
+        font-size: 0.95rem;
+        font-weight: 800;
+        color: #1e3a8a;
+    }
+
+    &__subtitle {
+        font-size: 0.8rem;
+        color: #3b82f6;
+        font-weight: 500;
+    }
+}
+
+// TARJETA DE FORMULARIO
+.form-card {
+    background-color: #ffffff;
+    border-radius: 14px;
+    border: 1px solid #f1f5f9;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.form-section {
+    margin-top: 2rem;
+
+    .section-title {
+        font-size: 1rem;
+        font-weight: 800;
+        color: #0e3b72;
+        margin: 0 0 1.25rem 0;
+    }
+}
+
+.form-grid {
+    display: grid;
+    gap: 1.25rem;
+
+    &--2-col {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    &--3-col {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    &--4-col {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    &.margin-top {
+        margin-top: 1.25rem;
+    }
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.form-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #475569;
+}
+
+.form-control {
+    width: 100%;
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 0.65rem 1rem;
+    font-size: 0.875rem;
+    color: #0f172a;
+    font-weight: 500;
+
+    &::placeholder {
+        color: #cbd5e1;
+    }
+
+    &:focus {
+        outline: none;
+        border-color: #0e3b72;
+    }
+}
+
+.select-wrapper {
+    position: relative;
+
+    select {
+        appearance: none;
+        padding-right: 2.5rem;
+    }
+
+    .select-arrow {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #64748b;
+        pointer-events: none;
+    }
+}
+
+// BANNERS INFORMATIVOS INFERIORES
+.info-banner {
+    background-color: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 10px;
+    padding: 0.85rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    &__icon {
+        color: #2563eb;
+        display: flex;
+        align-items: center;
+    }
+
+    &__text {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #1e40af;
+    }
+
+    &--success {
+        background-color: #f0fdf4;
+        border-color: #bbf7d0;
+
+        .info-banner__icon {
+            color: #16a34a;
+        }
+
+        .info-banner__text {
+            color: #15803d;
+        }
+    }
+}
