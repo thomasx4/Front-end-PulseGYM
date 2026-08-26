@@ -6,6 +6,8 @@ export interface PhysicalHistory {
     nombreRecepcionista?: string;
     fechaMedicion: string;
     pesoKg: number;
+    alturaCm?: number;
+    imc?: number;
     porcentajeGrasa: number;
     porcentajeMusculo: number;
     cinturaCm: number;
@@ -24,10 +26,11 @@ export interface PhysicalHistoryRequest {
     idRecepcionista?: number;
     fechaMedicion?: string;
     pesoKg: number;
-    porcentajeGrasa: number;
-    porcentajeMusculo: number;
-    cinturaCm: number;
-    pechoCm: number;
+    alturaCm?: number;
+    porcentajeGrasa?: number;
+    porcentajeMusculo?: number;
+    cinturaCm?: number;
+    pechoCm?: number;
     brazoIzqCm?: number;
     brazoDerCm?: number;
     piernaIzqCm?: number;

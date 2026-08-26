@@ -11,11 +11,20 @@ import { PhysicalHistory } from '../../../../../core/models/physical-history';
 export class PhysicalHistoryListComponent implements OnInit {
   records: PhysicalHistory[] = [];
   filteredRecords: PhysicalHistory[] = [];
+  paginatedRecords: PhysicalHistory[] = [];
   loading: boolean = false;
   searchQuery: string = '';
 
   selectedSocioId: string = 'ALL';
   uniqueSocios: { id: number; name: string }[] = [];
+
+  startDate: string = '';
+  endDate: string = '';
+
+  currentPage: number = 1;
+  pageSize: number = 6;
+  totalPages: number = 1;
+  pagesArray: number[] = [];
 
   totalRecords: number = 0;
   firstDate: string = '-';
@@ -38,7 +47,6 @@ export class PhysicalHistoryListComponent implements OnInit {
         this.records = this.calculateTrends(data);
         this.extractUniqueSocios();
         this.applyFilters();
-        this.calculateKPIs();
         this.loading = false;
       },
       error: (err) => {
@@ -90,14 +98,63 @@ export class PhysicalHistoryListComponent implements OnInit {
   applyFilters(): void {
     this.filteredRecords = this.records.filter(r => {
       const matchesSocio = this.selectedSocioId === 'ALL' || r.idSocio === Number(this.selectedSocioId);
+      
       const query = this.searchQuery.toLowerCase().trim();
       const matchesSearch = !query || 
         r.nombreSocio.toLowerCase().includes(query) || 
-        (r.nombreRecepcionista && r.nombreRecepcionista.toLowerCase().includes(query)) ||
-        r.fechaMedicion.toLowerCase().includes(query);
+        (r.nombreRecepcionista && r.nombreRecepcionista.toLowerCase().includes(query));
 
-      return matchesSocio && matchesSearch;
+      let matchesDateRange = true;
+      if (r.fechaMedicion) {
+        const recordDate = new Date(r.fechaMedicion);
+
+        if (this.startDate) {
+          const start = new Date(this.startDate + 'T00:00:00');
+          matchesDateRange = matchesDateRange && recordDate >= start;
+        }
+
+        if (this.endDate) {
+          const end = new Date(this.endDate + 'T23:59:59');
+          matchesDateRange = matchesDateRange && recordDate <= end;
+        }
+      }
+
+      return matchesSocio && matchesSearch && matchesDateRange;
     });
+
+    this.currentPage = 1;
+    this.updatePagination();
+    this.calculateKPIs();
+  }
+
+  clearDates(): void {
+    this.startDate = '';
+    this.endDate = '';
+    this.applyFilters();
+  }
+
+  updatePagination(): void {
+    this.totalPages = Math.ceil(this.filteredRecords.length / this.pageSize) || 1;
+    this.pagesArray = Array.from({ length: this.totalPages }, (_, i) => i + 1);
+
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    this.paginatedRecords = this.filteredRecords.slice(startIndex, endIndex);
+  }
+
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      this.updatePagination();
+    }
+  }
+
+  get startIndex(): number {
+    return this.filteredRecords.length === 0 ? 0 : (this.currentPage - 1) * this.pageSize + 1;
+  }
+
+  get endIndex(): number {
+    return Math.min(this.currentPage * this.pageSize, this.filteredRecords.length);
   }
 
   private calculateKPIs(): void {

@@ -54,6 +54,7 @@ export class PhysicalHistoryFormComponent implements OnInit {
       idRecepcionista: [null],
       fechaMedicion: [defaultDate],
       pesoKg: [null, [Validators.required, Validators.min(0)]],
+      alturaCm: [null, [Validators.min(0), Validators.max(300)]],
       porcentajeGrasa: [null, [Validators.min(0), Validators.max(100)]],
       porcentajeMusculo: [null, [Validators.min(0), Validators.max(100)]],
       cinturaCm: [null, [Validators.min(0)]],
@@ -72,10 +73,22 @@ export class PhysicalHistoryFormComponent implements OnInit {
           id: u.idUsuario || u.id,
           name: `${u.nombre} ${u.apellido}`
         }));
-        this.recepcionistasList = [...this.sociosList];
+
+        this.recepcionistasList = users
+          .filter(u => {
+            const rolName = typeof u.rol === 'string' 
+              ? u.rol.toUpperCase() 
+              : u.rol?.nombreRol?.toUpperCase() || u.rol?.nombre?.toUpperCase() || '';
+            
+            return rolName.includes('RECEPCIONISTA') || rolName.includes('ENTRENADOR');
+          })
+          .map(u => ({
+            id: u.idUsuario || u.id,
+            name: `${u.nombre} ${u.apellido}`
+          }));
       },
-      error: () => {
-  
+      error: (err) => {
+        console.error('Error al cargar lista de usuarios:', err);
       }
     });
   }
@@ -91,6 +104,7 @@ export class PhysicalHistoryFormComponent implements OnInit {
             idRecepcionista: item.idRecepcionista || null,
             fechaMedicion: item.fechaMedicion ? this.formatDateForInput(new Date(item.fechaMedicion)) : '',
             pesoKg: item.pesoKg,
+            alturaCm: item.alturaCm || null,
             porcentajeGrasa: item.porcentajeGrasa,
             porcentajeMusculo: item.porcentajeMusculo,
             cinturaCm: item.cinturaCm,
@@ -129,8 +143,9 @@ export class PhysicalHistoryFormComponent implements OnInit {
       idRecepcionista: rawVal.idRecepcionista ? Number(rawVal.idRecepcionista) : undefined,
       fechaMedicion: rawVal.fechaMedicion ? new Date(rawVal.fechaMedicion).toISOString() : undefined,
       pesoKg: Number(rawVal.pesoKg),
-      porcentajeGrasa: rawVal.porcentajeGrasa ? Number(rawVal.porcentajeGrasa) : 0,
-      porcentajeMusculo: rawVal.porcentajeMusculo ? Number(rawVal.porcentajeMusculo) : 0,
+      alturaCm: rawVal.alturaCm ? Number(rawVal.alturaCm) : undefined,
+      porcentajeGrasa: rawVal.porcentajeGrasa !== null && rawVal.porcentajeGrasa !== '' ? Number(rawVal.porcentajeGrasa) : 0,
+      porcentajeMusculo: rawVal.porcentajeMusculo !== null && rawVal.porcentajeMusculo !== '' ? Number(rawVal.porcentajeMusculo) : 0,
       cinturaCm: rawVal.cinturaCm ? Number(rawVal.cinturaCm) : 0,
       pechoCm: rawVal.pechoCm ? Number(rawVal.pechoCm) : 0,
       brazoIzqCm: rawVal.brazoIzqCm ? Number(rawVal.brazoIzqCm) : 0,

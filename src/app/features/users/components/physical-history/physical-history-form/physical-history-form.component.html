@@ -19,8 +19,7 @@
 
             <h1 class="form-title">{{ isEditMode ? 'Editar Medición Física' : 'Registrar Medición Física' }}</h1>
             <p class="form-subtitle">
-                {{ isEditMode ? 'Modifica los datos de la medición registrada. Deja en blanco los campos que no deseas
-                cambiar.' : 'Completa los datos para registrar una nueva medición física del socio.' }}
+                {{ isEditMode ? 'Modifica los datos de la medición registrada. Deja en blanco los campos que no deseas cambiar.' : 'Completa los datos para registrar una nueva medición física del socio.' }}
             </p>
         </div>
 
@@ -34,8 +33,7 @@
                     <polyline points="17 21 17 13 7 13 7 21"></polyline>
                     <polyline points="7 3 7 8 15 8"></polyline>
                 </svg>
-                <span>{{ submitting ? 'Guardando...' : (isEditMode ? 'Actualizar Medición' : 'Guardar Medición')
-                    }}</span>
+                <span>{{ submitting ? 'Guardando...' : (isEditMode ? 'Actualizar Medición' : 'Guardar Medición') }}</span>
             </button>
         </div>
     </div>
@@ -91,7 +89,7 @@
         </div>
 
         <!-- SECCIÓN 2: FECHA DE MEDICIÓN -->
-        <div *ngIf="!isEditMode" class="form-grid form-grid--3-col">
+        <div *ngIf="!isEditMode" class="form-grid form-grid--3-col margin-top">
             <div class="form-group">
                 <label class="form-label">Fecha de medición</label>
                 <div class="input-with-icon">
@@ -103,22 +101,27 @@
         <!-- SECCIÓN 3: COMPOSICIÓN CORPORAL -->
         <div class="form-section">
             <h3 class="section-title">Composición Corporal</h3>
-            <div class="form-grid form-grid--3-col">
+            <div class="form-grid form-grid--4-col">
                 <div class="form-group">
                     <label class="form-label">Peso (kg) *</label>
                     <input type="number" step="0.01" formControlName="pesoKg" class="form-control" placeholder="75.5" />
                 </div>
 
                 <div class="form-group">
+                    <label class="form-label">Estatura (cm)</label>
+                    <input type="number" step="0.1" formControlName="alturaCm" class="form-control" placeholder="175.0" />
+                </div>
+
+                <div class="form-group">
                     <label class="form-label">Grasa Corporal (%)</label>
                     <input type="number" step="0.01" formControlName="porcentajeGrasa" class="form-control"
-                        placeholder="18.5" />
+                        placeholder="Autocalculado si es 0" />
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Masa Muscular (%)</label>
                     <input type="number" step="0.01" formControlName="porcentajeMusculo" class="form-control"
-                        placeholder="35.2" />
+                        placeholder="Autocalculado si es 0" />
                 </div>
             </div>
         </div>
@@ -183,8 +186,7 @@
             </svg>
         </div>
         <span class="info-banner__text">
-            {{ isEditMode ? 'Deja en blanco los campos que no deseas modificar. Solo se actualizarán los campos con
-            valor.' : 'Todos los campos numéricos aceptan decimales.' }}
+            {{ isEditMode ? 'Deja en blanco los campos que no deseas modificar. Solo se actualizarán los campos con valor.' : 'Si dejas en blanco o en 0 la Grasa Corporal y Masa Muscular, el sistema los calculará automáticamente.' }}
         </span>
     </div>
 </div>

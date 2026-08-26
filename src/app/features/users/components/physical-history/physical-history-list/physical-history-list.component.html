@@ -104,6 +104,7 @@
   <!-- BARRA DE FILTROS -->
   <div class="filters-card">
     <div class="filters-card__left">
+      <!-- SELECT SOCIO -->
       <div class="select-wrapper">
         <select [(ngModel)]="selectedSocioId" (change)="applyFilters()" class="filter-select">
           <option value="ALL">Todos los socios</option>
@@ -114,15 +115,21 @@
         </svg>
       </div>
 
-      <div class="select-wrapper">
-        <button class="filter-date-btn">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-            <line x1="16" y1="2" x2="16" y2="6"></line>
-            <line x1="8" y1="2" x2="8" y2="6"></line>
-            <line x1="3" y1="10" x2="21" y2="10"></line>
+      <!-- RANGO DE FECHAS -->
+      <div class="date-range-group">
+        <div class="date-input-wrapper">
+          <span class="date-label">Desde:</span>
+          <input type="date" [(ngModel)]="startDate" (change)="applyFilters()" class="filter-date-input" />
+        </div>
+        <div class="date-input-wrapper">
+          <span class="date-label">Hasta:</span>
+          <input type="date" [(ngModel)]="endDate" (change)="applyFilters()" class="filter-date-input" />
+        </div>
+        <button *ngIf="startDate || endDate" (click)="clearDates()" class="btn-clear-dates" title="Limpiar rango de fechas">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
           </svg>
-          <span>Rango de fechas</span>
         </button>
       </div>
     </div>
@@ -135,7 +142,7 @@
         </svg>
         <input 
           type="text" 
-          placeholder="Buscar por fecha o recepcionista..." 
+          placeholder="Buscar por recepcionista o socio..." 
           [(ngModel)]="searchQuery" 
           (input)="applyFilters()" 
           class="search-input" />
@@ -166,7 +173,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let item of filteredRecords">
+        <tr *ngFor="let item of paginatedRecords">
           <!-- FECHA DE MEDICIÓN -->
           <td>
             <div class="date-cell">
@@ -260,7 +267,7 @@
 
         <tr *ngIf="filteredRecords.length === 0">
           <td colspan="8" class="empty-row">
-            No se encontraron registros de historial físico.
+            No se encontraron registros de historial físico para los filtros seleccionados.
           </td>
         </tr>
       </tbody>
@@ -268,11 +275,19 @@
 
     <!-- PIE DE PAGINACIÓN -->
     <div class="pagination-footer">
-      <span class="pagination-footer__info">Mostrando 1 a {{ filteredRecords.length }} de {{ totalRecords }} mediciones</span>
+      <span class="pagination-footer__info">
+        Mostrando {{ startIndex }} a {{ endIndex }} de {{ filteredRecords.length }} mediciones
+      </span>
       <div class="pagination-controls">
-        <button class="page-btn" disabled>&lt;</button>
-        <button class="page-btn page-btn--active">1</button>
-        <button class="page-btn">&gt;</button>
+        <button class="page-btn" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">&lt;</button>
+        <button 
+          *ngFor="let page of pagesArray" 
+          class="page-btn" 
+          [class.page-btn--active]="page === currentPage"
+          (click)="goToPage(page)">
+          {{ page }}
+        </button>
+        <button class="page-btn" [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">&gt;</button>
       </div>
     </div>
   </div>
