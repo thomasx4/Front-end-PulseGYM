@@ -45,7 +45,6 @@ export class SidebarComponent implements OnInit {
   }
 
   initMenuItems(): void {
-    // ICONO PARA ASIGNAR MEMBRESÍA
     const assignIcon = this.sanitizer.bypassSecurityTrustHtml(`
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -55,7 +54,6 @@ export class SidebarComponent implements OnInit {
       </svg>
     `);
 
-    // ICONO PARA PERFIL DE USUARIO
     const profileIcon = this.sanitizer.bypassSecurityTrustHtml(`
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -65,7 +63,6 @@ export class SidebarComponent implements OnInit {
       </svg>
     `);
 
-    // ICONO PARA DOCUMENTOS
     const documentIcon = this.sanitizer.bypassSecurityTrustHtml(`
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -76,7 +73,6 @@ export class SidebarComponent implements OnInit {
       </svg>
     `);
 
-    // ICONO PARA CERTIFICACIONES (MEDALLA/CERTIFICADO)
     const certificateIcon = this.sanitizer.bypassSecurityTrustHtml(`
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="8" r="7"></circle>
@@ -84,7 +80,6 @@ export class SidebarComponent implements OnInit {
       </svg>
     `);
 
-    // ITEMS DEL SUBMENÚ DE MEMBRESÍAS
     this.membershipChildren = [
       {
         label: 'Asignar Membresía',
@@ -93,11 +88,11 @@ export class SidebarComponent implements OnInit {
       }
     ];
 
-    // ITEMS DEL SUBMENÚ DE USUARIOS
     this.usersChildren = [
       {
         label: 'Credenciales de Usuarios',
         route: '/dashboard-admin/users',
+        exact: true, // Se fuerza la coincidencia exacta de la ruta
         iconHtml: this.sanitizer.bypassSecurityTrustHtml(`
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
@@ -124,7 +119,6 @@ export class SidebarComponent implements OnInit {
       }
     ];
 
-    // MENÚ PRINCIPAL
     this.menuItems = [
       {
         label: 'Dashboard',
