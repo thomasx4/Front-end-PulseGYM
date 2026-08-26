@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
+import { AuthService } from '../../../../core/services/auth.service';
+
 
 interface MenuItem {
   label: string;
@@ -17,6 +19,7 @@ interface MenuItem {
   styleUrls: ['./sidebar.component.scss'],
 })
 export class SidebarComponent implements OnInit {
+
   menuItems: MenuItem[] = [];
   membershipChildren: MenuItem[] = [];
   usersChildren: MenuItem[] = [];
@@ -25,7 +28,8 @@ export class SidebarComponent implements OnInit {
 
   constructor(
     private sanitizer: DomSanitizer,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) {
     this.initMenuItems();
   }
@@ -219,7 +223,7 @@ export class SidebarComponent implements OnInit {
     this.router.navigate(['/dashboard-admin/memberships/list']);
   }
 
-  onLogout() {
-    console.log('Logout');
+  logout(): void {
+    this.authService.logout();
   }
 }
