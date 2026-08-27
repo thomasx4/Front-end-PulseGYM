@@ -1,7 +1,3 @@
-// Este archivo sería para el modelo de autenticación
-// Podrías exportar interfaces y tipos aquí
-
-
 export interface AuthCredentials {
   email: string;
   password: string;
@@ -16,9 +12,12 @@ export interface AuthResponse {
 export interface User {
   id: string;
   email: string;
+  username: string;
   name: string;
   role: RolUsuario;
   avatar?: string;
+  fotoUrl?: string | null; 
+  fotoPerfil?: string | null;
 }
 
 export interface RegisterRequestDTO {
@@ -55,7 +54,6 @@ export interface RespuestaPaginadaCredenciales {
   totalPaginas: number;
   ultima: boolean;
 }
-
 
 export enum RolUsuario {
   ADMIN = 'administrador',

@@ -1,8 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { RespuestaPaginadaCredenciales, Credencial } from '../../models/auth/auth.model';
 import { AuthService } from '../../../../core/services/auth.service';
+import { UserService } from '../../../../core/services/user.service';
 import { FiltrosCredenciales } from '../filter-credentials/filter-credentials.component';
 import Swal from 'sweetalert2';
+import { of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-credentials-list',
@@ -36,11 +39,88 @@ export class CredentialsListComponent implements OnInit {
   cargandoPassword: boolean = false;
   errorPassword: string = '';
 
-  constructor(private authService: AuthService) { }
+  fotosPorKeyMap: Map<string, string> = new Map<string, string>();
+  avatarErrors: Set<string | number> = new Set<string | number>();
+
+  constructor(
+    private authService: AuthService,
+    private userService: UserService
+  ) { }
 
   ngOnInit(): void {
+    this.cargarMapaFotos();
     this.cargarCredenciales();
     this.cargarMetricasGenerales();
+  }
+
+  cargarMapaFotos(): void {
+    this.userService.obtenerTodosLosPerfilesActivos().pipe(
+      catchError((err) => {
+        console.warn('No se pudieron obtener los perfiles para asociar fotos:', err);
+        return of([]);
+      })
+    ).subscribe((usuarios: any[]) => {
+      if (Array.isArray(usuarios)) {
+        usuarios.forEach((u: any) => {
+          const foto = u.fotoUrl || u.fotoPerfil || u.foto || u.avatar;
+          if (foto) {
+            if (u.username) {
+              this.fotosPorKeyMap.set(u.username.toLowerCase().trim(), foto);
+            }
+            if (u.email) {
+              this.fotosPorKeyMap.set(u.email.toLowerCase().trim(), foto);
+            }
+            if (u.idUsuario || u.id) {
+              this.fotosPorKeyMap.set(String(u.idUsuario || u.id), foto);
+            }
+          }
+        });
+      }
+    });
+  }
+
+  getFotoCredencial(item: Credencial): string | null {
+    if (!item) return null;
+
+    const directFoto = (item as any).fotoUrl || (item as any).avatarUrl || (item as any).foto;
+    if (directFoto && !directFoto.includes('pravatar.cc') && !directFoto.includes('ui-avatars.com')) {
+      let rawUrl = String(directFoto).trim();
+      if (rawUrl !== '' && rawUrl !== 'null' && rawUrl !== 'undefined') {
+        return rawUrl.startsWith('//') ? `https:${rawUrl}` : rawUrl;
+      }
+    }
+
+    if (item.id && this.fotosPorKeyMap.has(String(item.id))) {
+      return this.fotosPorKeyMap.get(String(item.id)) || null;
+    }
+
+    if (item.username && this.fotosPorKeyMap.has(item.username.toLowerCase().trim())) {
+      return this.fotosPorKeyMap.get(item.username.toLowerCase().trim()) || null;
+    }
+
+    if (item.email && this.fotosPorKeyMap.has(item.email.toLowerCase().trim())) {
+      return this.fotosPorKeyMap.get(item.email.toLowerCase().trim()) || null;
+    }
+
+    return null;
+  }
+
+  onAvatarError(key: string | number): void {
+    if (key !== undefined && key !== null) {
+      this.avatarErrors.add(key);
+    }
+  }
+
+  hasAvatarError(key: string | number): boolean {
+    return this.avatarErrors.has(key);
+  }
+
+  getInitials(username?: string): string {
+    if (!username) return 'U';
+    const partes = username.trim().split(' ').filter(p => p.length > 0);
+    if (partes.length === 0) return 'U';
+    if (partes.length === 1) return partes[0].substring(0, 2).toUpperCase();
+    return (partes[0].charAt(0) + partes[1].charAt(0)).toUpperCase();
   }
 
   cargarCredenciales(pagina: number = 0): void {
@@ -120,7 +200,6 @@ export class CredentialsListComponent implements OnInit {
     });
   }
 
-
   abrirModalCambiarPassword(usuario: any): void {
     this.usuarioSeleccionado = usuario;
     this.nuevaPassword = '';
@@ -180,7 +259,6 @@ export class CredentialsListComponent implements OnInit {
       }
     });
   }
-
 
   get paginasVisibles(): number[] {
     if (this.totalPaginas <= 2) {
