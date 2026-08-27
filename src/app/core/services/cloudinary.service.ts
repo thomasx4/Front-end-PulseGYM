@@ -8,7 +8,7 @@ import { SKIP_AUTH } from '../constants/http-context';
   providedIn: 'root'
 })
 export class CloudinaryService {
-  private cloudinaryUrl = `https://api.cloudinary.com/v1_1/${environment.cloudinary.cloudName}/image/upload`;
+  private cloudinaryUrl = `https://api.cloudinary.com/v1_1/${environment.cloudinary.cloudName}/auto/upload`;
   private uploadPreset = environment.cloudinary.uploadPreset;
 
   constructor(private http: HttpClient) {}
@@ -25,7 +25,6 @@ export class CloudinaryService {
   }
 
   deleteImage(publicId: string): Observable<any> {
-
     return this.http.delete(`https://api.cloudinary.com/v1_1/${environment.cloudinary.cloudName}/image/destroy`, {
       params: {
         public_id: publicId,

@@ -5,7 +5,18 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 const routes: Routes = [
   {
     path: '',
-    component: DashboardComponent
+    component: DashboardComponent,
+    pathMatch: 'full'
+  },
+  {
+    path: 'users',
+    loadChildren: () =>
+      import('../users/users.module').then((m) => m.UsersModule)
+  },
+  {
+    path: 'memberships',
+    loadChildren: () =>
+      import('../membership/membership.module').then((m) => m.MembershipModule)
   }
 ];
 

@@ -1,6 +1,6 @@
 <aside class="sidebar">
     <div class="sidebar__brand">
-        <img src="../../../../../favicon.ico" class="sidebar__brand-icon">
+        <img src="../../../../../favicon.ico" class="sidebar__brand-icon" alt="Pulse Gym Logo">
         <div>
             <h1 class="sidebar__brand-name">PULSE GYM</h1>
             <span class="sidebar__brand-role">ADMINISTRADOR</span>
@@ -20,8 +20,8 @@
         <!-- ITEM CON SUBMENÚ (MEMBRESÍAS) -->
         <div class="sidebar__nav-item--parent" [class.open]="isMembershipOpen" (mouseenter)="isMembershipOpen = true"
             (mouseleave)="isMembershipOpen = false">
-
-            <div class="sidebar__nav-item" [class.sidebar__nav-item--active]="isMembershipActive()" (click)="goToMembershipList()">
+            <div class="sidebar__nav-item" [class.sidebar__nav-item--active]="isMembershipActive()"
+                (click)="goToMembershipList()">
                 <span [innerHTML]="getMembershipIcon()" class="sidebar__icon-wrapper"></span>
                 <span>Membresías</span>
                 <svg class="sidebar__dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
@@ -29,20 +29,21 @@
                     <polyline points="6 9 12 15 18 9"></polyline>
                 </svg>
             </div>
-
-            <div class="sidebar__submenu" *ngIf="isMembershipOpen">
-                <a *ngFor="let child of membershipChildren" [routerLink]="child.route"
-                    routerLinkActive="sidebar__submenu-item--active" class="sidebar__submenu-item">
-                    <span [innerHTML]="child.iconHtml" class="sidebar__icon-wrapper"></span>
-                    <span>{{ child.label }}</span>
-                </a>
+            <div class="sidebar__submenu" [class.open]="isMembershipOpen">
+                <div>
+                    <a *ngFor="let child of membershipChildren" [routerLink]="child.route"
+                        routerLinkActive="sidebar__submenu-item--active"
+                        [routerLinkActiveOptions]="{ exact: child.exact || false }" class="sidebar__submenu-item">
+                        <span [innerHTML]="child.iconHtml" class="sidebar__icon-wrapper"></span>
+                        <span>{{ child.label }}</span>
+                    </a>
+                </div>
             </div>
         </div>
 
         <!-- ITEM CON SUBMENÚ (USUARIOS) -->
         <div class="sidebar__nav-item--parent" [class.open]="isUsersOpen" (mouseenter)="isUsersOpen = true"
             (mouseleave)="isUsersOpen = false">
-
             <div class="sidebar__nav-item" [class.sidebar__nav-item--active]="isUsersActive()">
                 <span [innerHTML]="getUsersIcon()" class="sidebar__icon-wrapper"></span>
                 <span>Usuarios</span>
@@ -51,18 +52,26 @@
                     <polyline points="6 9 12 15 18 9"></polyline>
                 </svg>
             </div>
-
-            <div class="sidebar__submenu" *ngIf="isUsersOpen">
-                <a *ngFor="let child of usersChildren" [routerLink]="child.route"
-                    routerLinkActive="sidebar__submenu-item--active" class="sidebar__submenu-item">
-                    <span [innerHTML]="child.iconHtml" class="sidebar__icon-wrapper"></span>
-                    <span>{{ child.label }}</span>
-                </a>
+            <div class="sidebar__submenu" [class.open]="isUsersOpen">
+                <div>
+                    <a *ngFor="let child of usersChildren" [routerLink]="child.route"
+                        routerLinkActive="sidebar__submenu-item--active"
+                        [routerLinkActiveOptions]="{ exact: child.exact || false }" class="sidebar__submenu-item">
+                        <span [innerHTML]="child.iconHtml" class="sidebar__icon-wrapper"></span>
+                        <span>{{ child.label }}</span>
+                    </a>
+                </div>
             </div>
         </div>
     </nav>
 
     <button class="sidebar__logout" (click)="onLogout()">
-        <span>↩</span> Log Out
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
+        <span>Cerrar Sesión</span>
     </button>
 </aside>
