@@ -405,23 +405,26 @@
     gap: 0.5rem;
 }
 
+// BOTONES DE ACCIÓN (AZUL CLARO)
 .action-btn {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
     width: 34px;
     height: 34px;
     border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #64748b;
+    color: #2563eb;
     cursor: pointer;
     transition: all 0.2s ease;
 
     &:hover {
-        color: #0e3b72;
-        border-color: #cbd5e1;
-        background-color: #f8fafc;
+        color: #1d4ed8;
+        border-color: #93c5fd;
+        background-color: #dbeafe;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 6px rgba(37, 99, 235, 0.15);
     }
 }
 
