@@ -1,8 +1,11 @@
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import { AuthService } from '../../../../core/services/auth.service';
 import { DashboardService } from '../../../../core/services/dashboard.service';
+import { UserService } from '../../../../core/services/user.service';
 import jsPDF from 'jspdf';
 import { Router } from '@angular/router';
+import { of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -20,6 +23,10 @@ export class DashboardComponent implements OnInit {
 
   anioSeleccionado: number = new Date().getFullYear();
   anosDisponibles: number[] = [];
+
+  // MAPA DE FOTOS Y CONTROL DE ERRORES DE AVATAR
+  fotosUsuariosMap: Map<number, string> = new Map<number, string>();
+  avatarErrors: Set<string> = new Set<string>();
 
   // ESTADÍSTICAS DE USUARIOS
   statsUsuarios = [
@@ -91,6 +98,7 @@ export class DashboardComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private dashboardService: DashboardService,
+    private userService: UserService,
     private router: Router
   ) {
     this.generarAnosDisponibles();
@@ -102,8 +110,64 @@ export class DashboardComponent implements OnInit {
 
   // LIFECYCLE HOOKS
   ngOnInit(): void {
+    this.cargarMapaFotos();
     this.loadUserData();
     this.cargarDatosDashboard();
+  }
+
+  cargarMapaFotos(): void {
+    this.userService.obtenerTodosLosPerfilesActivos().pipe(
+      catchError(() => of([]))
+    ).subscribe((usuarios: any[]) => {
+      if (Array.isArray(usuarios)) {
+        usuarios.forEach((u: any) => {
+          const id = u.idUsuario || u.id;
+          const foto = u.fotoUrl || u.fotoPerfil || u.foto || u.avatar;
+          if (id && foto) {
+            this.fotosUsuariosMap.set(Number(id), foto);
+          }
+        });
+      }
+    });
+  }
+
+  // HELPER MÉTODOS DE AVATAR Y FOTOS
+
+  getFotoSocio(socio: any): string | null {
+    if (!socio) return null;
+    const directFoto = socio.fotoUrl || socio.avatarUrl || socio.fotoPerfil || socio.foto || socio.avatar;
+    if (directFoto && !directFoto.includes('pravatar.cc') && !directFoto.includes('ui-avatars.com')) {
+      let rawUrl = String(directFoto).trim();
+      if (rawUrl !== '' && rawUrl !== 'null' && rawUrl !== 'undefined') {
+        return rawUrl.startsWith('//') ? `https:${rawUrl}` : rawUrl;
+      }
+    }
+
+    const id = socio.id || socio.idSocio || socio.idUsuario;
+    if (id && this.fotosUsuariosMap.has(Number(id))) {
+      const fotoMap = this.fotosUsuariosMap.get(Number(id));
+      if (fotoMap) return fotoMap;
+    }
+
+    return null;
+  }
+
+  onAvatarError(id: string | number): void {
+    if (id) {
+      this.avatarErrors.add(String(id));
+    }
+  }
+
+  hasAvatarError(id: string | number): boolean {
+    return this.avatarErrors.has(String(id));
+  }
+
+  getInitials(nombre?: string): string {
+    if (!nombre) return 'U';
+    const partes = nombre.trim().split(' ').filter(p => p.length > 0);
+    if (partes.length === 0) return 'U';
+    if (partes.length === 1) return partes[0].charAt(0).toUpperCase();
+    return (partes[0].charAt(0) + partes[1].charAt(0)).toUpperCase();
   }
 
   // CARGA DE DATOS DEL USUARIO
@@ -186,18 +250,8 @@ export class DashboardComponent implements OnInit {
   private async cargarIngresos(): Promise<void> {
     try {
       const nombresMeses = [
-        'ENE',
-        'FEB',
-        'MAR',
-        'ABR',
-        'MAY',
-        'JUN',
-        'JUL',
-        'AGO',
-        'SEP',
-        'OCT',
-        'NOV',
-        'DIC',
+        'ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN',
+        'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC',
       ];
       const ahora = new Date();
       const mesActual = ahora.getMonth();
@@ -319,20 +373,23 @@ export class DashboardComponent implements OnInit {
         return;
       }
 
-      this.porVencer = data.map((item: any) => ({
-        id: item.idSocio,
-        nombre: item.nombreSocio || 'Usuario',
-        dias: item.diasRestantes || 0,
-        estaVencido: false,
-        avatar:
-          item.avatarUrl ||
-          `https://i.pravatar.cc/100?u=${item.idSocio || Math.random()}`,
-        fechaVencimiento: item.fechaVencimiento,
-        estado: item.estado || 'ACTIVA',
-        urgencia: item.urgencia || 'PRONTO',
-        idSocioMembresia: item.idSocioMembresia,
-        nombreMembresia: item.nombreMembresia,
-      }));
+      this.porVencer = data.map((item: any) => {
+        const idSocioNum = Number(item.idSocio || item.id);
+        const foto = item.avatarUrl || item.fotoUrl || item.fotoPerfil || item.foto || item.avatar || this.fotosUsuariosMap.get(idSocioNum) || null;
+
+        return {
+          id: idSocioNum,
+          nombre: item.nombreSocio || item.nombre || 'Usuario',
+          dias: item.diasRestantes || 0,
+          estaVencido: false,
+          fotoUrl: foto,
+          fechaVencimiento: item.fechaVencimiento,
+          estado: item.estado || 'ACTIVA',
+          urgencia: item.urgencia || 'PRONTO',
+          idSocioMembresia: item.idSocioMembresia,
+          nombreMembresia: item.nombreMembresia,
+        };
+      });
 
       const hoy = new Date().toISOString().split('T')[0];
       const manana = new Date(Date.now() + 86400000)
@@ -347,9 +404,6 @@ export class DashboardComponent implements OnInit {
         (m: any) => m.fechaVencimiento === manana,
       ).length;
 
-      console.log('Membresías por vencer:', this.porVencer);
-      console.log('Vencen hoy:', this.statsPorVencer.hoy);
-      console.log('Vencen mañana:', this.statsPorVencer.manana);
     } catch (error) {
       console.error('Error al cargar por vencer:', error);
       this.porVencer = [];

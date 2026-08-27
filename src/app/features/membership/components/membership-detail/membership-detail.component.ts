@@ -1,9 +1,9 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subject } from 'rxjs';
+import { Subject, forkJoin, of } from 'rxjs';
 import { switchMap, takeUntil, catchError } from 'rxjs/operators';
-import { of } from 'rxjs';
 import { MembershipService } from '../../../../core/services/membership.service';
+import { UserService } from '../../../../core/services/user.service';
 import Swal from 'sweetalert2';
 
 export interface Plan {
@@ -28,6 +28,7 @@ export interface Socio {
   estado: string;
   fechaInicio: string;
   fechaVencimiento: string;
+  fotoUrl?: string;
 }
 
 interface MembershipResponseDTO {
@@ -69,12 +70,16 @@ export class MembershipDetailComponent implements OnInit, OnDestroy {
   loading: boolean = true;
   planId: number | null = null;
 
+  // Manejo de errores de avatar
+  avatarErrors: Set<number> = new Set<number>();
+
   private destroy$ = new Subject<void>();
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private membershipService: MembershipService
+    private membershipService: MembershipService,
+    private userService: UserService
   ) { }
 
   ngOnInit(): void {
@@ -89,7 +94,6 @@ export class MembershipDetailComponent implements OnInit, OnDestroy {
           this.planId = +params['id'];
           this.loading = true;
 
-          // ✅ PRIMERO: Obtener la membresía por ID (siempre disponible)
           return this.membershipService.getMembresiaById(this.planId).pipe(
             catchError((error) => {
               this.manejarError(error);
@@ -134,30 +138,81 @@ export class MembershipDetailComponent implements OnInit, OnDestroy {
       activo: data.activo ?? true,
     };
 
-    // ✅ SEGUNDO: Intentar cargar socios asignados (si falla, solo no hay socios)
-    this.membershipService.getMembresiaConSociosActivos(data.idMembresia).subscribe({
-      next: (sociosData: any) => {
-        this.socios = sociosData?.sociosAsignados || sociosData?.data || [];
+    // Cargar socios asignados y cruzar con perfiles completos de usuario para foto de perfil
+    forkJoin({
+      sociosRes: this.membershipService.getMembresiaConSociosActivos(data.idMembresia).pipe(catchError(() => of(null))),
+      usuariosRes: this.userService.obtenerTodosLosPerfilesActivos().pipe(catchError(() => of([])))
+    }).subscribe({
+      next: ({ sociosRes, usuariosRes }) => {
+        const rawSocios = sociosRes?.sociosAsignados || sociosRes?.data || [];
+        
+        // Crear mapa de fotos por ID
+        const fotosUsuariosMap = new Map<number, string>();
+        if (Array.isArray(usuariosRes)) {
+          usuariosRes.forEach((u: any) => {
+            const id = u.idUsuario || u.id;
+            const foto = u.fotoUrl || u.fotoPerfil || u.foto || u.avatar;
+            if (id && foto) {
+              fotosUsuariosMap.set(Number(id), foto);
+            }
+          });
+        }
+
+        // Mapear fotos a cada socio
+        this.socios = rawSocios.map((socio: any) => {
+          const idSocioNum = Number(socio.idSocio);
+          const fotoEncontrada = socio.fotoUrl || socio.fotoPerfil || socio.foto || socio.avatar || fotosUsuariosMap.get(idSocioNum) || null;
+          
+          return {
+            ...socio,
+            fotoUrl: fotoEncontrada
+          };
+        });
+
         this.totalSocios = this.socios.length;
         this.actualizarMetricas();
         this.loading = false;
       },
-      error: (error: any) => {
-        // ✅ Si es 404 o 400, simplemente no hay socios
-        if (error.status === 404 || error.status === 400) {
-          this.socios = [];
-          this.totalSocios = 0;
-          this.actualizarMetricas();
-          this.loading = false;
-        } else {
-          console.warn('Error al cargar socios:', error);
-          this.socios = [];
-          this.totalSocios = 0;
-          this.actualizarMetricas();
-          this.loading = false;
-        }
+      error: () => {
+        this.socios = [];
+        this.totalSocios = 0;
+        this.actualizarMetricas();
+        this.loading = false;
       }
     });
+  }
+
+  // --- HELPER DE FOTOS DE PERFIL ---
+
+  getSocioFoto(socio: Socio): string | null {
+    if (!socio || !socio.fotoUrl) return null;
+
+    let rawUrl = String(socio.fotoUrl).trim();
+    if (rawUrl === '' || rawUrl === 'null' || rawUrl === 'undefined') return null;
+
+    if (rawUrl.startsWith('//')) {
+      return `https:${rawUrl}`;
+    }
+
+    return rawUrl;
+  }
+
+  onAvatarError(idSocio: number): void {
+    if (idSocio) {
+      this.avatarErrors.add(idSocio);
+    }
+  }
+
+  hasAvatarError(idSocio: number): boolean {
+    return this.avatarErrors.has(idSocio);
+  }
+
+  getInitials(nombreCompleto?: string): string {
+    if (!nombreCompleto) return 'U';
+    const partes = nombreCompleto.trim().split(' ').filter(p => p.length > 0);
+    if (partes.length === 0) return 'U';
+    if (partes.length === 1) return partes[0].charAt(0).toUpperCase();
+    return (partes[0].charAt(0) + partes[1].charAt(0)).toUpperCase();
   }
 
   private actualizarMetricas(): void {

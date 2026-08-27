@@ -36,7 +36,12 @@ const routes: Routes = [
   {
     path: 'edit/:id',
     component: UserFormComponent
-  }
+  },
+  {
+    path: 'physical-history',
+    loadChildren: () =>
+      import('./physical-history/physical-history.module').then((m) => m.PhysicalHistoryModule)
+  },
 ];
 
 @NgModule({

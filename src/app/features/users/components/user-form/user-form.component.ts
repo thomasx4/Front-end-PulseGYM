@@ -18,13 +18,11 @@ export class UserFormComponent implements OnInit {
   isSocio: boolean = false;
   userId: number | null = null;
 
-  // Estados
   loading: boolean = false;
   submitting: boolean = false;
   verificandoEmail: boolean = false;
   emailVerificado: boolean = false;
 
-  // Datos
   authUserInfo: any = null;
   sedes: any[] = [];
   fotoPreview: string | null = null;
@@ -49,14 +47,12 @@ export class UserFormComponent implements OnInit {
     this.verificarModoEdicion();
   }
 
-  
-  // INICIALIZACIÓN DEL FORMULARIO
-  
   private initForm(): void {
     this.userForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       nombre: ['', Validators.required],
       apellido: ['', Validators.required],
+      sexo: ['', Validators.required],
       documentoIdentidad: ['', [Validators.required, Validators.minLength(6)]],
       telefono: ['', Validators.required],
       fechaNacimiento: ['', Validators.required],
@@ -75,9 +71,6 @@ export class UserFormComponent implements OnInit {
     });
   }
 
-  
-  // CARGAR SEDES DESDE EL BACKEND
-  
   private cargarSedes(): void {
     this.sedeService.obtenerSedes().subscribe({
       next: (response: any) => {
@@ -95,23 +88,19 @@ export class UserFormComponent implements OnInit {
           id: sede.idSede || sede.id,           
           nombre: sede.nombreSede || sede.nombre
         }));
-
       },
-      error: (error: any) => {
+      error: () => {
         this.sedes = [];
         Swal.fire({
           icon: 'error',
           title: 'Error al cargar sedes',
-          text: 'No se pudieron cargar las sedes. Recarga la página o contacta al administrador.',
+          text: 'No se pudieron cargar las sedes.',
           confirmButtonColor: '#0f1c3f'
         });
       }
     });
   }
 
-  
-  // VERIFICAR ROL DEL USUARIO
-  
   private verificarRolUsuario(): void {
     const user = this.authService.getUser();
     if (user) {
@@ -134,9 +123,6 @@ export class UserFormComponent implements OnInit {
     }
   }
 
-  
-  // VERIFICAR MODO EDICIÓN
-  
   private verificarModoEdicion(): void {
     this.route.params.subscribe(params => {
       const id = params['id'];
@@ -148,9 +134,6 @@ export class UserFormComponent implements OnInit {
     });
   }
 
-  
-  // CARGAR DATOS DEL USUARIO PARA EDICIÓN
-  
   private cargarDatosUsuario(id: number): void {
     this.loading = true;
     this.userService.obtenerPerfilPorId(id).subscribe({
@@ -161,6 +144,7 @@ export class UserFormComponent implements OnInit {
             email: data.email,
             nombre: data.nombre,
             apellido: data.apellido,
+            sexo: data.sexo || '',
             documentoIdentidad: data.documentoIdentidad,
             telefono: data.telefono,
             fechaNacimiento: data.fechaNacimiento?.split('T')[0] || '',
@@ -207,7 +191,7 @@ export class UserFormComponent implements OnInit {
         }
         this.loading = false;
       },
-      error: (error: any) => {
+      error: () => {
         Swal.fire({
           icon: 'error',
           title: 'Error',
@@ -220,19 +204,8 @@ export class UserFormComponent implements OnInit {
     });
   }
 
-  
-  // VERIFICAR EMAIL EN AUTH (SOLO PARA CREACIÓN)
-  
   verificarEmail(): void {
-    if (this.isEditMode) {
-      Swal.fire({
-        icon: 'info',
-        title: 'Modo Edición',
-        text: 'El email ya fue verificado al crear el usuario. No es necesario verificarlo nuevamente.',
-        confirmButtonColor: '#0f1c3f'
-      });
-      return;
-    }
+    if (this.isEditMode) return;
 
     const email = this.userForm.get('email')?.value;
     if (!email) return;
@@ -261,33 +234,28 @@ export class UserFormComponent implements OnInit {
         Swal.fire({
           icon: 'success',
           title: 'Usuario Verificado',
-          text: `El usuario ${this.authUserInfo.nombre || ''} ${this.authUserInfo.apellido || ''} existe en el sistema de autenticación`,
+          text: `El usuario ${this.authUserInfo.nombre || ''} existe en el sistema`,
           confirmButtonColor: '#0f1c3f',
           timer: 3000
         });
 
         this.aplicarValidacionesPorRol(this.authUserInfo.rol, false);
       },
-      error: (error: any) => {
+      error: () => {
         this.verificandoEmail = false;
         this.emailVerificado = false;
         this.authUserInfo = null;
 
-        console.error('❌ Error al verificar email:', error);
-
         Swal.fire({
           icon: 'error',
           title: 'Usuario no encontrado',
-          text: 'El email no está registrado en el sistema de autenticación',
+          text: 'El email no está registrado en autenticación',
           confirmButtonColor: '#0f1c3f'
         });
       }
     });
   }
 
-  
-  // APLICAR VALIDACIONES POR ROL
-  
   private aplicarValidacionesPorRol(rol: string, esEdicion: boolean = false): void {
     const rolUpper = rol?.toUpperCase();
 
@@ -326,7 +294,6 @@ export class UserFormComponent implements OnInit {
     Object.keys(this.userForm.controls).forEach(key => {
       this.userForm.get(key)?.updateValueAndValidity();
     });
-
   }
 
   private limpiarValidaciones(): void {
@@ -342,9 +309,6 @@ export class UserFormComponent implements OnInit {
     });
   }
 
-  
-  // MANEJO DE FOTO
-  
   triggerFileInput(): void {
     const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
     if (fileInput) fileInput.click();
@@ -398,9 +362,6 @@ export class UserFormComponent implements OnInit {
     if (fileInput) fileInput.value = '';
   }
 
-  
-  // SUBIR FOTO A CLOUDINARY
-  
   private async subirFoto(): Promise<string> {
     if (!this.fotoFile) {
       throw new Error('No hay foto para subir');
@@ -409,18 +370,15 @@ export class UserFormComponent implements OnInit {
     try {
       Swal.fire({
         title: 'Subiendo foto...',
-        text: 'Por favor espera mientras se sube la imagen',
+        text: 'Por favor espera',
         allowOutsideClick: false,
-        didOpen: () => {
-          Swal.showLoading();
-        }
+        didOpen: () => Swal.showLoading()
       });
 
       const response = await this.cloudinaryService.uploadImage(this.fotoFile).toPromise();
       Swal.close();
 
       if (response && response.secure_url) {
-        console.log('✅ Foto subida exitosamente:', response.secure_url);
         return response.secure_url;
       } else {
         throw new Error('No se recibió la URL de la imagen');
@@ -428,34 +386,23 @@ export class UserFormComponent implements OnInit {
 
     } catch (error: any) {
       Swal.close();
-      console.error('❌ Error al subir foto:', error);
-
-      let mensajeError = 'No se pudo subir la foto';
-      if (error.error?.message) {
-        mensajeError = error.error.message;
-      } else if (error.message) {
-        mensajeError = error.message;
-      }
-
+      const mensajeError = error.error?.message || error.message || 'No se pudo subir la foto';
       Swal.fire({
         icon: 'error',
         title: 'Error al subir foto',
         text: mensajeError,
         confirmButtonColor: '#0f1c3f'
       });
-
       throw new Error(mensajeError);
     }
   }
 
-  
-  // CONSTRUIR PAYLOAD PARA CREACIÓN
-  
   private construirPayloadParaCreacion(formValues: any, fotoUrl: string): any {
     const payload: any = {
       email: this.isSocio ? undefined : formValues.email,
       nombre: formValues.nombre,
       apellido: formValues.apellido,
+      sexo: formValues.sexo,
       telefono: formValues.telefono,
       documentoIdentidad: formValues.documentoIdentidad,
       fotoUrl: fotoUrl,
@@ -493,14 +440,11 @@ export class UserFormComponent implements OnInit {
     return payload;
   }
 
-  
-  // CONSTRUIR PAYLOAD PARA EDICIÓN
-  
   private construirPayloadParaEdicion(formValues: any, fotoUrl: string): any {
     const payload: any = {};
 
     const camposBasicos = [
-      'nombre', 'apellido', 'telefono', 'documentoIdentidad',
+      'nombre', 'apellido', 'sexo', 'telefono', 'documentoIdentidad',
       'fechaNacimiento', 'contactoEmergenciaNombre', 'contactoEmergenciaTelefono',
       'idSede', 'objetivoPrincipal', 'nivelExperiencia'
     ];
@@ -549,9 +493,6 @@ export class UserFormComponent implements OnInit {
     return payload;
   }
 
-  
-  // ENVIAR FORMULARIO
-  
   async onSubmit(): Promise<void> {
     if (this.userForm.invalid) {
       Object.keys(this.userForm.controls).forEach(key => {
@@ -583,7 +524,6 @@ export class UserFormComponent implements OnInit {
 
       const formValues = this.userForm.value;
 
-      let response;
       if (this.isEditMode && this.userId) {
         const payload = this.construirPayloadParaEdicion(formValues, fotoUrl);
 
@@ -591,51 +531,36 @@ export class UserFormComponent implements OnInit {
           Swal.fire({
             icon: 'info',
             title: 'Sin cambios',
-            text: 'No se detectaron cambios en el perfil del usuario.',
+            text: 'No se detectaron cambios en el perfil.',
             confirmButtonColor: '#0f1c3f'
           });
           this.submitting = false;
           return;
         }
 
-        console.log('📤 Payload edición (solo cambios):', payload);
-        response = await this.userService.actualizarPerfil(this.userId, payload).toPromise();
+        await this.userService.actualizarPerfil(this.userId, payload).toPromise();
 
         Swal.fire({
           icon: 'success',
           title: '¡Usuario actualizado!',
-          text: `El usuario ${formValues.nombre} ${formValues.apellido} ha sido actualizado correctamente`,
+          text: `El usuario ${formValues.nombre} ${formValues.apellido} ha sido actualizado`,
           confirmButtonColor: '#0f1c3f'
-        }).then(() => {
-          this.volver();
-        });
+        }).then(() => this.volver());
 
       } else {
         const payload = this.construirPayloadParaCreacion(formValues, fotoUrl);
-        console.log('📤 Payload creación:', payload);
-
-        response = await this.userService.completarPerfil(payload).toPromise();
+        await this.userService.completarPerfil(payload).toPromise();
 
         Swal.fire({
           icon: 'success',
           title: '¡Usuario creado exitosamente!',
           text: `El usuario ${formValues.nombre} ${formValues.apellido} ha sido registrado`,
           confirmButtonColor: '#0f1c3f'
-        }).then(() => {
-          this.volver();
-        });
+        }).then(() => this.volver());
       }
 
     } catch (error: any) {
-      console.error('❌ Error al guardar usuario:', error);
-
-      let mensajeError = 'Ocurrió un error al guardar el usuario';
-      if (error.error?.message) {
-        mensajeError = error.error.message;
-      } else if (error.message) {
-        mensajeError = error.message;
-      }
-
+      const mensajeError = error.error?.message || error.message || 'Ocurrió un error al guardar el usuario';
       Swal.fire({
         icon: 'error',
         title: 'Error al guardar',
@@ -647,176 +572,140 @@ export class UserFormComponent implements OnInit {
     }
   }
 
-  
-  // NAVEGACIÓN
-  
   volver(): void {
     this.router.navigate(['/dashboard-admin/users/profiles']);
   }
 
-/**
- * SUSPENDER USUARIO TEMPORALMENTE - VERSIÓN MEJORADA
- */
-suspenderUsuario(): void {
-  if (!this.userId) return;
+  suspenderUsuario(): void {
+    if (!this.userId) return;
 
-  Swal.fire({
-    title: 'Suspender usuario',
-    html: `
-      <div style="text-align: left;">
-        <div style="background: #fef3c7; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px;">
-          <p style="color: #92400e; font-weight: 600; margin: 0; font-size: 0.9rem;">
-            El usuario <strong>${this.authUserInfo?.nombre || 'usuario'}</strong> no podrá acceder al sistema durante el periodo seleccionado.
-          </p>
-        </div>
-
-        <div style="margin-bottom: 16px;">
-          <label style="display: block; font-weight: 600; font-size: 0.8rem; color: #374151; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">
-            Duración de la suspensión
-          </label>
-          <select id="suspensionDuration" style="width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid #d1d5db; background-color: #ffffff; font-size: 0.95rem; color: #1f2937; outline: none; transition: border-color 0.2s;">
-            <option value="1">1 día</option>
-            <option value="3">3 días</option>
-            <option value="7" selected>7 días</option>
-            <option value="15">15 días</option>
-            <option value="30">30 días</option>
-          </select>
-        </div>
-
-        <div style="display: flex; align-items: center; gap: 8px; background: #f8fafc; padding: 8px 12px; border-radius: 6px;">
-          <svg style="width: 16px; height: 16px; color: #6b7280; flex-shrink: 0;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <span style="font-size: 0.8rem; color: #6b7280;">Esta acción es temporal y se puede revertir.</span>
-        </div>
-      </div>
-    `,
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Suspender',
-    cancelButtonText: 'Cancelar',
-    confirmButtonColor: '#d97706',
-    cancelButtonColor: '#9ca3af',
-    reverseButtons: true,
-    width: 480,
-    padding: '24px',
-    preConfirm: () => {
-      const select = document.getElementById('suspensionDuration') as HTMLSelectElement;
-      return select ? select.value : '7';
-    }
-  }).then((result) => {
-    if (result.isConfirmed) {
-      const dias = result.value || '7';
-      this.userService.cambiarEstadoPerfil(this.userId!, 'INACTIVO').subscribe({
-        next: () => {
-          Swal.fire({
-            icon: 'success',
-            title: '¡Usuario suspendido!',
-            text: `El usuario ha sido suspendido correctamente por ${dias} días.`,
-            confirmButtonColor: '#0f1c3f',
-            timer: 3000,
-            timerProgressBar: true
-          }).then(() => {
-            this.volver();
-          });
-        },
-        error: (error: any) => {
-          Swal.fire({
-            icon: 'error',
-            title: 'Error al suspender',
-            text: error.error?.message || 'No se pudo suspender el usuario.',
-            confirmButtonColor: '#0f1c3f'
-          });
-        }
-      });
-    }
-  });
-}
-
-/**
- * ELIMINAR CUENTA PERMANENTEMENTE - VERSIÓN MEJORADA
- */
-eliminarUsuario(): void {
-  if (!this.userId) return;
-
-  const emailUsuario = this.authUserInfo?.email || '';
-
-  Swal.fire({
-    title: 'Eliminar cuenta',
-    html: `
-      <div style="text-align: left;">
-        <div style="background: #fee2e2; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px;">
-          <p style="color: #991b1b; font-weight: 700; margin: 0; font-size: 0.9rem;">
-            Esta acción es completamente IRREVERSIBLE
-          </p>
-        </div>
-
-        <p style="color: #374151; font-size: 0.9rem; margin: 0 0 12px 0;">
-          Se eliminarán permanentemente todos los registros del usuario <strong>${this.authUserInfo?.nombre || 'usuario'}</strong>:
-        </p>
-
-        <div style="background: #f8fafc; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px;">
-          <ul style="margin: 0; padding-left: 20px; color: #4b5563; font-size: 0.85rem; line-height: 1.6;">
-            <li>Información personal y de contacto</li>
-            <li>Historial de actividades y accesos</li>
-            <li>Membresías, pagos y asignaciones</li>
-          </ul>
-        </div>
-
-        <div>
-          <label style="display: block; font-weight: 600; font-size: 0.8rem; color: #374151; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">
-            Confirma escribiendo el correo del usuario
-          </label>
-          <div style="background: #f1f5f9; padding: 4px 10px; border-radius: 4px; display: inline-block; margin-bottom: 8px;">
-            <span style="font-size: 0.8rem; color: #475569; font-family: monospace;">${emailUsuario}</span>
+    Swal.fire({
+      title: 'Suspender usuario',
+      html: `
+        <div style="text-align: left;">
+          <div style="background: #fef3c7; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px;">
+            <p style="color: #92400e; font-weight: 600; margin: 0; font-size: 0.9rem;">
+              El usuario <strong>${this.authUserInfo?.nombre || 'usuario'}</strong> no podrá acceder al sistema durante el periodo seleccionado.
+            </p>
           </div>
-          <input id="confirmEmail" type="email" placeholder="Ingresa el correo electrónico" style="width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid #d1d5db; background-color: #ffffff; font-size: 0.95rem; color: #1f2937; outline: none; transition: border-color 0.2s; box-sizing: border-box;">
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; font-size: 0.8rem; color: #374151; text-transform: uppercase; margin-bottom: 6px;">
+              Duración de la suspensión
+            </label>
+            <select id="suspensionDuration" style="width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid #d1d5db; background-color: #ffffff; font-size: 0.95rem; color: #1f2937; outline: none;">
+              <option value="1">1 día</option>
+              <option value="3">3 días</option>
+              <option value="7" selected>7 días</option>
+              <option value="15">15 días</option>
+              <option value="30">30 días</option>
+            </select>
+          </div>
         </div>
-      </div>
-    `,
-    icon: 'error',
-    showCancelButton: true,
-    confirmButtonText: 'Eliminar cuenta',
-    cancelButtonText: 'Cancelar',
-    confirmButtonColor: '#dc2626',
-    cancelButtonColor: '#9ca3af',
-    reverseButtons: true,
-    width: 480,
-    padding: '24px',
-    preConfirm: () => {
-      const input = document.getElementById('confirmEmail') as HTMLInputElement;
-      const email = input?.value?.trim() || '';
-      if (email !== emailUsuario) {
-        Swal.showValidationMessage('El correo electrónico no coincide');
-        return false;
+      `,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Suspender',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#d97706',
+      cancelButtonColor: '#9ca3af',
+      reverseButtons: true,
+      width: 480,
+      padding: '24px',
+      preConfirm: () => {
+        const select = document.getElementById('suspensionDuration') as HTMLSelectElement;
+        return select ? select.value : '7';
       }
-      return email;
-    }
-  }).then((result) => {
-    if (result.isConfirmed) {
-      this.userService.cambiarEstadoPerfil(this.userId!, 'INACTIVO').subscribe({
-        next: () => {
-          Swal.fire({
-            icon: 'success',
-            title: '¡Cuenta eliminada!',
-            text: 'La cuenta del usuario ha sido dada de baja permanentemente.',
-            confirmButtonColor: '#0f1c3f',
-            timer: 3000,
-            timerProgressBar: true
-          }).then(() => {
-            this.volver();
-          });
-        },
-        error: (error: any) => {
-          Swal.fire({
-            icon: 'error',
-            title: 'Error al eliminar',
-            text: error.error?.message || 'No se pudo eliminar la cuenta.',
-            confirmButtonColor: '#0f1c3f'
-          });
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const dias = result.value || '7';
+        this.userService.cambiarEstadoPerfil(this.userId!, 'INACTIVO').subscribe({
+          next: () => {
+            Swal.fire({
+              icon: 'success',
+              title: '¡Usuario suspendido!',
+              text: `El usuario ha sido suspendido por ${dias} días.`,
+              confirmButtonColor: '#0f1c3f',
+              timer: 3000
+            }).then(() => this.volver());
+          },
+          error: (error: any) => {
+            Swal.fire({
+              icon: 'error',
+              title: 'Error al suspender',
+              text: error.error?.message || 'No se pudo suspender el usuario.',
+              confirmButtonColor: '#0f1c3f'
+            });
+          }
+        });
+      }
+    });
+  }
+
+  eliminarUsuario(): void {
+    if (!this.userId) return;
+
+    const emailUsuario = this.authUserInfo?.email || '';
+
+    Swal.fire({
+      title: 'Eliminar cuenta',
+      html: `
+        <div style="text-align: left;">
+          <div style="background: #fee2e2; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px;">
+            <p style="color: #991b1b; font-weight: 700; margin: 0; font-size: 0.9rem;">
+              Esta acción es IRREVERSIBLE
+            </p>
+          </div>
+          <div>
+            <label style="display: block; font-weight: 600; font-size: 0.8rem; color: #374151; text-transform: uppercase; margin-bottom: 6px;">
+              Confirma escribiendo el correo del usuario
+            </label>
+            <div style="background: #f1f5f9; padding: 4px 10px; border-radius: 4px; display: inline-block; margin-bottom: 8px;">
+              <span style="font-size: 0.8rem; color: #475569; font-family: monospace;">${emailUsuario}</span>
+            </div>
+            <input id="confirmEmail" type="email" placeholder="Ingresa el correo" style="width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid #d1d5db; background-color: #ffffff; font-size: 0.95rem; outline: none; box-sizing: border-box;">
+          </div>
+        </div>
+      `,
+      icon: 'error',
+      showCancelButton: true,
+      confirmButtonText: 'Eliminar cuenta',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#dc2626',
+      cancelButtonColor: '#9ca3af',
+      reverseButtons: true,
+      width: 480,
+      padding: '24px',
+      preConfirm: () => {
+        const input = document.getElementById('confirmEmail') as HTMLInputElement;
+        const email = input?.value?.trim() || '';
+        if (email !== emailUsuario) {
+          Swal.showValidationMessage('El correo electrónico no coincide');
+          return false;
         }
-      });
-    }
-  });
-}
+        return email;
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.userService.cambiarEstadoPerfil(this.userId!, 'INACTIVO').subscribe({
+          next: () => {
+            Swal.fire({
+              icon: 'success',
+              title: '¡Cuenta eliminada!',
+              text: 'La cuenta ha sido dada de baja permanentemente.',
+              confirmButtonColor: '#0f1c3f',
+              timer: 3000
+            }).then(() => this.volver());
+          },
+          error: (error: any) => {
+            Swal.fire({
+              icon: 'error',
+              title: 'Error al eliminar',
+              text: error.error?.message || 'No se pudo eliminar la cuenta.',
+              confirmButtonColor: '#0f1c3f'
+            });
+          }
+        });
+      }
+    });
+  }
 }

@@ -1,0 +1,314 @@
+<div class="physical-history-page">
+  <!-- ENCABEZADO -->
+  <div class="page-header">
+    <div class="page-header__left">
+      <div class="page-header__title-group">
+        <div class="page-header__icon-wrapper">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+          </svg>
+        </div>
+        <h1 class="page-header__title">Historial Físico</h1>
+      </div>
+      <div class="page-header__breadcrumb">
+        <span>Inicio</span>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+        <span>Historial Físico</span>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+        <span class="active">Lista de Mediciones</span>
+      </div>
+    </div>
+
+    <div class="page-header__actions">
+      <button type="button" class="btn btn--primary" (click)="onNewMedicion()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        Registrar medición
+      </button>
+    </div>
+  </div>
+
+  <!-- TARJETAS KPIS -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-card__icon kpi-card__icon--blue">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+          <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+        </svg>
+      </div>
+      <div class="kpi-card__content">
+        <span class="kpi-card__value">{{ totalRecords }}</span>
+        <span class="kpi-card__label">Total Mediciones Registradas</span>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-card__icon kpi-card__icon--green">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+          <line x1="16" y1="2" x2="16" y2="6"></line>
+          <line x1="8" y1="2" x2="8" y2="6"></line>
+          <line x1="3" y1="10" x2="21" y2="10"></line>
+        </svg>
+      </div>
+      <div class="kpi-card__content">
+        <span class="kpi-card__value">{{ firstDate }}</span>
+        <span class="kpi-card__label">Primera Medición Registrada</span>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-card__icon kpi-card__icon--purple">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+          <line x1="16" y1="2" x2="16" y2="6"></line>
+          <line x1="8" y1="2" x2="8" y2="6"></line>
+          <line x1="3" y1="10" x2="21" y2="10"></line>
+        </svg>
+      </div>
+      <div class="kpi-card__content">
+        <span class="kpi-card__value">{{ lastDate }}</span>
+        <span class="kpi-card__label">Última Medición Registrada</span>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-card__icon kpi-card__icon--orange">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+          <polyline points="17 6 23 6 23 12"></polyline>
+        </svg>
+      </div>
+      <div class="kpi-card__content">
+        <span class="kpi-card__value">{{ avgDaysBetween }} días</span>
+        <span class="kpi-card__label">Frecuencia Promedio Entre mediciones</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BARRA DE FILTROS -->
+  <div class="filters-card">
+    <div class="filters-card__left">
+      <!-- SELECT SOCIO -->
+      <div class="select-wrapper">
+        <select [(ngModel)]="selectedSocioId" (change)="applyFilters()" class="filter-select">
+          <option value="ALL">Todos los socios</option>
+          <option *ngFor="let s of uniqueSocios" [value]="s.id">{{ s.name }} (ID: {{ s.id }})</option>
+        </select>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          class="select-arrow">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </div>
+
+      <!-- RANGO DE FECHAS -->
+      <div class="date-range-group">
+        <div class="date-input-wrapper">
+          <span class="date-label">Desde:</span>
+          <input type="date" [(ngModel)]="startDate" (change)="applyFilters()" class="filter-date-input" />
+        </div>
+        <div class="date-input-wrapper">
+          <span class="date-label">Hasta:</span>
+          <input type="date" [(ngModel)]="endDate" (change)="applyFilters()" class="filter-date-input" />
+        </div>
+        <button *ngIf="startDate || endDate" (click)="clearDates()" class="btn-clear-dates"
+          title="Limpiar rango de fechas">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="filters-card__right">
+      <div class="search-input-wrapper">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          class="search-icon">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" placeholder="Buscar por recepcionista o socio..." [(ngModel)]="searchQuery"
+          (input)="applyFilters()" class="search-input" />
+      </div>
+    </div>
+  </div>
+
+  <!-- TABLA DE RESULTADOS -->
+  <div class="table-container">
+    <table class="custom-table">
+      <thead>
+        <tr>
+          <th>
+            <div class="th-content">
+              FECHA DE MEDICIÓN
+            </div>
+          </th>
+          <th>REGISTRADO POR</th>
+          <th>PESO (KG)</th>
+          <th>GRASA (%)</th>
+          <th>MÚSCULO (%)</th>
+          <th>CINTURA (CM)</th>
+          <th>PECHO (CM)</th>
+          <th class="text-center">ACCIONES</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of paginatedRecords">
+          <!-- FECHA DE MEDICIÓN -->
+          <td>
+            <div class="date-cell">
+              <div class="date-cell__icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+              </div>
+              <div class="date-cell__info">
+                <span class="date-cell__date">{{ item.fechaMedicion | date:'dd MMM yyyy' }}</span>
+                <span class="date-cell__time">{{ item.fechaMedicion | date:'hh:mm a' }}</span>
+              </div>
+            </div>
+          </td>
+
+          <!-- REGISTRADO POR -->
+          <td>
+            <div class="user-cell">
+              <div class="user-cell__avatar-container">
+                <img *ngIf="getUserFoto(item) && !hasAvatarError(item.idHistorialFisico)" [src]="getUserFoto(item)"
+                  [alt]="item.nombreRecepcionista || item.nombreSocio" class="user-cell__avatar" crossOrigin="anonymous"
+                  loading="lazy" (error)="onAvatarError(item.idHistorialFisico)" />
+                <span *ngIf="!getUserFoto(item) || hasAvatarError(item.idHistorialFisico)" class="user-cell__initials">
+                  {{ getInitials(item.nombreRecepcionista || item.nombreSocio) }}
+                </span>
+              </div>
+              <div class="user-cell__info">
+                <span class="user-cell__name">{{ item.nombreRecepcionista || 'Sistema' }}</span>
+                <span class="user-cell__role">Recepción</span>
+              </div>
+            </div>
+          </td>
+
+          <!-- PESO (KG) -->
+          <td>
+            <div class="value-cell">
+              <span class="value-cell__number">{{ item.pesoKg | number:'1.2-2' }}</span>
+              <span class="trend-icon" [class.trend-icon--up]="item.tendenciaPeso === 'UP'"
+                [class.trend-icon--down]="item.tendenciaPeso === 'DOWN'">
+                <svg *ngIf="item.tendenciaPeso === 'UP'" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="3">
+                  <line x1="12" y1="19" x2="12" y2="5"></line>
+                  <polyline points="5 12 12 5 19 12"></polyline>
+                </svg>
+                <svg *ngIf="item.tendenciaPeso === 'DOWN'" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="3">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <polyline points="19 12 12 19 5 12"></polyline>
+                </svg>
+              </span>
+            </div>
+          </td>
+
+          <!-- GRASA (%) -->
+          <td>
+            <div class="value-cell">
+              <span class="value-cell__number">{{ item.porcentajeGrasa | number:'1.2-2' }}</span>
+              <span class="trend-icon" [class.trend-icon--up]="item.tendenciaGrasa === 'UP'"
+                [class.trend-icon--down]="item.tendenciaGrasa === 'DOWN'">
+                <svg *ngIf="item.tendenciaGrasa === 'UP'" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="3">
+                  <line x1="12" y1="19" x2="12" y2="5"></line>
+                  <polyline points="5 12 12 5 19 12"></polyline>
+                </svg>
+                <svg *ngIf="item.tendenciaGrasa === 'DOWN'" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="3">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <polyline points="19 12 12 19 5 12"></polyline>
+                </svg>
+              </span>
+            </div>
+          </td>
+
+          <!-- MÚSCULO (%) -->
+          <td>
+            <div class="value-cell">
+              <span class="value-cell__number">{{ item.porcentajeMusculo | number:'1.2-2' }}</span>
+              <span class="trend-icon" [class.trend-icon--up]="item.tendenciaMusculo === 'UP'"
+                [class.trend-icon--down]="item.tendenciaMusculo === 'DOWN'">
+                <svg *ngIf="item.tendenciaMusculo === 'UP'" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="3">
+                  <line x1="12" y1="19" x2="12" y2="5"></line>
+                  <polyline points="5 12 12 5 19 12"></polyline>
+                </svg>
+                <svg *ngIf="item.tendenciaMusculo === 'DOWN'" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="3">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <polyline points="19 12 12 19 5 12"></polyline>
+                </svg>
+              </span>
+            </div>
+          </td>
+
+          <!-- CINTURA (CM) -->
+          <td>
+            <span class="simple-value">{{ item.cinturaCm | number:'1.2-2' }}</span>
+          </td>
+
+          <!-- PECHO (CM) -->
+          <td>
+            <span class="simple-value">{{ item.pechoCm | number:'1.2-2' }}</span>
+          </td>
+
+          <!-- ACCIONES -->
+          <td>
+            <div class="actions-cell">
+              <button class="action-btn" title="Ver Detalle" (click)="onViewDetail(item.idHistorialFisico)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
+              <button class="action-btn" title="Editar" (click)="onEdit(item.idHistorialFisico)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+
+        <tr *ngIf="filteredRecords.length === 0">
+          <td colspan="8" class="empty-row">
+            No se encontraron registros de historial físico para los filtros seleccionados.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- PIE DE PAGINACIÓN -->
+    <div class="pagination-footer">
+      <span class="pagination-footer__info">
+        Mostrando {{ startIndex }} a {{ endIndex }} de {{ filteredRecords.length }} mediciones
+      </span>
+      <div class="pagination-controls">
+        <button class="page-btn" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">&lt;</button>
+        <button *ngFor="let page of pagesArray" class="page-btn" [class.page-btn--active]="page === currentPage"
+          (click)="goToPage(page)">
+          {{ page }}
+        </button>
+        <button class="page-btn" [disabled]="currentPage === totalPages"
+          (click)="goToPage(currentPage + 1)">&gt;</button>
+      </div>
+    </div>
+  </div>
+</div>

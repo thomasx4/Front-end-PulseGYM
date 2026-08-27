@@ -73,6 +73,11 @@
                     <span class="info-value">{{ user.documentoIdentidad || 'N/D' }}</span>
                 </div>
                 <div class="info-item">
+                    <span class="info-label">Sexo</span>
+                    <span class="info-value" style="text-transform: capitalize;">{{ user.sexo ? user.sexo.toLowerCase()
+                        : 'N/D' }}</span>
+                </div>
+                <div class="info-item">
                     <span class="info-label">Teléfono</span>
                     <span class="info-value">{{ user.telefono || 'N/D' }}</span>
                 </div>
