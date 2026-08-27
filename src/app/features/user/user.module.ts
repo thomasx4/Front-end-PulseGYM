@@ -1,18 +1,19 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
-
+import { HttpClientModule } from '@angular/common/http';
 import { UserRoutingModule } from './user-routing.module';
-import { HomeComponent } from './components/home/home.component';
+import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { SharedModule } from '../../shared/shared.module';
+import { ProfileComponent } from './components/profile/profile.component';
 
 @NgModule({
   declarations: [
-    HomeComponent
+    DashboardComponent,
+    ProfileComponent
   ],
   imports: [
     CommonModule,
-    RouterModule,
+    HttpClientModule,
     UserRoutingModule,
     SharedModule
   ]

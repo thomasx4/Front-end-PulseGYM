@@ -11,13 +11,11 @@ import { RouterModule } from '@angular/router';
 import { IdleService } from './core/services/idle.service';
 import { AdminModule } from './features/admin/admin.module'; 
 import { MembershipModule } from './features/membership/membership.module';
-import { LoadingSpinnerComponent } from './shared/components/loading-spinner/loading-spinner.component';
 import { LoadingInterceptor } from './core/interceptors/loading.interceptor';
 
 @NgModule({
   declarations: [
     AppComponent,
-    LoadingSpinnerComponent
   ],
   imports: [
     BrowserModule,

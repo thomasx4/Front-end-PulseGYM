@@ -1,0 +1,402 @@
+.dashboard-wrapper {
+  padding: 32px 40px;
+  background-color: #f7f9fc;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  color: #2d3748;
+
+  .page-header {
+    margin-bottom: 24px;
+    h1 { font-size: 26px; font-weight: 700; margin-bottom: 4px; }
+    .subtitle { color: #718096; font-size: 14px; margin: 0; }
+  }
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.state-container {
+  padding: 40px;
+  text-align: center;
+  background: white;
+  border-radius: 12px;
+
+  .btn-retry {
+    padding: 8px 16px;
+    background: #3182ce;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 12px;
+  }
+}
+
+/* TARJETAS SUPERIORES (KPIs) */
+.top-kpis {
+  grid-column: 1 / 4;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+
+  .kpi-card {
+    background: white;
+    padding: 20px;
+    border-radius: 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    border: 1px solid #edf2f7;
+
+    .kpi-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      &.blue { background: #ebf8ff; }
+      &.green { background: #f0fff4; }
+      &.purple { background: #faf5ff; }
+    }
+
+    .kpi-info {
+      flex: 1;
+      .kpi-label { font-size: 12px; color: #a0aec0; font-weight: 500; }
+      .kpi-value { font-size: 24px; font-weight: 700; color: #1a202c; margin: 4px 0; small { font-size: 14px; font-weight: 400; } }
+      .kpi-footer.green { font-size: 12px; color: #38a169; font-weight: 600; }
+      .kpi-badge.green-badge { font-size: 11px; color: #38a169; background: #f0fff4; padding: 2px 8px; border-radius: 10px; display: inline-block; }
+      .kpi-sub { font-size: 12px; color: #718096; }
+    }
+  }
+}
+
+/* CARDS GENERALES */
+.card {
+  background: white;
+  border-radius: 14px;
+  padding: 24px;
+  border: 1px solid #edf2f7;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+    h3 { font-size: 16px; font-weight: 700; margin: 0; }
+    .subtitle { font-size: 12px; color: #a0aec0; margin: 2px 0 0; }
+    .date-text, .streak-badge { font-size: 12px; color: #718096; font-weight: 500; }
+  }
+}
+
+/* 2. RACHA DE DÍAS */
+.streak-card {
+  grid-column: 1 / 3;
+
+  .days-container {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 24px;
+
+    .day-circle-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+
+      .circle {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border: 1px solid #cbd5e0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        color: #718096;
+      }
+
+      .day-label { font-size: 11px; color: #718096; }
+
+      &.active {
+        .circle { background: #3182ce; border-color: #3182ce; color: white; font-weight: 700; }
+        .day-label { color: #2b6cb0; font-weight: 600; }
+      }
+    }
+  }
+
+  .streak-banner {
+    background: #f7fafc;
+    border-radius: 10px;
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .streak-banner-left {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      .banner-icon { width: 32px; height: 32px; background: #ebf8ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+      .banner-title { font-size: 13px; font-weight: 700; margin: 0; color: #2b6cb0; }
+      .banner-sub { font-size: 11px; color: #718096; margin: 0; }
+    }
+
+    .streak-banner-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      .mini-progress-bar {
+        width: 80px;
+        height: 6px;
+        background: #e2e8f0;
+        border-radius: 3px;
+        overflow: hidden;
+        .fill { height: 100%; background: #3182ce; }
+      }
+      .count-text { font-size: 11px; font-weight: 600; color: #718096; }
+    }
+  }
+}
+
+/* 3. RUTINA DE HOY */
+.routine-card {
+  grid-column: 3 / 4;
+
+  .routine-banner {
+    background: #ebf8ff;
+    border-radius: 10px;
+    padding: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+
+    .routine-banner-info {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      .routine-icon { width: 32px; height: 32px; background: #3182ce; color: white; border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+      strong { display: block; font-size: 12px; }
+      span { font-size: 10px; color: #4a5568; }
+    }
+
+    .btn-primary {
+      background: #3182ce;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      cursor: pointer;
+    }
+  }
+
+  .exercise-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 16px;
+
+    .exercise-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 0;
+      border-bottom: 1px solid #edf2f7;
+
+      .ex-thumb {
+        width: 32px;
+        height: 32px;
+        background: #edf2f7;
+        border-radius: 50%;
+        overflow: hidden;
+        img { width: 100%; height: 100%; object-fit: cover; }
+      }
+
+      .ex-details {
+        flex: 1;
+        .ex-name { display: block; font-size: 12px; font-weight: 600; }
+        .ex-sets { font-size: 11px; color: #a0aec0; }
+      }
+
+      .arrow { color: #cbd5e0; font-size: 16px; }
+    }
+  }
+
+  .card-footer { text-align: center; }
+  .empty-message { color: #a0aec0; text-align: center; padding: 20px 0; }
+}
+
+/* 4. RESUMEN DE LA SEMANA */
+.summary-card {
+  grid-column: 1 / 4;
+
+  .summary-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+
+    .metric-box {
+      .metric-header {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        margin-bottom: 12px;
+        .metric-icon {
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 14px;
+          &.blue { background: #ebf8ff; }
+          &.green { background: #f0fff4; }
+          &.purple { background: #faf5ff; }
+          &.orange { background: #fffaf0; }
+        }
+        .val { font-size: 18px; font-weight: 700; }
+        .lbl { font-size: 11px; color: #a0aec0; }
+      }
+
+      .metric-progress {
+        .progress-bar {
+          height: 4px;
+          background: #edf2f7;
+          border-radius: 2px;
+          overflow: hidden;
+          margin-bottom: 4px;
+          .fill {
+            height: 100%;
+            background: #3182ce;
+            &.green { background: #38a169; }
+            &.purple { background: #805ad5; }
+            &.orange { background: #dd6b20; }
+          }
+        }
+        span { font-size: 10px; color: #a0aec0; }
+      }
+    }
+  }
+}
+
+
+.link-more {
+  font-size: 12px;
+  color: #3182ce;
+  text-decoration: none;
+  font-weight: 500;
+  &:hover { text-decoration: underline; }
+}
+
+/* LAYOUT PRINCIPAL */
+.dashboard-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.dashboard-main {
+  flex: 1;
+  margin-left: 260px;
+  background: #f0f2f5;
+  display: flex;
+  flex-direction: column;
+}
+
+.exercise-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid #edf2f7;
+
+  .ex-thumb {
+    width: 32px;
+    height: 32px;
+    background: #edf2f7;
+    border-radius: 50%;
+    overflow: hidden;
+    img { width: 100%; height: 100%; object-fit: cover; }
+  }
+
+  .ex-details {
+    flex: 1;
+    .ex-name { display: block; font-size: 12px; font-weight: 600; }
+    .ex-sets { font-size: 11px; color: #a0aec0; }
+    .ex-muscle { 
+      font-size: 10px; 
+      color: #3182ce; 
+      background: #ebf8ff; 
+      padding: 1px 8px; 
+      border-radius: 10px; 
+      display: inline-block;
+      margin-top: 2px;
+    }
+  }
+
+  .arrow { color: #cbd5e0; font-size: 16px; }
+}
+
+/* RESPONSIVE */
+@media (max-width: 992px) {
+  .dashboard-main {
+    margin-left: 0;
+  }
+
+  .dashboard-wrapper {
+    padding: 16px;
+  }
+
+  .top-kpis {
+    grid-template-columns: 1fr;
+  }
+
+  .summary-card .summary-metrics-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .streak-card,
+  .routine-card,
+  .summary-card,
+  .tip-card {
+    grid-column: 1 / 4;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-wrapper {
+    padding: 12px;
+  }
+
+  .top-kpis {
+    grid-column: 1 / 4;
+  }
+
+  .streak-card {
+    grid-column: 1 / 4;
+  }
+
+  .routine-card {
+    grid-column: 1 / 4;
+  }
+
+  .summary-card .summary-metrics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .summary-card {
+    grid-column: 1 / 4;
+  }
+
+  .tip-card {
+    grid-column: 1 / 4;
+  }
+}
