@@ -112,71 +112,85 @@ export class AuthService {
    * Adaptado para extraer el token y el rol desde diferentes estructuras del backend
    */
   login(credentials: AuthCredentials): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/login`, credentials)
-      .pipe(
-        catchError(this.handleError),
-        tap(response => {
-          console.log('Respuesta del backend:', response);
+  return this.http.post<any>(`${this.apiUrl}/login`, credentials)
+    .pipe(
+      catchError(this.handleError),
+      tap(response => {
+        console.log('Respuesta del backend:', response);
 
-          let token: string | null = null;
-          let userRole: RolUsuario = RolUsuario.USER;
-          let userEmail: string = credentials.email;
+        let token: string | null = null;
+        let userRole: RolUsuario = RolUsuario.USER;
+        let userEmail: string = credentials.email;
+        let username: string = '';
+        let userFullName: string = 'Usuario';
 
-          if (response && response.data && response.data.jwt) {
-            token = response.data.jwt;
-          } else if (response && response.token) {
-            token = response.token;
-          }
+        if (response && response.data && response.data.jwt) {
+          token = response.data.jwt;
+        } else if (response && response.token) {
+          token = response.token;
+        }
 
-          if (token) {
-            this.setEncryptedItem(this.tokenKey, token);
+        if (token) {
+          this.setEncryptedItem(this.tokenKey, token);
 
-            try {
-              const decoded: any = jwtDecode(token);
-              console.log('Payload del token:', decoded);
+          try {
+            const decoded: any = jwtDecode(token);
+            console.log('Payload del token:', decoded);
 
-              const rawRole = decoded.rol || decoded.role || decoded.Rol || decoded.user_role || null;
+            // ✅ EXTRAER USERNAME DEL TOKEN
+            username = decoded.username || decoded.user || decoded.sub || credentials.email.split('@')[0];
+            
+            // ✅ EXTRAER EMAIL
+            userEmail = decoded.email || decoded.sub || credentials.email;
+            
+            // ✅ EXTRAER NOMBRE COMPLETO (si existe)
+            userFullName = decoded.name || decoded.nombre || username;
 
-              if (rawRole === 'administrador' || rawRole === 'admin') {
-                userRole = RolUsuario.ADMIN;
-              } else if (rawRole === 'entrenador' || rawRole === 'trainer') {
-                userRole = RolUsuario.ENTRENADOR;
-              } else if (rawRole === 'recepcionista' || rawRole === 'receptionist') {
-                userRole = RolUsuario.RECEPCIONISTA;
-              } else if (rawRole === 'user' || rawRole === 'socio') {
-                userRole = RolUsuario.USER;
-              } else {
-                console.warn('Rol no reconocido en el token:', rawRole);
-                userRole = RolUsuario.USER;
-              }
+            // ✅ EXTRAER ROL
+            const rawRole = decoded.rol || decoded.role || decoded.Rol || decoded.user_role || null;
 
-              userEmail = decoded.email || decoded.sub || credentials.email;
-
-              console.log('Rol extraído del token:', userRole);
-            } catch (error) {
-              console.warn('No se pudo decodificar el token. Usando rol por defecto.');
+            if (rawRole === 'administrador' || rawRole === 'admin') {
+              userRole = RolUsuario.ADMIN;
+            } else if (rawRole === 'entrenador' || rawRole === 'trainer') {
+              userRole = RolUsuario.ENTRENADOR;
+            } else if (rawRole === 'recepcionista' || rawRole === 'receptionist') {
+              userRole = RolUsuario.RECEPCIONISTA;
+            } else if (rawRole === 'user' || rawRole === 'socio') {
+              userRole = RolUsuario.USER;
+            } else {
+              console.warn('Rol no reconocido en el token:', rawRole);
+              userRole = RolUsuario.USER;
             }
 
-            const dummyUser: User = {
-              id: '0',
-              name: 'Usuario',
-              email: userEmail,
-              role: userRole
-            };
-
-            this.setEncryptedItem(this.userKey, JSON.stringify(dummyUser));
-            localStorage.setItem(this.roleKey, userRole);
-
-            this.currentUserSubject.next(dummyUser);
-            this.authStatus.next(true);
-
-            console.log('Rol guardado en localStorage:', localStorage.getItem(this.roleKey));
-          } else {
-            console.warn('El backend no envió un token válido.');
+            console.log('Username extraído del token:', username);
+            console.log('Rol extraído del token:', userRole);
+          } catch (error) {
+            console.warn('No se pudo decodificar el token. Usando datos por defecto.');
+            username = credentials.email.split('@')[0];
           }
-        })
-      );
-  }
+
+          const user: User = {
+            id: '0',
+            username: username,
+            name: userFullName,
+            email: userEmail,
+            role: userRole
+          };
+
+          this.setEncryptedItem(this.userKey, JSON.stringify(user));
+          localStorage.setItem(this.roleKey, userRole);
+
+          this.currentUserSubject.next(user);
+          this.authStatus.next(true);
+
+          console.log('Usuario guardado:', user);
+          console.log('Rol guardado en localStorage:', localStorage.getItem(this.roleKey));
+        } else {
+          console.warn('El backend no envió un token válido.');
+        }
+      })
+    );
+}
 
   /**
    * Método de cifrado
@@ -299,5 +313,53 @@ export class AuthService {
 
   changePasswordByAdmin(data: { email: string; newPassword: string; confirmPassword: string }): Observable<MessageGlobalDTO> {
   return this.http.post<MessageGlobalDTO>(`${this.apiUrl}/change-password-by-admin`, data);
+}
+
+obtenerPerfilCompleto(): Observable<User> {
+  return this.http.get<any>(`${environment.apiUrl}/pg-ms-users/api/v1/usuarios/mi-perfil`)
+    .pipe(
+      map(response => {
+        const data = response.data || response;
+        
+        const user: User = {
+          id: data.idUsuario?.toString() || '0',
+          username: data.username || data.email?.split('@')[0] || 'usuario',
+          name: data.nombre || data.username || 'Usuario',
+          email: data.email || '',
+          role: this.mapRol(data.rol) || RolUsuario.USER,
+          fotoUrl: data.fotoUrl || data.fotoPerfil || data.foto || null
+        };
+        
+        this.setEncryptedItem(this.userKey, JSON.stringify(user));
+        this.currentUserSubject.next(user);
+        
+        return user;
+      }),
+      catchError(error => {
+        const currentUser = this.getUser();
+        if (currentUser) {
+          return new Observable<User>(observer => {
+            observer.next(currentUser);
+            observer.complete();
+          });
+        }
+        throw error;
+      })
+    );
+}
+
+private mapRol(rol: string): RolUsuario {
+  if (!rol) return RolUsuario.USER;
+  
+  const rolLower = rol.toLowerCase();
+  if (rolLower === 'administrador' || rolLower === 'admin') {
+    return RolUsuario.ADMIN;
+  } else if (rolLower === 'entrenador' || rolLower === 'trainer') {
+    return RolUsuario.ENTRENADOR;
+  } else if (rolLower === 'recepcionista' || rolLower === 'receptionist') {
+    return RolUsuario.RECEPCIONISTA;
+  } else {
+    return RolUsuario.USER;
+  }
 }
 }
