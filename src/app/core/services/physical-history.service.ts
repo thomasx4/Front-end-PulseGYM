@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { PhysicalHistory, PhysicalHistoryRequest } from '../models/physical-history';
+import { PhysicalHistory, PhysicalHistoryRequest, PhysicalHistoryEvolutionResponse } from '../models/physical-history';
 import { environment } from '../../../../environments/environment';
 
 @Injectable({
@@ -18,6 +18,10 @@ export class PhysicalHistoryService {
 
   getBySocio(idSocio: number): Observable<PhysicalHistory[]> {
     return this.http.get<PhysicalHistory[]>(`${this.apiUrl}/socio/${idSocio}`);
+  }
+
+  getEvolucionBySocio(idSocio: number): Observable<PhysicalHistoryEvolutionResponse> {
+    return this.http.get<PhysicalHistoryEvolutionResponse>(`${this.apiUrl}/evolucion/${idSocio}`);
   }
 
   create(request: PhysicalHistoryRequest): Observable<any> {

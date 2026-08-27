@@ -15,30 +15,19 @@
     </div>
 
     <div class="page-header__actions">
-      <div class="select-socio-wrapper">
-        <span class="select-socio-label">Seleccionar socio</span>
-        <div class="select-socio-box">
-          <span>{{ record?.nombreSocio }} (ID: {{ record?.idSocio }})</span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M6 9l6 6 6-6"/>
-          </svg>
-        </div>
-      </div>
-
       <button type="button" class="btn btn--outline-dark" (click)="onBack()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
-          <polyline points="17 6 23 6 23 12"></polyline>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="15 18 9 12 15 6"></polyline>
         </svg>
-        Ver evolución
+        Volver
       </button>
 
-      <button type="button" class="btn btn--primary" (click)="onNewMedicion()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <line x1="12" y1="5" x2="12" y2="19"></line>
-          <line x1="5" y1="12" x2="19" y2="12"></line>
+      <button type="button" class="btn btn--primary" (click)="onEdit()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
         </svg>
-        Registrar medición
+        Actualizar medición
       </button>
     </div>
   </div>
@@ -60,13 +49,15 @@
               <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
               <polyline points="22,6 12,13 2,6"></polyline>
             </svg>
-            kris.gallego&#64;example.com
+            {{ socioProfile?.email || socioProfile?.correo || 'Sin correo' }}
           </span>
           <span class="contact-item">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+              <path
+                d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
+              </path>
             </svg>
-            +57 310 123 4567
+            {{ socioProfile?.telefono || socioProfile?.celular || 'Sin teléfono' }}
           </span>
         </div>
       </div>
@@ -76,15 +67,25 @@
       <div class="meta-item">
         <span class="meta-label">Miembro desde</span>
         <span class="meta-value">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-          12 Ene 2024
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
+          {{ (socioProfile?.fechaRegistro || socioProfile?.fechaCreacion || socioProfile?.createdAt) ?
+          ((socioProfile?.fechaRegistro || socioProfile?.fechaCreacion || socioProfile?.createdAt) | date:'dd MMM yyyy')
+          : 'N/A' }}
         </span>
       </div>
       <div class="meta-item">
         <span class="meta-label">Entrenador asignado</span>
         <span class="meta-value">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-          {{ record?.nombreRecepcionista || 'Juan Camilo Meneses' }}
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          {{ record?.nombreRecepcionista || 'No asignado' }}
         </span>
       </div>
     </div>
@@ -94,13 +95,17 @@
   <div class="section-block">
     <div class="section-block__header">
       <h3 class="section-title">Resumen Actual</h3>
-      <span class="section-subtitle">Última medición registrada el {{ record?.fechaMedicion | date:'dd MMM yyyy' }}</span>
+      <span class="section-subtitle">Última medición registrada el {{ record?.fechaMedicion | date:'dd MMM yyyy'
+        }}</span>
     </div>
 
     <div class="kpi-grid-detail">
       <div class="kpi-detail-card">
         <div class="kpi-header">
-          <svg class="kpi-icon kpi-icon--blue" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+          <svg class="kpi-icon kpi-icon--blue" width="18" height="18" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          </svg>
           <span class="kpi-title">Peso</span>
         </div>
         <div class="kpi-detail-card__body">
@@ -111,7 +116,25 @@
 
       <div class="kpi-detail-card">
         <div class="kpi-header">
-          <svg class="kpi-icon kpi-icon--red" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>
+          <svg class="kpi-icon kpi-icon--teal" width="18" height="18" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2">
+            <path d="M12 20v-6M6 20V10M18 20V4"></path>
+          </svg>
+          <span class="kpi-title">Altura</span>
+        </div>
+        <div class="kpi-detail-card__body">
+          <span class="kpi-num">{{ record?.alturaCm ? (record?.alturaCm | number:'1.0-2') : '--' }}
+            <small>cm</small></span>
+          <span class="badge-status badge-status--blue">Normal</span>
+        </div>
+      </div>
+
+      <div class="kpi-detail-card">
+        <div class="kpi-header">
+          <svg class="kpi-icon kpi-icon--red" width="18" height="18" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2">
+            <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
+          </svg>
           <span class="kpi-title">Grasa Corporal</span>
         </div>
         <div class="kpi-detail-card__body">
@@ -122,7 +145,11 @@
 
       <div class="kpi-detail-card">
         <div class="kpi-header">
-          <svg class="kpi-icon kpi-icon--green" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path></svg>
+          <svg class="kpi-icon kpi-icon--green" width="18" height="18" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2">
+            <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+            <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+          </svg>
           <span class="kpi-title">Masa Muscular</span>
         </div>
         <div class="kpi-detail-card__body">
@@ -133,23 +160,15 @@
 
       <div class="kpi-detail-card">
         <div class="kpi-header">
-          <svg class="kpi-icon kpi-icon--orange" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="10" rx="2"></rect><line x1="6" y1="11" x2="6" y2="13"></line><line x1="10" y1="11" x2="10" y2="13"></line><line x1="14" y1="11" x2="14" y2="13"></line><line x1="18" y1="11" x2="18" y2="13"></line></svg>
+          <svg class="kpi-icon kpi-icon--orange" width="18" height="18" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2">
+            <rect x="2" y="7" width="20" height="10" rx="2"></rect>
+          </svg>
           <span class="kpi-title">Cintura</span>
         </div>
         <div class="kpi-detail-card__body">
           <span class="kpi-num">{{ record?.cinturaCm | number:'1.2-2' }} <small>cm</small></span>
           <span class="badge-status badge-status--blue">Normal</span>
-        </div>
-      </div>
-
-      <div class="kpi-detail-card">
-        <div class="kpi-header">
-          <svg class="kpi-icon kpi-icon--purple" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
-          <span class="kpi-title">Pecho</span>
-        </div>
-        <div class="kpi-detail-card__body">
-          <span class="kpi-num">{{ record?.pechoCm | number:'1.2-2' }} <small>cm</small></span>
-          <span class="badge-status badge-status--green-dark">Excelente</span>
         </div>
       </div>
     </div>
@@ -164,16 +183,6 @@
           <div class="chart-title-group">
             <h3 class="chart-title">Evolución del Progreso</h3>
           </div>
-          <div class="chart-timeframe">
-            <button class="tf-btn" [class.tf-btn--active]="selectedTimeframe === '1M'" (click)="setTimeframe('1M')">1M</button>
-            <button class="tf-btn" [class.tf-btn--active]="selectedTimeframe === '3M'" (click)="setTimeframe('3M')">3M</button>
-            <button class="tf-btn" [class.tf-btn--active]="selectedTimeframe === '6M'" (click)="setTimeframe('6M')">6M</button>
-            <button class="tf-btn" [class.tf-btn--active]="selectedTimeframe === '1A'" (click)="setTimeframe('1A')">1A</button>
-            <button class="tf-btn" [class.tf-btn--active]="selectedTimeframe === 'ALL'" (click)="setTimeframe('ALL')">Todo</button>
-            <button class="tf-btn calendar-btn">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-            </button>
-          </div>
         </div>
 
         <div class="chart-container-wrapper">
@@ -183,67 +192,215 @@
 
       <!-- TARJETA UNIFICADA: ÚLTIMAS MEDICIONES Y COMPARACIÓN GENERAL -->
       <div class="unified-measurements-card">
-        <!-- FILA 1: ÚLTIMAS MEDICIONES -->
+        <!-- FILA 1: ÚLTIMAS MEDICIONES PROFESIONALES CON ICONOS -->
         <div class="unified-section">
           <div class="unified-section__header">
-            <h4 class="m-card-title">Últimas Mediciones</h4>
+            <h4 class="m-card-title">Últimas Mediciones Completas</h4>
           </div>
 
           <div class="measurement-sub-header">
             <div class="m-sub-date">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
               <span>{{ record?.fechaMedicion | date:'dd MMM yyyy' }}</span>
             </div>
             <div class="m-sub-meta">
-              <span>05:15 AM</span>
-              <span>•</span>
               <span class="m-sub-user">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                Tomas Castañeda
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                {{ record?.nombreRecepcionista || 'No registrado' }}
               </span>
             </div>
           </div>
 
-          <div class="measurements-grid-2col">
-            <div class="measure-col">
-              <div class="measure-item">
-                <span class="m-label"><svg class="kpi-icon--blue" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> Peso</span>
-                <span class="m-val">{{ record?.pesoKg | number:'1.2-2' }} kg</span>
+          <!-- GRID PROFESIONAL TARJETIZADO -->
+          <div class="pro-measurements-grid">
+            <!-- Peso -->
+            <div class="pro-card">
+              <div class="pro-card__icon pro-card__icon--blue">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
               </div>
-              <div class="measure-item">
-                <span class="m-label"><svg class="kpi-icon--red" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg> Grasa Corporal</span>
-                <span class="m-val">{{ record?.porcentajeGrasa | number:'1.2-2' }} %</span>
-              </div>
-              <div class="measure-item">
-                <span class="m-label"><svg class="kpi-icon--green" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path></svg> Masa Muscular</span>
-                <span class="m-val">{{ record?.porcentajeMusculo | number:'1.2-2' }} %</span>
-              </div>
-              <div class="measure-item">
-                <span class="m-label"><svg class="kpi-icon--orange" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="10" rx="2"></rect></svg> Cintura</span>
-                <span class="m-val">{{ record?.cinturaCm | number:'1.2-2' }} cm</span>
-              </div>
-              <div class="measure-item">
-                <span class="m-label"><svg class="kpi-icon--purple" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg> Pecho</span>
-                <span class="m-val">{{ record?.pechoCm | number:'1.2-2' }} cm</span>
+              <div class="pro-card__info">
+                <span class="pro-card__label">Peso</span>
+                <span class="pro-card__value">{{ record?.pesoKg | number:'1.2-2' }} <small>kg</small></span>
               </div>
             </div>
 
-            <div class="measure-col">
-              <div class="measure-item">
-                <span class="m-label"><svg class="kpi-icon--purple" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle></svg> Brazo Izquierdo</span>
-                <span class="m-val">{{ record?.brazoIzqCm || 32.00 }} cm</span>
+            <!-- Altura -->
+            <div class="pro-card">
+              <div class="pro-card__icon pro-card__icon--teal">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 20v-6M6 20V10M18 20V4"></path>
+                </svg>
               </div>
-              <div class="measure-item">
-                <span class="m-label"><svg class="kpi-icon--purple" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle></svg> Brazo Derecho</span>
-                <span class="m-val">{{ record?.brazoDerCm || 32.50 }} cm</span>
+              <div class="pro-card__info">
+                <span class="pro-card__label">Altura</span>
+                <span class="pro-card__value">{{ record?.alturaCm ? (record?.alturaCm | number:'1.0-2') : '--' }}
+                  <small>cm</small></span>
               </div>
-              <div class="measure-item">
-                <span class="m-label"><svg class="kpi-icon--purple" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle></svg> Pierna Izquierda</span>
-                <span class="m-val">{{ record?.piernaIzqCm || 55.00 }} cm</span>
+            </div>
+
+            <!-- Grasa Corporal -->
+            <div class="pro-card">
+              <div class="pro-card__icon pro-card__icon--red">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
+                </svg>
               </div>
-              <div class="measure-item">
-                <span class="m-label"><svg class="kpi-icon--purple" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle></svg> Pierna Derecha</span>
-                <span class="m-val">{{ record?.piernaDerCm || 55.50 }} cm</span>
+              <div class="pro-card__info">
+                <span class="pro-card__label">Grasa Corporal</span>
+                <span class="pro-card__value">{{ record?.porcentajeGrasa | number:'1.2-2' }} <small>%</small></span>
+              </div>
+            </div>
+
+            <!-- Masa Muscular -->
+            <div class="pro-card">
+              <div class="pro-card__icon pro-card__icon--green">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+                  <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+                </svg>
+              </div>
+              <div class="pro-card__info">
+                <span class="pro-card__label">Masa Muscular</span>
+                <span class="pro-card__value">{{ record?.porcentajeMusculo | number:'1.2-2' }} <small>%</small></span>
+              </div>
+            </div>
+
+            <!-- Cuello -->
+            <div class="pro-card">
+              <div class="pro-card__icon pro-card__icon--purple">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="9"></circle>
+                </svg>
+              </div>
+              <div class="pro-card__info">
+                <span class="pro-card__label">Cuello</span>
+                <span class="pro-card__value">{{ record?.cuelloCm ? (record?.cuelloCm | number:'1.2-2') : 'N/A' }}
+                  <small>cm</small></span>
+              </div>
+            </div>
+
+            <!-- Cintura Escapular -->
+            <div class="pro-card">
+              <div class="pro-card__icon pro-card__icon--purple">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="9"></circle>
+                </svg>
+              </div>
+              <div class="pro-card__info">
+                <span class="pro-card__label">Cintura Escapular</span>
+                <span class="pro-card__value">{{ record?.cinturaEscapularCm ? (record?.cinturaEscapularCm |
+                  number:'1.2-2') : 'N/A' }} <small>cm</small></span>
+              </div>
+            </div>
+
+            <!-- Cintura -->
+            <div class="pro-card">
+              <div class="pro-card__icon pro-card__icon--orange">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="2" y="7" width="20" height="10" rx="2"></rect>
+                </svg>
+              </div>
+              <div class="pro-card__info">
+                <span class="pro-card__label">Cintura</span>
+                <span class="pro-card__value">{{ record?.cinturaCm | number:'1.2-2' }} <small>cm</small></span>
+              </div>
+            </div>
+
+            <!-- Cadera -->
+            <div class="pro-card">
+              <div class="pro-card__icon pro-card__icon--orange">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="2" y="7" width="20" height="10" rx="2"></rect>
+                </svg>
+              </div>
+              <div class="pro-card__info">
+                <span class="pro-card__label">Cadera</span>
+                <span class="pro-card__value">{{ record?.caderaCm ? (record?.caderaCm | number:'1.2-2') : 'N/A' }}
+                  <small>cm</small></span>
+              </div>
+            </div>
+
+            <!-- Tórax -->
+            <div class="pro-card">
+              <div class="pro-card__icon pro-card__icon--purple">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path
+                    d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+                  </path>
+                </svg>
+              </div>
+              <div class="pro-card__info">
+                <span class="pro-card__label">Tórax</span>
+                <span class="pro-card__value">{{ record?.toraxCm ? (record?.toraxCm | number:'1.2-2') : 'N/A' }}
+                  <small>cm</small></span>
+              </div>
+            </div>
+
+            <!-- Pecho -->
+            <div class="pro-card">
+              <div class="pro-card__icon pro-card__icon--purple">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path
+                    d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+                  </path>
+                </svg>
+              </div>
+              <div class="pro-card__info">
+                <span class="pro-card__label">Pecho</span>
+                <span class="pro-card__value">{{ record?.pechoCm | number:'1.2-2' }} <small>cm</small></span>
+              </div>
+            </div>
+
+            <!-- Brazos -->
+            <div class="pro-card">
+              <div class="pro-card__icon pro-card__icon--green">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="9"></circle>
+                </svg>
+              </div>
+              <div class="pro-card__info">
+                <span class="pro-card__label">Brazos (Izq / Der)</span>
+                <span class="pro-card__value">{{ record?.brazoIzqCm | number:'1.1-1' }} / {{ record?.brazoDerCm |
+                  number:'1.1-1' }} <small>cm</small></span>
+              </div>
+            </div>
+
+            <!-- Piernas -->
+            <div class="pro-card">
+              <div class="pro-card__icon pro-card__icon--blue">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 20v-6M6 20V10M18 20V4"></path>
+                </svg>
+              </div>
+              <div class="pro-card__info">
+                <span class="pro-card__label">Piernas (Izq / Der)</span>
+                <span class="pro-card__value">{{ record?.piernaIzqCm | number:'1.1-1' }} / {{ record?.piernaDerCm |
+                  number:'1.1-1' }} <small>cm</small></span>
+              </div>
+            </div>
+
+            <!-- Pantorrillas -->
+            <div class="pro-card">
+              <div class="pro-card__icon pro-card__icon--blue">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="9"></circle>
+                </svg>
+              </div>
+              <div class="pro-card__info">
+                <span class="pro-card__label">Pantorrillas (Izq / Der)</span>
+                <span class="pro-card__value">{{ record?.pantorrillaIzqCm ? (record?.pantorrillaIzqCm | number:'1.1-1')
+                  : 'N/A' }} / {{ record?.pantorrillaDerCm ? (record?.pantorrillaDerCm | number:'1.1-1') : 'N/A' }}
+                  <small>cm</small></span>
               </div>
             </div>
           </div>
@@ -255,7 +412,10 @@
         <div class="unified-section">
           <div class="comparison-header">
             <div class="icon-circle icon-circle--blue">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+              </svg>
             </div>
             <div>
               <h4 class="m-card-title">Comparación General</h4>
@@ -265,141 +425,119 @@
 
           <div class="comparison-grid">
             <div class="comp-item">
-              <span class="comp-label"><svg class="kpi-icon--blue" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> Peso</span>
-              <span class="comp-val text-green">-2.10 kg</span>
+              <span class="comp-label">Peso</span>
+              <span class="comp-val" [ngClass]="comparacion.peso <= 0 ? 'text-green' : 'text-red'">
+                {{ comparacion.peso > 0 ? '+' : '' }}{{ comparacion.peso | number:'1.2-2' }} kg
+              </span>
             </div>
             <div class="comp-item">
-              <span class="comp-label"><svg class="kpi-icon--red" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg> Grasa Corporal</span>
-              <span class="comp-val text-green">-1.30 %</span>
+              <span class="comp-label">Grasa Corporal</span>
+              <span class="comp-val" [ngClass]="comparacion.grasa <= 0 ? 'text-green' : 'text-red'">
+                {{ comparacion.grasa > 0 ? '+' : '' }}{{ comparacion.grasa | number:'1.2-2' }} %
+              </span>
             </div>
             <div class="comp-item">
-              <span class="comp-label"><svg class="kpi-icon--green" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path></svg> Masa Muscular</span>
-              <span class="comp-val text-green">+1.80 %</span>
+              <span class="comp-label">Masa Muscular</span>
+              <span class="comp-val" [ngClass]="comparacion.musculo >= 0 ? 'text-green' : 'text-red'">
+                {{ comparacion.musculo > 0 ? '+' : '' }}{{ comparacion.musculo | number:'1.2-2' }} %
+              </span>
             </div>
             <div class="comp-item">
-              <span class="comp-label"><svg class="kpi-icon--orange" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="10" rx="2"></rect></svg> Cintura</span>
-              <span class="comp-val text-green">-1.50 cm</span>
+              <span class="comp-label">Cintura</span>
+              <span class="comp-val" [ngClass]="comparacion.cintura <= 0 ? 'text-green' : 'text-red'">
+                {{ comparacion.cintura > 0 ? '+' : '' }}{{ comparacion.cintura | number:'1.2-2' }} cm
+              </span>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- SILUETA 3D CON ASTRONAUTA -->
+    <!-- SILUETA 3D CON ASTRONAUTA CENTRADA -->
     <div class="main-detail-grid__right">
       <div class="silhouette-card">
         <div class="silhouette-card__header">
-          <div>
-            <h3 class="s-title">Tu Silueta</h3>
-            <span class="s-subtitle">Medidas del {{ record?.fechaMedicion | date:'dd MMM yyyy' }}</span>
+          <div class="s-header-group">
+            <div class="icon-circle icon-circle--blue">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+            </div>
+            <div>
+              <h3 class="s-title">Tu Silueta</h3>
+              <span class="s-subtitle">Medidas del {{ record?.fechaMedicion | date:'dd MMM yyyy' }}</span>
+            </div>
           </div>
+          <span class="badge-3d">Modelo 3D</span>
         </div>
 
         <div class="silhouette-body-3d">
-          <model-viewer 
-            #modelViewer 
-            src="https://modelviewer.dev/shared-assets/models/NeilArmstrong.glb"
-            alt="Modelo 3D Astronauta"
-            camera-controls
-            touch-action="pan-y"
-            interaction-prompt="auto"
-            shadow-intensity="0.4"
-            exposure="1.2"
-            environment-image="neutral"
-            auto-rotate
-            rotation-per-second="2deg"
-            camera-orbit="0deg 75deg 2.8m"
-            camera-target="0m 0.9m 0m"
-            field-of-view="28deg"
-            min-camera-orbit="auto auto 2m"
-            max-camera-orbit="auto auto 4m"
-            class="model-viewer-canvas"
-            (load)="onModelLoad()"
-          >
-            <!-- HOTSPOT PECHO -->
-            <button 
-              class="hotspot hotspot--purple" 
-              slot="hotspot-pecho" 
-              data-position="0m 1.15m 0.15m"
-              data-normal="0m 0m 1m"
-              (mouseenter)="onHoverMeasure('pecho')" 
-              (mouseleave)="onLeaveMeasure()"
-            >
+          <model-viewer #modelViewer src="https://modelviewer.dev/shared-assets/models/NeilArmstrong.glb"
+            alt="Modelo 3D Astronauta" camera-controls touch-action="pan-y" interaction-prompt="auto"
+            shadow-intensity="0.4" exposure="1.2" environment-image="neutral" auto-rotate rotation-per-second="2deg"
+            camera-orbit="0deg 75deg 2.8m" camera-target="0m 0.9m 0m" field-of-view="28deg"
+            min-camera-orbit="auto auto 2m" max-camera-orbit="auto auto 4m" class="model-viewer-canvas"
+            (load)="onModelLoad()">
+
+            <button class="hotspot hotspot--purple" slot="hotspot-cuello" data-position="0m 1.35m 0.10m"
+              data-normal="0m 0m 1m" (mouseenter)="onHoverMeasure('cuello')" (mouseleave)="onLeaveMeasure()">
+              <div class="hotspot-annotation">
+                <span>Cuello</span>
+                <strong>{{ medidasSilueta.cuello }} cm</strong>
+              </div>
+            </button>
+
+            <button class="hotspot hotspot--purple" slot="hotspot-pecho" data-position="0m 1.15m 0.15m"
+              data-normal="0m 0m 1m" (mouseenter)="onHoverMeasure('pecho')" (mouseleave)="onLeaveMeasure()">
               <div class="hotspot-annotation">
                 <span>Pecho</span>
                 <strong>{{ medidasSilueta.pecho }} cm</strong>
               </div>
             </button>
 
-            <!-- HOTSPOT BRAZO IZQUIERDO -->
-            <button 
-              class="hotspot hotspot--green" 
-              slot="hotspot-brazo-izq" 
-              data-position="-0.22m 1.05m 0.02m"
-              data-normal="-1m 0m 0m"
-              (mouseenter)="onHoverMeasure('brazoIzq')" 
-              (mouseleave)="onLeaveMeasure()"
-            >
+            <button class="hotspot hotspot--green" slot="hotspot-brazo-izq" data-position="-0.22m 1.05m 0.02m"
+              data-normal="-1m 0m 0m" (mouseenter)="onHoverMeasure('brazoIzq')" (mouseleave)="onLeaveMeasure()">
               <div class="hotspot-annotation">
                 <span>Brazo I.</span>
                 <strong>{{ medidasSilueta.brazoIzq }} cm</strong>
               </div>
             </button>
 
-            <!-- HOTSPOT BRAZO DERECHO -->
-            <button 
-              class="hotspot hotspot--green" 
-              slot="hotspot-brazo-der" 
-              data-position="0.22m 1.05m 0.02m"
-              data-normal="1m 0m 0m"
-              (mouseenter)="onHoverMeasure('brazoDer')" 
-              (mouseleave)="onLeaveMeasure()"
-            >
+            <button class="hotspot hotspot--green" slot="hotspot-brazo-der" data-position="0.22m 1.05m 0.02m"
+              data-normal="1m 0m 0m" (mouseenter)="onHoverMeasure('brazoDer')" (mouseleave)="onLeaveMeasure()">
               <div class="hotspot-annotation">
                 <span>Brazo D.</span>
                 <strong>{{ medidasSilueta.brazoDer }} cm</strong>
               </div>
             </button>
 
-            <!-- HOTSPOT CINTURA -->
-            <button 
-              class="hotspot hotspot--orange" 
-              slot="hotspot-cintura" 
-              data-position="0m 0.85m 0.12m"
-              data-normal="0m 0m 1m"
-              (mouseenter)="onHoverMeasure('cintura')" 
-              (mouseleave)="onLeaveMeasure()"
-            >
+            <button class="hotspot hotspot--orange" slot="hotspot-cintura" data-position="0m 0.85m 0.12m"
+              data-normal="0m 0m 1m" (mouseenter)="onHoverMeasure('cintura')" (mouseleave)="onLeaveMeasure()">
               <div class="hotspot-annotation">
                 <span>Cintura</span>
                 <strong>{{ medidasSilueta.cintura }} cm</strong>
               </div>
             </button>
 
-            <!-- HOTSPOT PIERNA IZQUIERDA -->
-            <button 
-              class="hotspot hotspot--blue" 
-              slot="hotspot-pierna-izq" 
-              data-position="-0.10m 0.50m 0.08m"
-              data-normal="0m 0m 1m"
-              (mouseenter)="onHoverMeasure('piernaIzq')" 
-              (mouseleave)="onLeaveMeasure()"
-            >
+            <button class="hotspot hotspot--orange" slot="hotspot-cadera" data-position="0m 0.70m 0.12m"
+              data-normal="0m 0m 1m" (mouseenter)="onHoverMeasure('cadera')" (mouseleave)="onLeaveMeasure()">
+              <div class="hotspot-annotation">
+                <span>Cadera</span>
+                <strong>{{ medidasSilueta.cadera }} cm</strong>
+              </div>
+            </button>
+
+            <button class="hotspot hotspot--blue" slot="hotspot-pierna-izq" data-position="-0.10m 0.50m 0.08m"
+              data-normal="0m 0m 1m" (mouseenter)="onHoverMeasure('piernaIzq')" (mouseleave)="onLeaveMeasure()">
               <div class="hotspot-annotation">
                 <span>Pierna I.</span>
                 <strong>{{ medidasSilueta.piernaIzq }} cm</strong>
               </div>
             </button>
 
-            <!-- HOTSPOT PIERNA DERECHA -->
-            <button 
-              class="hotspot hotspot--blue" 
-              slot="hotspot-pierna-der" 
-              data-position="0.10m 0.50m 0.08m"
-              data-normal="0m 0m 1m"
-              (mouseenter)="onHoverMeasure('piernaDer')" 
-              (mouseleave)="onLeaveMeasure()"
-            >
+            <button class="hotspot hotspot--blue" slot="hotspot-pierna-der" data-position="0.10m 0.50m 0.08m"
+              data-normal="0m 0m 1m" (mouseenter)="onHoverMeasure('piernaDer')" (mouseleave)="onLeaveMeasure()">
               <div class="hotspot-annotation">
                 <span>Pierna D.</span>
                 <strong>{{ medidasSilueta.piernaDer }} cm</strong>
@@ -408,48 +546,98 @@
           </model-viewer>
         </div>
 
-        <!-- LISTA LATERAL DE MEDIDAS SILUETA -->
         <div class="silhouette-measures-aside">
-          <div class="s-group">
-            <span class="s-group-title">Tronco</span>
-            <div class="s-measure-item">
-              <span class="s-label">Pecho</span>
-              <span class="s-val text-purple">{{ record?.pechoCm }} cm</span>
+          <div class="s-group s-group--purple">
+            <div class="s-group-header">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path
+                  d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+                </path>
+              </svg>
+              <span class="s-group-title">Tronco Superior</span>
             </div>
-            <div class="s-measure-item">
-              <span class="s-label">Cintura</span>
-              <span class="s-val text-orange">{{ record?.cinturaCm }} cm</span>
+            <div class="s-measure-grid">
+              <div class="s-measure-item">
+                <span class="s-label">Cuello</span>
+                <span class="s-val text-purple">{{ record?.cuelloCm || 'N/A' }} cm</span>
+              </div>
+              <div class="s-measure-item">
+                <span class="s-label">C. Escapular</span>
+                <span class="s-val text-purple">{{ record?.cinturaEscapularCm || 'N/A' }} cm</span>
+              </div>
+              <div class="s-measure-item">
+                <span class="s-label">Tórax</span>
+                <span class="s-val text-purple">{{ record?.toraxCm || 'N/A' }} cm</span>
+              </div>
+              <div class="s-measure-item">
+                <span class="s-label">Pecho</span>
+                <span class="s-val text-purple">{{ record?.pechoCm }} cm</span>
+              </div>
             </div>
           </div>
 
-          <div class="s-group">
-            <span class="s-group-title text-green">Brazos</span>
-            <div class="s-measure-item">
-              <span class="s-label">Izquierdo</span>
-              <span class="s-val text-green-dark">{{ record?.brazoIzqCm || 32.00 }} cm</span>
+          <div class="s-group s-group--orange">
+            <div class="s-group-header">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="7" width="20" height="10" rx="2"></rect>
+              </svg>
+              <span class="s-group-title">Zona Media</span>
             </div>
-            <div class="s-measure-item">
-              <span class="s-label">Derecho</span>
-              <span class="s-val text-green-dark">{{ record?.brazoDerCm || 32.50 }} cm</span>
+            <div class="s-measure-grid">
+              <div class="s-measure-item">
+                <span class="s-label">Cintura</span>
+                <span class="s-val text-orange">{{ record?.cinturaCm }} cm</span>
+              </div>
+              <div class="s-measure-item">
+                <span class="s-label">Cadera</span>
+                <span class="s-val text-orange">{{ record?.caderaCm || 'N/A' }} cm</span>
+              </div>
             </div>
           </div>
 
-          <div class="s-group">
-            <span class="s-group-title text-blue">Piernas</span>
-            <div class="s-measure-item">
-              <span class="s-label">Izquierda</span>
-              <span class="s-val text-blue-dark">{{ record?.piernaIzqCm || 55.00 }} cm</span>
+          <div class="s-group s-group--green">
+            <div class="s-group-header">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="9"></circle>
+              </svg>
+              <span class="s-group-title">Brazos</span>
             </div>
-            <div class="s-measure-item">
-              <span class="s-label">Derecha</span>
-              <span class="s-val text-blue-dark">{{ record?.piernaDerCm || 55.50 }} cm</span>
+            <div class="s-measure-grid">
+              <div class="s-measure-item">
+                <span class="s-label">Izq / Der</span>
+                <span class="s-val text-green-dark">{{ record?.brazoIzqCm }} / {{ record?.brazoDerCm }} cm</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="s-group s-group--blue">
+            <div class="s-group-header">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 20v-6M6 20V10M18 20V4"></path>
+              </svg>
+              <span class="s-group-title">Piernas & Pantorrillas</span>
+            </div>
+            <div class="s-measure-grid">
+              <div class="s-measure-item">
+                <span class="s-label">Pierna (I/D)</span>
+                <span class="s-val text-blue-dark">{{ record?.piernaIzqCm }} / {{ record?.piernaDerCm }} cm</span>
+              </div>
+              <div class="s-measure-item">
+                <span class="s-label">Pantorrilla (I/D)</span>
+                <span class="s-val text-blue-dark">{{ record?.pantorrillaIzqCm || 'N/A' }} / {{ record?.pantorrillaDerCm
+                  || 'N/A' }} cm</span>
+              </div>
             </div>
           </div>
         </div>
 
         <div class="silhouette-footer-banner">
-          <p>Las medidas se toman en centímetros (cm).</p>
-          <p>Pasa el cursor sobre cada medida para ver recomendaciones.</p>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+          <p>Todas las medidas corresponden al estándar antropométrico en centímetros (cm).</p>
         </div>
       </div>
     </div>
@@ -460,18 +648,29 @@
     <div class="bottom-card">
       <div class="bottom-card__header">
         <div class="icon-circle icon-circle--purple">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
         </div>
         <div>
           <h4>Frecuencia de medición</h4>
-          <span>1 medición registrada</span>
+          <span>{{ socioHistory.length }} {{ socioHistory.length === 1 ? 'medición registrada' : 'mediciones
+            registradas' }}</span>
         </div>
       </div>
       <div class="recommendation-box">
         <div class="rec-text">
           <strong>Recomendado:</strong> Al menos 1 vez cada 15 días para un seguimiento efectivo.
         </div>
-        <svg class="info-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+        <svg class="info-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
       </div>
     </div>
   </div>

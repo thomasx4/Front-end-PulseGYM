@@ -57,12 +57,18 @@ export class PhysicalHistoryFormComponent implements OnInit {
       alturaCm: [null, [Validators.min(0), Validators.max(300)]],
       porcentajeGrasa: [null, [Validators.min(0), Validators.max(100)]],
       porcentajeMusculo: [null, [Validators.min(0), Validators.max(100)]],
+      cuelloCm: [null, [Validators.min(0)]],
+      cinturaEscapularCm: [null, [Validators.min(0)]],
       cinturaCm: [null, [Validators.min(0)]],
+      caderaCm: [null, [Validators.min(0)]],
+      toraxCm: [null, [Validators.min(0)]],
       pechoCm: [null, [Validators.min(0)]],
       brazoIzqCm: [null, [Validators.min(0)]],
       brazoDerCm: [null, [Validators.min(0)]],
       piernaIzqCm: [null, [Validators.min(0)]],
-      piernaDerCm: [null, [Validators.min(0)]]
+      piernaDerCm: [null, [Validators.min(0)]],
+      pantorrillaIzqCm: [null, [Validators.min(0)]],
+      pantorrillaDerCm: [null, [Validators.min(0)]]
     });
   }
 
@@ -107,12 +113,18 @@ export class PhysicalHistoryFormComponent implements OnInit {
             alturaCm: item.alturaCm || null,
             porcentajeGrasa: item.porcentajeGrasa,
             porcentajeMusculo: item.porcentajeMusculo,
+            cuelloCm: item.cuelloCm || null,
+            cinturaEscapularCm: item.cinturaEscapularCm || null,
             cinturaCm: item.cinturaCm,
+            caderaCm: item.caderaCm || null,
+            toraxCm: item.toraxCm || null,
             pechoCm: item.pechoCm,
             brazoIzqCm: item.brazoIzqCm,
             brazoDerCm: item.brazoDerCm,
             piernaIzqCm: item.piernaIzqCm,
-            piernaDerCm: item.piernaDerCm
+            piernaDerCm: item.piernaDerCm,
+            pantorrillaIzqCm: item.pantorrillaIzqCm || null,
+            pantorrillaDerCm: item.pantorrillaDerCm || null
           });
 
           this.editMetaInfo = {
@@ -146,12 +158,18 @@ export class PhysicalHistoryFormComponent implements OnInit {
       alturaCm: rawVal.alturaCm ? Number(rawVal.alturaCm) : undefined,
       porcentajeGrasa: rawVal.porcentajeGrasa !== null && rawVal.porcentajeGrasa !== '' ? Number(rawVal.porcentajeGrasa) : 0,
       porcentajeMusculo: rawVal.porcentajeMusculo !== null && rawVal.porcentajeMusculo !== '' ? Number(rawVal.porcentajeMusculo) : 0,
+      cuelloCm: rawVal.cuelloCm ? Number(rawVal.cuelloCm) : 0,
+      cinturaEscapularCm: rawVal.cinturaEscapularCm ? Number(rawVal.cinturaEscapularCm) : 0,
       cinturaCm: rawVal.cinturaCm ? Number(rawVal.cinturaCm) : 0,
+      caderaCm: rawVal.caderaCm ? Number(rawVal.caderaCm) : 0,
+      toraxCm: rawVal.toraxCm ? Number(rawVal.toraxCm) : 0,
       pechoCm: rawVal.pechoCm ? Number(rawVal.pechoCm) : 0,
       brazoIzqCm: rawVal.brazoIzqCm ? Number(rawVal.brazoIzqCm) : 0,
       brazoDerCm: rawVal.brazoDerCm ? Number(rawVal.brazoDerCm) : 0,
       piernaIzqCm: rawVal.piernaIzqCm ? Number(rawVal.piernaIzqCm) : 0,
-      piernaDerCm: rawVal.piernaDerCm ? Number(rawVal.piernaDerCm) : 0
+      piernaDerCm: rawVal.piernaDerCm ? Number(rawVal.piernaDerCm) : 0,
+      pantorrillaIzqCm: rawVal.pantorrillaIzqCm ? Number(rawVal.pantorrillaIzqCm) : 0,
+      pantorrillaDerCm: rawVal.pantorrillaDerCm ? Number(rawVal.pantorrillaDerCm) : 0
     };
 
     if (this.isEditMode && this.idHistorial) {

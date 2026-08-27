@@ -1,10 +1,10 @@
 import { Component, OnInit, ElementRef, ViewChild, OnDestroy, NgZone, AfterViewInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PhysicalHistoryService } from '../../../../../core/services/physical-history.service';
-import { PhysicalHistory } from '../../../../../core/models/physical-history';
+import { UserService } from '../../../../../core/services/user.service';
+import { PhysicalHistory, PhysicalHistoryEvolutionResponse } from '../../../../../core/models/physical-history';
 import { Chart, registerables } from 'chart.js';
 
-// Importar model-viewer
 import '@google/model-viewer';
 
 Chart.register(...registerables);
@@ -20,7 +20,9 @@ export class PhysicalHistoryDetailComponent implements OnInit, OnDestroy, AfterV
   chartInstance: Chart | null = null;
 
   record: PhysicalHistory | null = null;
+  socioProfile: any = null;
   socioHistory: PhysicalHistory[] = [];
+  evolutionData: PhysicalHistoryEvolutionResponse | null = null;
   idHistorial: number | null = null;
   loading: boolean = false;
   errorMensaje: string = '';
@@ -28,25 +30,34 @@ export class PhysicalHistoryDetailComponent implements OnInit, OnDestroy, AfterV
   selectedTimeframe: string = '6M';
 
   medidasSilueta = {
+    cuello: 0,
     pecho: 0,
     cintura: 0,
+    cadera: 0,
     brazoIzq: 0,
     brazoDer: 0,
     piernaIzq: 0,
     piernaDer: 0
   };
 
+  comparacion = {
+    peso: 0,
+    grasa: 0,
+    musculo: 0,
+    cintura: 0
+  };
+
   hoveredMeasure: string | null = null;
   private hoverTimeout: any = null;
   private isHovering: boolean = false;
 
-  // Para el modelo 3D
   modelLoaded: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private physicalHistoryService: PhysicalHistoryService,
+    private userService: UserService,
     private ngZone: NgZone
   ) { }
 
@@ -80,7 +91,6 @@ export class PhysicalHistoryDetailComponent implements OnInit, OnDestroy, AfterV
       
       model.addEventListener('load', () => {
         this.modelLoaded = true;
-        console.log('✅ Modelo 3D cargado correctamente');
         setTimeout(() => this.adjustHotspots(), 300);
       });
 
@@ -109,15 +119,13 @@ export class PhysicalHistoryDetailComponent implements OnInit, OnDestroy, AfterV
         const found = records.find(r => r.idHistorialFisico === id);
         if (found) {
           this.record = found;
-          this.socioHistory = records
-            .filter(r => r.idSocio === found.idSocio)
-            .sort((a, b) => new Date(a.fechaMedicion).getTime() - new Date(b.fechaMedicion).getTime());
+          this.socioHistory = records.filter(r => r.idSocio === found.idSocio)
+                                    .sort((a, b) => new Date(a.fechaMedicion).getTime() - new Date(b.fechaMedicion).getTime());
 
+          this.calcularComparacionGeneral();
+          this.cargarPerfilSocio(found.idSocio);
           this.cargarMedidasSilueta(found);
-          
-          this.ngZone.runOutsideAngular(() => {
-            requestAnimationFrame(() => this.renderChart());
-          });
+          this.cargarEvolucion(found.idSocio);
         }
         this.loading = false;
       },
@@ -127,10 +135,49 @@ export class PhysicalHistoryDetailComponent implements OnInit, OnDestroy, AfterV
     });
   }
 
+  calcularComparacionGeneral(): void {
+    if (this.socioHistory.length === 0 || !this.record) return;
+
+    const primerRegistro = this.socioHistory[0];
+    this.comparacion = {
+      peso: (this.record.pesoKg || 0) - (primerRegistro.pesoKg || 0),
+      grasa: (this.record.porcentajeGrasa || 0) - (primerRegistro.porcentajeGrasa || 0),
+      musculo: (this.record.porcentajeMusculo || 0) - (primerRegistro.porcentajeMusculo || 0),
+      cintura: (this.record.cinturaCm || 0) - (primerRegistro.cinturaCm || 0)
+    };
+  }
+
+  cargarEvolucion(idSocio: number): void {
+    this.physicalHistoryService.getEvolucionBySocio(idSocio).subscribe({
+      next: (data) => {
+        this.evolutionData = data;
+        this.ngZone.runOutsideAngular(() => {
+          requestAnimationFrame(() => this.renderChart());
+        });
+      },
+      error: (err) => {
+        console.error('Error cargando evolución:', err);
+      }
+    });
+  }
+
+  cargarPerfilSocio(idSocio: number): void {
+    this.userService.obtenerPerfilPorId(idSocio).subscribe({
+      next: (data) => {
+        this.socioProfile = data;
+      },
+      error: (err) => {
+        console.error('Error obteniendo perfil del usuario:', err);
+      }
+    });
+  }
+
   cargarMedidasSilueta(record: PhysicalHistory): void {
     this.medidasSilueta = {
+      cuello: record.cuelloCm || 0,
       pecho: record.pechoCm || 0,
       cintura: record.cinturaCm || 0,
+      cadera: record.caderaCm || 0,
       brazoIzq: record.brazoIzqCm || 0,
       brazoDer: record.brazoDerCm || 0,
       piernaIzq: record.piernaIzqCm || 0,
@@ -138,28 +185,25 @@ export class PhysicalHistoryDetailComponent implements OnInit, OnDestroy, AfterV
     };
   }
 
-  setTimeframe(tf: string): void {
-    this.selectedTimeframe = tf;
-    this.ngZone.runOutsideAngular(() => {
-      this.renderChart();
-    });
-  }
-
   renderChart(): void {
-    if (!this.chartCanvas || !this.socioHistory.length) return;
+    if (!this.chartCanvas || !this.evolutionData) return;
 
     if (this.chartInstance) {
       this.chartInstance.destroy();
     }
 
-    let filtered = [...this.socioHistory];
-    const labels = filtered.map(item =>
-      new Date(item.fechaMedicion).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })
+    const labels = this.evolutionData.evolucionPeso.map(item =>
+      new Date(item.fecha).toLocaleDateString('es-ES', { 
+        day: '2-digit', 
+        month: 'short',
+        hour: '2-digit',
+        minute: '2-digit'
+      })
     );
 
-    const dataPeso = filtered.map(item => item.pesoKg);
-    const dataGrasa = filtered.map(item => item.porcentajeGrasa);
-    const dataMusculo = filtered.map(item => item.porcentajeMusculo);
+    const dataPeso = this.evolutionData.evolucionPeso.map(item => item.valor);
+    const dataGrasa = this.evolutionData.evolucionGrasa.map(item => item.valor);
+    const dataMusculo = this.evolutionData.evolucionMusculo.map(item => item.valor);
 
     const ctx = this.chartCanvas.nativeElement.getContext('2d');
     if (!ctx) return;
@@ -237,9 +281,6 @@ export class PhysicalHistoryDetailComponent implements OnInit, OnDestroy, AfterV
     });
   }
 
-  // ============================================
-  // INTERACCIÓN SILUETA 3D
-  // ============================================
   onHoverMeasure(key: string | null): void {
     if (this.hoverTimeout) {
       clearTimeout(this.hoverTimeout);
@@ -308,18 +349,6 @@ export class PhysicalHistoryDetailComponent implements OnInit, OnDestroy, AfterV
     });
   }
 
-  getMeasureLabel(key: string): string {
-    const labels: { [key: string]: string } = {
-      pecho: 'Pecho',
-      brazoIzq: 'Brazo Izquierdo',
-      brazoDer: 'Brazo Derecho',
-      cintura: 'Cintura',
-      piernaIzq: 'Pierna Izquierda',
-      piernaDer: 'Pierna Derecha'
-    };
-    return labels[key] || key;
-  }
-
   getInitials(name?: string): string {
     if (!name) return 'PG';
     const parts = name.trim().split(' ');
@@ -330,10 +359,6 @@ export class PhysicalHistoryDetailComponent implements OnInit, OnDestroy, AfterV
     this.router.navigate(['/dashboard-admin/users/physical-history']);
   }
 
-  onNewMedicion(): void {
-    this.router.navigate(['/dashboard-admin/users/physical-history/new']);
-  }
-
   onEdit(): void {
     if (this.idHistorial) {
       this.router.navigate(['/dashboard-admin/users/physical-history/edit', this.idHistorial]);
@@ -342,7 +367,6 @@ export class PhysicalHistoryDetailComponent implements OnInit, OnDestroy, AfterV
 
   onModelLoad(): void {
     this.modelLoaded = true;
-    console.log('✅ Modelo 3D cargado correctamente');
     setTimeout(() => this.adjustHotspots(), 300);
   }
 }
