@@ -1,235 +1,492 @@
 <div class="form-container">
-    <!-- ENCABEZADO Y ACCIONES PRINCIPALES -->
-    <div class="form-header">
-        <div class="form-header__left">
-            <div class="breadcrumb">
-                <button type="button" class="back-btn" (click)="onCancel()">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2.5">
-                        <line x1="19" y1="12" x2="5" y2="12"></line>
-                        <polyline points="12 19 5 12 12 5"></polyline>
-                    </svg>
-                </button>
-                <span>Historial Físico</span>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="9 18 15 12 9 6"></polyline>
-                </svg>
-                <span class="active">{{ isEditMode ? 'Editar Medición' : 'Registrar Medición' }}</span>
-            </div>
+  <!-- ENCABEZADO Y ACCIONES PRINCIPALES -->
+  <div class="form-header">
+    <div class="form-header__left">
+      <div class="breadcrumb">
+        <button type="button" class="back-btn" (click)="onCancel()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+        </button>
+        <span>Historial Físico</span>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+        <span class="active">{{ isEditMode ? 'Editar Medición' : 'Registrar Medición' }}</span>
+      </div>
 
-            <h1 class="form-title">{{ isEditMode ? 'Editar Medición Física' : 'Registrar Medición Física' }}</h1>
-            <p class="form-subtitle">
-                {{ isEditMode ? 'Modifica los datos de la medición registrada. Deja en blanco los campos que no deseas
-                cambiar.' : 'Completa los datos para registrar una nueva medición física del socio.' }}
-            </p>
+      <h1 class="form-title">{{ isEditMode ? 'Editar Medición Física' : 'Registrar Medición Física' }}</h1>
+      <p class="form-subtitle">
+        {{ isEditMode ? 'Modifica los datos de la medición registrada. Deja en blanco los campos que no deseas cambiar.' : 'Completa los datos para registrar una nueva medición física del usuario.' }}
+      </p>
+    </div>
+
+    <div class="form-header__actions">
+      <button type="button" class="btn btn--secondary" (click)="onCancel()">
+        Cancelar
+      </button>
+      <button type="button" class="btn btn--primary" (click)="onSubmit()" [disabled]="submitting">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+          <polyline points="17 21 17 13 7 13 7 21"></polyline>
+          <polyline points="7 3 7 8 15 8"></polyline>
+        </svg>
+        <span>{{ submitting ? 'Guardando...' : (isEditMode ? 'Actualizar Medición' : 'Guardar Medición') }}</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- BANNER EN MODO EDICIÓN -->
+  <div *ngIf="isEditMode" class="meta-banner">
+    <div class="meta-banner__icon">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+        <line x1="16" y1="2" x2="16" y2="6"></line>
+        <line x1="8" y1="2" x2="8" y2="6"></line>
+        <line x1="3" y1="10" x2="21" y2="10"></line>
+      </svg>
+    </div>
+    <div class="meta-banner__content">
+      <span class="meta-banner__title">Medición del {{ editMetaInfo.fechaFormatted }}</span>
+      <span class="meta-banner__subtitle">Registrado por: {{ editMetaInfo.registradoPor }}</span>
+    </div>
+  </div>
+
+  <!-- FORMULARIO -->
+  <form [formGroup]="form" class="form-card">
+    <!-- SECCIÓN 1: DATOS DE USUARIO A EVALUAR Y ATENDIDO POR -->
+    <div class="form-grid form-grid--2-col">
+      <!-- ASIGNACIÓN DE CUALQUIER USUARIO -->
+      <div class="form-group">
+        <label class="form-label">Usuario a evaluar <span class="required">*</span></label>
+
+        <!-- Estado 1: Sin usuario seleccionado -->
+        <div *ngIf="!selectedSocio" class="assign-partner-placeholder">
+          <div class="placeholder-text">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <span>No se ha seleccionado ningún usuario</span>
+          </div>
+          <button type="button" class="btn-open-modal-partner" (click)="abrirModalSocio()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <line x1="19" y1="8" x2="19" y2="14"></line>
+              <line x1="16" y1="11" x2="22" y2="11"></line>
+            </svg>
+            Asignar Usuario
+          </button>
         </div>
 
-        <div class="form-header__actions">
-            <button type="button" class="btn btn--secondary" (click)="onCancel()">
-                Cancelar
+        <!-- Estado 2: Usuario seleccionado -->
+        <div *ngIf="selectedSocio" class="partner-selected-card">
+          <div class="partner-info">
+            <div class="partner-avatar">
+              <img 
+                *ngIf="getUserFoto(selectedSocio) && !selectedSocio._avatarError" 
+                [src]="getUserFoto(selectedSocio)" 
+                [alt]="selectedSocio.nombre" 
+                class="avatar-img" 
+                crossOrigin="anonymous" 
+                loading="lazy"
+                (error)="onImageError(selectedSocio)"
+              />
+              <span *ngIf="!getUserFoto(selectedSocio) || selectedSocio._avatarError">
+                {{ (selectedSocio.nombre?.charAt(0) || '?') }}{{ (selectedSocio.apellido?.charAt(0) || '?') }}
+              </span>
+            </div>
+            <div class="partner-details">
+              <div class="name-rol-row">
+                <span class="partner-name">{{ selectedSocio.nombre }} {{ selectedSocio.apellido }}</span>
+                <span class="role-badge" [ngClass]="getBadgeClass(selectedSocio)">{{ getRolNombre(selectedSocio) }}</span>
+              </div>
+              <span class="partner-email">{{ selectedSocio.email || 'Sin correo' }}</span>
+              <span class="partner-phone" *ngIf="selectedSocio.telefono">{{ selectedSocio.telefono }}</span>
+            </div>
+          </div>
+          <div class="partner-card-actions">
+            <button type="button" class="btn-change-partner" (click)="abrirModalSocio()" *ngIf="!isEditMode">
+              Cambiar
             </button>
-            <button type="button" class="btn btn--primary" (click)="onSubmit()" [disabled]="submitting">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
-                    <polyline points="7 3 7 8 15 8"></polyline>
-                </svg>
-                <span>{{ submitting ? 'Guardando...' : (isEditMode ? 'Actualizar Medición' : 'Guardar Medición')
-                    }}</span>
+            <button type="button" class="btn-remove-partner" (click)="limpiarSocio()" *ngIf="!isEditMode">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
             </button>
+          </div>
         </div>
+
+        <div class="form-error" *ngIf="form.get('idSocio')?.invalid && form.get('idSocio')?.touched">
+          <span>Debes seleccionar un usuario obligatoriamente.</span>
+        </div>
+      </div>
+
+      <!-- ASIGNACIÓN DE RECEPCIONISTA / ENTRENADOR -->
+      <div class="form-group">
+        <label class="form-label">Atendido por (Recepcionista / Entrenador)</label>
+
+        <!-- Estado 1: Sin recepcionista seleccionado -->
+        <div *ngIf="!selectedRecepcionista" class="assign-partner-placeholder">
+          <div class="placeholder-text">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            <span>Opcional: Sin encargado asignado</span>
+          </div>
+          <button type="button" class="btn-open-modal-partner" (click)="abrirModalRecepcionista()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <line x1="19" y1="8" x2="19" y2="14"></line>
+              <line x1="16" y1="11" x2="22" y2="11"></line>
+            </svg>
+            Asignar Encargado
+          </button>
+        </div>
+
+        <!-- Estado 2: Recepcionista / Entrenador seleccionado -->
+        <div *ngIf="selectedRecepcionista" class="partner-selected-card">
+          <div class="partner-info">
+            <div class="partner-avatar partner-avatar--reception">
+              <img 
+                *ngIf="getUserFoto(selectedRecepcionista) && !selectedRecepcionista._avatarError" 
+                [src]="getUserFoto(selectedRecepcionista)" 
+                [alt]="selectedRecepcionista.nombre" 
+                class="avatar-img" 
+                crossOrigin="anonymous" 
+                loading="lazy"
+                (error)="onImageError(selectedRecepcionista)"
+              />
+              <span *ngIf="!getUserFoto(selectedRecepcionista) || selectedRecepcionista._avatarError">
+                {{ (selectedRecepcionista.nombre?.charAt(0) || '?') }}{{ (selectedRecepcionista.apellido?.charAt(0) || '?') }}
+              </span>
+            </div>
+            <div class="partner-details">
+              <div class="name-rol-row">
+                <span class="partner-name">{{ selectedRecepcionista.nombre }} {{ selectedRecepcionista.apellido }}</span>
+                <span class="role-badge" [ngClass]="getBadgeClass(selectedRecepcionista)">{{ getRolNombre(selectedRecepcionista) }}</span>
+              </div>
+              <span class="partner-email">{{ selectedRecepcionista.email || 'Sin correo' }}</span>
+              <span class="partner-phone" *ngIf="selectedRecepcionista.telefono">{{ selectedRecepcionista.telefono }}</span>
+            </div>
+          </div>
+          <div class="partner-card-actions">
+            <button type="button" class="btn-change-partner" (click)="abrirModalRecepcionista()" *ngIf="!isEditMode">
+              Cambiar
+            </button>
+            <button type="button" class="btn-remove-partner" (click)="limpiarRecepcionista()" *ngIf="!isEditMode">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- BANNER EN MODO EDICIÓN -->
-    <div *ngIf="isEditMode" class="meta-banner">
-        <div class="meta-banner__icon">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                <line x1="16" y1="2" x2="16" y2="6"></line>
-                <line x1="8" y1="2" x2="8" y2="6"></line>
-                <line x1="3" y1="10" x2="21" y2="10"></line>
-            </svg>
+    <!-- SECCIÓN 2: FECHA DE MEDICIÓN -->
+    <div *ngIf="!isEditMode" class="form-grid form-grid--3-col margin-top">
+      <div class="form-group">
+        <label class="form-label">Fecha de medición</label>
+        <div class="input-with-icon">
+          <input type="datetime-local" formControlName="fechaMedicion" class="form-control" />
         </div>
-        <div class="meta-banner__content">
-            <span class="meta-banner__title">Medición del {{ editMetaInfo.fechaFormatted }}</span>
-            <span class="meta-banner__subtitle">Registrado por: {{ editMetaInfo.registradoPor }}</span>
-        </div>
+      </div>
     </div>
 
-    <!-- FORMULARIO -->
-    <form [formGroup]="form" class="form-card">
-        <!-- SECCIÓN 1: DATOS DE SOCIO Y RECEPCIONISTA -->
-        <div class="form-grid form-grid--2-col">
-            <div class="form-group">
-                <label class="form-label">Socio *</label>
-                <div class="select-wrapper">
-                    <select formControlName="idSocio" class="form-control">
-                        <option [ngValue]="null" disabled>Seleccionar socio</option>
-                        <option *ngFor="let s of sociosList" [value]="s.id">{{ s.name }} (ID: {{ s.id }})</option>
-                    </select>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        class="select-arrow">
-                        <polyline points="6 9 12 15 18 9"></polyline>
-                    </svg>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Recepcionista</label>
-                <div class="select-wrapper">
-                    <select formControlName="idRecepcionista" class="form-control">
-                        <option [ngValue]="null">Seleccionar recepcionista</option>
-                        <option *ngFor="let r of recepcionistasList" [value]="r.id">{{ r.name }} (ID: {{ r.id }})
-                        </option>
-                    </select>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        class="select-arrow">
-                        <polyline points="6 9 12 15 18 9"></polyline>
-                    </svg>
-                </div>
-            </div>
+    <!-- SECCIÓN 3: COMPOSICIÓN CORPORAL -->
+    <div class="form-section">
+      <h3 class="section-title">Composición Corporal</h3>
+      <div class="form-grid form-grid--4-col">
+        <div class="form-group">
+          <label class="form-label">Peso (kg) <span class="required">*</span></label>
+          <input type="number" step="0.01" formControlName="pesoKg" class="form-control" placeholder="75.5" />
         </div>
 
-        <!-- SECCIÓN 2: FECHA DE MEDICIÓN -->
-        <div *ngIf="!isEditMode" class="form-grid form-grid--3-col margin-top">
-            <div class="form-group">
-                <label class="form-label">Fecha de medición</label>
-                <div class="input-with-icon">
-                    <input type="datetime-local" formControlName="fechaMedicion" class="form-control" />
-                </div>
-            </div>
+        <div class="form-group">
+          <label class="form-label">Estatura (cm)</label>
+          <input type="number" step="0.1" formControlName="alturaCm" class="form-control" placeholder="175.0" />
         </div>
 
-        <!-- SECCIÓN 3: COMPOSICIÓN CORPORAL -->
-        <div class="form-section">
-            <h3 class="section-title">Composición Corporal</h3>
-            <div class="form-grid form-grid--4-col">
-                <div class="form-group">
-                    <label class="form-label">Peso (kg) *</label>
-                    <input type="number" step="0.01" formControlName="pesoKg" class="form-control" placeholder="75.5" />
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Estatura (cm)</label>
-                    <input type="number" step="0.1" formControlName="alturaCm" class="form-control"
-                        placeholder="175.0" />
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Grasa Corporal (%)</label>
-                    <input type="number" step="0.01" formControlName="porcentajeGrasa" class="form-control"
-                        placeholder="Autocalculado si es 0" />
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Masa Muscular (%)</label>
-                    <input type="number" step="0.01" formControlName="porcentajeMusculo" class="form-control"
-                        placeholder="Autocalculado si es 0" />
-                </div>
-            </div>
+        <div class="form-group">
+          <label class="form-label">Grasa Corporal (%)</label>
+          <input type="number" step="0.01" formControlName="porcentajeGrasa" class="form-control" placeholder="Autocalculado si es 0" />
         </div>
 
-        <!-- SECCIÓN 4: MEDIDAS CORPORALES (CM) -->
-        <div class="form-section">
-            <h3 class="section-title">Medidas Corporales (cm)</h3>
-            <div class="form-grid form-grid--4-col">
-                <div class="form-group">
-                    <label class="form-label">Cuello</label>
-                    <input type="number" step="0.01" formControlName="cuelloCm" class="form-control"
-                        placeholder="38.0" />
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Cintura Escapular</label>
-                    <input type="number" step="0.01" formControlName="cinturaEscapularCm" class="form-control"
-                        placeholder="110.0" />
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Cintura</label>
-                    <input type="number" step="0.01" formControlName="cinturaCm" class="form-control"
-                        placeholder="82.0" />
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Cadera</label>
-                    <input type="number" step="0.01" formControlName="caderaCm" class="form-control"
-                        placeholder="95.0" />
-                </div>
-            </div>
-
-            <div class="form-grid form-grid--4-col margin-top">
-                <div class="form-group">
-                    <label class="form-label">Tórax</label>
-                    <input type="number" step="0.01" formControlName="toraxCm" class="form-control"
-                        placeholder="95.0" />
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Pecho</label>
-                    <input type="number" step="0.01" formControlName="pechoCm" class="form-control"
-                        placeholder="98.5" />
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Brazo Izquierdo</label>
-                    <input type="number" step="0.01" formControlName="brazoIzqCm" class="form-control"
-                        placeholder="32.0" />
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Brazo Derecho</label>
-                    <input type="number" step="0.01" formControlName="brazoDerCm" class="form-control"
-                        placeholder="32.5" />
-                </div>
-            </div>
-
-            <div class="form-grid form-grid--4-col margin-top">
-                <div class="form-group">
-                    <label class="form-label">Pierna Izquierda</label>
-                    <input type="number" step="0.01" formControlName="piernaIzqCm" class="form-control"
-                        placeholder="55.0" />
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Pierna Derecha</label>
-                    <input type="number" step="0.01" formControlName="piernaDerCm" class="form-control"
-                        placeholder="55.5" />
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Pantorrilla Izquierda</label>
-                    <input type="number" step="0.01" formControlName="pantorrillaIzqCm" class="form-control"
-                        placeholder="36.0" />
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Pantorrilla Derecha</label>
-                    <input type="number" step="0.01" formControlName="pantorrillaDerCm" class="form-control"
-                        placeholder="36.5" />
-                </div>
-            </div>
+        <div class="form-group">
+          <label class="form-label">Masa Muscular (%)</label>
+          <input type="number" step="0.01" formControlName="porcentajeMusculo" class="form-control" placeholder="Autocalculado si es 0" />
         </div>
-    </form>
-
-    <!-- BANNER INFORMATIVO INFERIOR -->
-    <div class="info-banner" [class.info-banner--success]="isEditMode">
-        <div class="info-banner__icon">
-            <svg *ngIf="!isEditMode" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                stroke-width="2">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="12" y1="16" x2="12" y2="12"></line>
-                <line x1="12" y1="8" x2="12.01" y2="8"></line>
-            </svg>
-            <svg *ngIf="isEditMode" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                stroke-width="2.5">
-                <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-        </div>
-        <span class="info-banner__text">
-            {{ isEditMode ? 'Deja en blanco los campos que no deseas modificar. Solo se actualizarán los campos con
-            valor.' : 'Si dejas en blanco o en 0 la Grasa Corporal y Masa Muscular, el sistema los calculará
-            automáticamente.' }}
-        </span>
+      </div>
     </div>
+
+    <!-- SECCIÓN 4: MEDIDAS CORPORALES (CM) -->
+    <div class="form-section">
+      <h3 class="section-title">Medidas Corporales (cm)</h3>
+      <div class="form-grid form-grid--4-col">
+        <div class="form-group">
+          <label class="form-label">Cuello</label>
+          <input type="number" step="0.01" formControlName="cuelloCm" class="form-control" placeholder="38.0" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Cintura Escapular</label>
+          <input type="number" step="0.01" formControlName="cinturaEscapularCm" class="form-control" placeholder="110.0" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Cintura</label>
+          <input type="number" step="0.01" formControlName="cinturaCm" class="form-control" placeholder="82.0" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Cadera</label>
+          <input type="number" step="0.01" formControlName="caderaCm" class="form-control" placeholder="95.0" />
+        </div>
+      </div>
+
+      <div class="form-grid form-grid--4-col margin-top">
+        <div class="form-group">
+          <label class="form-label">Tórax</label>
+          <input type="number" step="0.01" formControlName="toraxCm" class="form-control" placeholder="95.0" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Pecho</label>
+          <input type="number" step="0.01" formControlName="pechoCm" class="form-control" placeholder="98.5" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Brazo Izquierdo</label>
+          <input type="number" step="0.01" formControlName="brazoIzqCm" class="form-control" placeholder="32.0" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Brazo Derecho</label>
+          <input type="number" step="0.01" formControlName="brazoDerCm" class="form-control" placeholder="32.5" />
+        </div>
+      </div>
+
+      <div class="form-grid form-grid--4-col margin-top">
+        <div class="form-group">
+          <label class="form-label">Pierna Izquierda</label>
+          <input type="number" step="0.01" formControlName="piernaIzqCm" class="form-control" placeholder="55.0" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Pierna Derecha</label>
+          <input type="number" step="0.01" formControlName="piernaDerCm" class="form-control" placeholder="55.5" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Pantorrilla Izquierda</label>
+          <input type="number" step="0.01" formControlName="pantorrillaIzqCm" class="form-control" placeholder="36.0" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Pantorrilla Derecha</label>
+          <input type="number" step="0.01" formControlName="pantorrillaDerCm" class="form-control" placeholder="36.5" />
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <!-- BANNER INFORMATIVO INFERIOR -->
+  <div class="info-banner" [class.info-banner--success]="isEditMode">
+    <div class="info-banner__icon">
+      <svg *ngIf="!isEditMode" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="16" x2="12" y2="12"></line>
+        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+      </svg>
+      <svg *ngIf="isEditMode" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+    </div>
+    <span class="info-banner__text">
+      {{ isEditMode ? 'Deja en blanco los campos que no deseas modificar. Solo se actualizarán los campos con valor.' : 'Si dejas en blanco o en 0 la Grasa Corporal y Masa Muscular, el sistema los calculará automáticamente.' }}
+    </span>
+  </div>
+</div>
+
+<!-- MODAL DE SELECCIÓN DE CUALQUIER USUARIO -->
+<div class="modal-overlay" *ngIf="showSocioModal" (click)="cerrarModalSocio()">
+  <div class="modal-partner-container" (click)="$event.stopPropagation()">
+    <div class="modal-partner-header">
+      <h2>Seleccionar Usuario</h2>
+      <button type="button" class="modal-close-btn" (click)="cerrarModalSocio()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="modal-partner-search">
+      <div class="search-input-wrapper">
+        <input type="text" placeholder="Buscar usuario por nombre, correo o teléfono..." [(ngModel)]="searchSocio" (input)="filtrarSociosModal()" />
+        <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+      </div>
+    </div>
+
+    <div class="modal-partner-table-wrapper">
+      <table class="partner-table">
+        <thead>
+          <tr>
+            <th>USUARIO</th>
+            <th>ROL</th>
+            <th>CONTACTO</th>
+            <th class="text-right">ACCIÓN</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let socio of sociosPaginados">
+            <td>
+              <div class="partner-cell">
+                <div class="partner-table-avatar">
+                  <img 
+                    *ngIf="getUserFoto(socio) && !socio._avatarError" 
+                    [src]="getUserFoto(socio)" 
+                    [alt]="socio.nombre" 
+                    class="avatar-img" 
+                    crossOrigin="anonymous" 
+                    loading="lazy"
+                    (error)="onImageError(socio)"
+                  />
+                  <span *ngIf="!getUserFoto(socio) || socio._avatarError">
+                    {{ (socio.nombre?.charAt(0) || '?') }}{{ (socio.apellido?.charAt(0) || '?') }}
+                  </span>
+                </div>
+                <span class="partner-table-name">{{ socio.nombre }} {{ socio.apellido }}</span>
+              </div>
+            </td>
+            <td>
+              <span class="role-badge" [ngClass]="getBadgeClass(socio)">{{ getRolNombre(socio) }}</span>
+            </td>
+            <td>
+              <span class="partner-table-contact">{{ socio.telefono || socio.email || 'Sin contacto' }}</span>
+            </td>
+            <td class="text-right">
+              <button type="button" class="btn-assign-row" (click)="seleccionarSocioModal(socio)">
+                Asignar
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="sociosFiltradosModal.length === 0">
+            <td colspan="4" class="empty-table-msg">
+              No se encontraron usuarios que coincidan con la búsqueda.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="modal-partner-footer" *ngIf="totalPaginasSocioModal > 1">
+      <div class="pagination-controls">
+        <button type="button" class="btn-page-arrow" [disabled]="paginaSocioModalActual === 1" (click)="paginaSocioModalActual = paginaSocioModalActual - 1">‹</button>
+        <button type="button" *ngFor="let pag of paginasVisiblesSocioModal" class="btn-page-num" [class.active]="pag === paginaSocioModalActual" (click)="paginaSocioModalActual = pag">
+          {{ pag }}
+        </button>
+        <button type="button" class="btn-page-arrow" [disabled]="paginaSocioModalActual === totalPaginasSocioModal" (click)="paginaSocioModalActual = paginaSocioModalActual + 1">›</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DE SELECCIÓN DE RECEPCIONISTA / ENTRENADOR -->
+<div class="modal-overlay" *ngIf="showRecepcionistaModal" (click)="cerrarModalRecepcionista()">
+  <div class="modal-partner-container" (click)="$event.stopPropagation()">
+    <div class="modal-partner-header">
+      <h2>Seleccionar Recepcionista / Entrenador</h2>
+      <button type="button" class="modal-close-btn" (click)="cerrarModalRecepcionista()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="modal-partner-search">
+      <div class="search-input-wrapper">
+        <input type="text" placeholder="Buscar por nombre, correo o teléfono..." [(ngModel)]="searchRecepcionista" (input)="filtrarRecepcionistasModal()" />
+        <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+      </div>
+    </div>
+
+    <div class="modal-partner-table-wrapper">
+      <table class="partner-table">
+        <thead>
+          <tr>
+            <th>NOMBRE</th>
+            <th>ROL</th>
+            <th>CONTACTO</th>
+            <th class="text-right">ACCIÓN</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let rec of recepcionistasPaginados">
+            <td>
+              <div class="partner-cell">
+                <div class="partner-table-avatar partner-table-avatar--reception">
+                  <img 
+                    *ngIf="getUserFoto(rec) && !rec._avatarError" 
+                    [src]="getUserFoto(rec)" 
+                    [alt]="rec.nombre" 
+                    class="avatar-img" 
+                    crossOrigin="anonymous" 
+                    loading="lazy"
+                    (error)="onImageError(rec)"
+                  />
+                  <span *ngIf="!getUserFoto(rec) || rec._avatarError">
+                    {{ (rec.nombre?.charAt(0) || '?') }}{{ (rec.apellido?.charAt(0) || '?') }}
+                  </span>
+                </div>
+                <span class="partner-table-name">{{ rec.nombre }} {{ rec.apellido }}</span>
+              </div>
+            </td>
+            <td>
+              <span class="role-badge" [ngClass]="getBadgeClass(rec)">{{ getRolNombre(rec) }}</span>
+            </td>
+            <td>
+              <span class="partner-table-contact">{{ rec.telefono || rec.email || 'Sin contacto' }}</span>
+            </td>
+            <td class="text-right">
+              <button type="button" class="btn-assign-row" (click)="seleccionarRecepcionistaModal(rec)">
+                Asignar
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="recepcionistasFiltradosModal.length === 0">
+            <td colspan="4" class="empty-table-msg">
+              No se encontraron recepcionistas ni entrenadores.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="modal-partner-footer" *ngIf="totalPaginasRecepcionistaModal > 1">
+      <div class="pagination-controls">
+        <button type="button" class="btn-page-arrow" [disabled]="paginaRecepcionistaModalActual === 1" (click)="paginaRecepcionistaModalActual = paginaRecepcionistaModalActual - 1">‹</button>
+        <button type="button" *ngFor="let pag of paginasVisiblesRecepcionistaModal" class="btn-page-num" [class.active]="pag === paginaRecepcionistaModalActual" (click)="paginaRecepcionistaModalActual = pag">
+          {{ pag }}
+        </button>
+        <button type="button" class="btn-page-arrow" [disabled]="paginaRecepcionistaModalActual === totalPaginasRecepcionistaModal" (click)="paginaRecepcionistaModalActual = paginaRecepcionistaModalActual + 1">›</button>
+      </div>
+    </div>
+  </div>
 </div>

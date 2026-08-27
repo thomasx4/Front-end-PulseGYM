@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { PhysicalHistoryService } from '../../../../../core/services/physical-history.service';
 import { UserService } from '../../../../../core/services/user.service';
 import { PhysicalHistoryRequest } from '../../../../../core/models/physical-history';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-physical-history-form',
@@ -17,8 +18,26 @@ export class PhysicalHistoryFormComponent implements OnInit {
   loading: boolean = false;
   submitting: boolean = false;
 
-  sociosList: { id: number; name: string }[] = [];
-  recepcionistasList: { id: number; name: string }[] = [];
+  // Lógica y Modales de Usuarios
+  allUsers: any[] = [];
+
+  // Usuario a Evaluar (Cualquier rol)
+  socios: any[] = [];
+  sociosFiltradosModal: any[] = [];
+  selectedSocio: any = null;
+  searchSocio: string = '';
+  showSocioModal: boolean = false;
+  paginaSocioModalActual: number = 1;
+  itemsPorPaginaSocioModal: number = 5;
+
+  // Encargado (Solo RECEPCIONISTA o ENTRENADOR)
+  recepcionistas: any[] = [];
+  recepcionistasFiltradosModal: any[] = [];
+  selectedRecepcionista: any = null;
+  searchRecepcionista: string = '';
+  showRecepcionistaModal: boolean = false;
+  paginaRecepcionistaModalActual: number = 1;
+  itemsPorPaginaRecepcionistaModal: number = 5;
 
   editMetaInfo = {
     fechaFormatted: '',
@@ -35,7 +54,7 @@ export class PhysicalHistoryFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.initForm();
-    this.loadSelectOptions();
+    this.loadUsers();
 
     this.route.params.subscribe(params => {
       if (params['id']) {
@@ -72,26 +91,21 @@ export class PhysicalHistoryFormComponent implements OnInit {
     });
   }
 
-  private loadSelectOptions(): void {
+  private loadUsers(): void {
     this.userService.obtenerTodosLosPerfilesActivos().subscribe({
       next: (users: any[]) => {
-        this.sociosList = users.map(u => ({
-          id: u.idUsuario || u.id,
-          name: `${u.nombre} ${u.apellido}`
-        }));
+        this.allUsers = users || [];
 
-        this.recepcionistasList = users
-          .filter(u => {
-            const rolName = typeof u.rol === 'string' 
-              ? u.rol.toUpperCase() 
-              : u.rol?.nombreRol?.toUpperCase() || u.rol?.nombre?.toUpperCase() || '';
-            
-            return rolName.includes('RECEPCIONISTA') || rolName.includes('ENTRENADOR');
-          })
-          .map(u => ({
-            id: u.idUsuario || u.id,
-            name: `${u.nombre} ${u.apellido}`
-          }));
+        // 1. Asignable Usuario a evaluar: CUALQUIER USUARIO REGISTRADO
+        this.socios = [...this.allUsers];
+        this.sociosFiltradosModal = [...this.socios];
+
+        // 2. Asignable Encargado: ÚNICAMENTE RECEPCIONISTA O ENTRENADOR
+        this.recepcionistas = this.allUsers.filter(u => {
+          const rol = this.getRolNombre(u).toUpperCase();
+          return rol.includes('RECEPCIONISTA') || rol.includes('ENTRENADOR');
+        });
+        this.recepcionistasFiltradosModal = [...this.recepcionistas];
       },
       error: (err) => {
         console.error('Error al cargar lista de usuarios:', err);
@@ -127,6 +141,26 @@ export class PhysicalHistoryFormComponent implements OnInit {
             pantorrillaDerCm: item.pantorrillaDerCm || null
           });
 
+          // Vincular Usuario seleccionado en Edición
+          const socioEncontrado = this.allUsers.find(u => (u.idUsuario || u.id) === item.idSocio);
+          this.selectedSocio = socioEncontrado || {
+            idUsuario: item.idSocio,
+            nombre: item.nombreSocio || 'Usuario',
+            apellido: '',
+            email: ''
+          };
+
+          // Vincular Encargado seleccionado en Edición si existe
+          if (item.idRecepcionista) {
+            const recEncontrado = this.allUsers.find(u => (u.idUsuario || u.id) === item.idRecepcionista);
+            this.selectedRecepcionista = recEncontrado || {
+              idUsuario: item.idRecepcionista,
+              nombre: item.nombreRecepcionista || 'Recepcionista',
+              apellido: '',
+              email: ''
+            };
+          }
+
           this.editMetaInfo = {
             fechaFormatted: item.fechaMedicion ? new Date(item.fechaMedicion).toLocaleString('es-ES', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '',
             registradoPor: item.nombreRecepcionista || 'Sistema'
@@ -141,9 +175,200 @@ export class PhysicalHistoryFormComponent implements OnInit {
     });
   }
 
+  // --- MÉTODOS AUXILIARES DE FOTO CLOUDINARY (`fotoUrl`), ROL Y BADGES ---
+
+  getUserFoto(user: any): string | null {
+    if (!user) return null;
+
+    // Se agrega fotoUrl que es como viene en UserProfile
+    let rawUrl = 
+      user.fotoUrl ||
+      user.fotoPerfil || 
+      user.foto || 
+      user.avatar || 
+      user.imagen || 
+      user.profilePicture ||
+      user.perfil?.fotoUrl ||
+      user.perfil?.fotoPerfil ||
+      null;
+
+    if (!rawUrl || typeof rawUrl !== 'string') return null;
+
+    rawUrl = rawUrl.trim();
+    if (rawUrl === '' || rawUrl === 'null' || rawUrl === 'undefined') return null;
+
+    if (rawUrl.startsWith('//')) {
+      return `https:${rawUrl}`;
+    }
+
+    return rawUrl;
+  }
+
+  onImageError(user: any): void {
+    if (user) {
+      user.fotoUrl = '';
+      user.fotoPerfil = '';
+      user.foto = '';
+      user._avatarError = true;
+    }
+  }
+
+  getRolNombre(user: any): string {
+    if (!user) return 'Usuario';
+    if (typeof user.rol === 'string') return user.rol;
+    return user.rol?.nombreRol || user.rol?.nombre || 'Socio';
+  }
+
+  getBadgeClass(user: any): string {
+    const rol = this.getRolNombre(user).toUpperCase();
+    if (rol.includes('SOCIO')) return 'rol-socio';
+    if (rol.includes('RECEPCIONISTA')) return 'rol-recepcion';
+    if (rol.includes('ENTRENADOR')) return 'rol-entrenador';
+    if (rol.includes('ADMIN')) return 'rol-admin';
+    return 'rol-default';
+  }
+
+  // --- LÓGICA DE MODAL Y SELECCIÓN DE USUARIO A EVALUAR ---
+
+  abrirModalSocio(): void {
+    if (this.isEditMode) return;
+    this.searchSocio = '';
+    this.sociosFiltradosModal = [...this.socios];
+    this.paginaSocioModalActual = 1;
+    this.showSocioModal = true;
+  }
+
+  cerrarModalSocio(): void {
+    this.showSocioModal = false;
+  }
+
+  filtrarSociosModal(): void {
+    const term = this.searchSocio.toLowerCase().trim();
+    if (!term) {
+      this.sociosFiltradosModal = [...this.socios];
+    } else {
+      this.sociosFiltradosModal = this.socios.filter(
+        u =>
+          u.nombre?.toLowerCase().includes(term) ||
+          u.apellido?.toLowerCase().includes(term) ||
+          (u.telefono && u.telefono.includes(term)) ||
+          u.email?.toLowerCase().includes(term)
+      );
+    }
+    this.paginaSocioModalActual = 1;
+  }
+
+  get sociosPaginados(): any[] {
+    const inicio = (this.paginaSocioModalActual - 1) * this.itemsPorPaginaSocioModal;
+    return this.sociosFiltradosModal.slice(inicio, inicio + this.itemsPorPaginaSocioModal);
+  }
+
+  get totalPaginasSocioModal(): number {
+    return Math.ceil(this.sociosFiltradosModal.length / this.itemsPorPaginaSocioModal) || 1;
+  }
+
+  get paginasVisiblesSocioModal(): number[] {
+    const total = this.totalPaginasSocioModal;
+    return Array.from({ length: total }, (_, i) => i + 1);
+  }
+
+  seleccionarSocioModal(socio: any): void {
+    const id = socio.idUsuario || socio.id;
+    this.selectedSocio = socio;
+    this.form.patchValue({ idSocio: id });
+    this.cerrarModalSocio();
+
+    Swal.fire({
+      icon: 'success',
+      title: 'Usuario seleccionado',
+      text: `${socio.nombre} ${socio.apellido} ha sido asignado para evaluación.`,
+      timer: 1400,
+      showConfirmButton: false,
+    });
+  }
+
+  limpiarSocio(): void {
+    if (this.isEditMode) return;
+    this.selectedSocio = null;
+    this.form.patchValue({ idSocio: null });
+  }
+
+  // --- LÓGICA DE MODAL Y SELECCIÓN DE RECEPCIONISTA / ENTRENADOR ---
+
+  abrirModalRecepcionista(): void {
+    if (this.isEditMode) return;
+    this.searchRecepcionista = '';
+    this.recepcionistasFiltradosModal = [...this.recepcionistas];
+    this.paginaRecepcionistaModalActual = 1;
+    this.showRecepcionistaModal = true;
+  }
+
+  cerrarModalRecepcionista(): void {
+    this.showRecepcionistaModal = false;
+  }
+
+  filtrarRecepcionistasModal(): void {
+    const term = this.searchRecepcionista.toLowerCase().trim();
+    if (!term) {
+      this.recepcionistasFiltradosModal = [...this.recepcionistas];
+    } else {
+      this.recepcionistasFiltradosModal = this.recepcionistas.filter(
+        u =>
+          u.nombre?.toLowerCase().includes(term) ||
+          u.apellido?.toLowerCase().includes(term) ||
+          (u.telefono && u.telefono.includes(term)) ||
+          u.email?.toLowerCase().includes(term)
+      );
+    }
+    this.paginaRecepcionistaModalActual = 1;
+  }
+
+  get recepcionistasPaginados(): any[] {
+    const inicio = (this.paginaRecepcionistaModalActual - 1) * this.itemsPorPaginaRecepcionistaModal;
+    return this.recepcionistasFiltradosModal.slice(inicio, inicio + this.itemsPorPaginaRecepcionistaModal);
+  }
+
+  get totalPaginasRecepcionistaModal(): number {
+    return Math.ceil(this.recepcionistasFiltradosModal.length / this.itemsPorPaginaRecepcionistaModal) || 1;
+  }
+
+  get paginasVisiblesRecepcionistaModal(): number[] {
+    const total = this.totalPaginasRecepcionistaModal;
+    return Array.from({ length: total }, (_, i) => i + 1);
+  }
+
+  seleccionarRecepcionistaModal(recepcionista: any): void {
+    const id = recepcionista.idUsuario || recepcionista.id;
+    this.selectedRecepcionista = recepcionista;
+    this.form.patchValue({ idRecepcionista: id });
+    this.cerrarModalRecepcionista();
+
+    Swal.fire({
+      icon: 'success',
+      title: 'Encargado asignado',
+      text: `${recepcionista.nombre} ${recepcionista.apellido} ha sido asignado.`,
+      timer: 1400,
+      showConfirmButton: false,
+    });
+  }
+
+  limpiarRecepcionista(): void {
+    if (this.isEditMode) return;
+    this.selectedRecepcionista = null;
+    this.form.patchValue({ idRecepcionista: null });
+  }
+
+  // --- ENVÍO DE FORMULARIO ---
+
   onSubmit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      Swal.fire({
+        icon: 'warning',
+        title: 'Formulario incompleto',
+        text: 'Por favor asigna un usuario a evaluar y completa los campos obligatorios.',
+        confirmButtonColor: '#0e3b72'
+      });
       return;
     }
 
@@ -176,22 +401,46 @@ export class PhysicalHistoryFormComponent implements OnInit {
       this.physicalHistoryService.update(this.idHistorial, payload).subscribe({
         next: () => {
           this.submitting = false;
+          Swal.fire({
+            icon: 'success',
+            title: 'Medición Actualizada',
+            text: 'Se actualizaron los datos correctamente.',
+            confirmButtonColor: '#0e3b72'
+          });
           this.onCancel();
         },
         error: (err) => {
           console.error('Error al actualizar:', err);
           this.submitting = false;
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: err.error?.message || 'No se pudo actualizar la medición.',
+            confirmButtonColor: '#0e3b72'
+          });
         }
       });
     } else {
       this.physicalHistoryService.create(payload).subscribe({
         next: () => {
           this.submitting = false;
+          Swal.fire({
+            icon: 'success',
+            title: 'Medición Registrada',
+            text: 'La medición física ha sido guardada correctamente.',
+            confirmButtonColor: '#0e3b72'
+          });
           this.onCancel();
         },
         error: (err) => {
           console.error('Error al crear:', err);
           this.submitting = false;
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: err.error?.message || 'No se pudo registrar la medición física.',
+            confirmButtonColor: '#0e3b72'
+          });
         }
       });
     }

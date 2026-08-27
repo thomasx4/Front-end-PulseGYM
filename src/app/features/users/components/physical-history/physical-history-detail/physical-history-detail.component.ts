@@ -29,6 +29,8 @@ export class PhysicalHistoryDetailComponent implements OnInit, OnDestroy, AfterV
 
   selectedTimeframe: string = '6M';
 
+  avatarError: boolean = false;
+
   medidasSilueta = {
     cuello: 0,
     pecho: 0,
@@ -88,7 +90,7 @@ export class PhysicalHistoryDetailComponent implements OnInit, OnDestroy, AfterV
   setupModelViewer(): void {
     if (this.modelViewer) {
       const model = this.modelViewer.nativeElement;
-      
+
       model.addEventListener('load', () => {
         this.modelLoaded = true;
         setTimeout(() => this.adjustHotspots(), 300);
@@ -120,7 +122,7 @@ export class PhysicalHistoryDetailComponent implements OnInit, OnDestroy, AfterV
         if (found) {
           this.record = found;
           this.socioHistory = records.filter(r => r.idSocio === found.idSocio)
-                                    .sort((a, b) => new Date(a.fechaMedicion).getTime() - new Date(b.fechaMedicion).getTime());
+            .sort((a, b) => new Date(a.fechaMedicion).getTime() - new Date(b.fechaMedicion).getTime());
 
           this.calcularComparacionGeneral();
           this.cargarPerfilSocio(found.idSocio);
@@ -172,6 +174,37 @@ export class PhysicalHistoryDetailComponent implements OnInit, OnDestroy, AfterV
     });
   }
 
+  getSocioFoto(): string | null {
+    let rawUrl =
+      this.socioProfile?.fotoUrl ||
+      this.socioProfile?.fotoPerfil ||
+      this.socioProfile?.foto ||
+      this.socioProfile?.avatar ||
+      (this.record as any)?.fotoUrl ||
+      (this.record as any)?.fotoPerfil ||
+      (this.record as any)?.foto ||
+      null;
+
+    if (!rawUrl || typeof rawUrl !== 'string') return null;
+
+    rawUrl = rawUrl.trim();
+    if (rawUrl === '' || rawUrl === 'null' || rawUrl === 'undefined') return null;
+
+    if (rawUrl.startsWith('//')) {
+      return `https:${rawUrl}`;
+    }
+
+    return rawUrl;
+  }
+
+  onAvatarError(): void {
+    this.avatarError = true;
+  }
+
+  hasAvatarError(): boolean {
+    return this.avatarError;
+  }
+
   cargarMedidasSilueta(record: PhysicalHistory): void {
     this.medidasSilueta = {
       cuello: record.cuelloCm || 0,
@@ -193,8 +226,8 @@ export class PhysicalHistoryDetailComponent implements OnInit, OnDestroy, AfterV
     }
 
     const labels = this.evolutionData.evolucionPeso.map(item =>
-      new Date(item.fecha).toLocaleDateString('es-ES', { 
-        day: '2-digit', 
+      new Date(item.fecha).toLocaleDateString('es-ES', {
+        day: '2-digit',
         month: 'short',
         hour: '2-digit',
         minute: '2-digit'
@@ -296,7 +329,7 @@ export class PhysicalHistoryDetailComponent implements OnInit, OnDestroy, AfterV
 
     if (this.modelViewer && this.modelLoaded) {
       const model = this.modelViewer.nativeElement;
-      
+
       if (key) {
         this.updateHotspotColors(key);
         model.style.cursor = 'pointer';
@@ -311,7 +344,7 @@ export class PhysicalHistoryDetailComponent implements OnInit, OnDestroy, AfterV
     if (this.hoverTimeout) {
       clearTimeout(this.hoverTimeout);
     }
-    
+
     this.hoverTimeout = setTimeout(() => {
       this.isHovering = false;
       this.hoveredMeasure = null;
@@ -322,14 +355,14 @@ export class PhysicalHistoryDetailComponent implements OnInit, OnDestroy, AfterV
 
   updateHotspotColors(key: string): void {
     if (!this.modelViewer) return;
-    
+
     const model = this.modelViewer.nativeElement;
     const hotspots = model.querySelectorAll('.hotspot');
-    
+
     hotspots.forEach((hotspot: any) => {
       hotspot.style.transform = 'scale(1)';
       hotspot.style.boxShadow = '0 0 15px rgba(0,0,0,0.3)';
-      
+
       if (hotspot.slot === 'hotspot-' + key) {
         hotspot.style.transform = 'scale(1.5)';
         hotspot.style.boxShadow = '0 0 30px rgba(255,255,255,0.8)';
@@ -339,10 +372,10 @@ export class PhysicalHistoryDetailComponent implements OnInit, OnDestroy, AfterV
 
   resetHotspotColors(): void {
     if (!this.modelViewer) return;
-    
+
     const model = this.modelViewer.nativeElement;
     const hotspots = model.querySelectorAll('.hotspot');
-    
+
     hotspots.forEach((hotspot: any) => {
       hotspot.style.transform = 'scale(1)';
       hotspot.style.boxShadow = '0 0 15px rgba(0,0,0,0.3)';

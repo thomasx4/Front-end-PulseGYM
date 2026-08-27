@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { PhysicalHistoryService } from '../../../../../core/services/physical-history.service';
+import { UserService } from '../../../../../core/services/user.service';
 import { PhysicalHistory } from '../../../../../core/models/physical-history';
 
 @Component({
@@ -14,6 +15,11 @@ export class PhysicalHistoryListComponent implements OnInit {
   paginatedRecords: PhysicalHistory[] = [];
   loading: boolean = false;
   searchQuery: string = '';
+
+  userProfilesMap: Map<number, any> = new Map<number, any>();
+  
+  // Set para rastrear los IDs de historiales cuyos avatares fallaron al cargar
+  failedAvatars: Set<number> = new Set<number>();
 
   selectedSocioId: string = 'ALL';
   uniqueSocios: { id: number; name: string }[] = [];
@@ -33,15 +39,36 @@ export class PhysicalHistoryListComponent implements OnInit {
 
   constructor(
     private physicalHistoryService: PhysicalHistoryService,
+    private userService: UserService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
-    this.fetchData();
+    this.loadUsersAndData();
+  }
+
+  loadUsersAndData(): void {
+    this.loading = true;
+    this.userService.obtenerTodosLosPerfiles().subscribe({
+      next: (users: any[]) => {
+        if (users && users.length) {
+          users.forEach(u => {
+            const key = u.idUsuario || u.id;
+            if (key) {
+              this.userProfilesMap.set(key, u);
+            }
+          });
+        }
+        this.fetchData();
+      },
+      error: (err) => {
+        console.error('Error al cargar mapa de usuarios para fotos:', err);
+        this.fetchData();
+      }
+    });
   }
 
   fetchData(): void {
-    this.loading = true;
     this.physicalHistoryService.getAll().subscribe({
       next: (data) => {
         this.records = this.calculateTrends(data);
@@ -54,6 +81,54 @@ export class PhysicalHistoryListComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  // Extrae la URL de foto de Cloudinary o perfil
+  getUserFoto(item: PhysicalHistory): string | null {
+    if (!item) return null;
+
+    const userId = item.idRecepcionista || item.idSocio;
+    const profile = this.userProfilesMap.get(userId);
+
+    let rawUrl = 
+      (item as any).fotoUrl ||
+      (item as any).fotoPerfil ||
+      (item as any).foto ||
+      profile?.fotoUrl || 
+      profile?.fotoPerfil || 
+      profile?.foto || 
+      profile?.avatar ||
+      null;
+
+    if (!rawUrl || typeof rawUrl !== 'string') return null;
+
+    rawUrl = rawUrl.trim();
+    if (rawUrl === '' || rawUrl === 'null' || rawUrl === 'undefined') return null;
+
+    if (rawUrl.startsWith('//')) {
+      return `https:${rawUrl}`;
+    }
+
+    return rawUrl;
+  }
+
+  onAvatarError(idHistorial: number): void {
+    if (idHistorial) {
+      this.failedAvatars.add(idHistorial);
+    }
+  }
+
+  hasAvatarError(idHistorial: number): boolean {
+    return this.failedAvatars.has(idHistorial);
+  }
+
+  getInitials(name: string): string {
+    if (!name) return '?';
+    const parts = name.trim().split(' ');
+    if (parts.length >= 2) {
+      return (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
   }
 
   private calculateTrends(data: PhysicalHistory[]): PhysicalHistory[] {
@@ -179,10 +254,6 @@ export class PhysicalHistoryListComponent implements OnInit {
       this.lastDate = '-';
       this.avgDaysBetween = 0;
     }
-  }
-
-  getAvatarUrl(name: string): string {
-    return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=0F1C3F&color=fff&bold=true`;
   }
 
   onNewMedicion(): void {

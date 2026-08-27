@@ -36,7 +36,9 @@
   <div class="socio-profile-card">
     <div class="socio-profile-card__left">
       <div class="avatar-circle">
-        <span>{{ getInitials(record?.nombreSocio) }}</span>
+        <img *ngIf="getSocioFoto() && !hasAvatarError()" [src]="getSocioFoto()" [alt]="record?.nombreSocio"
+          class="avatar-circle__img" crossOrigin="anonymous" (error)="onAvatarError()" />
+        <span *ngIf="!getSocioFoto() || hasAvatarError()">{{ getInitials(record?.nombreSocio) }}</span>
       </div>
       <div class="socio-info">
         <div class="socio-info__header">
