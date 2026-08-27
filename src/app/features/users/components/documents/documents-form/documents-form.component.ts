@@ -32,6 +32,10 @@ export class DocumentsFormComponent implements OnInit {
   selectedFile: File | null = null;
   uploadingFile: boolean = false;
 
+  // Manejo de errores de avatar
+  avatarSelectedError: boolean = false;
+  modalAvatarErrors: Set<number> = new Set<number>();
+
   constructor(
     private fb: FormBuilder,
     private router: Router,
@@ -39,7 +43,7 @@ export class DocumentsFormComponent implements OnInit {
     private documentService: DocumentService,
     private userService: UserService,
     private cloudinaryService: CloudinaryService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.initForm();
@@ -89,7 +93,7 @@ export class DocumentsFormComponent implements OnInit {
     });
   }
 
-private cargarDocumento(id: number): void {
+  private cargarDocumento(id: number): void {
     this.loading = true;
     this.documentService.obtenerDocumentoPorId(id).subscribe({
       next: (data: any) => {
@@ -108,7 +112,8 @@ private cargarDocumento(id: number): void {
           email: 'Sin email',
           rol: data.rolUsuario || 'SOCIO'
         };
-        
+
+        this.avatarSelectedError = false;
         this.loading = false;
       },
       error: () => {
@@ -122,6 +127,54 @@ private cargarDocumento(id: number): void {
         this.volver();
       },
     });
+  }
+
+  // --- OBTENCIÓN Y MANEJO DE IMÁGENES/AVATARES ---
+
+  getUsuarioFoto(usuario: any): string | null {
+    if (!usuario) return null;
+
+    let rawUrl =
+      usuario.fotoUrl ||
+      usuario.fotoPerfil ||
+      usuario.foto ||
+      usuario.avatar ||
+      null;
+
+    if (!rawUrl || typeof rawUrl !== 'string') return null;
+
+    rawUrl = rawUrl.trim();
+    if (rawUrl === '' || rawUrl === 'null' || rawUrl === 'undefined') return null;
+
+    if (rawUrl.startsWith('//')) {
+      return `https:${rawUrl}`;
+    }
+
+    return rawUrl;
+  }
+
+  onAvatarError(): void {
+    this.avatarSelectedError = true;
+  }
+
+  hasAvatarError(): boolean {
+    return this.avatarSelectedError;
+  }
+
+  onModalAvatarError(idUsuario: number): void {
+    if (idUsuario) {
+      this.modalAvatarErrors.add(idUsuario);
+    }
+  }
+
+  hasModalAvatarError(idUsuario: number): boolean {
+    return this.modalAvatarErrors.has(idUsuario);
+  }
+
+  getInitials(nombre?: string, apellido?: string): string {
+    const n = nombre ? nombre.trim().charAt(0) : '?';
+    const a = apellido ? apellido.trim().charAt(0) : '';
+    return (n + a).toUpperCase() || '?';
   }
 
   // --- MODAL Y NAVEGACIÓN DE USUARIOS ---
@@ -170,13 +223,14 @@ private cargarDocumento(id: number): void {
 
   seleccionarSocioDesdeModal(usuario: any): void {
     this.selectedUsuario = usuario;
+    this.avatarSelectedError = false;
     this.documentForm.patchValue({ idUsuario: usuario.idUsuario });
     this.cerrarModalSeleccionSocio();
 
     Swal.fire({
       icon: 'success',
       title: 'Usuario asignado',
-      text: `${usuario.nombre} ${usuario.apellido} ha sido asignado al documento.`,
+      text: `${usuario.nombre} ${usuario.apellido || ''} ha sido asignado al documento.`,
       timer: 1400,
       showConfirmButton: false,
     });
@@ -184,6 +238,7 @@ private cargarDocumento(id: number): void {
 
   limpiarSeleccion(): void {
     this.selectedUsuario = null;
+    this.avatarSelectedError = false;
     this.documentForm.patchValue({ idUsuario: '' });
   }
 

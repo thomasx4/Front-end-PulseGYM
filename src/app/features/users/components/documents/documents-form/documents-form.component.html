@@ -58,8 +58,12 @@
                         <div *ngIf="selectedUsuario" class="partner-selected-card">
                             <div class="partner-info">
                                 <div class="partner-avatar">
-                                    <span>{{ (selectedUsuario.nombre?.charAt(0) || '?') }}{{
-                                        (selectedUsuario.apellido?.charAt(0) || '?') }}</span>
+                                    <img *ngIf="getUsuarioFoto(selectedUsuario) && !hasAvatarError()"
+                                        [src]="getUsuarioFoto(selectedUsuario)" [alt]="selectedUsuario.nombre"
+                                        class="partner-avatar__img" crossOrigin="anonymous" (error)="onAvatarError()" />
+                                    <span *ngIf="!getUsuarioFoto(selectedUsuario) || hasAvatarError()">
+                                        {{ getInitials(selectedUsuario.nombre, selectedUsuario.apellido) }}
+                                    </span>
                                 </div>
                                 <div class="partner-details">
                                     <div class="name-rol-row">
@@ -175,9 +179,7 @@
     </form>
 </div>
 
-
 <!-- MODAL DE SELECCIÓN Y ASIGNACIÓN DE USUARIOS -->
-
 <div class="modal-overlay" *ngIf="showPartnerModal" (click)="cerrarModalSeleccionSocio()">
     <div class="modal-partner-container" (click)="$event.stopPropagation()">
 
@@ -221,7 +223,13 @@
                         <td>
                             <div class="partner-cell">
                                 <div class="partner-table-avatar">
-                                    {{ (usuario.nombre?.charAt(0) || '?') }}{{ (usuario.apellido?.charAt(0) || '?') }}
+                                    <img *ngIf="getUsuarioFoto(usuario) && !hasModalAvatarError(usuario.idUsuario)"
+                                        [src]="getUsuarioFoto(usuario)" [alt]="usuario.nombre"
+                                        class="partner-table-avatar__img" crossOrigin="anonymous"
+                                        (error)="onModalAvatarError(usuario.idUsuario)" />
+                                    <span *ngIf="!getUsuarioFoto(usuario) || hasModalAvatarError(usuario.idUsuario)">
+                                        {{ getInitials(usuario.nombre, usuario.apellido) }}
+                                    </span>
                                 </div>
                                 <span class="partner-table-name">{{ usuario.nombre }} {{ usuario.apellido }}</span>
                             </div>
