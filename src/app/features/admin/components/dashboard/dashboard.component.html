@@ -175,7 +175,15 @@
                 <!-- LISTADO DE SOCIOS POR VENCER -->
                 <ng-container *ngIf="porVencer.length > 0; else noExpiringMemberships">
                     <div *ngFor="let item of porVencer.slice(0, 2)" class="expiring-user-item">
-                        <img [src]="item.avatar" [alt]="item.nombre" class="expiring-user-item__avatar">
+                        <div class="avatar-container">
+                            <img *ngIf="getFotoSocio(item) && !hasAvatarError(item.id)" [src]="getFotoSocio(item)"
+                                [alt]="item.nombre" class="expiring-user-item__avatar" crossOrigin="anonymous"
+                                (error)="onAvatarError(item.id)" />
+                            <div *ngIf="!getFotoSocio(item) || hasAvatarError(item.id)" class="user-avatar-initials">
+                                {{ getInitials(item.nombre) }}
+                            </div>
+                        </div>
+
                         <div class="expiring-user-item__info">
                             <span class="expiring-user-item__name">{{ item.nombre }}</span>
                             <span class="expiring-user-item__days" [class.critico]="item.urgencia === 'CRITICO'"
@@ -199,7 +207,7 @@
                 </ng-container>
 
                 <!-- ESTADO VACÍO (SIN MEMBRESÍAS POR VENCER) -->
-                <ng-template #noExpiringMemberships>    
+                <ng-template #noExpiringMemberships>
                     <div class="expiring-empty-state">
                         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
