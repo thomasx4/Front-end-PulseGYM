@@ -31,6 +31,10 @@ export class CertificatesFormComponent implements OnInit {
   existingUrl: string = '';
   uploadingFile: boolean = false;
 
+  // Manejo de errores de avatar
+  avatarSelectedError: boolean = false;
+  modalAvatarErrors: Set<number> = new Set<number>();
+
   constructor(
     private fb: FormBuilder,
     private router: Router,
@@ -38,7 +42,7 @@ export class CertificatesFormComponent implements OnInit {
     private certificateService: CertificateService,
     private userService: UserService,
     private cloudinaryService: CloudinaryService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.initForm();
@@ -101,6 +105,7 @@ export class CertificatesFormComponent implements OnInit {
             email: 'Sin email',
             rol: 'ENTRENADOR'
           };
+          this.avatarSelectedError = false;
         } else {
           Swal.fire({
             icon: 'error',
@@ -123,6 +128,54 @@ export class CertificatesFormComponent implements OnInit {
         this.volver();
       }
     });
+  }
+
+  // --- OBTENCIÓN Y MANEJO DE IMÁGENES/AVATARES ---
+
+  getEntrenadorFoto(entrenador: any): string | null {
+    if (!entrenador) return null;
+
+    let rawUrl =
+      entrenador.fotoUrl ||
+      entrenador.fotoPerfil ||
+      entrenador.foto ||
+      entrenador.avatar ||
+      null;
+
+    if (!rawUrl || typeof rawUrl !== 'string') return null;
+
+    rawUrl = rawUrl.trim();
+    if (rawUrl === '' || rawUrl === 'null' || rawUrl === 'undefined') return null;
+
+    if (rawUrl.startsWith('//')) {
+      return `https:${rawUrl}`;
+    }
+
+    return rawUrl;
+  }
+
+  onAvatarError(): void {
+    this.avatarSelectedError = true;
+  }
+
+  hasAvatarError(): boolean {
+    return this.avatarSelectedError;
+  }
+
+  onModalAvatarError(idUsuario: number): void {
+    if (idUsuario) {
+      this.modalAvatarErrors.add(idUsuario);
+    }
+  }
+
+  hasModalAvatarError(idUsuario: number): boolean {
+    return this.modalAvatarErrors.has(idUsuario);
+  }
+
+  getInitials(nombre?: string, apellido?: string): string {
+    const n = nombre ? nombre.trim().charAt(0) : '?';
+    const a = apellido ? apellido.trim().charAt(0) : '';
+    return (n + a).toUpperCase() || '?';
   }
 
   // --- MODAL Y SELECCIÓN DE ENTRENADOR ---
@@ -171,13 +224,14 @@ export class CertificatesFormComponent implements OnInit {
 
   seleccionarEntrenadorDesdeModal(entrenador: any): void {
     this.selectedEntrenador = entrenador;
+    this.avatarSelectedError = false;
     this.certificateForm.patchValue({ idEntrenador: entrenador.idUsuario });
     this.cerrarModalSeleccionEntrenador();
 
     Swal.fire({
       icon: 'success',
       title: 'Entrenador asignado',
-      text: `${entrenador.nombre} ${entrenador.apellido} ha sido asignado.`,
+      text: `${entrenador.nombre} ${entrenador.apellido || ''} ha sido asignado.`,
       timer: 1400,
       showConfirmButton: false,
     });
@@ -186,6 +240,7 @@ export class CertificatesFormComponent implements OnInit {
   limpiarSeleccion(): void {
     if (this.isEditMode) return;
     this.selectedEntrenador = null;
+    this.avatarSelectedError = false;
     this.certificateForm.patchValue({ idEntrenador: '' });
   }
 
