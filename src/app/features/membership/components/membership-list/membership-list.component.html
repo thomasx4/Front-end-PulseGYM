@@ -104,7 +104,7 @@
     <!-- TABLA DE MIEMBROS CON FILTROS -->
     <div class="members-table-section" *ngIf="!loading">
         <div class="table-header">
-            <h2 class="section-subtitle">Active Memberships</h2>
+            <h2 class="section-subtitle">Membresías activas</h2>
             <div class="table-controls">
                 <div class="filter-group">
                     <select [(ngModel)]="filtroIA" (change)="aplicarFiltrosTabla()">
@@ -150,7 +150,7 @@
             <table class="members-table">
                 <thead>
                     <tr>
-                        <th>MEMBER</th>
+                        <th>MIEMBROS</th>
                         <th>PLAN</th>
                         <th>FECHA INICIO</th>
                         <th>FECHA FIN</th>
@@ -209,7 +209,7 @@
         <!-- PAGINACIÓN SOCIOS -->
         <div class="table-footer">
             <span class="table-info">
-                Showing {{ inicio + 1 }}–{{ fin }} of {{ miembrosFiltradosList.length }} members
+                Mostrando {{ inicio + 1 }}–{{ fin }} de {{ miembrosFiltradosList.length }} miembros
             </span>
             <div class="pagination">
                 <button class="page-btn" (click)="paginaAnterior()" [disabled]="paginaActual === 1">

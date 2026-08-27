@@ -43,11 +43,6 @@
             <div class="stat-card__content">
                 <div class="stat-card__row">
                     <span class="stat-card__value">{{ stat.valor | number }}</span>
-                    <span *ngIf="hasTrend(stat.tendencia)" class="stat-card__trend"
-                        [class.trend--up]="isPositiveTrend(stat.tendencia)"
-                        [class.trend--down]="!isPositiveTrend(stat.tendencia)">
-                        {{ formatTrend(stat.tendencia) }}
-                    </span>
                 </div>
                 <span class="stat-card__label">{{ stat.titulo }}</span>
             </div>
@@ -131,7 +126,7 @@
                 <div class="donut-chart" [style.background]="getDonutGradient()">
                     <div class="donut-chart__center">
                         <span class="donut-chart__value">${{ (totalRevenue / 1000) | number:'1.1-1' }}k</span>
-                        <span class="donut-chart__label">TOTAL REVENUE</span>
+                        <span class="donut-chart__label">INGRESOS TOTALES</span>
                     </div>
                 </div>
             </div>
