@@ -18,6 +18,7 @@ export interface User {
   avatar?: string;
   fotoUrl?: string | null; 
   fotoPerfil?: string | null;
+  requiereCambioContrasena?: boolean;
 }
 
 export interface RegisterRequestDTO {
@@ -30,11 +31,18 @@ export interface RegisterRequestDTO {
 
 export interface HttpGlobalResponse<T> {
   data: T;
-  messege: string;
+  message?: string;
+  messege?: string;
 }
 
 export interface MessageGlobalDTO {
   message: string;
+}
+
+export interface ChangePasswordDTO {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
 }
 
 export interface Credencial {
