@@ -9,6 +9,7 @@ import { CredentialsListComponent } from './components/credentials-list/credenti
 import { ForgotComponent } from './components/forgot/forgot.component';
 import { SharedModule } from '../../shared/shared.module';
 import { FilterCredentialsComponent } from './components/filter-credentials/filter-credentials.component';
+import { ForcePasswordChangeComponent } from './components/force-password-change/force-password-change.component';
 
 @NgModule({
   declarations: [
@@ -16,7 +17,8 @@ import { FilterCredentialsComponent } from './components/filter-credentials/filt
     RegisterCredentialsComponent,
     CredentialsListComponent,
     ForgotComponent,
-    FilterCredentialsComponent
+    FilterCredentialsComponent,
+    ForcePasswordChangeComponent
   ],
   imports: [
     CommonModule,
@@ -28,7 +30,8 @@ import { FilterCredentialsComponent } from './components/filter-credentials/filt
   ],
   exports: [
     LoginComponent,
-    ForgotComponent
+    ForgotComponent,
+    ForcePasswordChangeComponent
   ]
 })
 export class AuthModule { }

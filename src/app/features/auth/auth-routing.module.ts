@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { LoginComponent } from './components/login/login.component';
 import { ForgotComponent } from './components/forgot/forgot.component';
+import { ForcePasswordChangeComponent } from './components/force-password-change/force-password-change.component';
 
 const routes: Routes = [
   {
@@ -11,6 +12,10 @@ const routes: Routes = [
   {
     path: 'forgot-password',
     component: ForgotComponent
+  },
+  {
+    path: 'cambiar-contrasena-obligatorio',
+    component: ForcePasswordChangeComponent
   }
 ];
 

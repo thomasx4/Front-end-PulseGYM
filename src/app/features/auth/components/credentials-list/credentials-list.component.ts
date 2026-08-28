@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { RespuestaPaginadaCredenciales, Credencial } from '../../models/auth/auth.model';
+import { Credencial } from '../../models/auth/auth.model';
 import { AuthService } from '../../../../core/services/auth.service';
 import { UserService } from '../../../../core/services/user.service';
 import { FiltrosCredenciales } from '../filter-credentials/filter-credentials.component';
@@ -13,7 +13,10 @@ import { catchError } from 'rxjs/operators';
   styleUrls: ['./credentials-list.component.scss']
 })
 export class CredentialsListComponent implements OnInit {
+  todosLosUsuarios: Credencial[] = [];
+  usuariosFiltrados: Credencial[] = [];
   credenciales: Credencial[] = [];
+
   filtrosActuales: FiltrosCredenciales = {};
   cargando: boolean = false;
   errorMensaje: string = '';
@@ -22,20 +25,14 @@ export class CredentialsListComponent implements OnInit {
   tamanioPagina: number = 5;
   totalElementos: number = 0;
   totalPaginas: number = 0;
-  esUltimaPagina: boolean = false;
 
   totalActivosGeneral: number = 0;
   totalInactivosGeneral: number = 0;
   totalMesActual: number = 0;
 
   mostrarFormulario: boolean = false;
-
   mostrarModalPassword: boolean = false;
   usuarioSeleccionado: any = null;
-  nuevaPassword: string = '';
-  confirmarPassword: string = '';
-  mostrarPassword: boolean = false;
-  mostrarConfirmacion: boolean = false;
   cargandoPassword: boolean = false;
   errorPassword: string = '';
 
@@ -49,8 +46,7 @@ export class CredentialsListComponent implements OnInit {
 
   ngOnInit(): void {
     this.cargarMapaFotos();
-    this.cargarCredenciales();
-    this.cargarMetricasGenerales();
+    this.cargarTodosLosUsuarios();
   }
 
   cargarMapaFotos(): void {
@@ -123,61 +119,75 @@ export class CredentialsListComponent implements OnInit {
     return (partes[0].charAt(0) + partes[1].charAt(0)).toUpperCase();
   }
 
-  cargarCredenciales(pagina: number = 0): void {
+  cargarTodosLosUsuarios(): void {
     this.cargando = true;
     this.errorMensaje = '';
 
-    this.authService.listarCredenciales(
-      pagina,
-      this.tamanioPagina,
-      'id',
-      this.filtrosActuales.direccion || 'desc',
-      this.filtrosActuales.rol,
-      this.filtrosActuales.activo,
-      this.filtrosActuales.username
-    ).subscribe({
-      next: (res: RespuestaPaginadaCredenciales) => {
-        this.credenciales = res.contenido;
-        this.numeroPagina = res.numeroPagina;
-        this.tamanioPagina = res.tamanioPagina;
-        this.totalElementos = res.totalElementos;
-        this.totalPaginas = res.totalPaginas;
-        this.esUltimaPagina = res.ultima;
+    this.authService.listarTodosLosUsuarios().subscribe({
+      next: (usuarios: Credencial[]) => {
+        this.todosLosUsuarios = usuarios || [];
+        this.calcularMetricasLocales();
+        this.aplicarFiltrosYPaginar(0);
         this.cargando = false;
       },
       error: (err) => {
-        console.error('Error al obtener credenciales:', err);
-        this.errorMensaje = 'No se pudo cargar el listado de credenciales.';
+        console.error('Error al obtener la lista de usuarios:', err);
+        this.errorMensaje = 'No se pudo cargar el listado de usuarios.';
         this.cargando = false;
       }
     });
   }
 
-  cargarMetricasGenerales(): void {
-    this.authService.listarCredenciales(0, 1, 'id', 'desc', undefined, true).subscribe({
-      next: (res) => this.totalActivosGeneral = res.totalElementos,
-      error: (err) => console.error('Error al obtener métricas activas:', err)
+  aplicarFiltrosYPaginar(pagina: number = 0): void {
+    let resultado = [...this.todosLosUsuarios];
+
+    if (this.filtrosActuales.username && this.filtrosActuales.username.trim() !== '') {
+      const busqueda = this.filtrosActuales.username.toLowerCase().trim();
+      resultado = resultado.filter(u =>
+        (u.username && u.username.toLowerCase().includes(busqueda)) ||
+        (u.email && u.email.toLowerCase().includes(busqueda))
+      );
+    }
+
+    if (this.filtrosActuales.rol && this.filtrosActuales.rol.trim() !== '') {
+      const rolBuscado = this.filtrosActuales.rol.toLowerCase().trim();
+      resultado = resultado.filter(u => u.rol && u.rol.toLowerCase() === rolBuscado);
+    }
+
+    if (this.filtrosActuales.activo !== undefined && this.filtrosActuales.activo !== null) {
+      resultado = resultado.filter(u => u.estado === this.filtrosActuales.activo);
+    }
+
+    const direccion = this.filtrosActuales.direccion || 'desc';
+    resultado.sort((a, b) => {
+      const idA = a.id || 0;
+      const idB = b.id || 0;
+      return direccion === 'asc' ? idA - idB : idB - idA;
     });
 
-    this.authService.listarCredenciales(0, 1, 'id', 'desc', undefined, false).subscribe({
-      next: (res) => this.totalInactivosGeneral = res.totalElementos,
-      error: (err) => console.error('Error al obtener métricas inactivas:', err)
-    });
+    this.usuariosFiltrados = resultado;
+    this.totalElementos = this.usuariosFiltrados.length;
+    this.totalPaginas = Math.ceil(this.totalElementos / this.tamanioPagina);
 
-    this.authService.listarCredenciales(0, 1000, 'id', 'desc').subscribe({
-      next: (res) => {
-        this.calcularCredencialesMesActual(res.contenido);
-      },
-      error: (err) => console.error('Error al obtener métricas de crecimiento:', err)
-    });
+    if (pagina >= this.totalPaginas && this.totalPaginas > 0) {
+      pagina = this.totalPaginas - 1;
+    }
+    this.numeroPagina = Math.max(0, pagina);
+
+    const inicio = this.numeroPagina * this.tamanioPagina;
+    const fin = inicio + this.tamanioPagina;
+    this.credenciales = this.usuariosFiltrados.slice(inicio, fin);
   }
 
-  private calcularCredencialesMesActual(lista: Credencial[]): void {
+  private calcularMetricasLocales(): void {
+    this.totalActivosGeneral = this.todosLosUsuarios.filter(u => u.estado === true).length;
+    this.totalInactivosGeneral = this.todosLosUsuarios.filter(u => u.estado === false).length;
+
     const ahora = new Date();
     const mesActual = ahora.getMonth();
     const anioActual = ahora.getFullYear();
 
-    this.totalMesActual = lista.filter(item => {
+    this.totalMesActual = this.todosLosUsuarios.filter(item => {
       if (!item.fechaRegistro) return false;
       const fechaRegistro = new Date(item.fechaRegistro);
       return fechaRegistro.getMonth() === mesActual &&
@@ -191,7 +201,8 @@ export class CredentialsListComponent implements OnInit {
     this.authService.cambiarEstado(item.id, nuevoEstado).subscribe({
       next: () => {
         item.estado = nuevoEstado;
-        this.cargarMetricasGenerales();
+        this.calcularMetricasLocales();
+        this.aplicarFiltrosYPaginar(this.numeroPagina);
       },
       error: (err) => {
         console.error('Error al cambiar el estado:', err);
@@ -202,60 +213,54 @@ export class CredentialsListComponent implements OnInit {
 
   abrirModalCambiarPassword(usuario: any): void {
     this.usuarioSeleccionado = usuario;
-    this.nuevaPassword = '';
-    this.confirmarPassword = '';
     this.errorPassword = '';
-    this.mostrarPassword = false;
-    this.mostrarConfirmacion = false;
     this.mostrarModalPassword = true;
   }
 
   cerrarModalPassword(): void {
     this.mostrarModalPassword = false;
     this.usuarioSeleccionado = null;
-    this.nuevaPassword = '';
-    this.confirmarPassword = '';
     this.errorPassword = '';
     this.cargandoPassword = false;
   }
 
-  cambiarPasswordUsuario(): void {
-    const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.])[A-Za-z\d@$!%*?&.]{8,}$/;
+  /**
+   * Invoca la generación de clave temporal en el backend
+   */
+  generarContrasenaAleatoria(): void {
+    if (!this.usuarioSeleccionado) return;
 
-    if (!passwordRegex.test(this.nuevaPassword)) {
-      this.errorPassword = 'La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un carácter especial.';
-      return;
-    }
-
-    if (this.nuevaPassword !== this.confirmarPassword) {
-      this.errorPassword = 'Las contraseñas no coinciden';
-      return;
-    }
-
-    this.errorPassword = '';
     this.cargandoPassword = true;
+    this.errorPassword = '';
 
-    const request = {
-      email: this.usuarioSeleccionado.email,
-      newPassword: this.nuevaPassword,
-      confirmPassword: this.confirmarPassword
-    };
-
-    this.authService.changePasswordByAdmin(request).subscribe({
-      next: () => {
+    this.authService.generarContrasenaTemporalByAdmin(this.usuarioSeleccionado.email).subscribe({
+      next: (res) => {
         this.cargandoPassword = false;
+        const claveTemporal = res.data || 'Error al obtener clave';
+
         Swal.fire({
           icon: 'success',
-          title: '¡Contraseña Actualizada!',
-          text: `La contraseña de "${this.usuarioSeleccionado.username}" ha sido cambiada exitosamente.`,
-          confirmButtonText: 'Entendido',
+          title: '¡Contraseña Temporal Generada!',
+          html: `
+            <p style="font-size:14px; color:#475569; margin-bottom:12px;">
+              Proporciona esta clave de un solo uso al usuario <b>${this.usuarioSeleccionado.username}</b>.
+            </p>
+            <div style="background:#f1f5f9; border:2px dashed #0f1c3f; border-radius:10px; padding:16px; font-size:22px; font-weight:800; letter-spacing:3px; color:#0f1c3f; user-select:all; margin-bottom:12px;">
+              ${claveTemporal}
+            </div>
+            <small style="color:#64748b;">El usuario deberá cambiarla obligatoriamente en su próximo inicio de sesión.</small>
+          `,
+          confirmButtonText: 'Copiar y Cerrar',
           confirmButtonColor: '#0f1c3f',
+        }).then(() => {
+          navigator.clipboard.writeText(claveTemporal);
         });
+
         this.cerrarModalPassword();
       },
-      error: (error) => {
+      error: (err) => {
         this.cargandoPassword = false;
-        this.errorPassword = error.error?.message || 'Error al cambiar la contraseña';
+        this.errorPassword = err?.error?.message || 'Error al generar la contraseña temporal';
       }
     });
   }
@@ -274,21 +279,25 @@ export class CredentialsListComponent implements OnInit {
     return [inicio, inicio + 1];
   }
 
+  get esUltimaPagina(): boolean {
+    return this.numeroPagina >= this.totalPaginas - 1;
+  }
+
   irAPagina(p: number): void {
     if (p !== this.numeroPagina) {
-      this.cargarCredenciales(p);
+      this.aplicarFiltrosYPaginar(p);
     }
   }
 
   paginaSiguiente(): void {
     if (!this.esUltimaPagina) {
-      this.cargarCredenciales(this.numeroPagina + 1);
+      this.aplicarFiltrosYPaginar(this.numeroPagina + 1);
     }
   }
 
   paginaAnterior(): void {
     if (this.numeroPagina > 0) {
-      this.cargarCredenciales(this.numeroPagina - 1);
+      this.aplicarFiltrosYPaginar(this.numeroPagina - 1);
     }
   }
 
@@ -302,7 +311,7 @@ export class CredentialsListComponent implements OnInit {
 
   onFiltrosAplicados(filtros: FiltrosCredenciales): void {
     this.filtrosActuales = filtros;
-    this.cargarCredenciales(0);
+    this.aplicarFiltrosYPaginar(0);
   }
 
   abrirFormulario(): void {
@@ -315,8 +324,7 @@ export class CredentialsListComponent implements OnInit {
 
   onUsuarioCreado(): void {
     this.cerrarFormulario();
-    this.cargarCredenciales(0);
-    this.cargarMetricasGenerales();
+    this.cargarTodosLosUsuarios();
   }
 
   formatearFecha(fechaStr?: string | Date): string {
