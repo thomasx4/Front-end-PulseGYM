@@ -39,12 +39,17 @@
         <div class="por-vencer-grid">
             <div *ngFor="let item of membresiasPorVencerPaginadas; trackBy: trackByItemId" class="por-vencer-card">
                 <div class="por-vencer-card__user">
-                    <img [src]="generarAvatar(item.nombreSocio || item.nombre)" [alt]="item.nombreSocio || item.nombre"
-                        class="user-avatar">
+                    <div class="avatar-container">
+                        <img *ngIf="getFotoSocio(item) && !hasAvatarError('pv_' + (item.idSocio || item.id))"
+                            [src]="getFotoSocio(item)" [alt]="item.nombreSocio || item.nombre" class="user-avatar"
+                            crossOrigin="anonymous" (error)="onAvatarError('pv_' + (item.idSocio || item.id))" />
+                        <div *ngIf="!getFotoSocio(item) || hasAvatarError('pv_' + (item.idSocio || item.id))" class="user-avatar-initials">
+                            {{ getInitials(item.nombreSocio || item.nombre) }}
+                        </div>
+                    </div>
                     <div class="user-details">
                         <span class="user-name">{{ item.nombreSocio || item.nombre }}</span>
-                        <span class="user-membership">{{ item.tipoMembresia || item.nombreMembresia || 'Plan Activo'
-                            }}</span>
+                        <span class="user-membership">{{ item.tipoMembresia || item.nombreMembresia || 'Plan Activo' }}</span>
                     </div>
                 </div>
                 <div class="por-vencer-card__right">
@@ -229,7 +234,7 @@
                 <table class="assigned-table">
                     <thead>
                         <tr>
-                            <th>SOCIO</th>
+                            <th>MIEMBRO</th>
                             <th>CONTACTO</th>
                             <th>PRECIO TOTAL</th>
                             <th>ASIGNADO EL</th>
@@ -241,9 +246,14 @@
                         <tr *ngFor="let socio of sociosPaginados; trackBy: trackBySocioId">
                             <td>
                                 <div class="user-profile">
-                                    <img [src]="socio.avatarUrl || 'assets/images/default-avatar.png'"
-                                        (error)="$any($event.target).src = 'assets/images/default-avatar.png'"
-                                        [alt]="socio.nombre" class="user-profile__avatar" />
+                                    <div class="avatar-container">
+                                        <img *ngIf="getFotoSocio(socio) && !hasAvatarError('tabla_' + socio.id)"
+                                            [src]="getFotoSocio(socio)" [alt]="socio.nombre" class="user-profile__avatar"
+                                            crossOrigin="anonymous" (error)="onAvatarError('tabla_' + socio.id)" />
+                                        <div *ngIf="!getFotoSocio(socio) || hasAvatarError('tabla_' + socio.id)" class="user-avatar-initials">
+                                            {{ getInitials(socio.nombre) }}
+                                        </div>
+                                    </div>
                                     <span class="user-profile__name">{{ socio.nombre }}</span>
                                 </div>
                             </td>
@@ -359,9 +369,14 @@
                     <tr *ngFor="let socio of sociosModalPaginados; trackBy: trackBySocioId">
                         <td>
                             <div class="socio-cell">
-                                <img [src]="socio.avatarUrl || 'assets/images/default-avatar.png'"
-                                    (error)="$any($event.target).src = 'assets/images/default-avatar.png'"
-                                    [alt]="socio.nombre" class="socio-cell__avatar" />
+                                <div class="avatar-container">
+                                    <img *ngIf="getFotoSocio(socio) && !hasAvatarError('modal_' + socio.id)"
+                                        [src]="getFotoSocio(socio)" [alt]="socio.nombre" class="socio-cell__avatar"
+                                        crossOrigin="anonymous" (error)="onAvatarError('modal_' + socio.id)" />
+                                    <div *ngIf="!getFotoSocio(socio) || hasAvatarError('modal_' + socio.id)" class="user-avatar-initials modal-avatar-initials">
+                                        {{ getInitials(socio.nombre) }}
+                                    </div>
+                                </div>
                                 <span class="socio-cell__name">{{ socio.nombre }}</span>
                             </div>
                         </td>
@@ -445,9 +460,14 @@
                     <tr *ngFor="let socio of sociosModalPaginados; trackBy: trackBySocioId">
                         <td>
                             <div class="socio-cell">
-                                <img [src]="socio.avatarUrl || 'assets/images/default-avatar.png'"
-                                    (error)="$any($event.target).src = 'assets/images/default-avatar.png'"
-                                    [alt]="socio.nombre" class="socio-cell__avatar" />
+                                <div class="avatar-container">
+                                    <img *ngIf="getFotoSocio(socio) && !hasAvatarError('modal_flex_' + socio.id)"
+                                        [src]="getFotoSocio(socio)" [alt]="socio.nombre" class="socio-cell__avatar"
+                                        crossOrigin="anonymous" (error)="onAvatarError('modal_flex_' + socio.id)" />
+                                    <div *ngIf="!getFotoSocio(socio) || hasAvatarError('modal_flex_' + socio.id)" class="user-avatar-initials modal-avatar-initials">
+                                        {{ getInitials(socio.nombre) }}
+                                    </div>
+                                </div>
                                 <span class="socio-cell__name">{{ socio.nombre }}</span>
                             </div>
                         </td>

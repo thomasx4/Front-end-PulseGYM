@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
@@ -10,6 +10,9 @@ import { CertificatesListComponent } from './components/certificates/certificate
 import { CertificatesFormComponent } from './components/certificates/certificates-form/certificates-form.component';
 import { CertificatesDetailComponent } from './components/certificates/certificates-detail/certificates-detail.component';
 import { AuthModule } from '../auth/auth.module';
+import { PhysicalHistoryListComponent } from './components/physical-history/physical-history-list/physical-history-list.component';
+import { PhysicalHistoryFormComponent } from './components/physical-history/physical-history-form/physical-history-form.component';
+import { PhysicalHistoryDetailComponent } from './components/physical-history/physical-history-detail/physical-history-detail.component';
 
 @NgModule({
   declarations: [
@@ -18,7 +21,10 @@ import { AuthModule } from '../auth/auth.module';
     UserDetailComponent,
     CertificatesListComponent,
     CertificatesFormComponent,
-    CertificatesDetailComponent
+    CertificatesDetailComponent,
+    PhysicalHistoryListComponent,
+    PhysicalHistoryFormComponent,
+    PhysicalHistoryDetailComponent
   ],
   imports: [
     CommonModule,
@@ -26,6 +32,7 @@ import { AuthModule } from '../auth/auth.module';
     FormsModule,
     ReactiveFormsModule,
     AuthModule
-  ]
+  ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class UsersModule { }

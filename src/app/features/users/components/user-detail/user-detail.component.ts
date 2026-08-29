@@ -8,6 +8,7 @@ export interface UserDetail {
   nombre: string;
   apellido: string;
   email: string;
+  sexo?: string;
   telefono: string;
   documentoIdentidad: string;
   fotoUrl: string;

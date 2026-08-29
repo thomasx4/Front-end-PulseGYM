@@ -4,7 +4,8 @@
         <div>
             <h1 class="form-title">{{ isEditMode ? 'Editar Certificación' : 'Nueva Certificación' }}</h1>
             <p class="form-subtitle">
-                {{ isEditMode ? 'Actualiza la información de la certificación registrada.' : 'Registra una nueva certificación para un entrenador.' }}
+                {{ isEditMode ? 'Actualiza la información de la certificación registrada.' : 'Registra una nueva
+                certificación para un entrenador.' }}
             </p>
         </div>
         <button class="btn-back" (click)="volver()">
@@ -33,14 +34,17 @@
                         <!-- Estado 1: Sin entrenador seleccionado -->
                         <div *ngIf="!selectedEntrenador" class="assign-partner-placeholder">
                             <div class="placeholder-text">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
                                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                                     <circle cx="12" cy="7" r="4"></circle>
                                 </svg>
                                 <span>No se ha seleccionado ningún entrenador</span>
                             </div>
-                            <button type="button" class="btn-open-modal-partner" (click)="abrirModalSeleccionEntrenador()">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <button type="button" class="btn-open-modal-partner"
+                                (click)="abrirModalSeleccionEntrenador()">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
                                     <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                                     <circle cx="9" cy="7" r="4"></circle>
                                     <line x1="19" y1="8" x2="19" y2="14"></line>
@@ -54,23 +58,33 @@
                         <div *ngIf="selectedEntrenador" class="partner-selected-card">
                             <div class="partner-info">
                                 <div class="partner-avatar">
-                                    <span>{{ (selectedEntrenador.nombre?.charAt(0) || '?') }}{{ (selectedEntrenador.apellido?.charAt(0) || '?') }}</span>
+                                    <img *ngIf="getEntrenadorFoto(selectedEntrenador) && !hasAvatarError()"
+                                        [src]="getEntrenadorFoto(selectedEntrenador)" [alt]="selectedEntrenador.nombre"
+                                        class="partner-avatar__img" crossOrigin="anonymous" (error)="onAvatarError()" />
+                                    <span *ngIf="!getEntrenadorFoto(selectedEntrenador) || hasAvatarError()">
+                                        {{ getInitials(selectedEntrenador.nombre, selectedEntrenador.apellido) }}
+                                    </span>
                                 </div>
                                 <div class="partner-details">
                                     <div class="name-rol-row">
-                                        <span class="partner-name">{{ selectedEntrenador.nombre }} {{ selectedEntrenador.apellido }}</span>
+                                        <span class="partner-name">{{ selectedEntrenador.nombre }} {{
+                                            selectedEntrenador.apellido }}</span>
                                         <span class="role-badge rol-entrenador">Entrenador</span>
                                     </div>
                                     <span class="partner-email">{{ selectedEntrenador.email }}</span>
-                                    <span class="partner-phone" *ngIf="selectedEntrenador.telefono">{{ selectedEntrenador.telefono }}</span>
+                                    <span class="partner-phone" *ngIf="selectedEntrenador.telefono">{{
+                                        selectedEntrenador.telefono }}</span>
                                 </div>
                             </div>
                             <div class="partner-card-actions">
-                                <button type="button" class="btn-change-partner" (click)="abrirModalSeleccionEntrenador()" *ngIf="!isEditMode">
+                                <button type="button" class="btn-change-partner"
+                                    (click)="abrirModalSeleccionEntrenador()" *ngIf="!isEditMode">
                                     Cambiar
                                 </button>
-                                <button type="button" class="btn-remove-partner" (click)="limpiarSeleccion()" *ngIf="!isEditMode">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <button type="button" class="btn-remove-partner" (click)="limpiarSeleccion()"
+                                    *ngIf="!isEditMode">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
                                         <line x1="18" y1="6" x2="6" y2="18"></line>
                                         <line x1="6" y1="6" x2="18" y2="18"></line>
                                     </svg>
@@ -78,7 +92,8 @@
                             </div>
                         </div>
 
-                        <div class="form-error" *ngIf="certificateForm.get('idEntrenador')?.invalid && certificateForm.get('idEntrenador')?.touched">
+                        <div class="form-error"
+                            *ngIf="certificateForm.get('idEntrenador')?.invalid && certificateForm.get('idEntrenador')?.touched">
                             <span>Debes asignar un entrenador para continuar.</span>
                         </div>
                     </div>
@@ -88,8 +103,10 @@
                 <div class="form-row full-width">
                     <div class="form-group full-width">
                         <label>Nombre de la Certificación <span class="required">*</span></label>
-                        <input type="text" formControlName="nombre" placeholder="Ej. Certificación Crossfit Nivel 2, RCP & Primeros Auxilios" />
-                        <div class="form-error" *ngIf="certificateForm.get('nombre')?.invalid && certificateForm.get('nombre')?.touched">
+                        <input type="text" formControlName="nombre"
+                            placeholder="Ej. Certificación Crossfit Nivel 2, RCP & Primeros Auxilios" />
+                        <div class="form-error"
+                            *ngIf="certificateForm.get('nombre')?.invalid && certificateForm.get('nombre')?.touched">
                             <span>El nombre de la certificación es obligatorio.</span>
                         </div>
                     </div>
@@ -105,11 +122,14 @@
 
                 <div class="form-row full-width">
                     <div class="form-group full-width">
-                        <div class="file-upload-area" (click)="fileInput.click()" [class.has-file]="selectedFile || existingUrl">
-                            <input type="file" #fileInput accept=".pdf" (change)="onFileSelected($event)" style="display: none" />
+                        <div class="file-upload-area" (click)="fileInput.click()"
+                            [class.has-file]="selectedFile || existingUrl">
+                            <input type="file" #fileInput accept=".pdf" (change)="onFileSelected($event)"
+                                style="display: none" />
 
                             <div *ngIf="!selectedFile && !existingUrl" class="file-placeholder">
-                                <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.5">
                                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                                     <polyline points="14 2 14 8 20 8" />
                                     <path d="M12 18v-6" />
@@ -120,17 +140,23 @@
                             </div>
 
                             <div *ngIf="selectedFile || existingUrl" class="file-info">
-                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.5">
                                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                                     <polyline points="14 2 14 8 20 8" />
                                 </svg>
                                 <div>
-                                    <span class="file-name">{{ selectedFile ? selectedFile.name : 'Certificación cargada.pdf' }}</span>
-                                    <span class="file-size" *ngIf="selectedFile">{{ (selectedFile.size / 1024 / 1024).toFixed(2) }} MB</span>
-                                    <a class="file-size" *ngIf="!selectedFile && existingUrl" [href]="existingUrl" target="_blank" (click)="$event.stopPropagation()">Ver PDF actual</a>
+                                    <span class="file-name">{{ selectedFile ? selectedFile.name : 'Certificación
+                                        cargada.pdf' }}</span>
+                                    <span class="file-size" *ngIf="selectedFile">{{ (selectedFile.size / 1024 /
+                                        1024).toFixed(2) }} MB</span>
+                                    <a class="file-size" *ngIf="!selectedFile && existingUrl" [href]="existingUrl"
+                                        target="_blank" (click)="$event.stopPropagation()">Ver PDF actual</a>
                                 </div>
-                                <button type="button" class="btn-remove-file" (click)="$event.stopPropagation(); removerArchivo()">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <button type="button" class="btn-remove-file"
+                                    (click)="$event.stopPropagation(); removerArchivo()">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
                                         <line x1="18" y1="6" x2="6" y2="18"></line>
                                         <line x1="6" y1="6" x2="18" y2="18"></line>
                                     </svg>
@@ -144,9 +170,11 @@
             <!-- BOTONES ACCIÓN -->
             <div class="form-actions">
                 <button type="button" class="btn-cancel" (click)="volver()">Cancelar</button>
-                <button type="submit" class="btn-submit" [disabled]="certificateForm.invalid || submitting || uploadingFile">
+                <button type="submit" class="btn-submit"
+                    [disabled]="certificateForm.invalid || submitting || uploadingFile">
                     <span class="spinner" *ngIf="submitting || uploadingFile"></span>
-                    {{ submitting || uploadingFile ? 'Guardando...' : (isEditMode ? 'Actualizar Certificación' : 'Guardar Certificación') }}
+                    {{ submitting || uploadingFile ? 'Guardando...' : (isEditMode ? 'Actualizar Certificación' :
+                    'Guardar Certificación') }}
                 </button>
             </div>
         </div>
@@ -171,8 +199,10 @@
         <!-- BUSCADOR -->
         <div class="modal-partner-search">
             <div class="search-input-wrapper">
-                <input type="text" placeholder="Buscar por nombre, correo o teléfono..." [(ngModel)]="searchEntrenador" (input)="filtrarEntrenadoresModal()" />
-                <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <input type="text" placeholder="Buscar por nombre, correo o teléfono..." [(ngModel)]="searchEntrenador"
+                    (input)="filtrarEntrenadoresModal()" />
+                <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2">
                     <circle cx="11" cy="11" r="8"></circle>
                     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                 </svg>
@@ -194,16 +224,26 @@
                         <td>
                             <div class="partner-cell">
                                 <div class="partner-table-avatar">
-                                    {{ (entrenador.nombre?.charAt(0) || '?') }}{{ (entrenador.apellido?.charAt(0) || '?') }}
+                                    <img *ngIf="getEntrenadorFoto(entrenador) && !hasModalAvatarError(entrenador.idUsuario)"
+                                        [src]="getEntrenadorFoto(entrenador)" [alt]="entrenador.nombre"
+                                        class="partner-table-avatar__img" crossOrigin="anonymous"
+                                        (error)="onModalAvatarError(entrenador.idUsuario)" />
+                                    <span
+                                        *ngIf="!getEntrenadorFoto(entrenador) || hasModalAvatarError(entrenador.idUsuario)">
+                                        {{ getInitials(entrenador.nombre, entrenador.apellido) }}
+                                    </span>
                                 </div>
-                                <span class="partner-table-name">{{ entrenador.nombre }} {{ entrenador.apellido }}</span>
+                                <span class="partner-table-name">{{ entrenador.nombre }} {{ entrenador.apellido
+                                    }}</span>
                             </div>
                         </td>
                         <td>
-                            <span class="partner-table-contact">{{ entrenador.telefono || entrenador.email || 'Sin contacto' }}</span>
+                            <span class="partner-table-contact">{{ entrenador.telefono || entrenador.email || 'Sin
+                                contacto' }}</span>
                         </td>
                         <td class="text-right">
-                            <button type="button" class="btn-assign-row" (click)="seleccionarEntrenadorDesdeModal(entrenador)">
+                            <button type="button" class="btn-assign-row"
+                                (click)="seleccionarEntrenadorDesdeModal(entrenador)">
                                 Asignar
                             </button>
                         </td>
@@ -220,11 +260,14 @@
         <!-- PAGINACIÓN MODAL -->
         <div class="modal-partner-footer" *ngIf="totalPaginasModal > 1">
             <div class="pagination-controls">
-                <button type="button" class="btn-page-arrow" [disabled]="paginaModalActual === 1" (click)="paginaModalActual = paginaModalActual - 1">‹</button>
-                <button type="button" *ngFor="let pag of paginasVisiblesModal" class="btn-page-num" [class.active]="pag === paginaModalActual" (click)="paginaModalActual = pag">
+                <button type="button" class="btn-page-arrow" [disabled]="paginaModalActual === 1"
+                    (click)="paginaModalActual = paginaModalActual - 1">‹</button>
+                <button type="button" *ngFor="let pag of paginasVisiblesModal" class="btn-page-num"
+                    [class.active]="pag === paginaModalActual" (click)="paginaModalActual = pag">
                     {{ pag }}
                 </button>
-                <button type="button" class="btn-page-arrow" [disabled]="paginaModalActual === totalPaginasModal" (click)="paginaModalActual = paginaModalActual + 1">›</button>
+                <button type="button" class="btn-page-arrow" [disabled]="paginaModalActual === totalPaginasModal"
+                    (click)="paginaModalActual = paginaModalActual + 1">›</button>
             </div>
         </div>
 

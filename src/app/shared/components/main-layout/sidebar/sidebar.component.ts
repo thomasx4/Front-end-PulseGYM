@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
+import { AuthService } from '../../../../core/services/auth.service';
 
 interface MenuItem {
   label: string;
@@ -17,6 +18,7 @@ interface MenuItem {
   styleUrls: ['./sidebar.component.scss'],
 })
 export class SidebarComponent implements OnInit {
+
   menuItems: MenuItem[] = [];
   membershipChildren: MenuItem[] = [];
   usersChildren: MenuItem[] = [];
@@ -25,7 +27,8 @@ export class SidebarComponent implements OnInit {
 
   constructor(
     private sanitizer: DomSanitizer,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) {
     this.initMenuItems();
   }
@@ -80,6 +83,12 @@ export class SidebarComponent implements OnInit {
       </svg>
     `);
 
+    const physicalHistoryIcon = this.sanitizer.bypassSecurityTrustHtml(`
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+      </svg>
+    `);
+
     this.membershipChildren = [
       {
         label: 'Asignar Membresía',
@@ -92,7 +101,7 @@ export class SidebarComponent implements OnInit {
       {
         label: 'Credenciales de Usuarios',
         route: '/dashboard-admin/users',
-        exact: true, // Se fuerza la coincidencia exacta de la ruta
+        exact: true,
         iconHtml: this.sanitizer.bypassSecurityTrustHtml(`
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
@@ -116,6 +125,11 @@ export class SidebarComponent implements OnInit {
         label: 'Certificaciones',
         route: '/dashboard-admin/users/certificates',
         iconHtml: certificateIcon,
+      },
+      {
+        label: 'Historial Físico',
+        route: '/dashboard-admin/users/physical-history',
+        iconHtml: physicalHistoryIcon,
       }
     ];
 
@@ -219,7 +233,7 @@ export class SidebarComponent implements OnInit {
     this.router.navigate(['/dashboard-admin/memberships/list']);
   }
 
-  onLogout() {
-    console.log('Logout');
+  logout(): void {
+    this.authService.logout();
   }
 }

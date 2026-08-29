@@ -1,5 +1,4 @@
 <header class="header">
-    <!-- ACCIONES DEL HEADER -->
     <div class="header__actions">
         <!-- NOTIFICACIONES -->
         <div class="notification-container">
@@ -23,8 +22,16 @@
                 <span class="user-profile__name">{{ userName }}</span>
                 <span class="user-profile__role">{{ userRole }}</span>
             </div>
-            <div class="user-profile__avatar">
-                <img [src]="avatarUrl" [alt]="userName" />
+
+            <div class="user-profile__avatar-badge">
+                <div class="user-profile__avatar">
+                    <img *ngIf="avatarUrl && !hasAvatarError" [src]="avatarUrl" [alt]="userName" crossOrigin="anonymous"
+                        (error)="onAvatarError()" />
+
+                    <span *ngIf="!avatarUrl || hasAvatarError" class="avatar-initials">
+                        {{ getInitials(userName) }}
+                    </span>
+                </div>
             </div>
         </div>
     </div>

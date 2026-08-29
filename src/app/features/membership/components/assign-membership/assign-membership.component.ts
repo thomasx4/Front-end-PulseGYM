@@ -9,6 +9,7 @@ import {
   SuspenderRequest,
   CancelarRequest,
 } from '../../../../core/services/membership.service';
+import { UserService } from '../../../../core/services/user.service';
 import Swal from 'sweetalert2';
 
 export interface MembresiaUI {
@@ -32,7 +33,8 @@ export interface SocioUI {
   fechaAsignacion?: string;
   fechaVencimiento?: string;
   fechaRegistro?: string;
-  avatarUrl: string;
+  avatarUrl?: string;
+  fotoUrl?: string;
   estado: string;
 }
 
@@ -49,6 +51,10 @@ export class AssignMembershipComponent implements OnInit {
   membresias: MembresiaUI[] = [];
   membresiaSeleccionada: MembresiaUI | null = null;
   membresiasPorVencer: any[] = [];
+
+  // MAPA DE FOTOS POR USUARIO
+  fotosUsuariosMap: Map<number, string> = new Map<number, string>();
+  avatarErrors: Set<string> = new Set<string>();
 
   // MODAL DE ASIGNACIÓN
   mostrarModal: boolean = false;
@@ -89,11 +95,70 @@ export class AssignMembershipComponent implements OnInit {
   paginaPorVencerActual: number = 1;
   readonly itemsPorPaginaPorVencer: number = 6;
 
-  constructor(private membershipService: MembershipService) { }
+  constructor(
+    private membershipService: MembershipService,
+    private userService: UserService
+  ) { }
 
   ngOnInit(): void {
+    this.cargarMapaFotos();
     this.cargarMembresias();
     this.cargarPorVencer();
+  }
+
+  cargarMapaFotos(): void {
+    this.userService.obtenerTodosLosPerfilesActivos().pipe(
+      catchError(() => of([]))
+    ).subscribe((usuarios: any[]) => {
+      if (Array.isArray(usuarios)) {
+        usuarios.forEach((u: any) => {
+          const id = u.idUsuario || u.id;
+          const foto = u.fotoUrl || u.fotoPerfil || u.foto || u.avatar;
+          if (id && foto) {
+            this.fotosUsuariosMap.set(Number(id), foto);
+          }
+        });
+      }
+    });
+  }
+
+  // HELPER DE AVATAR Y FOTOS
+
+  getFotoSocio(socio: any): string | null {
+    if (!socio) return null;
+    const directFoto = socio.fotoUrl || socio.avatarUrl || socio.fotoPerfil || socio.foto || socio.avatar;
+    if (directFoto && !directFoto.includes('ui-avatars.com') && !directFoto.includes('default-avatar.png')) {
+      let rawUrl = String(directFoto).trim();
+      if (rawUrl !== '' && rawUrl !== 'null' && rawUrl !== 'undefined') {
+        return rawUrl.startsWith('//') ? `https:${rawUrl}` : rawUrl;
+      }
+    }
+
+    const id = socio.idSocio || socio.id || socio.idUsuario;
+    if (id && this.fotosUsuariosMap.has(Number(id))) {
+      const fotoMap = this.fotosUsuariosMap.get(Number(id));
+      if (fotoMap) return fotoMap;
+    }
+
+    return null;
+  }
+
+  onAvatarError(key: string | number): void {
+    if (key) {
+      this.avatarErrors.add(String(key));
+    }
+  }
+
+  hasAvatarError(key: string | number): boolean {
+    return this.avatarErrors.has(String(key));
+  }
+
+  getInitials(nombre?: string): string {
+    if (!nombre) return 'U';
+    const partes = nombre.trim().split(' ').filter(p => p.length > 0);
+    if (partes.length === 0) return 'U';
+    if (partes.length === 1) return partes[0].charAt(0).toUpperCase();
+    return (partes[0].charAt(0) + partes[1].charAt(0)).toUpperCase();
   }
 
   // GETTERS PAGINACIÓN MEMBRESÍAS
@@ -196,12 +261,7 @@ export class AssignMembershipComponent implements OnInit {
       this.membershipService
         .getMembresiaConSociosActivos(m.id)
         .pipe(
-          catchError((error) => {
-            if (error.status === 404 || error.status === 400) {
-              return of({ sociosAsignados: [] });
-            }
-            return of({ sociosAsignados: [] });
-          })
+          catchError(() => of({ sociosAsignados: [] }))
         )
     );
 
@@ -216,7 +276,14 @@ export class AssignMembershipComponent implements OnInit {
   cargarPorVencer(): void {
     this.membershipService.getPorVencer().subscribe({
       next: (response: any) => {
-        this.membresiasPorVencer = response || [];
+        this.membresiasPorVencer = (response || []).map((item: any) => {
+          const idSocioNum = Number(item.idSocio || item.id);
+          const foto = item.fotoUrl || item.fotoPerfil || item.foto || item.avatar || this.fotosUsuariosMap.get(idSocioNum) || null;
+          return {
+            ...item,
+            fotoUrl: foto
+          };
+        });
         this.paginaPorVencerActual = 1;
       },
       error: () => {
@@ -302,28 +369,28 @@ export class AssignMembershipComponent implements OnInit {
               text: `La membresía "${seleccionada.nombre}" no tiene socios asignados actualmente.`,
               confirmButtonText: 'Entendido',
               confirmButtonColor: '#0f1c3f',
-              customClass: {
-                popup: 'custom-swal-popup',
-                confirmButton: 'custom-swal-confirm-btn',
-              },
-              buttonsStyling: false,
             });
             return;
           }
 
-          this.sociosAsignados = sociosData.map((s: any) => ({
-            id: s.idSocio || s.id,
-            idSocioMembresia: s.idSocioMembresia,
-            nombre: s.nombreCompleto || s.nombre || 'Usuario',
-            telefono: s.telefono || 'No disponible',
-            precioTotal: s.precioReal !== undefined && s.precioReal !== null
-              ? s.precioReal
-              : s.precioTotal || seleccionada.precio || 0,
-            fechaAsignacion: this.formatearFecha(s.fechaAsignacion || s.fechaCreacion),
-            fechaVencimiento: this.formatearFecha(s.fechaVencimiento),
-            avatarUrl: this.generarAvatar(s.nombreCompleto || s.nombre || 'Usuario'),
-            estado: s.estado || 'ACTIVA',
-          }));
+          this.sociosAsignados = sociosData.map((s: any) => {
+            const idSocioNum = Number(s.idSocio || s.id);
+            const foto = s.fotoUrl || s.fotoPerfil || s.foto || s.avatar || this.fotosUsuariosMap.get(idSocioNum) || null;
+
+            return {
+              id: idSocioNum,
+              idSocioMembresia: s.idSocioMembresia,
+              nombre: s.nombreCompleto || s.nombre || 'Usuario',
+              telefono: s.telefono || 'No disponible',
+              precioTotal: s.precioReal !== undefined && s.precioReal !== null
+                ? s.precioReal
+                : s.precioTotal || seleccionada.precio || 0,
+              fechaAsignacion: this.formatearFecha(s.fechaAsignacion || s.fechaCreacion),
+              fechaVencimiento: this.formatearFecha(s.fechaVencimiento),
+              fotoUrl: foto,
+              estado: s.estado || 'ACTIVA',
+            };
+          });
 
           this.membresiaSeleccionada.sociosActivos = this.sociosAsignados.length;
           this.sociosAsignadosFiltrados = [...this.sociosAsignados];
@@ -332,7 +399,7 @@ export class AssignMembershipComponent implements OnInit {
         }
         this.loading = false;
       },
-      error: (error) => {
+      error: () => {
         this.loading = false;
         const seleccionada = this.membresias.find((m) => m.id === id);
         Swal.fire({
@@ -341,11 +408,6 @@ export class AssignMembershipComponent implements OnInit {
           text: `La membresía "${seleccionada?.nombre || 'seleccionada'}" no tiene socios asignados actualmente.`,
           confirmButtonText: 'Entendido',
           confirmButtonColor: '#0f1c3f',
-          customClass: {
-            popup: 'custom-swal-popup',
-            confirmButton: 'custom-swal-confirm-btn',
-          },
-          buttonsStyling: false,
         });
       },
     });
@@ -392,14 +454,19 @@ export class AssignMembershipComponent implements OnInit {
         this.membershipService.getUsuariosActivos(),
       );
       const usuarios = response || [];
-      this.sociosModal = usuarios.map((u: any) => ({
-        id: u.idUsuario || u.id,
-        nombre: u.nombre || 'Usuario',
-        telefono: u.telefono || 'No disponible',
-        fechaRegistro: this.formatearFecha(u.fechaRegistro || u.fechaCreacion),
-        avatarUrl: this.generarAvatar(u.nombre || 'Usuario'),
-        estado: u.estado || 'ACTIVO',
-      }));
+      this.sociosModal = usuarios.map((u: any) => {
+        const idSocioNum = Number(u.idUsuario || u.id);
+        const foto = u.fotoUrl || u.fotoPerfil || u.foto || u.avatar || this.fotosUsuariosMap.get(idSocioNum) || null;
+
+        return {
+          id: idSocioNum,
+          nombre: u.nombre || 'Usuario',
+          telefono: u.telefono || 'No disponible',
+          fechaRegistro: this.formatearFecha(u.fechaRegistro || u.fechaCreacion),
+          fotoUrl: foto,
+          estado: u.estado || 'ACTIVO',
+        };
+      });
       this.sociosFiltradosModal = [...this.sociosModal];
     } catch (error: any) {
       this.errorMessage = error.error?.message || 'Error al cargar usuarios activos.';
@@ -417,28 +484,11 @@ export class AssignMembershipComponent implements OnInit {
 
     const result = await Swal.fire({
       title: '¿Confirmar Asignación?',
-      html: `
-        <p class="swal-text-description">
-          ¿Estás seguro de que deseas asignar la membresía <strong>${this.membresiaSeleccionada.nombre}</strong> a <strong>${socio.nombre}</strong> en Pulse Gym?
-        </p>
-        <div class="swal-user-card">
-          <img src="${socio.avatarUrl}" alt="Avatar" class="swal-avatar">
-          <div class="swal-user-info">
-            <span class="swal-user-name">${socio.nombre}</span>
-            <span class="swal-user-id">ID: #${socio.id}</span>
-          </div>
-          <span class="swal-user-badge">${socio.estado || 'ACTIVO'}</span>
-        </div>
-      `,
+      text: `¿Estás seguro de que deseas asignar la membresía ${this.membresiaSeleccionada.nombre} a ${socio.nombre}?`,
       showCancelButton: true,
       confirmButtonText: 'Confirmar y Asignar',
       cancelButtonText: 'Cancelar',
-      customClass: {
-        popup: 'custom-swal-popup',
-        confirmButton: 'custom-swal-confirm-btn',
-        cancelButton: 'custom-swal-cancel-btn',
-      },
-      buttonsStyling: false,
+      confirmButtonColor: '#0f1c3f'
     });
 
     if (result.isConfirmed) {
@@ -481,28 +531,11 @@ export class AssignMembershipComponent implements OnInit {
 
     const result = await Swal.fire({
       title: '¿Confirmar Asignación Flexible?',
-      html: `
-        <p class="swal-text-description">
-          ¿Estás seguro de asignar <strong>${this.diasFlexibles} día(s)</strong> de la membresía <strong>${this.membresiaSeleccionada.nombre}</strong> a <strong>${socio.nombre}</strong>?
-        </p>
-        <div class="swal-user-card">
-          <img src="${socio.avatarUrl}" alt="Avatar" class="swal-avatar">
-          <div class="swal-user-info">
-            <span class="swal-user-name">${socio.nombre}</span>
-            <span class="swal-user-id">ID: #${socio.id}</span>
-          </div>
-          <span class="swal-user-badge">${socio.estado || 'ACTIVO'}</span>
-        </div>
-      `,
+      text: `¿Estás seguro de asignar ${this.diasFlexibles} día(s) de la membresía ${this.membresiaSeleccionada.nombre} a ${socio.nombre}?`,
       showCancelButton: true,
       confirmButtonText: 'Confirmar y Asignar',
       cancelButtonText: 'Cancelar',
-      customClass: {
-        popup: 'custom-swal-popup',
-        confirmButton: 'custom-swal-confirm-btn',
-        cancelButton: 'custom-swal-cancel-btn',
-      },
-      buttonsStyling: false,
+      confirmButtonColor: '#0f1c3f'
     });
 
     if (result.isConfirmed) {
@@ -551,28 +584,11 @@ export class AssignMembershipComponent implements OnInit {
 
     const result = await Swal.fire({
       title: '¿Renovar Membresía?',
-      html: `
-        <p class="swal-text-description">
-          ¿Estás seguro de que deseas renovar el periodo activo para <strong>${socio.nombre}</strong>?
-        </p>
-        <div class="swal-user-card">
-          <img src="${socio.avatarUrl}" alt="Avatar" class="swal-avatar">
-          <div class="swal-user-info">
-            <span class="swal-user-name">${socio.nombre}</span>
-            <span class="swal-user-id">ID: #${socio.id}</span>
-          </div>
-          <span class="swal-user-badge">${socio.estado || 'ACTIVA'}</span>
-        </div>
-      `,
+      text: `¿Estás seguro de que deseas renovar el periodo activo para ${socio.nombre}?`,
       showCancelButton: true,
       confirmButtonText: 'Renovar Membresía',
       cancelButtonText: 'Cancelar',
-      customClass: {
-        popup: 'custom-swal-popup',
-        confirmButton: 'custom-swal-confirm-btn',
-        cancelButton: 'custom-swal-cancel-btn',
-      },
-      buttonsStyling: false,
+      confirmButtonColor: '#0f1c3f'
     });
 
     if (result.isConfirmed) {
@@ -645,31 +661,13 @@ export class AssignMembershipComponent implements OnInit {
 
     const { value: motivo, isConfirmed } = await Swal.fire({
       title: '¿Suspender Membresía?',
-      html: `
-        <p class="swal-text-description">
-          ¿Estás seguro de que deseas suspender temporalmente el acceso a <strong>${socio.nombre}</strong>?
-        </p>
-        <div class="swal-user-card">
-          <img src="${socio.avatarUrl}" alt="Avatar" class="swal-avatar">
-          <div class="swal-user-info">
-            <span class="swal-user-name">${socio.nombre}</span>
-            <span class="swal-user-id">ID: #${socio.id}</span>
-          </div>
-          <span class="swal-user-badge">${socio.estado || 'ACTIVA'}</span>
-        </div>
-      `,
+      text: `¿Estás seguro de que deseas suspender temporalmente el acceso a ${socio.nombre}?`,
       input: 'textarea',
       inputPlaceholder: 'Escribe el motivo de la suspensión...',
-      inputAttributes: { 'aria-label': 'Motivo de la suspensión' },
       showCancelButton: true,
       confirmButtonText: 'Suspender Membresía',
       cancelButtonText: 'Cancelar',
-      customClass: {
-        popup: 'custom-swal-popup',
-        confirmButton: 'custom-swal-confirm-btn',
-        cancelButton: 'custom-swal-cancel-btn',
-      },
-      buttonsStyling: false,
+      confirmButtonColor: '#0f1c3f'
     });
 
     if (isConfirmed) {
@@ -711,31 +709,13 @@ export class AssignMembershipComponent implements OnInit {
 
     const { value: motivo, isConfirmed } = await Swal.fire({
       title: '¿Confirmar Eliminación?',
-      html: `
-        <p class="swal-text-description">
-          ¿Estás seguro de que deseas cancelar permanentemente la membresía de <strong>${socio.nombre}</strong> en Pulse Gym? Esta acción no se puede deshacer.
-        </p>
-        <div class="swal-user-card">
-          <img src="${socio.avatarUrl}" alt="Avatar" class="swal-avatar">
-          <div class="swal-user-info">
-            <span class="swal-user-name">${socio.nombre}</span>
-            <span class="swal-user-id">ID: #${socio.id}</span>
-          </div>
-          <span class="swal-user-badge">${socio.estado || 'PENDIENTE'}</span>
-        </div>
-      `,
+      text: `¿Estás seguro de que deseas cancelar permanentemente la membresía de ${socio.nombre}?`,
       input: 'textarea',
       inputPlaceholder: 'Escribe el motivo de la cancelación...',
       showCancelButton: true,
       confirmButtonText: 'Eliminar / Cancelar',
       cancelButtonText: 'Cancelar',
-      iconHtml: '<div class="custom-danger-icon"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg></div>',
-      customClass: {
-        popup: 'custom-swal-popup',
-        confirmButton: 'custom-swal-confirm-btn',
-        cancelButton: 'custom-swal-cancel-btn',
-      },
-      buttonsStyling: false,
+      confirmButtonColor: '#ef4444'
     });
 
     if (isConfirmed) {
@@ -827,12 +807,7 @@ export class AssignMembershipComponent implements OnInit {
       text: mensaje,
       confirmButtonText: 'Entendido',
       timer: 3000,
-      timerProgressBar: true,
-      customClass: {
-        popup: 'custom-swal-popup',
-        confirmButton: 'custom-swal-success-btn',
-      },
-      buttonsStyling: false,
+      confirmButtonColor: '#0f1c3f'
     });
   }
 
@@ -842,11 +817,7 @@ export class AssignMembershipComponent implements OnInit {
       title: 'Ocurrió un error',
       text: mensaje,
       confirmButtonText: 'Aceptar',
-      customClass: {
-        popup: 'custom-swal-popup',
-        confirmButton: 'custom-swal-confirm-btn',
-      },
-      buttonsStyling: false,
+      confirmButtonColor: '#0f1c3f'
     });
   }
 
@@ -881,11 +852,6 @@ export class AssignMembershipComponent implements OnInit {
 
   // UTILIDADES
 
-  generarAvatar(nombre: string): string {
-    const encoded = encodeURIComponent(nombre || 'Usuario');
-    return `https://ui-avatars.com/api/?name=${encoded}&background=0f1c3f&color=fff`;
-  }
-
   formatearFecha(fecha: string | Date | undefined): string {
     if (!fecha) return '-';
     const parsedDate = new Date(fecha);
@@ -904,16 +870,6 @@ export class AssignMembershipComponent implements OnInit {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(precio || 0);
-  }
-
-  getEstadoColor(estado: string): string {
-    switch (estado?.toUpperCase()) {
-      case 'ACTIVA': return '#22c55e';
-      case 'SUSPENDIDA': return '#f59e0b';
-      case 'VENCIDA': return '#ef4444';
-      case 'CANCELADA': return '#6b7280';
-      default: return '#94a3b8';
-    }
   }
 
   trackByMembresiaId(index: number, item: MembresiaUI): number {

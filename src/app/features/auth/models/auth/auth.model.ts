@@ -1,7 +1,3 @@
-// Este archivo sería para el modelo de autenticación
-// Podrías exportar interfaces y tipos aquí
-
-
 export interface AuthCredentials {
   email: string;
   password: string;
@@ -16,9 +12,13 @@ export interface AuthResponse {
 export interface User {
   id: string;
   email: string;
+  username: string;
   name: string;
   role: RolUsuario;
   avatar?: string;
+  fotoUrl?: string | null; 
+  fotoPerfil?: string | null;
+  requiereCambioContrasena?: boolean;
 }
 
 export interface RegisterRequestDTO {
@@ -31,11 +31,18 @@ export interface RegisterRequestDTO {
 
 export interface HttpGlobalResponse<T> {
   data: T;
-  messege: string;
+  message?: string;
+  messege?: string;
 }
 
 export interface MessageGlobalDTO {
   message: string;
+}
+
+export interface ChangePasswordDTO {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
 }
 
 export interface Credencial {
@@ -55,7 +62,6 @@ export interface RespuestaPaginadaCredenciales {
   totalPaginas: number;
   ultima: boolean;
 }
-
 
 export enum RolUsuario {
   ADMIN = 'administrador',

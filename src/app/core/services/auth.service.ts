@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../../../environments/environment';
-import { RespuestaPaginadaCredenciales, RegisterRequestDTO, MessageGlobalDTO, HttpGlobalResponse } from '../../features/auth/models/auth/auth.model';
+import { RespuestaPaginadaCredenciales, RegisterRequestDTO, MessageGlobalDTO, HttpGlobalResponse, Credencial, ChangePasswordDTO } from '../../features/auth/models/auth/auth.model';
 import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Observable, throwError, BehaviorSubject } from 'rxjs';
 import { tap, catchError, map, distinctUntilChanged } from 'rxjs/operators';
@@ -17,17 +17,29 @@ export class AuthService {
 
   private readonly LOCK_KEY = 'login_lock_end_time';
   private readonly LOCK_DURATION = 30000;
+  private readonly REQUIRE_CHANGE_PASS_KEY = 'require_change_pass';
 
-  /**
-   * Registro de credenciales
-   */
   registerCredentials(datos: RegisterRequestDTO): Observable<MessageGlobalDTO> {
     return this.http.post<MessageGlobalDTO>(`${this.apiUrl}/register`, datos);
   }
 
-  /**
-   * Listado de credenciales
-   */
+  listarTodosLosUsuarios(
+    ordenarPor: string = 'id',
+    direccion?: string,
+    rol?: string,
+    activo?: boolean,
+    username?: string
+  ): Observable<Credencial[]> {
+    let params = new HttpParams().set('ordenarPor', ordenarPor);
+
+    if (rol) params = params.set('rol', rol);
+    if (activo !== undefined) params = params.set('activo', activo);
+    if (direccion) params = params.set('direccion', direccion);
+    if (username) params = params.set('username', username);
+
+    return this.http.get<Credencial[]>(`${this.apiUrl}/usuarios/todos`, { params });
+  }
+
   listarCredenciales(
     pagina: number = 0,
     tamanio: number = 5,
@@ -53,9 +65,6 @@ export class AuthService {
     );
   }
 
-  /**
-   * Cambio de estado de credencial
-   */
   cambiarEstado(id: number, nuevoEstado: boolean): Observable<MessageGlobalDTO> {
     return this.http.put<MessageGlobalDTO>(
       `${this.apiUrl}/usuarios/estado/${id}`,
@@ -74,6 +83,9 @@ export class AuthService {
 
   private currentUserSubject = new BehaviorSubject<User | null>(this.getUser());
   currentUser$ = this.currentUserSubject.asObservable().pipe(distinctUntilChanged());
+
+  private requiereCambioSubject = new BehaviorSubject<boolean>(this.debeCambiarContrasena());
+  requiereCambio$ = this.requiereCambioSubject.asObservable().pipe(distinctUntilChanged());
 
   constructor(
     private http: HttpClient,
@@ -109,21 +121,22 @@ export class AuthService {
 
   /**
    * Inicio de sesión
-   * Adaptado para extraer el token y el rol desde diferentes estructuras del backend
    */
   login(credentials: AuthCredentials): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/login`, credentials)
       .pipe(
         catchError(this.handleError),
         tap(response => {
-          console.log('Respuesta del backend:', response);
-
           let token: string | null = null;
           let userRole: RolUsuario = RolUsuario.USER;
           let userEmail: string = credentials.email;
+          let username: string = '';
+          let userFullName: string = 'Usuario';
+          let requiereCambio = false;
 
-          if (response && response.data && response.data.jwt) {
-            token = response.data.jwt;
+          if (response && response.data) {
+            token = response.data.jwt || response.data.token;
+            requiereCambio = !!response.data.requiereCambioContrasena;
           } else if (response && response.token) {
             token = response.token;
           }
@@ -133,7 +146,10 @@ export class AuthService {
 
             try {
               const decoded: any = jwtDecode(token);
-              console.log('Payload del token:', decoded);
+
+              username = decoded.username || decoded.user || decoded.sub || credentials.email.split('@')[0];
+              userEmail = decoded.email || decoded.sub || credentials.email;
+              userFullName = decoded.name || decoded.nombre || username;
 
               const rawRole = decoded.rol || decoded.role || decoded.Rol || decoded.user_role || null;
 
@@ -143,52 +159,72 @@ export class AuthService {
                 userRole = RolUsuario.ENTRENADOR;
               } else if (rawRole === 'recepcionista' || rawRole === 'receptionist') {
                 userRole = RolUsuario.RECEPCIONISTA;
-              } else if (rawRole === 'user' || rawRole === 'socio') {
-                userRole = RolUsuario.USER;
               } else {
-                console.warn('Rol no reconocido en el token:', rawRole);
                 userRole = RolUsuario.USER;
               }
-
-              userEmail = decoded.email || decoded.sub || credentials.email;
-
-              console.log('Rol extraído del token:', userRole);
             } catch (error) {
-              console.warn('No se pudo decodificar el token. Usando rol por defecto.');
+              username = credentials.email.split('@')[0];
             }
 
-            const dummyUser: User = {
+            const user: User = {
               id: '0',
-              name: 'Usuario',
+              username: username,
+              name: userFullName,
               email: userEmail,
-              role: userRole
+              role: userRole,
+              requiereCambioContrasena: requiereCambio
             };
 
-            this.setEncryptedItem(this.userKey, JSON.stringify(dummyUser));
+            this.setEncryptedItem(this.userKey, JSON.stringify(user));
             localStorage.setItem(this.roleKey, userRole);
+            localStorage.setItem(this.REQUIRE_CHANGE_PASS_KEY, requiereCambio ? 'true' : 'false');
 
-            this.currentUserSubject.next(dummyUser);
+            this.currentUserSubject.next(user);
             this.authStatus.next(true);
-
-            console.log('Rol guardado en localStorage:', localStorage.getItem(this.roleKey));
-          } else {
-            console.warn('El backend no envió un token válido.');
+            this.requiereCambioSubject.next(requiereCambio);
           }
         })
       );
   }
 
+  debeCambiarContrasena(): boolean {
+    return localStorage.getItem(this.REQUIRE_CHANGE_PASS_KEY) === 'true';
+  }
+
   /**
-   * Método de cifrado
+   * Usuario autenticado cambia su contraseña (resuelve contraseña temporal)
    */
+  cambiarContrasenaObligatoria(data: ChangePasswordDTO): Observable<MessageGlobalDTO> {
+    return this.http.post<MessageGlobalDTO>(`${this.apiUrl}/change-password`, data).pipe(
+      tap(() => {
+        localStorage.setItem(this.REQUIRE_CHANGE_PASS_KEY, 'false');
+        this.requiereCambioSubject.next(false);
+        const user = this.getUser();
+        if (user) {
+          user.requiereCambioContrasena = false;
+          this.setEncryptedItem(this.userKey, JSON.stringify(user));
+          this.currentUserSubject.next(user);
+        }
+      })
+    );
+  }
+
+  /**
+   * Admin / Entrenador / Recepcionista genera contraseña aleatoria temporal
+   */
+  generarContrasenaTemporalByAdmin(email: string): Observable<HttpGlobalResponse<string>> {
+    return this.http.post<HttpGlobalResponse<string>>(`${this.apiUrl}/change-password-by-admin`, {
+      email: email,
+      newPassword: 'temp',
+      confirmPassword: 'temp'
+    });
+  }
+
   private setEncryptedItem(key: string, value: string): void {
     const encrypted = CryptoJS.AES.encrypt(value, this.secretKey).toString();
     localStorage.setItem(key, encrypted);
   }
 
-  /**
-   * Método de descifrado
-   */
   private getDecryptedItem(key: string): string | null {
     const encrypted = localStorage.getItem(key);
     if (!encrypted) return null;
@@ -200,60 +236,41 @@ export class AuthService {
     }
   }
 
-  /**
-   * Cierre de sesión - También limpia el bloqueo global
-   */
   logout(): void {
     localStorage.removeItem(this.tokenKey);
     localStorage.removeItem(this.userKey);
     localStorage.removeItem(this.roleKey);
+    localStorage.removeItem(this.REQUIRE_CHANGE_PASS_KEY);
     this.clearGlobalLock();
     this.authStatus.next(false);
     this.currentUserSubject.next(null);
+    this.requiereCambioSubject.next(false);
     this.router.navigate(['/auth/login']);
   }
 
-  /**
-   * Verifica si el usuario está logueado
-   */
   isLoggedIn(): boolean {
     const encryptedToken = localStorage.getItem(this.tokenKey);
     return !!encryptedToken;
   }
 
-  /**
-   * Obtiene el token descifrado
-   */
   getToken(): string | null {
     return this.getDecryptedItem(this.tokenKey);
   }
 
-  /**
-   * Obtiene el usuario descifrado
-   */
   getUser(): User | null {
     const userData = this.getDecryptedItem(this.userKey);
     return userData ? JSON.parse(userData) : null;
   }
 
-  /**
-   * Obtiene el rol del localStorage (sin descifrar)
-   */
   getCurrentRole(): RolUsuario | null {
     const role = localStorage.getItem(this.roleKey);
     return role as RolUsuario || null;
   }
 
-  /**
-   * Observable del usuario actual
-   */
   getCurrentUser(): Observable<User | null> {
     return this.currentUserSubject.asObservable();
   }
 
-  /**
-   * Verifica si el usuario tiene un rol específico
-   */
   hasRole(role: RolUsuario): boolean {
     const user = this.getUser();
     return user ? user.role === role : false;
@@ -271,12 +288,8 @@ export class AuthService {
     return this.hasRole(RolUsuario.RECEPCIONISTA);
   }
 
-  /**
-   * Manejo de errores
-   */
   private handleError(error: HttpErrorResponse): Observable<never> {
     let errorMessage = 'Error al procesar la solicitud';
-    console.error('Error del servidor:', error);
     if (error.error instanceof ErrorEvent) {
       errorMessage = `Error de conexión: ${error.error.message}`;
     } else {
@@ -297,7 +310,51 @@ export class AuthService {
     return throwError(() => new Error(errorMessage));
   }
 
-  changePasswordByAdmin(data: { email: string; newPassword: string; confirmPassword: string }): Observable<MessageGlobalDTO> {
-  return this.http.post<MessageGlobalDTO>(`${this.apiUrl}/change-password-by-admin`, data);
-}
+  obtenerPerfilCompleto(): Observable<User> {
+    return this.http.get<any>(`${environment.apiUrl}/pg-ms-users/api/v1/usuarios/mi-perfil`)
+      .pipe(
+        map(response => {
+          const data = response.data || response;
+
+          const user: User = {
+            id: data.idUsuario?.toString() || '0',
+            username: data.username || data.email?.split('@')[0] || 'usuario',
+            name: data.nombre || data.username || 'Usuario',
+            email: data.email || '',
+            role: this.mapRol(data.rol) || RolUsuario.USER,
+            fotoUrl: data.fotoUrl || data.fotoPerfil || data.foto || null
+          };
+
+          this.setEncryptedItem(this.userKey, JSON.stringify(user));
+          this.currentUserSubject.next(user);
+
+          return user;
+        }),
+        catchError(error => {
+          const currentUser = this.getUser();
+          if (currentUser) {
+            return new Observable<User>(observer => {
+              observer.next(currentUser);
+              observer.complete();
+            });
+          }
+          throw error;
+        })
+      );
+  }
+
+  private mapRol(rol: string): RolUsuario {
+    if (!rol) return RolUsuario.USER;
+
+    const rolLower = rol.toLowerCase();
+    if (rolLower === 'administrador' || rolLower === 'admin') {
+      return RolUsuario.ADMIN;
+    } else if (rolLower === 'entrenador' || rolLower === 'trainer') {
+      return RolUsuario.ENTRENADOR;
+    } else if (rolLower === 'recepcionista' || rolLower === 'receptionist') {
+      return RolUsuario.RECEPCIONISTA;
+    } else {
+      return RolUsuario.USER;
+    }
+  }
 }
