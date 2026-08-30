@@ -10,16 +10,24 @@ import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { AuthService } from '../services/auth.service';
 import { Router } from '@angular/router';
+import { SKIP_AUTH } from '../constants/http-context';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
+  private readonly PUBLIC_URLS = [
+    '/login',
+    '/register',
+    '/forgot-password',
+    '/reset-password'
+  ];
+
   constructor(
     private authService: AuthService,
     private router: Router
   ) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    if (req.url.includes('/login')) {
+    if (req.context.get(SKIP_AUTH)) {
       return next.handle(req).pipe(
         catchError((error: HttpErrorResponse) => {
           if (error.status === 401) {
@@ -30,10 +38,14 @@ export class AuthInterceptor implements HttpInterceptor {
       );
     }
 
-    // Para el resto de peticiones, intentamos obtener el token
+    const isPublicUrl = this.PUBLIC_URLS.some(url => req.url.includes(url));
+    if (isPublicUrl) {
+      return next.handle(req);
+    }
+
     const token = this.authService.getToken();
-    
     let authReq = req;
+    
     if (token) {
       authReq = req.clone({
         headers: req.headers.set('Authorization', `Bearer ${token}`)

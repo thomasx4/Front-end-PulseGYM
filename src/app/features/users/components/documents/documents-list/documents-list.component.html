@@ -1,0 +1,165 @@
+<div class="documents-container">
+    <!-- HEADER -->
+    <header class="page-header">
+        <div>
+            <h1 class="page-title">Documentos Legales</h1>
+            <p class="page-subtitle">Gestiona los documentos legales y políticas del gimnasio.</p>
+        </div>
+        <button class="btn-primary" (click)="nuevoDocumento()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            Nuevo Documento
+        </button>
+    </header>
+
+    <!-- MÉTRICAS ORGANIZADAS EN 2 COLUMNAS -->
+    <div class="metrics-grid">
+        <div class="metric-card metric-card--activos">
+            <div class="metric-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                    <polyline points="22 4 12 14.01 9 11.01" />
+                </svg>
+            </div>
+            <div class="metric-content">
+                <span class="metric-value">{{ metricas?.activos || 0 }}</span>
+                <span class="metric-label">Documentos Vigentes</span>
+                <span class="metric-trend" *ngIf="metricas?.nuevosEsteMes">+{{ metricas?.nuevosEsteMes }} este mes</span>
+            </div>
+        </div>
+
+        <div class="metric-card metric-card--categorias">
+            <div class="metric-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7" />
+                    <rect x="14" y="3" width="7" height="7" />
+                    <rect x="3" y="14" width="7" height="7" />
+                    <rect x="14" y="14" width="7" height="7" />
+                </svg>
+            </div>
+            <div class="metric-content">
+                <span class="metric-value">{{ metricas?.categoriasOrganizadas || 0 }}</span>
+                <span class="metric-label">Tipos de Documentos</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- FILTROS -->
+    <div class="filters-section">
+        <div class="filters-row">
+            <div class="filter-group">
+                <input type="text" placeholder="Buscar por socio..." [(ngModel)]="filtros.search" (input)="aplicarFiltros()" />
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+            </div>
+            <div class="filter-group">
+                <select [(ngModel)]="filtros.tipoDocumento" (change)="aplicarFiltros()">
+                    <option value="todos">Todos los tipos</option>
+                    <option *ngFor="let tipo of tiposDocumento" [value]="tipo">
+                        {{ getTipoDocumentoLabel(tipo) }}
+                    </option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <select [(ngModel)]="filtros.estado" (change)="aplicarFiltros()">
+                    <option value="todos">Todos los estados</option>
+                    <option value="VIGENTE">Vigente</option>
+                    <option value="VENCIDO">Vencido</option>
+                </select>
+            </div>
+            <button class="btn-clear-filters" (click)="limpiarFiltros()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+                Limpiar filtros
+            </button>
+        </div>
+    </div>
+
+    <!-- TABLA -->
+    <section class="table-card">
+        <div class="table-responsive" *ngIf="documentosPaginados.length > 0">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>USUARIO</th>
+                        <th>TIPO DE DOCUMENTO</th>
+                        <th>FECHA DE FIRMA</th>
+                        <th>ESTADO</th>
+                        <th class="text-right">ACCIONES</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let doc of documentosPaginados">
+                        <td>
+                            <div class="doc-name">
+                                <div class="pdf-icon-badge">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                        <polyline points="14 2 14 8 20 8"></polyline>
+                                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                                    </svg>
+                                </div>
+                                <span class="user-text-name">{{ doc.nombreUsuario }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="category-badge">{{ getTipoDocumentoLabel(doc.tipoDocumento) }}</span>
+                        </td>
+                        <td>
+                            <div class="date-info">
+                                <span>{{ formatearFecha(doc.fechaFirma) }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge-status" [class]="getEstadoClass(doc.estado)">
+                                {{ getEstadoLabel(doc.estado) }}
+                            </span>
+                        </td>
+                        <td class="text-right">
+                            <div class="acciones-container">
+                                <button class="btn-view" (click)="verDocumento(doc.idDocumento)" title="Ver detalles">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                        <circle cx="12" cy="12" r="3" />
+                                    </svg>
+                                </button>
+                                <button class="btn-delete" (click)="eliminarDocumento(doc)" title="Eliminar" *ngIf="doc.estado === 'VIGENTE'">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="3 6 5 6 21 6" />
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div *ngIf="documentosFiltrados.length === 0 && !loading" class="empty-state">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+            </svg>
+            <p>No se encontraron documentos</p>
+            <span>Prueba ajustando los filtros o crea un nuevo documento.</span>
+        </div>
+
+        <!-- PAGINACIÓN -->
+        <footer *ngIf="totalPaginas > 0" class="table-footer">
+            <div class="showing-text">Mostrando <strong>{{ inicio }}</strong> a <strong>{{ fin }}</strong> de <strong>{{ totalElementos }}</strong> documentos</div>
+            <div class="pagination-wrapper">
+                <button class="page-arrow" [disabled]="paginaActual === 1" (click)="paginaAnterior()">‹</button>
+                <button *ngFor="let p of paginasVisibles" class="page-number" [class.active]="p === paginaActual" (click)="irPagina(p)">{{ p }}</button>
+                <button class="page-arrow" [disabled]="paginaActual === totalPaginas" (click)="paginaSiguiente()">›</button>
+            </div>
+        </footer>
+    </section>
+</div>

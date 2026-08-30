@@ -1,0 +1,422 @@
+<div class="user-form-container">
+    <!-- HEADER -->
+    <header class="form-header">
+        <div>
+            <h1 class="form-title">{{ isEditMode ? 'Editar Usuario' : 'Nuevo Registro' }}</h1>
+            <p class="form-subtitle">
+                {{ isEditMode ? 'Actualiza el perfil del miembro' : 'Configura el perfil de un nuevo miembro en el
+                ecosistema Pulse.' }}
+            </p>
+        </div>
+        <button class="btn-back" (click)="volver()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+            Volver
+        </button>
+    </header>
+
+    <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+
+        <!-- SECCIÓN 1: EMAIL (solo para admin/entrenador/recepcionista) -->
+
+        <div class="form-section" *ngIf="!isSocio">
+            <div class="section-header">
+                <h3>Credenciales de Acceso</h3>
+                <p>Busca al usuario por su email para completar su perfil</p>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group full-width">
+                    <label>Email del Usuario <span class="required">*</span></label>
+                    <div class="email-search-wrapper">
+                        <input type="email" formControlName="email" placeholder="ejemplo@dominio.com"
+                            [class.error]="userForm.get('email')?.invalid && userForm.get('email')?.touched" />
+                        <button type="button" class="btn-verify-email" (click)="verificarEmail()"
+                            [disabled]="!userForm.get('email')?.valid || verificandoEmail">
+                            <svg *ngIf="!verificandoEmail" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            <span class="spinner" *ngIf="verificandoEmail"></span>
+                            {{ verificandoEmail ? 'Verificando...' : 'Verificar' }}
+                        </button>
+                    </div>
+                    <div class="form-hint" *ngIf="emailVerificado">
+                        Usuario verificado en el sistema de autenticación
+                    </div>
+                    <div class="form-error" *ngIf="userForm.get('email')?.invalid && userForm.get('email')?.touched">
+                        <span *ngIf="userForm.get('email')?.errors?.['required']">El email es obligatorio</span>
+                        <span *ngIf="userForm.get('email')?.errors?.['email']">Formato de email inválido</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información del usuario autenticado -->
+            <div class="user-info-card" *ngIf="authUserInfo">
+                <div class="user-info-avatar">
+                    <span>{{ authUserInfo.nombre?.charAt(0) || '?' }}{{ authUserInfo.apellido?.charAt(0) || '?'
+                        }}</span>
+                </div>
+                <div class="user-info-details">
+                    <strong>{{ authUserInfo.nombre || 'Usuario' }} {{ authUserInfo.apellido || '' }}</strong>
+                    <span>{{ authUserInfo.email }}</span>
+                    <span class="role-badge" [class]="'role-' + authUserInfo.rol?.toLowerCase()">
+                        {{ authUserInfo.rol || 'Sin rol' }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- SECCIÓN 2: FOTO DE PERFIL -->
+
+        <div class="form-section">
+            <div class="section-header">
+                <h3>Fotografía de Perfil</h3>
+                <p>Formatos JPG o PNG soportados. Tamaño máximo 5MB. Recomendado: 800×800px.</p>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group full-width">
+                    <div class="photo-upload-container">
+                        <div class="photo-preview" (click)="triggerFileInput()">
+                            <img *ngIf="fotoPreview" [src]="fotoPreview" alt="Foto de perfil" />
+                            <div *ngIf="!fotoPreview" class="photo-placeholder">
+                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.5">
+                                    <path
+                                        d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                                    <circle cx="12" cy="13" r="4" />
+                                </svg>
+                                <span>Subir foto</span>
+                            </div>
+                            <div class="photo-overlay" *ngIf="fotoPreview">
+                                <span>Cambiar foto</span>
+                            </div>
+                        </div>
+                        <input type="file" #fileInput accept="image/jpeg,image/png,image/webp"
+                            (change)="onFileSelected($event)" style="display: none" />
+                        <div class="photo-info">
+                            <p class="photo-hint">
+                                {{ fotoPreview ? 'Foto cargada correctamente' : 'Haz clic en el recuadro para subir una
+                                foto' }}
+                            </p>
+                            <p class="photo-requirements">JPG, PNG o WEBP • Máx. 5MB</p>
+                            <button type="button" class="btn-remove-photo" *ngIf="fotoPreview" (click)="removerFoto()">
+                                Eliminar foto
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-error"
+                        *ngIf="userForm.get('fotoUrl')?.invalid && userForm.get('fotoUrl')?.touched">
+                        <span *ngIf="userForm.get('fotoUrl')?.errors?.['required']">La foto de perfil es
+                            obligatoria</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- SECCIÓN 3: INFORMACIÓN PERSONAL -->
+
+        <div class="form-section">
+            <div class="section-header">
+                <h3>Información Personal</h3>
+                <p>Datos básicos del usuario</p>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Nombre Completo <span class="required">*</span></label>
+                    <input type="text" formControlName="nombre" placeholder="Ej. Alejandro Valdivia"
+                        [class.error]="userForm.get('nombre')?.invalid && userForm.get('nombre')?.touched" />
+                    <div class="form-error" *ngIf="userForm.get('nombre')?.invalid && userForm.get('nombre')?.touched">
+                        <span *ngIf="userForm.get('nombre')?.errors?.['required']">El nombre es obligatorio</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Apellido <span class="required">*</span></label>
+                    <input type="text" formControlName="apellido" placeholder="Ej. Valdivia"
+                        [class.error]="userForm.get('apellido')?.invalid && userForm.get('apellido')?.touched" />
+                    <div class="form-error"
+                        *ngIf="userForm.get('apellido')?.invalid && userForm.get('apellido')?.touched">
+                        <span *ngIf="userForm.get('apellido')?.errors?.['required']">El apellido es obligatorio</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Documento de Identidad <span class="required">*</span></label>
+                    <input type="text" formControlName="documentoIdentidad" placeholder="Ej. 1234567890"
+                        [class.error]="userForm.get('documentoIdentidad')?.invalid && userForm.get('documentoIdentidad')?.touched" />
+                    <div class="form-error"
+                        *ngIf="userForm.get('documentoIdentidad')?.invalid && userForm.get('documentoIdentidad')?.touched">
+                        <span *ngIf="userForm.get('documentoIdentidad')?.errors?.['required']">El documento es
+                            obligatorio</span>
+                        <span *ngIf="userForm.get('documentoIdentidad')?.errors?.['minlength']">Mínimo 6
+                            caracteres</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Teléfono <span class="required">*</span></label>
+                    <input type="tel" formControlName="telefono" placeholder="Ej. +57 300 000 0000"
+                        [class.error]="userForm.get('telefono')?.invalid && userForm.get('telefono')?.touched" />
+                    <div class="form-error"
+                        *ngIf="userForm.get('telefono')?.invalid && userForm.get('telefono')?.touched">
+                        <span *ngIf="userForm.get('telefono')?.errors?.['required']">El teléfono es obligatorio</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Sexo <span class="required">*</span></label>
+                    <select formControlName="sexo"
+                        [class.error]="userForm.get('sexo')?.invalid && userForm.get('sexo')?.touched">
+                        <option value="">Seleccionar sexo</option>
+                        <option value="MASCULINO">Masculino</option>
+                        <option value="FEMENINO">Femenino</option>
+                    </select>
+                    <div class="form-error" *ngIf="userForm.get('sexo')?.invalid && userForm.get('sexo')?.touched">
+                        <span *ngIf="userForm.get('sexo')?.errors?.['required']">El sexo es obligatorio</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Fecha de Nacimiento <span class="required">*</span></label>
+                    <input type="date" formControlName="fechaNacimiento"
+                        [class.error]="userForm.get('fechaNacimiento')?.invalid && userForm.get('fechaNacimiento')?.touched" />
+                    <div class="form-error"
+                        *ngIf="userForm.get('fechaNacimiento')?.invalid && userForm.get('fechaNacimiento')?.touched">
+                        <span *ngIf="userForm.get('fechaNacimiento')?.errors?.['required']">La fecha es
+                            obligatoria</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row full-width">
+                <div class="form-group">
+                    <label>Sede <span class="required">*</span></label>
+                    <select formControlName="idSede"
+                        [class.error]="userForm.get('idSede')?.invalid && userForm.get('idSede')?.touched">
+                        <option value="">Seleccionar sede</option>
+                        <option *ngFor="let sede of sedes" [value]="sede.id">{{ sede.nombre }}</option>
+                    </select>
+                    <div class="form-error" *ngIf="userForm.get('idSede')?.invalid && userForm.get('idSede')?.touched">
+                        <span *ngIf="userForm.get('idSede')?.errors?.['required']">La sede es obligatoria</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- SECCIÓN 4: CONTACTO DE EMERGENCIA -->
+
+        <div class="form-section">
+            <div class="section-header">
+                <h3>Contacto de Emergencia</h3>
+                <p>Persona a contactar en caso de emergencia</p>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Nombre <span class="required">*</span></label>
+                    <input type="text" formControlName="contactoEmergenciaNombre" placeholder="Ej. María Pérez"
+                        [class.error]="userForm.get('contactoEmergenciaNombre')?.invalid && userForm.get('contactoEmergenciaNombre')?.touched" />
+                    <div class="form-error"
+                        *ngIf="userForm.get('contactoEmergenciaNombre')?.invalid && userForm.get('contactoEmergenciaNombre')?.touched">
+                        <span *ngIf="userForm.get('contactoEmergenciaNombre')?.errors?.['required']">El nombre es
+                            obligatorio</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Teléfono <span class="required">*</span></label>
+                    <input type="tel" formControlName="contactoEmergenciaTelefono" placeholder="Ej. +57 300 000 0000"
+                        [class.error]="userForm.get('contactoEmergenciaTelefono')?.invalid && userForm.get('contactoEmergenciaTelefono')?.touched" />
+                    <div class="form-error"
+                        *ngIf="userForm.get('contactoEmergenciaTelefono')?.invalid && userForm.get('contactoEmergenciaTelefono')?.touched">
+                        <span *ngIf="userForm.get('contactoEmergenciaTelefono')?.errors?.['required']">El teléfono es
+                            obligatorio</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- SECCIÓN 5: DETALLES DEL ROL -->
+
+        <div class="form-section">
+            <div class="section-header">
+                <h3>Detalles del Rol</h3>
+                <p>Información específica según el rol del usuario</p>
+            </div>
+
+            <!-- Campos para SOCIO y ENTRENADOR -->
+            <div class="form-row"
+                *ngIf="authUserInfo?.rol?.toUpperCase() === 'SOCIO' || authUserInfo?.rol?.toUpperCase() === 'ENTRENADOR' || authUserInfo?.rol?.toUpperCase() === 'USER'">
+                <div class="form-group">
+                    <label>Objetivo Principal <span class="required" *ngIf="!isEditMode">*</span></label>
+                    <input type="text" formControlName="objetivoPrincipal" placeholder="Ej. Aumentar masa muscular"
+                        [class.error]="userForm.get('objetivoPrincipal')?.invalid && userForm.get('objetivoPrincipal')?.touched" />
+                    <div class="form-error"
+                        *ngIf="userForm.get('objetivoPrincipal')?.invalid && userForm.get('objetivoPrincipal')?.touched">
+                        <span *ngIf="userForm.get('objetivoPrincipal')?.errors?.['required']">El objetivo es
+                            obligatorio</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Nivel de Experiencia <span class="required" *ngIf="!isEditMode">*</span></label>
+                    <select formControlName="nivelExperiencia"
+                        [class.error]="userForm.get('nivelExperiencia')?.invalid && userForm.get('nivelExperiencia')?.touched">
+                        <option value="">Seleccionar nivel</option>
+                        <option value="novato">Novato</option>
+                        <option value="intermedio">Intermedio</option>
+                        <option value="avanzado">Avanzado</option>
+                    </select>
+                    <div class="form-error"
+                        *ngIf="userForm.get('nivelExperiencia')?.invalid && userForm.get('nivelExperiencia')?.touched">
+                        <span *ngIf="userForm.get('nivelExperiencia')?.errors?.['required']">El nivel es
+                            obligatorio</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Campos para ENTRENADOR -->
+            <ng-container *ngIf="authUserInfo?.rol?.toUpperCase() === 'ENTRENADOR'">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Fecha de Contratación <span class="required" *ngIf="!isEditMode">*</span></label>
+                        <input type="date" formControlName="fechaContratacion" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Especialidad <span class="required" *ngIf="!isEditMode">*</span></label>
+                        <input type="text" formControlName="especialidad"
+                            placeholder="Ej. Musculación y Powerlifting" />
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Años de Experiencia <span class="required" *ngIf="!isEditMode">*</span></label>
+                        <input type="number" formControlName="anosExperiencia" placeholder="Ej. 5" min="0" max="50" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Tarifa por Hora <span class="required" *ngIf="!isEditMode">*</span></label>
+                        <input type="number" formControlName="tarifaHora" placeholder="Ej. 45000" min="0" step="1000" />
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Horario de Disponibilidad <span class="required" *ngIf="!isEditMode">*</span></label>
+                        <input type="text" formControlName="horarioDisponibilidad"
+                            placeholder="Ej. Lunes a Viernes 6:00 - 12:00" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Turno <span class="required" *ngIf="!isEditMode">*</span></label>
+                        <select formControlName="turno">
+                            <option value="">Seleccionar turno</option>
+                            <option value="mañana">Mañana</option>
+                            <option value="tarde">Tarde</option>
+                            <option value="noche">Noche</option>
+                        </select>
+                    </div>
+                </div>
+            </ng-container>
+
+            <!-- Campos para ADMINISTRADOR -->
+            <div class="form-row"
+                *ngIf="authUserInfo?.rol?.toUpperCase() === 'ADMINISTRADOR' || authUserInfo?.rol?.toUpperCase() === 'ADMIN'">
+                <div class="form-group full-width">
+                    <label>Fecha de Contratación <span class="required" *ngIf="!isEditMode">*</span></label>
+                    <input type="date" formControlName="fechaContratacion" />
+                </div>
+            </div>
+
+            <!-- Campos para RECEPCIONISTA -->
+            <ng-container *ngIf="authUserInfo?.rol?.toUpperCase() === 'RECEPCIONISTA'">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Fecha de Contratación <span class="required" *ngIf="!isEditMode">*</span></label>
+                        <input type="date" formControlName="fechaContratacion" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Turno <span class="required" *ngIf="!isEditMode">*</span></label>
+                        <select formControlName="turno">
+                            <option value="">Seleccionar turno</option>
+                            <option value="mañana">Mañana</option>
+                            <option value="tarde">Tarde</option>
+                            <option value="noche">Noche</option>
+                        </select>
+                    </div>
+                </div>
+            </ng-container>
+        </div>
+
+        <!-- BOTONES DE ACCIÓN -->
+
+        <div class="form-actions">
+            <button type="button" class="btn-cancel" (click)="volver()">Cancelar</button>
+            <button type="submit" class="btn-submit" [disabled]="userForm.invalid || submitting">
+                <span class="spinner" *ngIf="submitting"></span>
+                {{ submitting ? 'Guardando...' : (isEditMode ? 'Actualizar Usuario' : 'Guardar Usuario') }}
+            </button>
+        </div>
+
+        <div class="form-section danger-zone" *ngIf="isEditMode && userId">
+            <div class="section-header danger-header">
+                <h3>Zona de Peligro</h3>
+                <p>Acciones irreversibles relacionadas con la cuenta de {{ authUserInfo?.nombre || 'usuario' }}.</p>
+            </div>
+
+            <div class="danger-actions">
+                <!-- Suspender Temporalmente -->
+                <div class="danger-action">
+                    <div class="danger-action-info">
+                        <span class="danger-action-title">Suspender Temporalmente</span>
+                        <span class="danger-action-desc">El usuario no podrá acceder al sistema durante el tiempo
+                            especificado.</span>
+                    </div>
+                    <button type="button" class="btn-danger btn-suspend" (click)="suspenderUsuario()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <circle cx="12" cy="12" r="10" />
+                            <line x1="12" y1="8" x2="12" y2="12" />
+                            <line x1="12" y1="16" x2="12.01" y2="16" />
+                        </svg>
+                        Suspender
+                    </button>
+                </div>
+
+                <!-- Eliminar Cuenta -->
+                <div class="danger-action danger-action-delete">
+                    <div class="danger-action-info">
+                        <span class="danger-action-title">Eliminar Cuenta</span>
+                        <span class="danger-action-desc">Esta acción eliminará permanentemente la cuenta del usuario y
+                            todos sus datos asociados.</span>
+                    </div>
+                    <button type="button" class="btn-danger btn-delete" (click)="eliminarUsuario()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <polyline points="3 6 5 6 21 6" />
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                            <line x1="10" y1="11" x2="10" y2="17" />
+                            <line x1="14" y1="11" x2="14" y2="17" />
+                        </svg>
+                        Eliminar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

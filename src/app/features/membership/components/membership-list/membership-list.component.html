@@ -1,6 +1,6 @@
 <div class="membership-management">
 
-    <!--  HEADER  -->
+    <!-- HEADER -->
     <div class="page-header">
         <h1 class="page-title">Gestion Membresias</h1>
         <button class="btn-primary" (click)="crearNuevaMembresia()">
@@ -12,7 +12,7 @@
         </button>
     </div>
 
-    <!--  FILTROS PARA PLANES  -->
+    <!-- FILTROS PARA PLANES -->
     <div class="filters-plans" *ngIf="!loading">
         <div class="filters-plans__row">
             <div class="filter-group">
@@ -43,7 +43,7 @@
         </div>
     </div>
 
-    <!--  PLAN CARDS CON PAGINACIÓN  -->
+    <!-- PLAN CARDS CON PAGINACIÓN -->
     <div class="plans-section" *ngIf="!loading">
         <h2 class="section-subtitle">Planes Disponibles</h2>
         <div class="plans-grid">
@@ -101,10 +101,10 @@
         </div>
     </div>
 
-    <!--  TABLA DE MIEMBROS CON FILTROS  -->
+    <!-- TABLA DE MIEMBROS CON FILTROS -->
     <div class="members-table-section" *ngIf="!loading">
         <div class="table-header">
-            <h2 class="section-subtitle">Active Memberships</h2>
+            <h2 class="section-subtitle">Membresías activas</h2>
             <div class="table-controls">
                 <div class="filter-group">
                     <select [(ngModel)]="filtroIA" (change)="aplicarFiltrosTabla()">
@@ -150,7 +150,7 @@
             <table class="members-table">
                 <thead>
                     <tr>
-                        <th>MEMBER</th>
+                        <th>MIEMBROS</th>
                         <th>PLAN</th>
                         <th>FECHA INICIO</th>
                         <th>FECHA FIN</th>
@@ -163,7 +163,13 @@
                         <td>
                             <div class="member-info">
                                 <div class="member-avatar">
-                                    {{ miembro.nombre.charAt(0) }}{{ miembro.apellido?.charAt(0) || '' }}
+                                    <img *ngIf="getMiembroFoto(miembro) && !hasAvatarError(miembro.id)"
+                                        [src]="getMiembroFoto(miembro)" [alt]="miembro.nombre"
+                                        class="member-avatar__img" crossOrigin="anonymous"
+                                        (error)="onAvatarError(miembro.id)" />
+                                    <span *ngIf="!getMiembroFoto(miembro) || hasAvatarError(miembro.id)">
+                                        {{ getInitials(miembro.nombre, miembro.apellido) }}
+                                    </span>
                                 </div>
                                 <div>
                                     <div class="member-name">{{ miembro.nombre }} {{ miembro.apellido || '' }}</div>
@@ -203,7 +209,7 @@
         <!-- PAGINACIÓN SOCIOS -->
         <div class="table-footer">
             <span class="table-info">
-                Showing {{ inicio + 1 }}–{{ fin }} of {{ miembrosFiltradosList.length }} members
+                Mostrando {{ inicio + 1 }}–{{ fin }} de {{ miembrosFiltradosList.length }} miembros
             </span>
             <div class="pagination">
                 <button class="page-btn" (click)="paginaAnterior()" [disabled]="paginaActual === 1">

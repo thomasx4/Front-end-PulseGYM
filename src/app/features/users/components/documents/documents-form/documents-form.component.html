@@ -1,0 +1,280 @@
+<div class="document-form-container">
+    <!-- HEADER -->
+    <header class="form-header">
+        <div>
+            <h1 class="form-title">{{ isEditMode ? 'Editar Documento' : 'Nuevo Documento Legal' }}</h1>
+            <p class="form-subtitle">
+                {{ isEditMode ? 'Actualiza la información del documento legal.' : 'Registra un nuevo documento legal
+                para un usuario.' }}
+            </p>
+        </div>
+        <button class="btn-back" (click)="volver()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+            Volver
+        </button>
+    </header>
+
+    <form [formGroup]="documentForm" (ngSubmit)="onSubmit()">
+        <div *ngIf="!loading" class="form-content">
+
+            <!-- SECCIÓN: DATOS DEL USUARIO Y DOCUMENTO -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h3>Información del Documento</h3>
+                    <p>Asigna el usuario correspondiente (Socio, Entrenador, Recepcionista, Admin) y define el tipo de
+                        documento legal.</p>
+                </div>
+
+                <!-- SELECCIÓN DE USUARIO MEDIANTE BOTÓN/CARD -->
+                <div class="form-row full-width">
+                    <div class="form-group">
+                        <label>Usuario Asignado <span class="required">*</span></label>
+
+                        <!-- Estado 1: Sin usuario seleccionado -->
+                        <div *ngIf="!selectedUsuario" class="assign-partner-placeholder">
+                            <div class="placeholder-text">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="12" cy="7" r="4"></circle>
+                                </svg>
+                                <span>No se ha seleccionado ningún usuario</span>
+                            </div>
+                            <button type="button" class="btn-open-modal-partner" (click)="abrirModalSeleccionSocio()">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="9" cy="7" r="4"></circle>
+                                    <line x1="19" y1="8" x2="19" y2="14"></line>
+                                    <line x1="16" y1="11" x2="22" y2="11"></line>
+                                </svg>
+                                Asignar Usuario
+                            </button>
+                        </div>
+
+                        <!-- Estado 2: Usuario seleccionado (Card elegante) -->
+                        <div *ngIf="selectedUsuario" class="partner-selected-card">
+                            <div class="partner-info">
+                                <div class="partner-avatar">
+                                    <img *ngIf="getUsuarioFoto(selectedUsuario) && !hasAvatarError()"
+                                        [src]="getUsuarioFoto(selectedUsuario)" [alt]="selectedUsuario.nombre"
+                                        class="partner-avatar__img" crossOrigin="anonymous" (error)="onAvatarError()" />
+                                    <span *ngIf="!getUsuarioFoto(selectedUsuario) || hasAvatarError()">
+                                        {{ getInitials(selectedUsuario.nombre, selectedUsuario.apellido) }}
+                                    </span>
+                                </div>
+                                <div class="partner-details">
+                                    <div class="name-rol-row">
+                                        <span class="partner-name">{{ selectedUsuario.nombre }} {{
+                                            selectedUsuario.apellido }}</span>
+                                        <span class="role-badge" [ngClass]="getRolClass(selectedUsuario.rol)">
+                                            {{ getRolLabel(selectedUsuario.rol) }}
+                                        </span>
+                                    </div>
+                                    <span class="partner-email">{{ selectedUsuario.email }}</span>
+                                    <span class="partner-phone" *ngIf="selectedUsuario.telefono">{{
+                                        selectedUsuario.telefono }}</span>
+                                </div>
+                            </div>
+                            <div class="partner-card-actions">
+                                <button type="button" class="btn-change-partner" (click)="abrirModalSeleccionSocio()">
+                                    Cambiar
+                                </button>
+                                <button type="button" class="btn-remove-partner" (click)="limpiarSeleccion()">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-error"
+                            *ngIf="documentForm.get('idUsuario')?.invalid && documentForm.get('idUsuario')?.touched">
+                            <span>Debes asignar un usuario para continuar.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TIPO DE DOCUMENTO -->
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label>Tipo de Documento <span class="required">*</span></label>
+                        <select formControlName="tipoDocumento">
+                            <option value="">Seleccionar tipo de documento</option>
+                            <option *ngFor="let tipo of tiposDocumento" [value]="tipo">
+                                {{ getTipoDocumentoLabel(tipo) }}
+                            </option>
+                        </select>
+                        <div class="form-error"
+                            *ngIf="documentForm.get('tipoDocumento')?.invalid && documentForm.get('tipoDocumento')?.touched">
+                            <span>El tipo de documento es obligatorio.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECCIÓN: ARCHIVO PDF -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h3>📎 Archivo del Documento</h3>
+                    <p>Sube el documento firmado en formato PDF.</p>
+                </div>
+
+                <div class="form-row full-width">
+                    <div class="form-group full-width">
+                        <div class="file-upload-area" (click)="fileInput.click()" [class.has-file]="selectedFile">
+                            <input type="file" #fileInput accept=".pdf" (change)="onFileSelected($event)"
+                                style="display: none" />
+
+                            <div *ngIf="!selectedFile" class="file-placeholder">
+                                <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.5">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                    <polyline points="14 2 14 8 20 8" />
+                                    <path d="M12 18v-6" />
+                                    <path d="M9 15l3-3 3 3" />
+                                </svg>
+                                <span class="file-label">Arrastra un archivo aquí o haz clic para seleccionar</span>
+                                <span class="file-hint">Solo archivos PDF • Máx. 10 MB</span>
+                            </div>
+
+                            <div *ngIf="selectedFile" class="file-info">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.5">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                    <polyline points="14 2 14 8 20 8" />
+                                </svg>
+                                <div>
+                                    <span class="file-name">{{ selectedFile.name }}</span>
+                                    <span class="file-size">{{ (selectedFile.size / 1024 / 1024).toFixed(2) }} MB</span>
+                                </div>
+                                <button type="button" class="btn-remove-file"
+                                    (click)="$event.stopPropagation(); selectedFile = null;">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BOTONES ACCIÓN -->
+            <div class="form-actions">
+                <button type="button" class="btn-cancel" (click)="volver()">Cancelar</button>
+                <button type="submit" class="btn-submit"
+                    [disabled]="documentForm.invalid || submitting || uploadingFile">
+                    <span class="spinner" *ngIf="submitting || uploadingFile"></span>
+                    {{ submitting || uploadingFile ? 'Guardando...' : 'Guardar Documento' }}
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- MODAL DE SELECCIÓN Y ASIGNACIÓN DE USUARIOS -->
+<div class="modal-overlay" *ngIf="showPartnerModal" (click)="cerrarModalSeleccionSocio()">
+    <div class="modal-partner-container" (click)="$event.stopPropagation()">
+
+        <!-- HEADER MODAL -->
+        <div class="modal-partner-header">
+            <h2>Asignar usuario a documento</h2>
+            <button type="button" class="modal-close-btn" (click)="cerrarModalSeleccionSocio()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- BUSCADOR -->
+        <div class="modal-partner-search">
+            <div class="search-input-wrapper">
+                <input type="text" placeholder="Buscar por nombre, teléfono o rol..." [(ngModel)]="searchUsuario"
+                    (input)="filtrarSociosModal()" />
+                <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+            </div>
+        </div>
+
+        <!-- TABLA DE USUARIOS -->
+        <div class="modal-partner-table-wrapper">
+            <table class="partner-table">
+                <thead>
+                    <tr>
+                        <th>USUARIO</th>
+                        <th>ROL</th>
+                        <th>CONTACTO</th>
+                        <th class="text-right">ACCIÓN</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let usuario of sociosPaginados">
+                        <td>
+                            <div class="partner-cell">
+                                <div class="partner-table-avatar">
+                                    <img *ngIf="getUsuarioFoto(usuario) && !hasModalAvatarError(usuario.idUsuario)"
+                                        [src]="getUsuarioFoto(usuario)" [alt]="usuario.nombre"
+                                        class="partner-table-avatar__img" crossOrigin="anonymous"
+                                        (error)="onModalAvatarError(usuario.idUsuario)" />
+                                    <span *ngIf="!getUsuarioFoto(usuario) || hasModalAvatarError(usuario.idUsuario)">
+                                        {{ getInitials(usuario.nombre, usuario.apellido) }}
+                                    </span>
+                                </div>
+                                <span class="partner-table-name">{{ usuario.nombre }} {{ usuario.apellido }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="role-badge" [ngClass]="getRolClass(usuario.rol)">
+                                {{ getRolLabel(usuario.rol) }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="partner-table-contact">{{ usuario.telefono || usuario.email || 'Sin contacto'
+                                }}</span>
+                        </td>
+                        <td class="text-right">
+                            <button type="button" class="btn-assign-row" (click)="seleccionarSocioDesdeModal(usuario)">
+                                Asignar
+                            </button>
+                        </td>
+                    </tr>
+                    <tr *ngIf="sociosFiltradosModal.length === 0">
+                        <td colspan="4" class="empty-table-msg">
+                            No se encontraron usuarios que coincidan con la búsqueda.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- PAGINACIÓN MODAL -->
+        <div class="modal-partner-footer" *ngIf="totalPaginasModal > 1">
+            <div class="pagination-controls">
+                <button type="button" class="btn-page-arrow" [disabled]="paginaModalActual === 1"
+                    (click)="paginaModalActual = paginaModalActual - 1">
+                    ‹
+                </button>
+                <button type="button" *ngFor="let pag of paginasVisiblesModal" class="btn-page-num"
+                    [class.active]="pag === paginaModalActual" (click)="paginaModalActual = pag">
+                    {{ pag }}
+                </button>
+                <button type="button" class="btn-page-arrow" [disabled]="paginaModalActual === totalPaginasModal"
+                    (click)="paginaModalActual = paginaModalActual + 1">
+                    ›
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>

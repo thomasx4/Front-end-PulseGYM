@@ -127,7 +127,7 @@
                         <span class="stat-item__value">{{ totalSocios }}</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-item__label">Revenue Estimado</span>
+                        <span class="stat-item__label">Ganancia Estimada</span>
                         <span class="stat-item__value">{{ formatearPrecio((plan.precioTotal || 0) * totalSocios)
                             }}</span>
                     </div>
@@ -146,7 +146,12 @@
                 <div class="socios-list">
                     <div *ngFor="let socio of socios" class="socio-item">
                         <div class="socio-item__avatar">
-                            {{ socio.nombreCompleto?.charAt(0) || 'U' }}
+                            <img *ngIf="getSocioFoto(socio) && !hasAvatarError(socio.idSocio)"
+                                [src]="getSocioFoto(socio)" [alt]="socio.nombreCompleto" class="socio-item__avatar-img"
+                                crossOrigin="anonymous" (error)="onAvatarError(socio.idSocio)" />
+                            <span *ngIf="!getSocioFoto(socio) || hasAvatarError(socio.idSocio)">
+                                {{ getInitials(socio.nombreCompleto) }}
+                            </span>
                         </div>
                         <div class="socio-item__info">
                             <span class="socio-item__name">{{ socio.nombreCompleto }}</span>

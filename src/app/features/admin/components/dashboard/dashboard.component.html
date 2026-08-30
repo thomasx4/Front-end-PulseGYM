@@ -43,11 +43,6 @@
             <div class="stat-card__content">
                 <div class="stat-card__row">
                     <span class="stat-card__value">{{ stat.valor | number }}</span>
-                    <span *ngIf="hasTrend(stat.tendencia)" class="stat-card__trend"
-                        [class.trend--up]="isPositiveTrend(stat.tendencia)"
-                        [class.trend--down]="!isPositiveTrend(stat.tendencia)">
-                        {{ formatTrend(stat.tendencia) }}
-                    </span>
                 </div>
                 <span class="stat-card__label">{{ stat.titulo }}</span>
             </div>
@@ -131,7 +126,7 @@
                 <div class="donut-chart" [style.background]="getDonutGradient()">
                     <div class="donut-chart__center">
                         <span class="donut-chart__value">${{ (totalRevenue / 1000) | number:'1.1-1' }}k</span>
-                        <span class="donut-chart__label">TOTAL REVENUE</span>
+                        <span class="donut-chart__label">INGRESOS TOTALES</span>
                     </div>
                 </div>
             </div>
@@ -172,27 +167,52 @@
             </div>
 
             <div class="info-card__body">
-                <div *ngFor="let item of porVencer.slice(0, 2)" class="expiring-user-item">
-                    <img [src]="item.avatar" [alt]="item.nombre" class="expiring-user-item__avatar">
-                    <div class="expiring-user-item__info">
-                        <span class="expiring-user-item__name">{{ item.nombre }}</span>
-                        <span class="expiring-user-item__days" [class.critico]="item.urgencia === 'CRITICO'"
-                            [class.urgente]="item.urgencia === 'URGENTE'" [class.pronto]="item.urgencia === 'PRONTO'">
-                            <span *ngIf="item.urgencia === 'CRITICO'">
-                                Vence mañana
+                <!-- LISTADO DE SOCIOS POR VENCER -->
+                <ng-container *ngIf="porVencer.length > 0; else noExpiringMemberships">
+                    <div *ngFor="let item of porVencer.slice(0, 2)" class="expiring-user-item">
+                        <div class="avatar-container">
+                            <img *ngIf="getFotoSocio(item) && !hasAvatarError(item.id)" [src]="getFotoSocio(item)"
+                                [alt]="item.nombre" class="expiring-user-item__avatar" crossOrigin="anonymous"
+                                (error)="onAvatarError(item.id)" />
+                            <div *ngIf="!getFotoSocio(item) || hasAvatarError(item.id)" class="user-avatar-initials">
+                                {{ getInitials(item.nombre) }}
+                            </div>
+                        </div>
+
+                        <div class="expiring-user-item__info">
+                            <span class="expiring-user-item__name">{{ item.nombre }}</span>
+                            <span class="expiring-user-item__days" [class.critico]="item.urgencia === 'CRITICO'"
+                                [class.urgente]="item.urgencia === 'URGENTE'"
+                                [class.pronto]="item.urgencia === 'PRONTO'">
+                                <span *ngIf="item.urgencia === 'CRITICO'">
+                                    Vence mañana
+                                </span>
+                                <span *ngIf="item.urgencia === 'URGENTE'">
+                                    Vence en 2 días
+                                </span>
+                                <span *ngIf="item.urgencia === 'PRONTO'">
+                                    Vence en {{ item.dias }} días
+                                </span>
                             </span>
-                            <span *ngIf="item.urgencia === 'URGENTE'">
-                                Vence en 2 días
-                            </span>
-                            <span *ngIf="item.urgencia === 'PRONTO'">
-                                Vence en {{ item.dias }} días
-                            </span>
-                        </span>
+                        </div>
+                        <button class="btn btn--pill-dark" (click)="irAAsignarMembresia()">
+                            Renovar
+                        </button>
                     </div>
-                    <button class="btn btn--pill-dark" (click)="irAAsignarMembresia()">
-                        Renovar
-                    </button>
-                </div>
+                </ng-container>
+
+                <!-- ESTADO VACÍO (SIN MEMBRESÍAS POR VENCER) -->
+                <ng-template #noExpiringMemberships>
+                    <div class="expiring-empty-state">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="expiring-empty-state__icon">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                        <p class="expiring-empty-state__text">No hay membresías por vencer</p>
+                    </div>
+                </ng-template>
             </div>
         </div>
 

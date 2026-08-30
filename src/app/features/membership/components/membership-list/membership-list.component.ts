@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MembershipService } from '../../../../core/services/membership.service';
+import { UserService } from '../../../../core/services/user.service'; // <--- IMPORTANTE
+import { forkJoin } from 'rxjs';
 import Swal from 'sweetalert2';
 
 export interface Plan {
@@ -37,6 +39,7 @@ export interface Miembro {
   incluyeIA?: boolean;
   esFlexible?: boolean;
   idMembresia?: number;
+  fotoUrl?: string;
 }
 
 @Component({
@@ -45,7 +48,6 @@ export interface Miembro {
   styleUrls: ['./membership-list.component.scss']
 })
 export class MembershipListComponent implements OnInit {
-  // ESTADOS Y LISTAS DE DATOS
   planes: Plan[] = [];
   planesFiltrados: Plan[] = [];
 
@@ -54,28 +56,27 @@ export class MembershipListComponent implements OnInit {
 
   loading: boolean = false;
 
-  // FILTROS PLANES
   searchTermPlan: string = '';
   filtroPlanTipo: string = 'todos';
   filtroPlanFlexible: string = 'todos';
 
-  // FILTROS TABLA SOCIOS
   searchTerm: string = '';
   filtroIA: string = 'todos';
   filtroFlexible: string = 'todos';
   filtroMembresia: string = 'todos';
 
-  // PAGINACIÓN PLANES
   paginaPlanesActual: number = 1;
   itemsPorPaginaPlanes: number = 6;
 
-  // PAGINACIÓN SOCIOS
   paginaActual: number = 1;
   itemsPorPagina: number = 6;
 
+  avatarErrors: Set<number> = new Set<number>();
+
   constructor(
     private router: Router,
-    private membershipService: MembershipService
+    private membershipService: MembershipService,
+    private userService: UserService // <--- INYECTAR SERVICIO DE USUARIOS
   ) { }
 
   ngOnInit(): void {
@@ -85,9 +86,27 @@ export class MembershipListComponent implements OnInit {
   cargarDatos(): void {
     this.loading = true;
 
-    this.membershipService.getMembresias().subscribe({
-      next: (membresiasData: any[]) => {
-        this.planes = membresiasData.map((item: any) => ({
+    // Ejecutamos la carga de membresías, datos con socios y los perfiles de usuarios de forma conjunta
+    forkJoin({
+      membresiasData: this.membershipService.getMembresias(),
+      dataConSocios: this.membershipService.getMembresiasConSocios(),
+      usuariosData: this.userService.obtenerTodosLosPerfilesActivos()
+    }).subscribe({
+      next: ({ membresiasData, dataConSocios, usuariosData }) => {
+        // Map de consulta rápida de fotos por idUsuario
+        const fotosUsuariosMap = new Map<number, string>();
+        if (usuariosData && Array.isArray(usuariosData)) {
+          usuariosData.forEach((u: any) => {
+            const id = u.idUsuario || u.id;
+            const foto = u.fotoUrl || u.fotoPerfil || u.foto || u.avatar;
+            if (id && foto) {
+              fotosUsuariosMap.set(Number(id), foto);
+            }
+          });
+        }
+
+        // Mapear planes
+        this.planes = (membresiasData || []).map((item: any) => ({
           id: item.idMembresia,
           nombre: item.nombre || 'Sin Nombre',
           precio: item.precioTotal || 0,
@@ -100,70 +119,97 @@ export class MembershipListComponent implements OnInit {
           totalSociosAsignados: 0
         }));
 
-        this.membershipService.getMembresiasConSocios().subscribe({
-          next: (dataConSocios: any[]) => {
-            dataConSocios.forEach((item: any) => {
-              const plan = this.planes.find(p => p.id === item.idMembresia);
-              if (plan) {
-                plan.totalSociosAsignados = item.totalSociosAsignados || 0;
-              }
-            });
-
-            this.miembros = [];
-            dataConSocios.forEach((membresia: any) => {
-              if (membresia.sociosAsignados && membresia.sociosAsignados.length > 0) {
-                membresia.sociosAsignados.forEach((socio: any) => {
-                  const dias = socio.diasRestantes ?? 0;
-
-                  this.miembros.push({
-                    id: socio.idSocio,
-                    nombre: socio.nombreCompleto?.split(' ')[0] || 'Usuario',
-                    apellido: socio.nombreCompleto?.split(' ').slice(1).join(' ') || '',
-                    email: socio.email || 'Sin correo',
-                    telefono: socio.telefono || 'N/A',
-                    plan: membresia.nombre,
-                    planClass: membresia.incluyeIA ? 'tier-elite' : 'tier-essential',
-                    joinDate: socio.fechaInicio ? new Date(socio.fechaInicio).toLocaleDateString('es-ES', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A',
-                    status: socio.estado === 'ACTIVA' ? 'Activa' : 'Inactiva',
-                    statusClass: socio.estado === 'ACTIVA' ? 'active' : 'cancelled',
-                    nextBilling: socio.fechaVencimiento ? new Date(socio.fechaVencimiento).toLocaleDateString('es-ES', { month: 'short', day: 'numeric', year: 'numeric' }) : '--',
-                    nombreMembresia: membresia.nombre,
-                    fechaInicio: socio.fechaInicio,
-                    fechaFin: socio.fechaVencimiento,
-                    estado: socio.estado === 'ACTIVA' ? 'Activo' : 'Inactivo',
-                    diasRestantes: dias,
-                    diasClass: dias <= 3 ? 'urgente' : (dias <= 7 ? 'alerta' : ''),
-                    incluyeIA: membresia.incluyeIA,
-                    esFlexible: membresia.esFlexible,
-                    idMembresia: membresia.idMembresia
-                  });
-                });
-              }
-            });
-
-            this.aplicarFiltrosPlanes();
-            this.aplicarFiltrosTabla();
-            this.loading = false;
-          },
-          error: (err) => {
-            console.warn('No se pudieron cargar los socios asociados, mostrando solo planes base:', err);
-            this.aplicarFiltrosPlanes();
-            this.aplicarFiltrosTabla();
-            this.loading = false;
+        (dataConSocios || []).forEach((item: any) => {
+          const plan = this.planes.find(p => p.id === item.idMembresia);
+          if (plan) {
+            plan.totalSociosAsignados = item.totalSociosAsignados || 0;
           }
         });
+
+        // Mapear miembros asignando la foto recuperada
+        this.miembros = [];
+        (dataConSocios || []).forEach((membresia: any) => {
+          if (membresia.sociosAsignados && membresia.sociosAsignados.length > 0) {
+            membresia.sociosAsignados.forEach((socio: any) => {
+              const idSocioNum = Number(socio.idSocio);
+              const dias = socio.diasRestantes ?? 0;
+
+              // Buscar primero en el DTO de socio, si no viene usar la foto del mapa de usuarios
+              const fotoEncontrada = socio.fotoUrl || socio.fotoPerfil || socio.foto || socio.avatar || fotosUsuariosMap.get(idSocioNum) || null;
+
+              this.miembros.push({
+                id: socio.idSocio,
+                nombre: socio.nombreCompleto?.split(' ')[0] || 'Usuario',
+                apellido: socio.nombreCompleto?.split(' ').slice(1).join(' ') || '',
+                email: socio.email || 'Sin correo',
+                telefono: socio.telefono || 'N/A',
+                plan: membresia.nombre,
+                planClass: membresia.incluyeIA ? 'tier-elite' : 'tier-essential',
+                joinDate: socio.fechaInicio ? new Date(socio.fechaInicio).toLocaleDateString('es-ES', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A',
+                status: socio.estado === 'ACTIVA' ? 'Activa' : 'Inactiva',
+                statusClass: socio.estado === 'ACTIVA' ? 'active' : 'cancelled',
+                nextBilling: socio.fechaVencimiento ? new Date(socio.fechaVencimiento).toLocaleDateString('es-ES', { month: 'short', day: 'numeric', year: 'numeric' }) : '--',
+                nombreMembresia: membresia.nombre,
+                fechaInicio: socio.fechaInicio,
+                fechaFin: socio.fechaVencimiento,
+                estado: socio.estado === 'ACTIVA' ? 'Activo' : 'Inactivo',
+                diasRestantes: dias,
+                diasClass: dias <= 3 ? 'urgente' : (dias <= 7 ? 'alerta' : ''),
+                incluyeIA: membresia.incluyeIA,
+                esFlexible: membresia.esFlexible,
+                idMembresia: membresia.idMembresia,
+                fotoUrl: fotoEncontrada
+              });
+            });
+          }
+        });
+
+        this.aplicarFiltrosPlanes();
+        this.aplicarFiltrosTabla();
+        this.loading = false;
       },
       error: (error: any) => {
-        console.error('Error al cargar membresías:', error);
+        console.error('Error al cargar datos:', error);
         this.loading = false;
         Swal.fire({
           title: 'Error',
-          text: 'No se pudieron cargar los datos de membresías',
+          text: 'No se pudieron cargar los datos de membresías y miembros',
           icon: 'error',
           confirmButtonColor: '#0c1838'
         });
       }
     });
+  }
+
+  // --- HELPER DE FOTOS DE PERFIL ---
+
+  getMiembroFoto(miembro: Miembro): string | null {
+    if (!miembro || !miembro.fotoUrl) return null;
+
+    let rawUrl = String(miembro.fotoUrl).trim();
+    if (rawUrl === '' || rawUrl === 'null' || rawUrl === 'undefined') return null;
+
+    if (rawUrl.startsWith('//')) {
+      return `https:${rawUrl}`;
+    }
+
+    return rawUrl;
+  }
+
+  onAvatarError(idSocio: number): void {
+    if (idSocio) {
+      this.avatarErrors.add(idSocio);
+    }
+  }
+
+  hasAvatarError(idSocio: number): boolean {
+    return this.avatarErrors.has(idSocio);
+  }
+
+  getInitials(nombre?: string, apellido?: string): string {
+    const n = nombre ? nombre.trim().charAt(0) : '?';
+    const a = apellido ? apellido.trim().charAt(0) : '';
+    return (n + a).toUpperCase() || '?';
   }
 
   // FILTROS PLANES
