@@ -1,0 +1,204 @@
+<div class="attendance-list-page">
+  <header class="page-header">
+    <h1 class="page-title">Asistencias de Hoy</h1>
+  </header>
+
+  <section class="overview-cards" *ngIf="!cargando && !errorMensaje">
+
+    <article class="card card-summary">
+      <div class="card-status">
+        <span class="status-dot"></span>
+        <span class="status-text">Asistencias de Hoy</span>
+      </div>
+
+      <div class="card-main-value">
+        <h2>{{ totalAsistenciaHoy }}</h2>
+      </div>
+
+      <div class="card-metrics">
+        <div class="metric-item">
+          <span class="metric-label">CAPACIDAD</span>
+          <span class="metric-value">{{ capacidadDiaria }}</span>
+        </div>
+        <div class="metric-item">
+          <span class="metric-label">% CUMPLIMIENTO</span>
+          <span class="metric-value">{{ porcentajeMeta }}%</span>
+        </div>
+      </div>
+    </article>
+
+
+    <article class="card card-chart">
+      <div class="chart-header">
+        <div class="chart-title-group">
+          <h3>Horas Pico del Día</h3>
+          <p class="rush-estimate">Rango Estimado: {{ peakRushText }}</p>
+        </div>
+      </div>
+
+      <div class="chart-container">
+        <div class="bar-group" *ngFor="let p of peakHours">
+          <div class="bar-wrapper">
+            <div class="bar" [style.height.%]="maxPeakHour > 0 ? (p.cantidad / maxPeakHour) * 100 : 0"
+              [attr.data-count]="p.cantidad">
+            </div>
+          </div>
+          <span class="bar-hour">{{ p.etiqueta }}:00</span>
+        </div>
+      </div>
+    </article>
+
+  </section>
+
+
+
+  <div *ngIf="cargando" class="cargando-state">
+    <p>Cargando asistencias de hoy...</p>
+  </div>
+
+  <div *ngIf="errorMensaje" class="error-state">
+    <p>{{ errorMensaje }}</p>
+  </div>
+
+
+  <div class="attendance-content-grid" *ngIf="!cargando">
+    <div class="members-table-section" *ngIf="!cargando">
+      <div class="table-header">
+        <h2 class="section-subtitle">Registro de Asistencia</h2>
+
+        <div class="toolbar-actions flex flex-wrap gap-2 items-center">
+
+          <app-attendance-filter (aplicar)="onAplicarFiltros($event)"></app-attendance-filter>
+
+          <button type="button" class="btn-export-pdf" (click)="exportarReportePDF()">
+            <span class="export-btn__icon">
+              <svg *ngIf="!cargando" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+            </span>
+            <span class="export-btn__label">Exportar</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="members-table">
+          <thead>
+            <tr>
+              <th>MIEMBRO</th>
+              <th>SEDE</th>
+              <th>FECHA Y HORA</th>
+              <th>TIPO DE ACCESO</th>
+              <th>ESTADO</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of asistenciasPaginadas">
+              <td>
+                <div class="member-info">
+                  <div class="member-avatar">
+                    U{{ item.idUsuario }}
+                  </div>
+                  <div>
+                    <div class="member-name">Usuario #{{ item.idUsuario }}</div>
+                    <div class="member-email">ID Socio: {{ item.idUsuario }}</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="plan-tier tier-essential">{{ item.nombreSede }}</span>
+              </td>
+              <td>
+                <div class="date-cell">
+                  <span class="time-text">{{ item.horaEntrada }}</span>
+                  <span class="sub-date">{{ item.fechaEntrada }}</span>
+                </div>
+              </td>
+              <td>
+                <span class="access-badge">{{ item.tipoAcceso }}</span>
+              </td>
+              <td>
+                <span class="status-badge" [class.active]="item.estadoAcceso === 'Permitido'"
+                  [class.cancelled]="item.estadoAcceso !== 'Permitido'">
+                  <span class="status-dot"></span>
+                  {{ item.estadoAcceso }}
+                </span>
+              </td>
+            </tr>
+
+            <tr *ngIf="asistencias.length === 0">
+              <td colspan="5" class="empty-state">No hay registros de asistencia</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-footer" *ngIf="asistencias.length > 0">
+        <span class="table-info">
+          Mostrando {{ inicio + 1 }}–{{ fin }} de {{ asistencias.length }} asistencias
+        </span>
+        <div class="pagination">
+          <button class="page-btn" (click)="paginaAnterior()" [disabled]="paginaActual === 1">
+            ‹
+          </button>
+
+          <button class="page-btn" *ngFor="let p of paginas" [class.active]="p === paginaActual" (click)="irPagina(p)">
+            {{ p }}
+          </button>
+
+          <button class="page-btn" (click)="paginaSiguiente()" [disabled]="paginaActual === totalPaginas">
+            ›
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <aside class="insights-sidebar">
+      <div class="sidebar-header">
+        <h2 class="section-title">Porcentaje de Asistencia Esperada</h2>
+        <button type="button" (click)="abrirModalMeta()" class="btn-config-meta">
+          Configurar Meta
+        </button>
+      </div>
+
+      <app-attendance-goal-card [totalAforoActual]="totalAsistenciaHoy" [metaAsistenciaDiaria]="metaDiariaGym">
+      </app-attendance-goal-card>
+    </aside>
+
+    <div class="modal-backdrop" *ngIf="mostrarModalMeta" (click)="cerrarModalMeta()">
+      <div class="modal-card" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3 class="modal-title">Configurar Meta Diaria</h3>
+          <button class="btn-close" (click)="cerrarModalMeta()">&times;</button>
+        </div>
+
+        <div class="modal-body">
+          <p class="modal-description">
+            Establece el número objetivo de asistencias diarias esperadas para la sede.
+          </p>
+
+          <div class="form-group">
+            <label for="metaInput" class="form-label">Meta de asistencias</label>
+            <input id="metaInput" type="number" min="1" class="form-input" [(ngModel)]="nuevaMetaTemp"
+              placeholder="Ej: 300" />
+          </div>
+
+          <div *ngIf="errorModal" class="error-message">
+            {{ errorModal }}
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" (click)="cerrarModalMeta()" [disabled]="guardandoMeta">
+            Cancelar
+          </button>
+          <button type="button" class="btn-primary" (click)="guardarMeta()" [disabled]="guardandoMeta">
+            {{ guardandoMeta ? 'Guardando...' : 'Guardar Cambios' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>

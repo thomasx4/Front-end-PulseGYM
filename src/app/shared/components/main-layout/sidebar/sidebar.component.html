@@ -20,6 +20,8 @@
         <!-- ITEM CON SUBMENÚ (MEMBRESÍAS) -->
         <div class="sidebar__nav-item--parent" [class.open]="isMembershipOpen" (mouseenter)="isMembershipOpen = true"
             (mouseleave)="isMembershipOpen = false">
+
+            <!-- EL PADRE AHORA ES UN BOTÓN QUE NAVEGA A LISTA -->
             <div class="sidebar__nav-item" [class.sidebar__nav-item--active]="isMembershipActive()"
                 (click)="goToMembershipList()">
                 <span [innerHTML]="getMembershipIcon()" class="sidebar__icon-wrapper"></span>
@@ -61,6 +63,28 @@
                         <span>{{ child.label }}</span>
                     </a>
                 </div>
+            </div>
+        </div>
+
+        <div class="sidebar__nav-item--parent" [class.open]="isAttendanceOpen" (mouseenter)="isAttendanceOpen = true"
+            (mouseleave)="isAttendanceOpen = false">
+
+            <div class="sidebar__nav-item" [class.sidebar__nav-item--active]="isAttendanceActive()"
+                (click)="goToAttendanceList()">
+                <span [innerHTML]="getAttendanceIcon()" class="sidebar__icon-wrapper"></span>
+                <span>Asistencia</span>
+                <svg class="sidebar__dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+            </div>
+
+            <div class="sidebar__submenu" *ngIf="isAttendanceOpen">
+                <a *ngFor="let child of attendanceChildren" [routerLink]="child.route"
+                    routerLinkActive="sidebar__submenu-item--active" class="sidebar__submenu-item">
+                    <span [innerHTML]="child.iconHtml" class="sidebar__icon-wrapper"></span>
+                    <span>{{ child.label }}</span>
+                </a>
             </div>
         </div>
     </nav>

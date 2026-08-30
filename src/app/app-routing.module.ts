@@ -43,6 +43,11 @@ const routes: Routes = [
                 loadChildren: () =>
                     import('./features/membership/membership.module').then((m) => m.MembershipModule),
             },
+            {
+                path: 'attendance',
+                loadChildren: () =>
+                    import('./features/attendance/attendance.module').then((m) => m.AttendanceModule),
+            },
         ],
     },
     {
@@ -51,7 +56,6 @@ const routes: Routes = [
         loadChildren: () =>
             import('./features/user/user.module').then((m) => m.UserModule),
     },
-
     { path: 'auth/login', component: LoginComponent },
     { path: 'forgot-password', component: ForgotComponent },
     { path: 'user', component: HomeComponent },
