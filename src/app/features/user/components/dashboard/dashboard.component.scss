@@ -400,3 +400,170 @@
     grid-column: 1 / 4;
   }
 }
+
+.dashboard-wrapper {
+  padding: 32px 40px;
+  background-color: #f7f9fc;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  color: #2d3748;
+  width: 100%;
+  box-sizing: border-box;
+
+  .page-header {
+    margin-bottom: 24px;
+    h1 { 
+      font-size: 26px; 
+      font-weight: 700; 
+      margin-bottom: 4px; 
+    }
+    .subtitle { 
+      color: #718096; 
+      font-size: 14px; 
+      margin: 0; 
+    }
+  }
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  max-width: 1400px; /* Aumentado para monitores grandes */
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+// ... resto del código igual hasta RESPONSIVE ...
+
+/* ============================================
+   MONITORES GRANDES (> 1400px)
+   ============================================ */
+@media (min-width: 1401px) {
+  .dashboard-wrapper {
+    padding: 40px 60px;
+  }
+
+  .dashboard-grid {
+    max-width: 1600px;
+    gap: 30px;
+  }
+
+  .dashboard-grid .card {
+    padding: 28px 32px;
+  }
+
+  .top-kpis .kpi-card {
+    padding: 24px 28px;
+  }
+
+  .top-kpis .kpi-card .kpi-value {
+    font-size: 28px;
+  }
+
+  .streak-card .days-container .day-circle-item .circle {
+    width: 42px;
+    height: 42px;
+    font-size: 15px;
+  }
+
+  .summary-card .summary-metrics-grid .metric-box .metric-header .val {
+    font-size: 20px;
+  }
+
+  .tip-card {
+    padding: 24px 32px;
+  }
+
+  .tip-card .tip-content .tip-star {
+    font-size: 28px;
+  }
+}
+
+/* ============================================
+   MONITORES FULL HD (1920px+)
+   ============================================ */
+@media (min-width: 1921px) {
+  .dashboard-wrapper {
+    padding: 48px 80px;
+  }
+
+  .dashboard-grid {
+    max-width: 1800px;
+    gap: 36px;
+  }
+
+  .dashboard-grid .card {
+    padding: 32px 40px;
+    border-radius: 18px;
+  }
+
+  .top-kpis {
+    gap: 28px;
+  }
+
+  .top-kpis .kpi-card {
+    padding: 28px 32px;
+    border-radius: 18px;
+  }
+
+  .top-kpis .kpi-card .kpi-value {
+    font-size: 32px;
+  }
+
+  .streak-card .days-container .day-circle-item .circle {
+    width: 48px;
+    height: 48px;
+    font-size: 17px;
+  }
+
+  .streak-card .days-container {
+    gap: 12px;
+  }
+
+  .summary-card .summary-metrics-grid {
+    gap: 28px;
+  }
+
+  .summary-card .summary-metrics-grid .metric-box {
+    padding: 20px;
+  }
+
+  .summary-card .summary-metrics-grid .metric-box .metric-header .val {
+    font-size: 24px;
+  }
+
+  .routine-card .exercise-list .exercise-item {
+    padding: 12px 0;
+  }
+
+  .routine-card .exercise-list .exercise-item .ex-details .ex-name {
+    font-size: 14px;
+  }
+
+  .tip-card {
+    padding: 28px 40px;
+  }
+
+  .tip-card .tip-content .tip-star {
+    font-size: 32px;
+  }
+
+  .tip-card .tip-content h4 {
+    font-size: 16px;
+  }
+
+  .tip-card .tip-content p {
+    font-size: 15px;
+  }
+}
+
+/* ============================================
+   TABLETS GRANDES (1200px - 1400px)
+   ============================================ */
+@media (max-width: 1400px) and (min-width: 1201px) {
+  .dashboard-grid {
+    max-width: 1200px;
+  }
+}

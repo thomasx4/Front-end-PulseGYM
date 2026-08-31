@@ -21,7 +21,7 @@ export class UserService {
   constructor(
     private http: HttpClient,
     private authService: AuthService
-  ) {}
+  ) { }
 
   private getHeaders(): HttpHeaders {
     const token = this.authService.getToken();
@@ -65,14 +65,14 @@ export class UserService {
   getTodayRoutine(): Observable<Routine> {
     const today = new Date().getDay();
     const diaSemana = today === 0 ? 7 : today;
-    
+
     console.log('Dia de la semana:', diaSemana);
 
     return this.getMisRutinas().pipe(
       map((response) => {
         let detalles = [];
         let nombreRutina = 'Rutina del dia';
-        
+
         if (Array.isArray(response) && response.length > 0) {
           const primerElemento = response[0];
           if (primerElemento.detalles && Array.isArray(primerElemento.detalles)) {
@@ -187,4 +187,5 @@ export class UserService {
       })
     );
   }
+
 }
