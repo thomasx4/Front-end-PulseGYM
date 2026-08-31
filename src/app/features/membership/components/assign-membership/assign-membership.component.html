@@ -1,14 +1,14 @@
 <div class="membership-page">
 
     <!-- ALERTAS INLINE -->
-    <div *ngIf="successMessage" class="alert alert-success">
+    <div *ngIf="!loading && successMessage" class="alert alert-success">
         <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
             <polyline points="22 4 12 14.01 9 11.01" />
         </svg>
         <span>{{ successMessage }}</span>
     </div>
-    <div *ngIf="errorMessage" class="alert alert-error">
+    <div *ngIf="!loading && errorMessage" class="alert alert-error">
         <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="10" />
             <line x1="15" y1="9" x2="9" y2="15" />
@@ -18,8 +18,7 @@
     </div>
 
     <!-- SECCIÓN POR VENCER (ÚNICA) -->
-    <div class="por-vencer-container" *ngIf="!loading && vistaActual === 'tarjetas' && membresiasPorVencer.length > 0">
-        <div class="por-vencer-header">
+<div class="por-vencer-container" *ngIf="!loading && vistaActual === 'tarjetas'">        <div class="por-vencer-header">
             <div class="por-vencer-header__title">
                 <div class="icon-pulse-wrapper">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -86,14 +85,19 @@
         </div>
     </div>
 
-    <!-- VISTA 1: TARJETAS DE MEMBRESÍAS CON PAGINACIÓN -->
+    <!-- VISTA 1: TARJETAS DE MEMBRESÍAS CON PAGINACIÓN BD -->
     <ng-container *ngIf="!loading && vistaActual === 'tarjetas'">
         <div class="membership-header">
             <h1>Asignar Membresía</h1>
             <p class="membership-subtitle">Selecciona una membresía activa para asignarla a un socio.</p>
         </div>
 
-        <div class="membership-grid">
+        <!-- ESTADO VACÍO CUANDO NO HAY MEMBRESÍAS REGISTRADAS -->
+        <div *ngIf="membresias.length === 0" class="empty-state-card" style="text-align: center; padding: 40px; background: white; border-radius: 16px;">
+            <p style="font-size: 16px; color: #64748b; margin: 0;">No se encontraron membresías activas registradas en el sistema.</p>
+        </div>
+
+        <div *ngIf="membresias.length > 0" class="membership-grid">
             <div *ngFor="let membresia of membresiasPaginadas; trackBy: trackByMembresiaId" class="membership-card">
                 <div class="membership-card__body">
                     <h2 class="membership-card__title">{{ membresia.nombre }}</h2>
@@ -141,7 +145,7 @@
             </div>
         </div>
 
-        <!-- PAGINACIÓN MEMBRESÍAS -->
+        <!-- PAGINACIÓN MEMBRESÍAS CONECTADA A LA BD -->
         <div class="membresias-pagination" *ngIf="totalPaginasMembresias > 1">
             <button class="page-btn" (click)="paginaAnteriorMembresias()"
                 [disabled]="paginaMembresiasActual === 1 || loading">
