@@ -1,0 +1,1010 @@
+:host {
+    display: block;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: #172033;
+}
+
+.profile-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+.profile-main {
+    flex: 1;
+    margin-left: 260px;
+    min-height: 100vh;
+    background: #f8fafc;
+}
+
+.profile-wrapper {
+    max-width: 1400px;
+    margin: auto;
+    padding: 30px 35px 45px;
+}
+
+.state-container {
+    padding: 40px;
+    text-align: center;
+    background: white;
+    border-radius: 12px;
+}
+
+.btn-retry {
+    padding: 8px 16px;
+    background: #0f1c3f;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 12px;
+}
+
+/* ========== CARDS ========== */
+.card {
+    background: #fff;
+    border: 1px solid #edf0f5;
+    border-radius: 14px;
+    box-shadow: 0 3px 15px rgba(15, 23, 42, .04);
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.card-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+/* ========== TARJETA DE PERFIL ========== */
+.profile-card {
+    padding: 34px 38px 0;
+    margin-bottom: 30px;
+}
+
+.profile-top {
+    display: flex;
+    align-items: flex-start;
+    min-height: 165px;
+    position: relative;
+}
+
+.profile-avatar-container {
+    margin-right: 28px;
+}
+
+.profile-avatar {
+    width: 128px;
+    height: 128px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 42px;
+    font-weight: 500;
+    overflow: hidden;
+}
+
+.profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-main-info {
+    padding-top: 18px;
+}
+
+.profile-main-info h2 {
+    margin: 0 0 16px;
+    font-size: 27px;
+    font-weight: 700;
+    color: #0f1c3f;
+}
+
+.profile-badges {
+    display: flex;
+    gap: 8px;
+}
+
+.profile-badge {
+    padding: 8px 13px;
+    border-radius: 18px;
+    background: #eef4ff;
+    color: #0f1c3f;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.profile-badge.username {
+    background: #f1f5f9;
+    color: #0f1c3f;
+}
+
+/* ========== BOTON EDITAR ========== */
+.btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 11px 16px;
+    background: white;
+    color: #0f1c3f;
+    border: 1px solid #cdddfc;
+    border-radius: 7px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.btn-secondary:hover {
+    background: #0f1c3f;
+}
+
+.btn-secondary-sm {
+    padding: 7px 11px;
+    background: white;
+    border: 1px solid #d7e2f7;
+    border-radius: 7px;
+    color: #2563eb;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.btn-secondary-sm:hover {
+    background: #f1f5f9;
+}
+
+.btn-edit-profile {
+    position: absolute;
+    top: 2px;
+    right: 0;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 11px 16px;
+    background: #0f1c3f;
+    color: #1a2b5c;
+    border: 1px solid #0f1c3f;
+    border-radius: 7px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.btn-edit-profile:hover {
+    background: #1a2b5c;
+}
+
+/* ========== CONTACTOS DEL PERFIL ========== */
+.profile-contact-row {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr .7fr 1.2fr;
+    border-top: 1px solid #e8edf3;
+}
+
+.contact-col {
+    display: flex;
+    align-items: center;
+    padding: 22px 35px;
+    position: relative;
+}
+
+.contact-col:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 25px;
+    width: 1px;
+    height: 55px;
+    background: #e5eaf0;
+}
+
+.contact-col svg {
+    width: 23px;
+    height: 23px;
+    margin-right: 15px;
+    color: #475569;
+    flex-shrink: 0;
+}
+
+.contact-col > div {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.contact-label {
+    color: #64748b;
+    font-size: 12px;
+}
+
+.contact-value {
+    color: #263248;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* ========== CARDS INFERIORES ========== */
+.profile-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.info-card,
+.medidas-card,
+.contactos-card {
+    flex: 1;
+    min-width: 280px;
+    min-height: 400px;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.info-card {
+    flex: 1;
+}
+
+.medidas-card {
+    flex: 1;
+}
+
+.contactos-card {
+    flex: 1;
+}
+
+.link-action {
+    color: #2563eb;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.link-action:hover {
+    text-decoration: underline;
+}
+
+/* ========== INFORMACION PERSONAL ========== */
+.info-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.info-row {
+    min-height: 43px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #e9edf2;
+    gap: 10px;
+}
+
+.info-row:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    color: #64748b;
+    font-size: 12px;
+}
+
+.info-value.bold {
+    color: #1e293b;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: right;
+}
+
+/* ========== OBJETIVO ========== */
+.goal-banner {
+    background: #f1f6ff;
+    border: 1px solid #dce8ff;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    margin-top: 17px;
+    padding: 15px;
+}
+
+.goal-icon {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 13px;
+    border-radius: 50%;
+    background: #dce9ff;
+    flex-shrink: 0;
+}
+
+.goal-title {
+    color: #2563eb;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.goal-name {
+    margin: 5px 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.goal-sub {
+    margin: 0;
+    color: #64748b;
+    font-size: 11px;
+}
+
+/* ========== ESTADISTICAS ========== */
+.stats-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-row {
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #e9edf2;
+}
+
+.stat-row:last-child {
+    border-bottom: none;
+}
+
+.stat-left {
+    display: flex;
+    align-items: center;
+    color: #64748b;
+    font-size: 13px;
+}
+
+.stat-left svg {
+    width: 20px;
+    margin-right: 11px;
+    color: #94a3b8;
+}
+
+.stat-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.stat-value {
+    font-size: 14px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.badge-status.success {
+    padding: 6px 12px;
+    border-radius: 7px;
+    background: #dcfce7;
+    color: #16a34a;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+/* ========== BANNER MEDIDAS ========== */
+.medidas-banner {
+    background: #f1f6ff;
+    border: 1px solid #dce8ff;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    margin-top: 18px;
+    padding: 15px;
+}
+
+.medidas-banner .clipboard-icon {
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+
+.medidas-banner .banner-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.medidas-banner .update-label {
+    color: #64748b;
+    font-size: 11px;
+}
+
+.medidas-banner .update-date {
+    margin: 5px 0;
+    font-size: 13px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.medidas-banner .update-sub {
+    margin: 0;
+    color: #64748b;
+    font-size: 11px;
+}
+
+.btn-primary-full {
+    width: 100%;
+    padding: 10px;
+    background: #0f1c3f;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.btn-primary-full:hover {
+    background: #1a2b5c;
+}
+
+/* ========== CONTACTOS EMERGENCIA ========== */
+.contacto-item {
+    display: flex;
+    align-items: center;
+    min-height: 70px;
+    border-bottom: 1px solid #edf0f4;
+}
+
+.contacto-item:last-child {
+    border-bottom: none;
+}
+
+.contacto-icon {
+    width: 46px;
+    height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 14px;
+    border-radius: 50%;
+    background: #eef4ff;
+    flex-shrink: 0;
+}
+
+.contacto-icon svg {
+    color: #0f1c3f;
+}
+
+.contacto-details {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.contacto-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.contacto-nombre {
+    font-size: 13px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.tag-parentesco {
+    padding: 3px 10px;
+    border-radius: 12px;
+    background: #edf3ff;
+    color: #2563eb;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.contacto-telefono {
+    color: #64748b;
+    font-size: 12px;
+}
+
+.empty-message {
+    color: #0f1c3f;
+    text-align: center;
+    padding: 20px 0;
+}
+
+/* ========== SEGURIDAD ========== */
+.security-banner {
+    background: #f1f6ff;
+    border: 1px solid #dce8ff;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    margin-top: auto;
+    padding: 16px;
+}
+
+.security-banner .shield-icon {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 13px;
+    border-radius: 50%;
+    background: #dce9ff;
+    flex-shrink: 0;
+}
+
+.security-banner .security-text strong {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 12px;
+    color: #0f172a;
+}
+
+.security-banner .security-text p {
+    margin: 0;
+    color: #64748b;
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+/* ========== EDICION ========== */
+.page-header {
+    margin-bottom: 24px;
+}
+
+.page-header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 6px 0;
+}
+
+.page-header .subtitle {
+    color: #64748b;
+    font-size: 14px;
+    margin: 0;
+}
+
+.edit-container {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 32px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* ===== FOTO CENTRADA ===== */
+.form-avatar-section {
+    display: flex;
+    justify-content: center;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.form-avatar-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.form-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    font-weight: 600;
+    overflow: hidden;
+}
+
+.form-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.btn-upload-photo {
+    padding: 8px 24px;
+    background: #1a2b5c;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background 0.2s ease;
+}
+
+.btn-upload-photo:hover {
+    background: #1a2b5c;
+}
+
+.btn-upload-photo:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-upload-photo.btn-remove {
+    color: #dc2626;
+    border-color: #0f1c3f;
+}
+
+.btn-upload-photo.btn-remove:hover {
+    background: #1a2b5c;
+}
+
+.btn-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.text-muted {
+    color: #94a3b8;
+    font-size: 12px;
+    margin-top: 4px;
+    display: block;
+}
+
+/* ===== SECCION CONTACTO EMERGENCIA ===== */
+.form-section {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid #e2e8f0;
+}
+
+.form-section h4 {
+    margin: 0 0 16px 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+/* ===== FORMULARIOS ===== */
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-group label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.form-control {
+    padding: 10px 14px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #0f172a;
+    background: #ffffff;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #0f1c3f;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.form-control::placeholder {
+    color: #94a3b8;
+}
+
+/* ===== BOTONES ===== */
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-top: 16px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.btn-secondary {
+    padding: 10px 24px;
+    background: #ffffff;
+    color: #0f172a;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.btn-secondary:hover {
+    background: #f1f5f9;
+}
+
+.btn-primary {
+    padding: 10px 24px;
+    background: #0f1c3f;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: #1a2b5c;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* ========== ALERTA DE EXITO ========== */
+.alert-success {
+    background: #dcfce7;
+    color: #166534;
+    border: 1px solid #86efac;
+    border-radius: 10px;
+    padding: 14px 20px;
+    margin-bottom: 20px;
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: fadeIn 0.3s ease;
+}
+
+/* ===== AVATAR CON IMAGEN ===== */
+.avatar-image {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* ===== MODAL DE ERROR ===== */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 40px 48px 32px;
+    max-width: 420px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.3s ease;
+}
+
+.modal-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+}
+
+.modal-icon.error-icon {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+.modal-icon.error-icon svg {
+    stroke: #dc2626;
+}
+
+.modal-icon.success-icon {
+    background: #ecfdf5;
+    color: #16a34a;
+}
+
+.modal-icon.success-icon svg {
+    stroke: #16a34a;
+}
+
+.modal-icon.warning-icon {
+    background: #fffbeb;
+    color: #d97706;
+}
+
+.modal-icon.warning-icon svg {
+    stroke: #d97706;
+}
+
+.modal-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 8px;
+}
+
+.modal-message {
+    font-size: 14px;
+    color: #64748b;
+    margin: 0 0 24px;
+    line-height: 1.6;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.modal-btn {
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.modal-btn-secondary {
+    background: #f1f5f9;
+    color: #0f172a;
+}
+
+.modal-btn-secondary:hover {
+    background: #e2e8f0;
+}
+
+.modal-btn-primary {
+    background: #2563eb;
+    color: #ffffff;
+}
+
+.modal-btn-primary:hover {
+    background: #1d4ed8;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .profile-wrapper {
+        padding: 16px;
+    }
+
+    .profile-main {
+        margin-left: 0;
+    }
+
+    .profile-card {
+        padding: 20px;
+    }
+
+    .profile-top {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .profile-avatar-container {
+        margin-right: 0;
+        margin-bottom: 16px;
+    }
+
+    .btn-edit-profile {
+        position: static;
+        margin-top: 12px;
+    }
+
+    .profile-contact-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    .contact-col {
+        padding: 16px 20px;
+        justify-content: center;
+    }
+
+    .contact-col:not(:last-child)::after {
+        display: none;
+    }
+
+    .profile-grid {
+        flex-direction: column;
+    }
+
+    .info-card,
+    .medidas-card,
+    .contactos-card {
+        min-width: 100%;
+        min-height: auto;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .edit-container {
+        padding: 20px;
+    }
+
+    .form-actions {
+        flex-direction: column-reverse;
+    }
+
+    .form-actions button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .form-section {
+        padding: 16px;
+    }
+
+    .form-avatar {
+        width: 80px;
+        height: 80px;
+        font-size: 28px;
+    }
+
+    .modal-content {
+        padding: 30px 24px 24px;
+    }
+}

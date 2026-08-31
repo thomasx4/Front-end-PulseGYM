@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { map, tap, catchError } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
 import { AuthService } from '../services/auth.service';
 import {
@@ -26,6 +26,13 @@ export class UserService {
   private getHeaders(): HttpHeaders {
     const token = this.authService.getToken();
     return new HttpHeaders().set('Authorization', `Bearer ${token}`);
+  }
+
+  private getJsonHeaders(): HttpHeaders {
+    const token = this.authService.getToken();
+    return new HttpHeaders()
+      .set('Authorization', `Bearer ${token}`)
+      .set('Content-Type', 'application/json');
   }
 
   getDashboardSocio(): Observable<DashboardSocioResponse> {
@@ -121,15 +128,63 @@ export class UserService {
     return of(days);
   }
 
-  getDailyTip(): Observable<string> {
-    const tips = [
-      'La disciplina hoy te llevara a los resultados que suenas manana. No te rindas.',
-      'El exito no es casualidad, es constancia. Sigue entrenando.',
-      'Cada dia es una oportunidad para ser mejor que ayer.',
-      'La fuerza no viene de la capacidad fisica, sino de la voluntad indomable.',
-      'Los campeones no se hacen en los gimnasios, se hacen de algo que llevan dentro.'
-    ];
-    const randomTip = tips[Math.floor(Math.random() * tips.length)];
-    return of(randomTip);
+  getUserProfile(): Observable<any> {
+    const url = `${this.apiUrl}/pg-ms-users/api/v1/usuarios/mi-perfil`;
+    return this.http.get<any>(url, { headers: this.getHeaders() }).pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.error('Error en getUserProfile:', error);
+        return of(null);
+      })
+    );
+  }
+
+  updateUserProfile(data: any): Observable<any> {
+    const url = `${this.apiUrl}/pg-ms-users/api/v1/usuarios/mi-perfil`;
+    return this.http.put<any>(url, data, { headers: this.getJsonHeaders() }).pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.error('Error en updateUserProfile:', error);
+        return of(null);
+      })
+    );
+  }
+
+  getPerfilMedico(): Observable<any> {
+    const url = `${this.apiUrl}/pg-ms-users/api/v1/usuarios/perfil-medico/mi-perfil-medico`;
+    return this.http.get<any>(url, { headers: this.getHeaders() }).pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.error('Error en getPerfilMedico:', error);
+        return of(null);
+      })
+    );
+  }
+
+  getHistorialFisico(): Observable<any> {
+    const url = `${this.apiUrl}/pg-ms-users/api/v1/usuarios/historial-fisico/mi-historial`;
+    return this.http.get<any>(url, { headers: this.getHeaders() }).pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.error('Error en getHistorialFisico:', error);
+        return of(null);
+      })
+    );
+  }
+
+  getEvolucion(): Observable<any> {
+    const url = `${this.apiUrl}/pg-ms-users/api/v1/usuarios/historial-fisico/mi-evolucion`;
+    return this.http.get<any>(url, { headers: this.getHeaders() }).pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.error('Error en getEvolucion:', error);
+        return of(null);
+      })
+    );
+  }
+
+  getMiMembresia(): Observable<any> {
+    const url = `${this.apiUrl}/pg-ms-users/api/v1/socios-membresias/estado/mi-membresia`;
+    return this.http.get<any>(url, { headers: this.getHeaders() }).pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.error('Error en getMiMembresia:', error);
+        return of(null);
+      })
+    );
   }
 }
