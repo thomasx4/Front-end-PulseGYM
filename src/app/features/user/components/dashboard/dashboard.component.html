@@ -1,0 +1,241 @@
+<div class="dashboard-layout">
+  <app-navbar></app-navbar>
+
+  <div class="dashboard-main">
+    <app-header></app-header>
+
+    <div class="dashboard-wrapper">
+      <header class="page-header">
+        <h1>Bienvenido, {{ userName }}</h1>
+        <p class="subtitle">Aquí tienes un resumen de tu actividad y próximos objetivos.</p>
+      </header>
+
+      <div *ngIf="error && !isLoading" class="state-container error">
+        <p>{{ error }}</p>
+        <button (click)="refreshData()" class="btn-retry">Intentar de nuevo</button>
+      </div>
+
+      <div *ngIf="!isLoading && !error" class="dashboard-grid">
+        <!-- KPIs -->
+        <div class="top-kpis">
+          <div class="kpi-card">
+            <div class="kpi-icon blue">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                <path d="M2 17l10 5 10-5"/>
+                <path d="M2 12l10 5 10-5"/>
+              </svg>
+            </div>
+            <div class="kpi-info">
+              <span class="kpi-label">Calorías Diarias</span>
+              <div class="kpi-value">{{ caloriasDiarias || 0 | number }} <small>kcal</small></div>
+            </div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-icon green">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+              </svg>
+            </div>
+            <div class="kpi-info">
+              <span class="kpi-label">Cumplimiento Semanal</span>
+              <div class="kpi-value">{{ dashboardData?.porcentajeCumplimientoSemanal || 0 }}%</div>
+            </div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-icon purple">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 4v16"/>
+                <path d="M18 4v16"/>
+                <path d="M3 8h6"/>
+                <path d="M15 8h6"/>
+                <path d="M3 16h6"/>
+                <path d="M15 16h6"/>
+                <path d="M9 12h6"/>
+              </svg>
+            </div>
+            <div class="kpi-info">
+              <span class="kpi-label">Total Sesiones</span>
+              <div class="kpi-value">{{ dashboardData?.estadisticas?.totalSesiones || 0 }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Racha de Días -->
+        <div class="card streak-card">
+          <div class="card-header">
+            <div>
+              <h3>Racha de Días</h3>
+              <p class="subtitle">Sigue así, la constancia es clave.</p>
+            </div>
+            <span class="streak-badge">Mejor racha: {{ bestStreak }} días</span>
+          </div>
+
+          <div class="days-container">
+            <div *ngFor="let day of weekDays" class="day-circle-item" [class.active]="day.active">
+              <div class="circle">
+                <span *ngIf="day.active">✓</span>
+                <span *ngIf="!day.active">{{ day.dayNumber }}</span>
+              </div>
+              <span class="day-label">{{ day.name }}</span>
+            </div>
+          </div>
+
+          <div class="streak-banner">
+            <div class="streak-banner-left">
+              <span class="banner-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                  <polyline points="17 6 23 6 23 12"/>
+                </svg>
+              </span>
+              <div>
+                <p class="banner-title">Vas por buen camino.</p>
+                <p class="banner-sub">Completa {{ 7 - getActiveDaysCount() }} días más para superar tu mejor racha.</p>
+              </div>
+            </div>
+            <div class="streak-banner-right">
+              <div class="mini-progress-bar">
+                <div class="fill" [style.width.%]="(getActiveDaysCount() / 7) * 100"></div>
+              </div>
+              <span class="count-text">{{ getActiveDaysCount() }}/7 días</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rutina de Hoy -->
+        <div class="card routine-card">
+          <div class="card-header">
+            <h3>Rutina de Hoy</h3>
+            <span class="date-text">{{ todayRoutine.dateStr || 'Hoy' }}</span>
+          </div>
+
+          <div *ngIf="todayRoutine.ejercicios && todayRoutine.ejercicios.length > 0; else noRoutine">
+            <div class="routine-banner">
+              <div class="routine-banner-info">
+                <div class="routine-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 4v16"/>
+                    <path d="M18 4v16"/>
+                    <path d="M3 8h6"/>
+                    <path d="M15 8h6"/>
+                    <path d="M3 16h6"/>
+                    <path d="M15 16h6"/>
+                    <path d="M9 12h6"/>
+                  </svg>
+                </div>
+                <div>
+                  <strong>{{ todayRoutine.nombre }}</strong>
+                  <span>Duración estimada: {{ todayRoutine.duracion }}</span>
+                </div>
+              </div>
+              <button class="btn-primary">Ver rutina</button>
+            </div>
+
+            <ul class="exercise-list">
+              <li *ngFor="let ex of todayRoutine.ejercicios" class="exercise-item">
+                <div class="ex-thumb">
+                  <img [src]="ex.imageUrl || 'assets/exercise-placeholder.png'" [alt]="ex.nombre" />
+                </div>
+                <div class="ex-details">
+                  <span class="ex-name">{{ ex.nombre }}</span>
+                  <span class="ex-sets">{{ ex.sets }}</span>
+                </div>
+                <span class="arrow">›</span>
+              </li>
+            </ul>
+
+            <div class="card-footer">
+              <a href="#" class="link-more">Ver rutina completa →</a>
+            </div>
+          </div>
+
+          <ng-template #noRoutine>
+            <p class="empty-message">{{ todayRoutine.nombre || 'No hay rutina programada para hoy' }}</p>
+          </ng-template>
+        </div>
+
+        <!-- Resumen de la Semana -->
+        <div class="card summary-card">
+          <div class="card-header">
+            <h3>Resumen de la Semana</h3>
+          </div>
+
+          <div class="summary-metrics-grid" *ngIf="weeklySummary">
+            <div class="metric-box">
+              <div class="metric-header">
+                <div class="metric-icon blue">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 16 14"/>
+                  </svg>
+                </div>
+                <div>
+                  <div class="val">{{ weeklySummary.totalTime || '0h' }}</div>
+                  <div class="lbl">Tiempo total entrenado</div>
+                </div>
+              </div>
+              <div class="metric-progress">
+                <div class="progress-bar">
+                  <div class="fill" [style.width.%]="weeklySummary.timeProgress"></div>
+                </div>
+                <span>{{ weeklySummary.timeProgress }}% de tu meta</span>
+              </div>
+            </div>
+
+            <div class="metric-box">
+              <div class="metric-header">
+                <div class="metric-icon green">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                    <path d="M2 17l10 5 10-5"/>
+                    <path d="M2 12l10 5 10-5"/>
+                  </svg>
+                </div>
+                <div>
+                  <div class="val">{{ weeklySummary.caloriesBurned | number }}</div>
+                  <div class="lbl">Calorías quemadas</div>
+                </div>
+              </div>
+              <div class="metric-progress">
+                <div class="progress-bar">
+                  <div class="fill green" [style.width.%]="weeklySummary.caloriesProgress"></div>
+                </div>
+                <span>{{ weeklySummary.caloriesProgress }}% de tu meta</span>
+              </div>
+            </div>
+
+            <div class="metric-box">
+              <div class="metric-header">
+                <div class="metric-icon purple">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 4v16"/>
+                    <path d="M18 4v16"/>
+                    <path d="M3 8h6"/>
+                    <path d="M15 8h6"/>
+                    <path d="M3 16h6"/>
+                    <path d="M15 16h6"/>
+                    <path d="M9 12h6"/>
+                  </svg>
+                </div>
+                <div>
+                  <div class="val">{{ weeklySummary.workouts }}</div>
+                  <div class="lbl">Entrenamientos</div>
+                </div>
+              </div>
+              <div class="metric-progress">
+                <div class="progress-bar">
+                  <div class="fill purple" [style.width.%]="weeklySummary.workoutsProgress"></div>
+                </div>
+                <span>{{ weeklySummary.workoutsProgress }}% de tu meta</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

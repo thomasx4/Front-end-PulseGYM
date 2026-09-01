@@ -1,0 +1,549 @@
+<div class="historial-layout">
+    <app-navbar></app-navbar>
+
+    <div class="historial-main">
+        <app-header></app-header>
+
+        <div class="historial-wrapper" *ngIf="!isLoading && !error">
+
+            <!-- Top Bar: Encabezado y Acciones -->
+            <div class="top-bar">
+                <div>
+                    <h1>Historial Físico</h1>
+                    <p class="subtitle">Monitorea el progreso físico y la evolución de los socios.</p>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn-secondary" (click)="volver()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M15 18l-6-6 6-6" />
+                        </svg>
+                        Volver
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tarjeta de Información del Usuario -->
+            <div class="card user-info-card">
+                <div class="user-main">
+                    <div class="user-avatar-initial">
+                        <img *ngIf="userAvatar" [src]="userAvatar" [alt]="userName" class="avatar-image" />
+                        <span *ngIf="!userAvatar">{{ userName.charAt(0).toUpperCase() }}</span>
+                    </div>
+                    <div class="user-details">
+                        <div class="name-row">
+                            <h2>{{ userName }}</h2>
+                            <span class="badge-socio-activo">{{ estadoSocio }}</span>
+                        </div>
+                        <p class="contact-line">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                                <polyline points="22,6 12,13 2,6" />
+                            </svg>
+                            {{ userEmail }}
+                        </p>
+                    </div>
+                </div>
+                <div class="user-meta">
+                    <div>
+                        <small>Miembro desde</small>
+                        <strong>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                                <line x1="16" y1="2" x2="16" y2="6" />
+                                <line x1="8" y1="2" x2="8" y2="6" />
+                                <line x1="3" y1="10" x2="21" y2="10" />
+                            </svg>
+                            {{ fechaIngreso }}
+                        </strong>
+                    </div>
+                    <div>
+                        <small>Entrenador asignado</small>
+                        <strong>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                                <circle cx="12" cy="7" r="4" />
+                            </svg>
+                            {{ entrenadorAsignado || 'Sin asignar' }}
+                        </strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resumen Actual KPIs -->
+            <section class="section-resumen">
+                <h3>Resumen Actual</h3>
+                <p class="section-sub">Última medición registrada el {{ ultimaMedicion.fechaMedicion | date:'d MMM yyyy'
+                    }}</p>
+
+                <div class="kpi-grid">
+                    <!-- Peso -->
+                    <div class="kpi-card">
+                        <span class="label">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb"
+                                stroke-width="2">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                            </svg>
+                            Peso
+                        </span>
+                        <div class="value-row">
+                            <span class="value">{{ ultimaMedicion.pesoKg || 0 }} <small>kg</small></span>
+                            <span class="badge normal">Normal</span>
+                        </div>
+                    </div>
+
+                    <!-- Altura -->
+                    <div class="kpi-card">
+                        <span class="label">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16a34a"
+                                stroke-width="2">
+                                <line x1="18" y1="20" x2="18" y2="10" />
+                                <line x1="12" y1="20" x2="12" y2="4" />
+                                <line x1="6" y1="20" x2="6" y2="14" />
+                            </svg>
+                            Altura
+                        </span>
+                        <div class="value-row">
+                            <span class="value">{{ ultimaMedicion.alturaCm || 0 }} <small>cm</small></span>
+                            <span class="badge normal">Normal</span>
+                        </div>
+                    </div>
+
+                    <!-- Grasa Corporal -->
+                    <div class="kpi-card">
+                        <span class="label">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#dc2626"
+                                stroke-width="2">
+                                <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
+                            </svg>
+                            Grasa Corporal
+                        </span>
+                        <div class="value-row">
+                            <span class="value">{{ ultimaMedicion.porcentajeGrasa || 0 }} <small>%</small></span>
+                            <span class="badge saludable">Saludable</span>
+                        </div>
+                    </div>
+
+                    <!-- Masa Muscular -->
+                    <div class="kpi-card">
+                        <span class="label">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#059669"
+                                stroke-width="2">
+                                <path d="M6 18h12M6 6h12M12 2v20" />
+                            </svg>
+                            Masa Muscular
+                        </span>
+                        <div class="value-row">
+                            <span class="value">{{ ultimaMedicion.porcentajeMusculo || 0 }} <small>%</small></span>
+                            <span class="badge excelente">Excelente</span>
+                        </div>
+                    </div>
+
+                    <!-- IMC -->
+                    <div class="kpi-card">
+                        <span class="label">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d97706"
+                                stroke-width="2">
+                                <circle cx="12" cy="12" r="9" />
+                            </svg>
+                            IMC
+                        </span>
+                        <div class="value-row">
+                            <span class="value">{{ ultimaMedicion.imc || 0 }} </span>
+                            <span class="badge normal">Normal</span>
+                        </div>
+                    </div>
+
+                    <!-- Cintura -->
+                    <div class="kpi-card">
+                        <span class="label">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d97706"
+                                stroke-width="2">
+                                <rect x="3" y="8" width="18" height="8" rx="1" />
+                            </svg>
+                            Cintura
+                        </span>
+                        <div class="value-row">
+                            <span class="value">{{ ultimaMedicion.cinturaCm || 0 }} <small>cm</small></span>
+                            <span class="badge normal">Normal</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Layout Principal en Grilla (2 Columnas) -->
+            <div class="main-grid">
+
+                <!-- Columna Izquierda: Gráfica y Detalle de Mediciones -->
+                <div class="left-column">
+
+                    <!-- Gráfica de Evolución -->
+                    <div class="card chart-card">
+                        <h3>Evolución del Progreso</h3>
+                        <div class="chart-container">
+                            <canvas #chartCanvas></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Bloque de Últimas Mediciones Completas -->
+                    <div class="card details-card">
+                        <h3>Últimas Mediciones Completas</h3>
+                        <p class="meta-text">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                                <line x1="16" y1="2" x2="16" y2="6" />
+                                <line x1="8" y1="2" x2="8" y2="6" />
+                                <line x1="3" y1="10" x2="21" y2="10" />
+                            </svg>
+                            {{ ultimaMedicion.fechaMedicion | date:'d MMM yyyy' }} &nbsp;&nbsp;
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                                <circle cx="12" cy="7" r="4" />
+                            </svg>
+                            {{ entrenadorAsignado || 'Sin asignar' }}
+                        </p>
+
+                        <div class="metrics-grid">
+                            <div class="metric-item">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb"
+                                    stroke-width="2">
+                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                                </svg>
+                                <div>
+                                    <small>Peso</small>
+                                    <strong>{{ ultimaMedicion.pesoKg || 0 }} kg</strong>
+                                </div>
+                            </div>
+                            <div class="metric-item">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16a34a"
+                                    stroke-width="2">
+                                    <line x1="18" y1="20" x2="18" y2="10" />
+                                    <line x1="12" y1="20" x2="12" y2="4" />
+                                    <line x1="6" y1="20" x2="6" y2="14" />
+                                </svg>
+                                <div>
+                                    <small>Altura</small>
+                                    <strong>{{ ultimaMedicion.alturaCm || 0 }} cm</strong>
+                                </div>
+                            </div>
+                            <div class="metric-item">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#dc2626"
+                                    stroke-width="2">
+                                    <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
+                                </svg>
+                                <div>
+                                    <small>Grasa Corporal</small>
+                                    <strong>{{ ultimaMedicion.porcentajeGrasa || 0 }} %</strong>
+                                </div>
+                            </div>
+                            <div class="metric-item">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#059669"
+                                    stroke-width="2">
+                                    <path d="M6 18h12M6 6h12M12 2v20" />
+                                </svg>
+                                <div>
+                                    <small>Masa Muscular</small>
+                                    <strong>{{ ultimaMedicion.porcentajeMusculo || 0 }} %</strong>
+                                </div>
+                            </div>
+                            <div class="metric-item" *ngIf="ultimaMedicion.cuelloCm">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7c3aed"
+                                    stroke-width="2">
+                                    <circle cx="12" cy="12" r="9" />
+                                </svg>
+                                <div>
+                                    <small>Cuello</small>
+                                    <strong>{{ ultimaMedicion.cuelloCm }} cm</strong>
+                                </div>
+                            </div>
+                            <div class="metric-item" *ngIf="ultimaMedicion.cinturaEscapularCm">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7c3aed"
+                                    stroke-width="2">
+                                    <circle cx="12" cy="12" r="9" />
+                                </svg>
+                                <div>
+                                    <small>Cintura Escapular</small>
+                                    <strong>{{ ultimaMedicion.cinturaEscapularCm }} cm</strong>
+                                </div>
+                            </div>
+                            <div class="metric-item" *ngIf="ultimaMedicion.cinturaCm">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d97706"
+                                    stroke-width="2">
+                                    <rect x="3" y="8" width="18" height="8" rx="1" />
+                                </svg>
+                                <div>
+                                    <small>Cintura</small>
+                                    <strong>{{ ultimaMedicion.cinturaCm }} cm</strong>
+                                </div>
+                            </div>
+                            <div class="metric-item" *ngIf="ultimaMedicion.caderaCm">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d97706"
+                                    stroke-width="2">
+                                    <rect x="3" y="8" width="18" height="8" rx="1" />
+                                </svg>
+                                <div>
+                                    <small>Cadera</small>
+                                    <strong>{{ ultimaMedicion.caderaCm }} cm</strong>
+                                </div>
+                            </div>
+                            <div class="metric-item" *ngIf="ultimaMedicion.toraxCm">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb"
+                                    stroke-width="2">
+                                    <path
+                                        d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.72-8.72 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                                </svg>
+                                <div>
+                                    <small>Tórax</small>
+                                    <strong>{{ ultimaMedicion.toraxCm }} cm</strong>
+                                </div>
+                            </div>
+                            <div class="metric-item" *ngIf="ultimaMedicion.pechoCm">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb"
+                                    stroke-width="2">
+                                    <path
+                                        d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.72-8.72 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                                </svg>
+                                <div>
+                                    <small>Pecho</small>
+                                    <strong>{{ ultimaMedicion.pechoCm }} cm</strong>
+                                </div>
+                            </div>
+                            <div class="metric-item" *ngIf="ultimaMedicion.brazoIzqCm || ultimaMedicion.brazoDerCm">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#059669"
+                                    stroke-width="2">
+                                    <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0" />
+                                </svg>
+                                <div>
+                                    <small>Brazos (Izq / Der)</small>
+                                    <strong>{{ ultimaMedicion.brazoIzqCm || 0 }} / {{ ultimaMedicion.brazoDerCm || 0 }}
+                                        cm</strong>
+                                </div>
+                            </div>
+                            <div class="metric-item" *ngIf="ultimaMedicion.piernaIzqCm || ultimaMedicion.piernaDerCm">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#059669"
+                                    stroke-width="2">
+                                    <path d="M12 2v20" />
+                                </svg>
+                                <div>
+                                    <small>Piernas (Izq / Der)</small>
+                                    <strong>{{ ultimaMedicion.piernaIzqCm || 0 }} / {{ ultimaMedicion.piernaDerCm || 0
+                                        }} cm</strong>
+                                </div>
+                            </div>
+                            <div class="metric-item"
+                                *ngIf="ultimaMedicion.pantorrillaIzqCm || ultimaMedicion.pantorrillaDerCm">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#059669"
+                                    stroke-width="2">
+                                    <circle cx="12" cy="12" r="9" />
+                                </svg>
+                                <div>
+                                    <small>Pantorrillas (Izq / Der)</small>
+                                    <strong>{{ ultimaMedicion.pantorrillaIzqCm || 0 }} / {{
+                                        ultimaMedicion.pantorrillaDerCm || 0 }} cm</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bloque Comparación General -->
+                        <div class="comparacion-box">
+                            <div class="comparacion-header">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb"
+                                    stroke-width="2">
+                                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                                </svg>
+                                <div>
+                                    <strong>Comparación General</strong>
+                                    <small>Comparado con la primera medición registrada</small>
+                                </div>
+                            </div>
+                            <div class="comparacion-grid">
+                                <div>
+                                    <small>Peso</small>
+                                    <strong class="val-blue">{{ comparacion.peso }}</strong>
+                                </div>
+                                <div>
+                                    <small>Grasa Corporal</small>
+                                    <strong [class.val-red]="comparacion.grasa.includes('+')"
+                                        [class.val-blue]="!comparacion.grasa.includes('+') && comparacion.grasa !== '0.00 %'">
+                                        {{ comparacion.grasa }}
+                                    </strong>
+                                </div>
+                                <div>
+                                    <small>Masa Muscular</small>
+                                    <strong [class.val-red]="comparacion.musculo.includes('-')"
+                                        [class.val-blue]="comparacion.musculo.includes('+')">
+                                        {{ comparacion.musculo }}
+                                    </strong>
+                                </div>
+                                <div>
+                                    <small>Cintura</small>
+                                    <strong [class.val-red]="comparacion.cintura.includes('+')"
+                                        [class.val-blue]="comparacion.cintura.includes('-')">
+                                        {{ comparacion.cintura }}
+                                    </strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Frecuencia de Medición -->
+                    <div class="card frecuencia-card">
+                        <div class="frecuencia-header">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7c3aed"
+                                stroke-width="2">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                                <line x1="16" y1="2" x2="16" y2="6" />
+                                <line x1="8" y1="2" x2="8" y2="6" />
+                                <line x1="3" y1="10" x2="21" y2="10" />
+                            </svg>
+                            <div>
+                                <strong>Frecuencia de medición</strong>
+                                <small>{{ historialCompleto.length }} mediciones registradas</small>
+                            </div>
+                        </div>
+                        <div class="info-banner">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb"
+                                stroke-width="2">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="16" x2="12" y2="12" />
+                                <line x1="12" y1="8" x2="12.01" y2="8" />
+                            </svg>
+                            <span><strong>Recomendado:</strong> Al menos 1 vez cada 15 días para un seguimiento
+                                efectivo.</span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Columna Derecha: Tu Silueta -->
+                <div class="right-column">
+                    <div class="card silueta-card">
+                        <div class="silueta-header">
+                            <div class="title-with-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563eb"
+                                    stroke-width="2">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                                    <circle cx="12" cy="7" r="4" />
+                                </svg>
+                                <div>
+                                    <h3>Tu Silueta</h3>
+                                    <small>Medidas del {{ ultimaMedicion.fechaMedicion | date:'d MMM yyyy' }}</small>
+                                </div>
+                            </div>
+                            <button class="btn-3d">MODELO 3D</button>
+                        </div>
+
+                        <!-- Desglose por Zonas del Cuerpo -->
+                        <div class="body-parts">
+                            <div class="part-group">
+                                <h5 class="purple">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <path
+                                            d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.72-8.72 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                                    </svg>
+                                    TRONCO SUPERIOR
+                                </h5>
+                                <div class="part-row">
+                                    <span>Cuello</span>
+                                    <strong>{{ silueta.troncoSuperior.cuello || 0 }} cm</strong>
+                                    <span>C. Escapular</span>
+                                    <strong>{{ silueta.troncoSuperior.escapular || 0 }} cm</strong>
+                                </div>
+                                <div class="part-row">
+                                    <span>Tórax</span>
+                                    <strong>{{ silueta.troncoSuperior.torax || 0 }} cm</strong>
+                                    <span>Pecho</span>
+                                    <strong>{{ silueta.troncoSuperior.pecho || 0 }} cm</strong>
+                                </div>
+                            </div>
+
+                            <div class="part-group" *ngIf="silueta.zonaMedia.cintura || silueta.zonaMedia.cadera">
+                                <h5 class="amber">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <rect x="3" y="8" width="18" height="8" rx="1" />
+                                    </svg>
+                                    ZONA MEDIA
+                                </h5>
+                                <div class="part-row">
+                                    <span>Cintura</span>
+                                    <strong>{{ silueta.zonaMedia.cintura || 0 }} cm</strong>
+                                    <span>Cadera</span>
+                                    <strong>{{ silueta.zonaMedia.cadera || 0 }} cm</strong>
+                                </div>
+                            </div>
+
+                            <div class="part-group" *ngIf="silueta.brazos.izquierdo || silueta.brazos.derecho">
+                                <h5 class="green">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <circle cx="12" cy="12" r="9" />
+                                    </svg>
+                                    BRAZOS
+                                </h5>
+                                <div class="part-row">
+                                    <span>Izq / Der</span>
+                                    <strong>{{ silueta.brazos.izquierdo || 0 }} / {{ silueta.brazos.derecho || 0 }}
+                                        cm</strong>
+                                </div>
+                            </div>
+
+                            <div class="part-group" *ngIf="silueta.piernas.izquierda || silueta.piernas.derecha">
+                                <h5 class="blue">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <line x1="18" y1="20" x2="18" y2="10" />
+                                        <line x1="12" y1="20" x2="12" y2="4" />
+                                        <line x1="6" y1="20" x2="6" y2="14" />
+                                    </svg>
+                                    PIERNAS & PANTORRILLAS
+                                </h5>
+                                <div class="part-row">
+                                    <span>Pierna (I/D)</span>
+                                    <strong>{{ silueta.piernas.izquierda || 0 }} / {{ silueta.piernas.derecha || 0 }}
+                                        cm</strong>
+                                </div>
+                                <div class="part-row"
+                                    *ngIf="silueta.piernas.pantorrillaIzq || silueta.piernas.pantorrillaDer">
+                                    <span>Pantorrilla (I/D)</span>
+                                    <strong>{{ silueta.piernas.pantorrillaIzq || 0 }} / {{
+                                        silueta.piernas.pantorrillaDer || 0 }} cm</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="info-footer">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2563eb"
+                                stroke-width="2">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="16" x2="12" y2="12" />
+                                <line x1="12" y1="8" x2="12.01" y2="8" />
+                            </svg>
+                            <span>Todas las medidas corresponden al estándar antropométrico en centímetros (cm).</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Loading -->
+        <div *ngIf="isLoading" class="state-container">
+            <p>Cargando historial físico...</p>
+        </div>
+
+        <!-- Error -->
+        <div *ngIf="error && !isLoading" class="state-container error">
+            <p>{{ error }}</p>
+            <button (click)="refreshData()" class="btn-retry">Intentar de nuevo</button>
+        </div>
+    </div>
+</div>
