@@ -1,6 +1,5 @@
 <div class="user-profile-container">
 
-    <!--  HEADER  -->
     <header class="page-header">
         <div>
             <h1 class="page-title">Gestión de Usuarios</h1>
@@ -15,17 +14,25 @@
         </button>
     </header>
 
-    <!--  FILTROS  -->
     <div class="filters-section" *ngIf="!loading">
         <div class="filters-row">
-            <div class="filter-group">
-                <input type="text" placeholder="Buscar usuarios..." [(ngModel)]="searchTerm"
-                    (input)="aplicarFiltros()" />
+            <div class="search-box-wrapper">
                 <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="11" cy="11" r="8" />
                     <line x1="21" y1="21" x2="16.65" y2="16.65" />
                 </svg>
+                <input type="text" class="search-input" placeholder="Buscar por usuario o correo..." [(ngModel)]="searchTerm"
+                    (keyup.enter)="aplicarFiltros()" />
+
+                <button *ngIf="searchTerm" type="button" class="btn-clear-text" (click)="limpiarFiltros()" title="Limpiar búsqueda">
+                    ✕
+                </button>
+
+                <button type="button" class="btn-search-icon" (click)="aplicarFiltros()" title="Buscar">
+                    Buscar
+                </button>
             </div>
+
             <div class="filter-group">
                 <select [(ngModel)]="filtroRol" (change)="aplicarFiltros()">
                     <option value="todos">Todos los roles</option>
@@ -35,6 +42,7 @@
                     <option value="socio">Socio</option>
                 </select>
             </div>
+
             <div class="filter-group">
                 <select [(ngModel)]="filtroEstado" (change)="aplicarFiltros()">
                     <option value="todos">Todos los estados</option>
@@ -42,7 +50,7 @@
                     <option value="inactivo">Inactivo</option>
                 </select>
             </div>
-            <!-- BOTÓN LIMPIAR FILTROS -->
+
             <button class="btn-clear-filters" (click)="limpiarFiltros()">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <line x1="18" y1="6" x2="6" y2="18" />
@@ -53,13 +61,12 @@
         </div>
     </div>
 
-    <!--  TABLA  -->
     <section class="table-card">
         <div *ngIf="errorMensaje" class="alert-error">
             {{ errorMensaje }}
         </div>
 
-        <div class="table-responsive" *ngIf="perfilesFiltrados.length > 0">
+        <div class="table-responsive" *ngIf="perfiles.length > 0">
             <table class="custom-table">
                 <thead>
                     <tr>
@@ -71,7 +78,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let perfil of perfilesPaginados">
+                    <tr *ngFor="let perfil of perfiles">
                         <td>
                             <div class="user-cell">
                                 <div class="avatar-circle">
@@ -80,8 +87,7 @@
                                         class="avatar-image" crossOrigin="anonymous" loading="lazy"
                                         (error)="onImageError(perfil)" />
                                     <ng-template #initials>
-                                        <span class="avatar-initials">{{ perfil.nombre.charAt(0) }}{{
-                                            perfil.apellido.charAt(0) }}</span>
+                                        <span class="avatar-initials">{{ perfil.nombre.charAt(0) }}{{ perfil.apellido.charAt(0) }}</span>
                                     </ng-template>
                                 </div>
                                 <div class="user-details">
@@ -108,20 +114,17 @@
                         <td class="text-right">
                             <div class="acciones-container">
                                 <button class="btn-view" (click)="verDetalle(perfil)" title="Ver detalles del usuario">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                        stroke-width="2">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
                                         <circle cx="12" cy="12" r="3" />
                                     </svg>
                                 </button>
 
-                                <button class="btn-toggle-status" [class.active]="perfil.estado === 'ACTIVO'"
-                                    (click)="toggleEstado(perfil)">
+                                <button class="btn-toggle-status" [class.active]="perfil.estado === 'ACTIVO'" (click)="toggleEstado(perfil)">
                                     {{ perfil.estado === 'ACTIVO' ? 'Desactivar' : 'Activar' }}
                                 </button>
                                 <button class="btn-edit" (click)="editarPerfil(perfil)">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                        stroke-width="2">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
                                         <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
                                     </svg>
@@ -134,39 +137,34 @@
             </table>
         </div>
 
-        <div *ngIf="perfilesFiltrados.length === 0 && !loading" class="empty-state">
+        <div *ngIf="perfiles.length === 0 && !loading" class="empty-state">
             No se encontraron usuarios
         </div>
 
-        <!--  PAGINACIÓN  -->
         <footer *ngIf="totalPaginas > 0" class="table-footer">
             <div class="showing-text">
-                Mostrando <strong>{{ inicio }}</strong> a <strong>{{ fin }}</strong> de <strong>{{ totalElementos
-                    }}</strong> usuarios
+                Mostrando <strong>{{ inicio }}</strong> a <strong>{{ fin }}</strong> de <strong>{{ totalElementos }}</strong> usuarios
             </div>
 
             <div class="pagination-wrapper">
-                <button class="page-arrow" [disabled]="paginaActual === 1" (click)="paginaAnterior()">‹</button>
+                <button class="page-arrow" [disabled]="numeroPagina === 0" (click)="paginaAnterior()">‹</button>
 
-                <button *ngFor="let p of paginasVisibles" class="page-number" [class.active]="p === paginaActual"
+                <button *ngFor="let p of paginasVisibles" class="page-number" [class.active]="p === numeroPagina"
                     (click)="irPagina(p)">
-                    {{ p }}
+                    {{ p + 1 }}
                 </button>
 
-                <button class="page-arrow" [disabled]="paginaActual === totalPaginas"
-                    (click)="paginaSiguiente()">›</button>
+                <button class="page-arrow" [disabled]="numeroPagina >= totalPaginas - 1" (click)="paginaSiguiente()">›</button>
             </div>
         </footer>
     </section>
 
-    <!--  MÉTRICAS  -->
     <section class="metrics-section">
         <div class="metrics-header">
             <h2 class="metrics-title">Panel de Métricas</h2>
         </div>
 
         <div class="metrics-grid">
-            <!-- Total de Usuarios - Tarjeta Principal -->
             <div class="metric-card main-card">
                 <div class="metric-icon main-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -178,11 +176,10 @@
                 </div>
                 <div class="metric-content">
                     <span class="metric-label">Total Usuarios</span>
-                    <span class="metric-value">{{ perfiles.length }}</span>
+                    <span class="metric-value">{{ totalElementos }}</span>
                 </div>
             </div>
 
-            <!-- Administradores -->
             <div class="metric-card admin-card">
                 <div class="metric-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -197,7 +194,6 @@
                 </div>
             </div>
 
-            <!-- Entrenadores -->
             <div class="metric-card trainer-card">
                 <div class="metric-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -212,7 +208,6 @@
                 </div>
             </div>
 
-            <!-- Recepcionistas -->
             <div class="metric-card receptionist-card">
                 <div class="metric-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -228,7 +223,6 @@
                 </div>
             </div>
 
-            <!-- Socios -->
             <div class="metric-card member-card">
                 <div class="metric-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { Credencial, RespuestaPaginadaCredenciales } from '../../models/auth/auth.model';
-import { AuthService, FiltrosUsuarios } from '../../../../core/services/auth.service';
+import { Credencial, RespuestaPaginadaCredenciales, FiltrosUsuarios } from '../../models/auth/auth.model';
+import { AuthService } from '../../../../core/services/auth.service';
 import { FiltrosCredenciales } from '../filter-credentials/filter-credentials.component';
 import Swal from 'sweetalert2';
 
@@ -41,21 +41,49 @@ export class CredentialsListComponent implements OnInit {
 
   ngOnInit(): void {
     this.cargarCredenciales();
+    this.cargarMetricasGlobales();
+  }
+
+  cargarMetricasGlobales(): void {
+    this.authService.listarTodosLosUsuarios().subscribe({
+      next: (todos) => {
+        if (todos && Array.isArray(todos)) {
+          this.totalActivosGeneral = todos.filter(u => u.estado === true).length;
+          this.totalInactivosGeneral = todos.filter(u => u.estado === false).length;
+
+          const ahora = new Date();
+          const mesActual = ahora.getMonth();
+          const anioActual = ahora.getFullYear();
+
+          this.totalMesActual = todos.filter(item => {
+            if (!item.fechaRegistro) return false;
+            const fecha = new Date(item.fechaRegistro);
+            return fecha.getMonth() === mesActual && fecha.getFullYear() === anioActual;
+          }).length;
+        }
+      },
+      error: (err) => console.error('Error al cargar métricas globales:', err)
+    });
   }
 
   cargarCredenciales(filtros: FiltrosCredenciales = {}): void {
     this.cargando = true;
     this.errorMensaje = '';
 
-    this.filtrosActivos = {
-      ...this.filtrosActivos,
-      username: filtros.username,
-      rol: filtros.rol,
-      activo: filtros.activo,
-      direccion: filtros.direccion,
-      page: this.numeroPagina,
-      size: this.tamanioPagina
-    };
+    const esLimpieza = Object.keys(filtros).length === 0;
+
+    if (esLimpieza) {
+      this.filtrosActivos = {
+        page: this.numeroPagina,
+        size: this.tamanioPagina
+      };
+    } else {
+      this.filtrosActivos = {
+        ...filtros,
+        page: this.numeroPagina,
+        size: this.tamanioPagina
+      };
+    }
 
     this.authService.listarCredenciales(this.filtrosActivos).subscribe({
       next: (response: RespuestaPaginadaCredenciales) => {
@@ -65,7 +93,6 @@ export class CredentialsListComponent implements OnInit {
         this.numeroPagina = response.numeroPagina ?? response.currentPage ?? response.number ?? 0;
         this.tamanioPagina = response.tamanioPagina ?? response.size ?? 7;
 
-        this.calcularKpis();
         this.cargando = false;
       },
       error: (err) => {
@@ -74,21 +101,6 @@ export class CredentialsListComponent implements OnInit {
         this.cargando = false;
       }
     });
-  }
-
-  private calcularKpis(): void {
-    this.totalActivosGeneral = this.credenciales.filter(u => u.estado === true).length;
-    this.totalInactivosGeneral = this.credenciales.filter(u => u.estado === false).length;
-
-    const ahora = new Date();
-    const mesActual = ahora.getMonth();
-    const anioActual = ahora.getFullYear();
-
-    this.totalMesActual = this.credenciales.filter(item => {
-      if (!item.fechaRegistro) return false;
-      const fechaRegistro = new Date(item.fechaRegistro);
-      return fechaRegistro.getMonth() === mesActual && fechaRegistro.getFullYear() === anioActual;
-    }).length;
   }
 
   getFotoCredencial(item: Credencial): string | null {
@@ -127,7 +139,7 @@ export class CredentialsListComponent implements OnInit {
     this.authService.cambiarEstado(item.id, nuevoEstado).subscribe({
       next: () => {
         item.estado = nuevoEstado;
-        this.calcularKpis();
+        this.cargarMetricasGlobales();
       },
       error: (err) => {
         console.error('Error al cambiar el estado:', err);
@@ -144,7 +156,7 @@ export class CredentialsListComponent implements OnInit {
   irAPagina(p: number): void {
     if (p !== this.numeroPagina && p >= 0 && p < this.totalPaginas) {
       this.numeroPagina = p;
-      this.cargarCredenciales();
+      this.cargarCredenciales(this.filtrosActivos);
     }
   }
 
@@ -251,6 +263,7 @@ export class CredentialsListComponent implements OnInit {
   onUsuarioCreado(): void {
     this.cerrarFormulario();
     this.cargarCredenciales();
+    this.cargarMetricasGlobales();
   }
 
   formatearFecha(fechaStr?: string | Date): string {

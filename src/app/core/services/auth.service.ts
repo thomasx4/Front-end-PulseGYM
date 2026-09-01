@@ -9,7 +9,8 @@ import {
   ChangePasswordDTO,
   AuthCredentials, 
   User, 
-  RolUsuario 
+  RolUsuario,
+  FiltrosUsuarios 
 } from '../../features/auth/models/auth/auth.model';
 import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Observable, throwError, BehaviorSubject } from 'rxjs';
@@ -18,15 +19,7 @@ import { Router } from '@angular/router';
 import * as CryptoJS from 'crypto-js';
 import { jwtDecode } from 'jwt-decode';
 
-export interface FiltrosUsuarios {
-  page?: number;
-  size?: number;
-  ordenarPor?: string;
-  direccion?: string;
-  rol?: string;
-  activo?: boolean;
-  username?: string;
-}
+export { FiltrosUsuarios };
 
 @Injectable({
   providedIn: 'root'
@@ -83,6 +76,12 @@ export class AuthService {
 
     if (filtros.username) {
       params = params.set('username', filtros.username);
+    }
+    if (filtros.email) {
+      params = params.set('email', filtros.email);
+    }
+    if (filtros.busqueda) {
+      params = params.set('busqueda', filtros.busqueda);
     }
     if (filtros.rol) {
       params = params.set('rol', filtros.rol);

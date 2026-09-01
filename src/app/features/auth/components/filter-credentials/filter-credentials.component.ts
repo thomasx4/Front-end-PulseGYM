@@ -2,6 +2,8 @@ import { Component, Output, EventEmitter } from '@angular/core';
 
 export interface FiltrosCredenciales {
   username?: string;
+  email?: string;
+  busqueda?: string;
   rol?: string;
   activo?: boolean;
   direccion?: string;
@@ -14,7 +16,7 @@ export interface FiltrosCredenciales {
 })
 export class FilterCredentialsComponent {
   abierto = false;
-  usernameBusqueda = '';
+  busquedaTexto = '';
   rolSeleccionado = '';
   estadoSeleccionado = '';
   direccionSeleccionado: string = 'desc';
@@ -26,36 +28,29 @@ export class FilterCredentialsComponent {
     this.abierto = !this.abierto;
   }
 
-  onSearchInput(event: Event): void {
-    const value = (event.target as HTMLInputElement).value;
-    this.usernameBusqueda = value;
-    this.dispararFiltros();
-  }
-
   onAplicar(): void {
     this.dispararFiltros();
     this.abierto = false;
   }
 
   private dispararFiltros(): void {
-    const filtros: FiltrosCredenciales = {};
+    const texto = this.busquedaTexto.trim();
+    const esEmail = texto.includes('@');
 
-    if (this.usernameBusqueda.trim()) {
-      filtros.username = this.usernameBusqueda.trim();
-    }
-    if (this.rolSeleccionado) {
-      filtros.rol = this.rolSeleccionado;
-    }
-    if (this.estadoSeleccionado) {
-      filtros.activo = this.estadoSeleccionado === 'activo';
-    }
-    filtros.direccion = this.direccionSeleccionado;
+    const filtros: FiltrosCredenciales = {
+      username: !esEmail && texto ? texto : undefined,
+      email: esEmail && texto ? texto : undefined,
+      busqueda: texto ? texto : undefined,
+      rol: this.rolSeleccionado || undefined,
+      activo: this.estadoSeleccionado === '' ? undefined : this.estadoSeleccionado === 'activo',
+      direccion: this.direccionSeleccionado
+    };
 
     this.aplicar.emit(filtros);
   }
 
   onLimpiar(): void {
-    this.usernameBusqueda = '';
+    this.busquedaTexto = '';
     this.rolSeleccionado = '';
     this.estadoSeleccionado = '';
     this.direccionSeleccionado = 'desc';

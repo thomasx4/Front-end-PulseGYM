@@ -79,3 +79,15 @@ export enum RolUsuario {
   RECEPCIONISTA = 'recepcionista',
   USER = 'socio'
 }
+
+export interface FiltrosUsuarios {
+  page?: number;
+  size?: number;
+  ordenarPor?: string;
+  direccion?: string;
+  rol?: string;
+  activo?: boolean;
+  username?: string;
+  email?: string;
+  busqueda?: string;
+}

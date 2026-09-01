@@ -1,5 +1,3 @@
-// VARIABLES
-
 $primary-navy: #0f1c3f;
 $button-navy: #1a2b5c;
 $bg-canvas: #f4f6fa;
@@ -12,18 +10,12 @@ $radius-md: 12px;
 $radius-lg: 16px;
 $radius-xl: 20px;
 
-
-// CONTAINER
-
 .user-profile-container {
     padding: 24px;
     background-color: $bg-canvas;
     min-height: 100vh;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
-
-
-// HEADER
 
 .page-header {
     display: flex;
@@ -73,9 +65,6 @@ $radius-xl: 20px;
     }
 }
 
-
-// FILTROS
-
 .filters-section {
     background: #ffffff;
     border-radius: $radius-lg;
@@ -124,9 +113,6 @@ $radius-xl: 20px;
         }
     }
 }
-
-
-// TABLE
 
 .table-card {
     background: #ffffff;
@@ -179,9 +165,6 @@ $radius-xl: 20px;
     }
 }
 
-
-// USER CELL
-
 .user-cell {
     display: flex;
     align-items: center;
@@ -218,9 +201,6 @@ $radius-xl: 20px;
     }
 }
 
-
-// ROLE CELL
-
 .role-cell {
     display: flex;
     align-items: center;
@@ -240,9 +220,6 @@ $radius-xl: 20px;
         text-transform: capitalize;
     }
 }
-
-
-// STATUS BADGE
 
 .badge-status {
     display: inline-block;
@@ -268,9 +245,6 @@ $radius-xl: 20px;
     font-weight: 500;
     color: #475569;
 }
-
-
-// ACCIONES
 
 .acciones-container {
     display: flex;
@@ -379,18 +353,12 @@ $radius-xl: 20px;
     }
 }
 
-
-// EMPTY STATE
-
 .empty-state {
     text-align: center;
     color: $text-light;
     padding: 40px !important;
     font-weight: 500;
 }
-
-
-// ALERT ERROR
 
 .alert-error {
     padding: 12px 20px;
@@ -400,9 +368,6 @@ $radius-xl: 20px;
     font-weight: 600;
     border-bottom: 1px solid #fee2e2;
 }
-
-
-// TABLE FOOTER / PAGINACIÓN
 
 .table-footer {
     display: flex;
@@ -457,10 +422,6 @@ $radius-xl: 20px;
     }
 }
 
-
-// MÉTRICAS
-
-// ==================== MÉTRICAS REDISEÑADAS ====================
 .metrics-section {
     margin-top: 24px;
     padding: 24px 28px;
@@ -506,14 +467,12 @@ $radius-xl: 20px;
     overflow: hidden;
     min-height: 80px;
 
-    // Efecto hover
     &:hover {
         transform: translateY(-4px);
         box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
         border-color: transparent;
     }
 
-    // Decoración de fondo
     &::before {
         content: '';
         position: absolute;
@@ -527,7 +486,6 @@ $radius-xl: 20px;
         pointer-events: none;
     }
 
-    // Tarjeta principal (Total)
     &.main-card {
         background: linear-gradient(135deg, $primary-navy 0%, #1a2b5c 100%);
         border-color: $primary-navy;
@@ -555,7 +513,6 @@ $radius-xl: 20px;
         }
     }
 
-    // Tarjetas de roles
     &.admin-card {
 
         .metric-icon {
@@ -663,7 +620,6 @@ $radius-xl: 20px;
     }
 }
 
-// ==================== RESPONSIVE ====================
 @media (max-width: 1200px) {
     .metrics-grid {
         grid-template-columns: repeat(3, 1fr);
@@ -726,8 +682,6 @@ $radius-xl: 20px;
     }
 }
 
-// RESPONSIVE
-
 @media (max-width: 1024px) {
     .metrics-grid {
         grid-template-columns: repeat(2, 1fr);
@@ -775,9 +729,6 @@ $radius-xl: 20px;
     }
 }
 
-
-// BOTÓN LIMPIAR FILTROS
-
 .btn-clear-filters {
     display: inline-flex;
     align-items: center;
@@ -806,15 +757,10 @@ $radius-xl: 20px;
     }
 }
 
-
-// TARJETA RECEPCIONISTAS
-
 .yellow-bubble {
     background-color: #fef3c7;
     color: #d97706;
 }
-
-// ACCIONES
 
 .acciones-container {
     display: flex;
@@ -823,7 +769,6 @@ $radius-xl: 20px;
     gap: 8px;
     flex-wrap: wrap;
 
-    // 👁️ NUEVO BOTÓN VER DETALLE
     .btn-view {
         display: inline-flex;
         align-items: center;
@@ -892,6 +837,74 @@ $radius-xl: 20px;
             stroke: currentColor;
             width: 14px;
             height: 14px;
+        }
+    }
+}
+
+.search-box-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+    min-width: 250px;
+
+    .search-icon {
+        position: absolute;
+        left: 12px;
+        width: 16px;
+        height: 16px;
+        stroke: $text-light;
+        pointer-events: none;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 8px 32px 8px 36px;
+        border: 1px solid $border-light;
+        border-radius: $radius-sm;
+        font-size: 13px;
+        background: #ffffff;
+        outline: none;
+        transition: border-color 0.2s;
+
+        &:focus {
+            border-color: $primary-navy;
+            box-shadow: 0 0 0 3px rgba(15, 28, 63, 0.08);
+        }
+    }
+
+    .btn-clear-text {
+        position: absolute;
+        right: 80px;
+        background: transparent;
+        border: none;
+        color: #94a3b8;
+        font-size: 0.85rem;
+        cursor: pointer;
+        padding: 2px 6px;
+        border-radius: 50%;
+
+        &:hover {
+            color: #334155;
+            background-color: #f1f5f9;
+        }
+    }
+
+    .btn-search-icon {
+        padding: 8px 14px;
+        background-color: $primary-navy;
+        color: #ffffff;
+        border: none;
+        border-radius: $radius-sm;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        white-space: nowrap;
+
+        &:hover {
+            background-color: lighten($primary-navy, 10%);
         }
     }
 }

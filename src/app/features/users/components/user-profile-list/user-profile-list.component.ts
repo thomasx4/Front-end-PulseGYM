@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { UserService } from '../../../../core/services/user.service';
+import { UserService, FiltrosPerfiles, RespuestaPaginadaPerfiles } from '../../../../core/services/user.service';
 import Swal from 'sweetalert2';
 
 export interface UserProfile {
@@ -35,16 +35,14 @@ export interface UserProfile {
 })
 export class UserProfileListComponent implements OnInit {
   perfiles: UserProfile[] = [];
-  perfilesFiltrados: UserProfile[] = [];
   loading: boolean = false;
   errorMensaje: string = '';
 
-  // Paginación
-  paginaActual: number = 1;
-  itemsPorPagina: number = 5;
+  numeroPagina: number = 0;
+  tamanioPagina: number = 7;
   totalElementos: number = 0;
+  totalPaginas: number = 0;
 
-  // Filtros
   searchTerm: string = '';
   filtroRol: string = 'todos';
   filtroEstado: string = 'todos';
@@ -58,24 +56,37 @@ export class UserProfileListComponent implements OnInit {
     this.cargarPerfiles();
   }
 
-  onImageError(perfil: UserProfile): void {
-    perfil.fotoUrl = '';
-  }
-
-  private ordenarPerfiles(perfiles: UserProfile[]): UserProfile[] {
-    return perfiles.sort((a, b) => {
-      return b.idUsuario - a.idUsuario;
-    });
-  }
-
   cargarPerfiles(): void {
     this.loading = true;
     this.errorMensaje = '';
 
-    this.userService.obtenerTodosLosPerfiles().subscribe({
-      next: (data: UserProfile[]) => {
-        this.perfiles = this.ordenarPerfiles(data);
-        this.aplicarFiltros();
+    const filtros: FiltrosPerfiles = {
+      pagina: this.numeroPagina,
+      tamanio: this.tamanioPagina,
+      busqueda: this.searchTerm.trim() || undefined,
+      rol: this.filtroRol !== 'todos' ? this.filtroRol : undefined,
+      estado: this.filtroEstado !== 'todos' ? this.filtroEstado : undefined
+    };
+
+    this.userService.listarPerfilesPaginados(filtros).subscribe({
+      next: (response: any) => {
+        if (Array.isArray(response)) {
+          this.totalElementos = response.length;
+          this.totalPaginas = Math.ceil(this.totalElementos / this.tamanioPagina) || 1;
+
+          const inicioSlice = this.numeroPagina * this.tamanioPagina;
+          const finSlice = inicioSlice + this.tamanioPagina;
+          this.perfiles = response.slice(inicioSlice, finSlice);
+        }
+        else {
+          const listData = response.data || response.contenido || response.content || [];
+          this.perfiles = Array.isArray(listData) ? listData : [];
+          this.totalElementos = response.totalElementos ?? response.totalElements ?? this.perfiles.length;
+          this.totalPaginas = response.totalPaginas ?? response.totalPages ?? 1;
+          this.numeroPagina = response.numeroPagina ?? response.currentPage ?? response.number ?? 0;
+          this.tamanioPagina = response.tamanioPagina ?? response.size ?? 7;
+        }
+
         this.loading = false;
       },
       error: (error: any) => {
@@ -87,103 +98,78 @@ export class UserProfileListComponent implements OnInit {
   }
 
   aplicarFiltros(): void {
-    let filtrados = [...this.perfiles];
-
-    if (this.searchTerm.trim()) {
-      const term = this.searchTerm.toLowerCase().trim();
-      filtrados = filtrados.filter(p =>
-        p.nombre.toLowerCase().includes(term) ||
-        p.apellido.toLowerCase().includes(term) ||
-        p.email.toLowerCase().includes(term) ||
-        p.documentoIdentidad.includes(term)
-      );
-    }
-
-    if (this.filtroRol !== 'todos') {
-      filtrados = filtrados.filter(p => p.rol?.toLowerCase() === this.filtroRol);
-    }
-
-    if (this.filtroEstado !== 'todos') {
-      filtrados = filtrados.filter(p => p.estado.toLowerCase() === this.filtroEstado);
-    }
-
-    this.perfilesFiltrados = this.ordenarPerfiles(filtrados);
-    this.totalElementos = this.perfilesFiltrados.length;
-    this.paginaActual = 1;
+    this.numeroPagina = 0;
+    this.cargarPerfiles();
   }
 
-  // LIMPIAR FILTROS
   limpiarFiltros(): void {
     this.searchTerm = '';
     this.filtroRol = 'todos';
     this.filtroEstado = 'todos';
-    this.aplicarFiltros();
+    this.numeroPagina = 0;
+    this.cargarPerfiles();
   }
 
-  //  PAGINACIÓN 
-  get perfilesPaginados(): UserProfile[] {
-    const inicio = (this.paginaActual - 1) * this.itemsPorPagina;
-    return this.perfilesFiltrados.slice(inicio, inicio + this.itemsPorPagina);
-  }
-
-  get totalPaginas(): number {
-    return Math.ceil(this.perfilesFiltrados.length / this.itemsPorPagina) || 1;
-  }
-
-  get paginasVisibles(): number[] {
-    const total = this.totalPaginas;
-    const maxVisible = 5;
-    let start = Math.max(1, this.paginaActual - Math.floor(maxVisible / 2));
-    let end = Math.min(total, start + maxVisible - 1);
-    if (end - start < maxVisible - 1) {
-      start = Math.max(1, end - maxVisible + 1);
-    }
-    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
-  }
-
-  get inicio(): number {
-    return (this.paginaActual - 1) * this.itemsPorPagina + 1;
-  }
-
-  get fin(): number {
-    return Math.min(this.paginaActual * this.itemsPorPagina, this.perfilesFiltrados.length);
-  }
-
-  irPagina(pagina: number): void {
-    if (pagina >= 1 && pagina <= this.totalPaginas) {
-      this.paginaActual = pagina;
+  irPagina(pZeroBased: number): void {
+    if (pZeroBased !== this.numeroPagina && pZeroBased >= 0 && pZeroBased < this.totalPaginas) {
+      this.numeroPagina = pZeroBased;
+      this.cargarPerfiles();
     }
   }
 
   paginaAnterior(): void {
-    if (this.paginaActual > 1) this.paginaActual--;
+    if (this.numeroPagina > 0) {
+      this.irPagina(this.numeroPagina - 1);
+    }
   }
 
   paginaSiguiente(): void {
-    if (this.paginaActual < this.totalPaginas) this.paginaActual++;
+    if (this.numeroPagina < this.totalPaginas - 1) {
+      this.irPagina(this.numeroPagina + 1);
+    }
   }
 
-  
-  // ACCIONES
-  
+  get paginasVisibles(): number[] {
+    const maxVisibles = 4;
+    let inicio = Math.max(0, this.numeroPagina - 1);
+    let fin = inicio + maxVisibles;
 
-  // VER DETALLE
-verDetalle(perfil: UserProfile): void {
+    if (fin > this.totalPaginas) {
+      fin = this.totalPaginas;
+      inicio = Math.max(0, fin - maxVisibles);
+    }
+
+    const paginas: number[] = [];
+    for (let i = inicio; i < fin; i++) {
+      paginas.push(i);
+    }
+    return paginas;
+  }
+
+  get inicio(): number {
+    return this.totalElementos === 0 ? 0 : this.numeroPagina * this.tamanioPagina + 1;
+  }
+
+  get fin(): number {
+    return Math.min((this.numeroPagina + 1) * this.tamanioPagina, this.totalElementos);
+  }
+
+  onImageError(perfil: UserProfile): void {
+    perfil.fotoUrl = '';
+  }
+
+  verDetalle(perfil: UserProfile): void {
     this.router.navigate(['/dashboard-admin/users/profiles/detail', perfil.idUsuario]);
-}
+  }
 
-  // EDITAR PERFIL
   editarPerfil(perfil?: UserProfile): void {
     if (perfil) {
-      console.log('✏️ Editar perfil:', perfil.idUsuario);
       this.router.navigate(['/dashboard-admin/users/profiles/edit', perfil.idUsuario]);
     } else {
-      console.log('➕ Crear nuevo perfil');
       this.router.navigate(['/dashboard-admin/users/profiles/new']);
     }
   }
 
-  // CAMBIAR ESTADO
   toggleEstado(perfil: UserProfile): void {
     const nuevoEstado = perfil.estado === 'ACTIVO' ? 'INACTIVO' : 'ACTIVO';
 
@@ -220,17 +206,6 @@ verDetalle(perfil: UserProfile): void {
     });
   }
 
-  //  OBTENER CLASE DEL ROL 
-  getRolClass(rol: string): string {
-    if (!rol) return 'rol-default';
-    const rolLower = rol.toLowerCase();
-    if (rolLower.includes('administrador')) return 'rol-admin';
-    if (rolLower.includes('entrenador')) return 'rol-trainer';
-    if (rolLower.includes('recepcionista')) return 'rol-receptionist';
-    if (rolLower.includes('socio')) return 'rol-member';
-    return 'rol-default';
-  }
-
   formatearFecha(fecha: string): string {
     if (!fecha) return 'N/D';
     const date = new Date(fecha);
@@ -240,13 +215,5 @@ verDetalle(perfil: UserProfile): void {
 
   getTotalPorRol(rol: string): number {
     return this.perfiles.filter(p => p.rol?.toLowerCase() === rol.toLowerCase()).length;
-  }
-
-  getTotalActivos(): number {
-    return this.perfiles.filter(p => p.estado === 'ACTIVO').length;
-  }
-
-  getTotalInactivos(): number {
-    return this.perfiles.filter(p => p.estado === 'INACTIVO').length;
   }
 }
