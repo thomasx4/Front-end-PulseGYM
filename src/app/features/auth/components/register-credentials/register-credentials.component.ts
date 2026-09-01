@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, Output, EventEmitter } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { AuthService } from '../../../../core/services/auth.service';
-import { RegisterRequestDTO, RolUsuario } from '../../models/auth/auth.model';
+import { RolUsuario } from '../../models/auth/auth.model';
 import { HttpErrorResponse } from '@angular/common/http';
 import Swal from 'sweetalert2';
 
@@ -11,6 +11,9 @@ import Swal from 'sweetalert2';
   styleUrls: ['./register-credentials.component.scss']
 })
 export class RegisterCredentialsComponent {
+  @Output() usuarioCreado = new EventEmitter<void>();
+  @Output() cerrar = new EventEmitter<void>();
+
   form: FormGroup;
   enviando = false;
 
@@ -22,21 +25,57 @@ export class RegisterCredentialsComponent {
       email: ['', [Validators.required, Validators.email]],
       password: ['', [
         Validators.required,
-        Validators.minLength(8),
-        this.passwordValidator
+        this.passwordRequirementsValidator
       ]],
       rol: ['', Validators.required]
     });
   }
 
-  passwordValidator(control: AbstractControl): ValidationErrors | null {
-    const value = control.value;
+  onCerrar(): void {
+    this.cerrar.emit();
+  }
+
+  passwordRequirementsValidator(control: AbstractControl): ValidationErrors | null {
+    const value = control.value || '';
     if (!value) return null;
-    const hasUpperCase = /[A-Z]/.test(value);
-    const hasNumeric = /[0-9]/.test(value);
-    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(value);
-    const passwordValid = hasUpperCase && hasNumeric && hasSpecial;
-    return !passwordValid ? { passwordStrength: true } : null;
+
+    const errors: ValidationErrors = {};
+
+    if (value.length < 8) {
+      errors['minLength'] = true;
+    }
+    if (!/[A-Z]/.test(value)) {
+      errors['noUpperCase'] = true;
+    }
+    if (!/[0-9]/.test(value)) {
+      errors['noNumeric'] = true;
+    }
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(value)) {
+      errors['noSpecialChar'] = true;
+    }
+
+    return Object.keys(errors).length > 0 ? errors : null;
+  }
+
+  // Getters auxiliares para verificar cada regla individualmente en el template
+  get passValue(): string {
+    return this.form.get('password')?.value || '';
+  }
+
+  get hasMinLength(): boolean {
+    return this.passValue.length >= 8;
+  }
+
+  get hasUpperCase(): boolean {
+    return /[A-Z]/.test(this.passValue);
+  }
+
+  get hasNumeric(): boolean {
+    return /[0-9]/.test(this.passValue);
+  }
+
+  get hasSpecial(): boolean {
+    return /[!@#$%^&*(),.?":{}|<>]/.test(this.passValue);
   }
 
   onSubmit(): void {
@@ -66,7 +105,9 @@ export class RegisterCredentialsComponent {
           icon: 'success',
           confirmButtonColor: '#0E3B72'
         });
+
         this.form.reset();
+        this.usuarioCreado.emit();
       },
       error: (err: HttpErrorResponse) => {
         this.enviando = false;

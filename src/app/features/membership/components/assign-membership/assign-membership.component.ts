@@ -1,6 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { forkJoin, firstValueFrom, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
 import {
   MembershipService,
   AsignacionRequest,
@@ -9,7 +7,6 @@ import {
   SuspenderRequest,
   CancelarRequest,
 } from '../../../../core/services/membership.service';
-import { UserService } from '../../../../core/services/user.service';
 import Swal from 'sweetalert2';
 
 export interface MembresiaUI {
@@ -52,18 +49,15 @@ export class AssignMembershipComponent implements OnInit {
   membresiaSeleccionada: MembresiaUI | null = null;
   membresiasPorVencer: any[] = [];
 
-  // MAPA DE FOTOS POR USUARIO
-  fotosUsuariosMap: Map<number, string> = new Map<number, string>();
   avatarErrors: Set<string> = new Set<string>();
 
   // MODAL DE ASIGNACIÓN
   mostrarModal: boolean = false;
   mostrarModalFlexible: boolean = false;
   searchTermModal: string = '';
-  loading: boolean = false;
+  loading: boolean = true;
   errorMessage: string = '';
   successMessage: string = '';
-  isInfoAlert: boolean = false;
 
   // MODAL FLEXIBLE
   diasFlexibles: number = 1;
@@ -75,6 +69,7 @@ export class AssignMembershipComponent implements OnInit {
   // PAGINACIÓN MEMBRESÍAS (TARJETAS)
   paginaMembresiasActual: number = 1;
   itemsPorPaginaMembresias: number = 6;
+  totalMembresiasBackend: number = 0;
 
   // SOCIOS ASIGNADOS (PAGINACIÓN)
   sociosAsignados: SocioUI[] = [];
@@ -95,30 +90,88 @@ export class AssignMembershipComponent implements OnInit {
   paginaPorVencerActual: number = 1;
   readonly itemsPorPaginaPorVencer: number = 6;
 
-  constructor(
-    private membershipService: MembershipService,
-    private userService: UserService
-  ) { }
+  constructor(private membershipService: MembershipService) { }
 
   ngOnInit(): void {
-    this.cargarMapaFotos();
-    this.cargarMembresias();
-    this.cargarPorVencer();
+    this.cargarDashboard(0);
   }
 
-  cargarMapaFotos(): void {
-    this.userService.obtenerTodosLosPerfilesActivos().pipe(
-      catchError(() => of([]))
-    ).subscribe((usuarios: any[]) => {
-      if (Array.isArray(usuarios)) {
-        usuarios.forEach((u: any) => {
-          const id = u.idUsuario || u.id;
-          const foto = u.fotoUrl || u.fotoPerfil || u.foto || u.avatar;
-          if (id && foto) {
-            this.fotosUsuariosMap.set(Number(id), foto);
-          }
-        });
-      }
+  cargarDashboard(page: number = 0): void {
+    this.loading = true;
+    this.errorMessage = '';
+
+    this.membershipService.getDashboardMembresias(page, this.itemsPorPaginaMembresias).subscribe({
+      next: (res: any) => {
+        try {
+          const responseBody = res?.data || res || {};
+
+          const membresiasPaginadas = responseBody.membresiasPaginadas || responseBody.membresias || {};
+          const listMembresias: any[] = Array.isArray(membresiasPaginadas)
+            ? membresiasPaginadas
+            : (membresiasPaginadas.content || responseBody.content || []);
+
+          this.totalMembresiasBackend = membresiasPaginadas.totalElements ?? listMembresias.length;
+
+          this.membresias = listMembresias.map((item: any) => ({
+            id: Number(item.idMembresia || item.id),
+            nombre: item.nombre || 'Sin nombre',
+            precio: item.precioTotal ?? item.precio ?? 0,
+            periodo: 'mo',
+            beneficios: item.beneficios
+              ? typeof item.beneficios === 'string'
+                ? item.beneficios.split(',').map((b: string) => b.trim())
+                : Array.isArray(item.beneficios) ? item.beneficios : [item.beneficios]
+              : ['Sin beneficios'],
+            estado: item.activo !== false ? 'Activa' : 'Inactiva',
+            sociosActivos: item.sociosActivosCount ?? item.cantidadSocios ?? (item.sociosAsignados?.length || 0),
+            incluyeIA: !!item.incluyeIA,
+            esFlexible: !!item.esFlexible,
+          }));
+
+          const usuariosRaw = responseBody.usuariosActivos || [];
+          const usuariosData = Array.isArray(usuariosRaw) ? usuariosRaw : (usuariosRaw.content || []);
+          this.sociosModal = usuariosData.map((u: any) => ({
+            id: Number(u.idUsuario || u.id),
+            nombre: u.nombreCompleto || `${u.nombre || ''} ${u.apellido || ''}`.trim() || 'Usuario',
+            telefono: u.telefono || u.celular || 'No disponible',
+            fechaRegistro: this.formatearFecha(u.fechaRegistro || u.fechaCreacion || u.createdAt),
+            fotoUrl: u.fotoUrl || u.fotoPerfil || u.foto || u.avatar || null,
+            estado: u.estado || 'ACTIVO',
+          }));
+          this.sociosFiltradosModal = [...this.sociosModal];
+
+          const porVencerRaw =
+            responseBody.membresiasPorVencer ||
+            responseBody.membresiasProximasAVencer ||
+            responseBody.porVencer ||
+            [];
+
+          const porVencerData = Array.isArray(porVencerRaw)
+            ? porVencerRaw
+            : (porVencerRaw.content || []);
+
+          this.membresiasPorVencer = porVencerData.map((item: any) => ({
+            ...item,
+            id: Number(item.idSocioMembresia || item.id || item.idSocio),
+            idSocio: Number(item.idSocio || item.idUsuario || item.id),
+            idSocioMembresia: Number(item.idSocioMembresia || item.id),
+            nombreSocio: item.nombreSocio || item.nombreCompleto || item.nombre || 'Socio',
+            tipoMembresia: item.tipoMembresia || item.nombreMembresia || item.membresia || 'Plan Activo',
+            diasRestantes: item.diasRestantes ?? item.diasParaVencer ?? item.diasRestantesVencimiento ?? 0,
+            fotoUrl: item.fotoUrl || item.fotoPerfil || item.foto || item.avatar || null,
+          }));
+
+        } catch (err) {
+          console.error('Error al mapear la respuesta del dashboard:', err);
+        } finally {
+          this.loading = false;
+        }
+      },
+      error: (error: any) => {
+        console.error('Error HTTP al cargar dashboard:', error);
+        this.errorMessage = error.error?.message || 'Error al conectar con el servidor de membresías.';
+        this.loading = false;
+      },
     });
   }
 
@@ -126,20 +179,23 @@ export class AssignMembershipComponent implements OnInit {
 
   getFotoSocio(socio: any): string | null {
     if (!socio) return null;
-    const directFoto = socio.fotoUrl || socio.avatarUrl || socio.fotoPerfil || socio.foto || socio.avatar;
-    if (directFoto && !directFoto.includes('ui-avatars.com') && !directFoto.includes('default-avatar.png')) {
+    const directFoto =
+      socio.fotoUrl ||
+      socio.avatarUrl ||
+      socio.fotoPerfil ||
+      socio.foto ||
+      socio.avatar;
+
+    if (
+      directFoto &&
+      !directFoto.includes('ui-avatars.com') &&
+      !directFoto.includes('default-avatar.png')
+    ) {
       let rawUrl = String(directFoto).trim();
       if (rawUrl !== '' && rawUrl !== 'null' && rawUrl !== 'undefined') {
         return rawUrl.startsWith('//') ? `https:${rawUrl}` : rawUrl;
       }
     }
-
-    const id = socio.idSocio || socio.id || socio.idUsuario;
-    if (id && this.fotosUsuariosMap.has(Number(id))) {
-      const fotoMap = this.fotosUsuariosMap.get(Number(id));
-      if (fotoMap) return fotoMap;
-    }
-
     return null;
   }
 
@@ -155,7 +211,7 @@ export class AssignMembershipComponent implements OnInit {
 
   getInitials(nombre?: string): string {
     if (!nombre) return 'U';
-    const partes = nombre.trim().split(' ').filter(p => p.length > 0);
+    const partes = nombre.trim().split(' ').filter((p) => p.length > 0);
     if (partes.length === 0) return 'U';
     if (partes.length === 1) return partes[0].charAt(0).toUpperCase();
     return (partes[0].charAt(0) + partes[1].charAt(0)).toUpperCase();
@@ -164,12 +220,11 @@ export class AssignMembershipComponent implements OnInit {
   // GETTERS PAGINACIÓN MEMBRESÍAS
 
   get membresiasPaginadas(): MembresiaUI[] {
-    const inicio = (this.paginaMembresiasActual - 1) * this.itemsPorPaginaMembresias;
-    return this.membresias.slice(inicio, inicio + this.itemsPorPaginaMembresias);
+    return this.membresias;
   }
 
   get totalPaginasMembresias(): number {
-    return Math.ceil(this.membresias.length / this.itemsPorPaginaMembresias) || 1;
+    return Math.ceil(this.totalMembresiasBackend / this.itemsPorPaginaMembresias) || 1;
   }
 
   get paginasMembresias(): number[] {
@@ -180,8 +235,7 @@ export class AssignMembershipComponent implements OnInit {
 
   get membresiasPorVencerPaginadas(): any[] {
     const inicio = (this.paginaPorVencerActual - 1) * this.itemsPorPaginaPorVencer;
-    const fin = inicio + this.itemsPorPaginaPorVencer;
-    return this.membresiasPorVencer.slice(inicio, fin);
+    return this.membresiasPorVencer.slice(inicio, inicio + this.itemsPorPaginaPorVencer);
   }
 
   get totalPaginasPorVencer(): number {
@@ -222,93 +276,24 @@ export class AssignMembershipComponent implements OnInit {
     return Array.from({ length: this.totalSociosModalPaginas }, (_, i) => i + 1);
   }
 
-  // CARGA DE DATOS
-
-  cargarMembresias(): void {
-    this.loading = true;
-    this.errorMessage = '';
-
-    this.membershipService.getMembresias().subscribe({
-      next: (response: any) => {
-        this.membresias = (response || []).map((item: any) => ({
-          id: item.idMembresia,
-          nombre: item.nombre,
-          precio: item.precioTotal || 0,
-          periodo: 'mo',
-          beneficios: item.beneficios
-            ? item.beneficios.split(',').map((b: string) => b.trim())
-            : ['Sin beneficios'],
-          estado: item.activo ? 'Activa' : 'Inactiva',
-          sociosActivos: 0,
-          incluyeIA: !!item.incluyeIA,
-          esFlexible: !!item.esFlexible,
-        }));
-        this.paginaMembresiasActual = 1;
-        this.actualizarConteoSocios();
-        this.loading = false;
-      },
-      error: (error) => {
-        this.errorMessage = error.error?.message || 'Error al cargar membresías.';
-        this.loading = false;
-      },
-    });
-  }
-
-  actualizarConteoSocios(): void {
-    if (this.membresias.length === 0) return;
-
-    const observables = this.membresias.map((m) =>
-      this.membershipService
-        .getMembresiaConSociosActivos(m.id)
-        .pipe(
-          catchError(() => of({ sociosAsignados: [] }))
-        )
-    );
-
-    forkJoin(observables).subscribe((respuestas: any[]) => {
-      respuestas.forEach((response, index) => {
-        const sociosData = response?.sociosAsignados || response?.data || [];
-        this.membresias[index].sociosActivos = sociosData.length;
-      });
-    });
-  }
-
-  cargarPorVencer(): void {
-    this.membershipService.getPorVencer().subscribe({
-      next: (response: any) => {
-        this.membresiasPorVencer = (response || []).map((item: any) => {
-          const idSocioNum = Number(item.idSocio || item.id);
-          const foto = item.fotoUrl || item.fotoPerfil || item.foto || item.avatar || this.fotosUsuariosMap.get(idSocioNum) || null;
-          return {
-            ...item,
-            fotoUrl: foto
-          };
-        });
-        this.paginaPorVencerActual = 1;
-      },
-      error: () => {
-        this.membresiasPorVencer = [];
-      },
-    });
-  }
-
   // MÉTODOS DE PAGINACIÓN MEMBRESÍAS
 
   cambiarPaginaMembresias(pagina: number): void {
     if (pagina >= 1 && pagina <= this.totalPaginasMembresias) {
       this.paginaMembresiasActual = pagina;
+      this.cargarDashboard(pagina - 1);
     }
   }
 
   paginaAnteriorMembresias(): void {
     if (this.paginaMembresiasActual > 1) {
-      this.paginaMembresiasActual--;
+      this.cambiarPaginaMembresias(this.paginaMembresiasActual - 1);
     }
   }
 
   paginaSiguienteMembresias(): void {
     if (this.paginaMembresiasActual < this.totalPaginasMembresias) {
-      this.paginaMembresiasActual++;
+      this.cambiarPaginaMembresias(this.paginaMembresiasActual + 1);
     }
   }
 
@@ -346,7 +331,7 @@ export class AssignMembershipComponent implements OnInit {
     }
   }
 
-  // VER SOCIOS
+  // VER SOCIOS DETALLE
 
   verSocios(id: number): void {
     this.loading = true;
@@ -358,8 +343,7 @@ export class AssignMembershipComponent implements OnInit {
         const seleccionada = this.membresias.find((m) => m.id === id);
         if (seleccionada) {
           this.membresiaSeleccionada = seleccionada;
-
-          const sociosData = response?.sociosAsignados || response?.data || [];
+          const sociosData = response?.sociosAsignados || response?.data || response?.content || [];
 
           if (!sociosData || sociosData.length === 0) {
             this.loading = false;
@@ -373,24 +357,17 @@ export class AssignMembershipComponent implements OnInit {
             return;
           }
 
-          this.sociosAsignados = sociosData.map((s: any) => {
-            const idSocioNum = Number(s.idSocio || s.id);
-            const foto = s.fotoUrl || s.fotoPerfil || s.foto || s.avatar || this.fotosUsuariosMap.get(idSocioNum) || null;
-
-            return {
-              id: idSocioNum,
-              idSocioMembresia: s.idSocioMembresia,
-              nombre: s.nombreCompleto || s.nombre || 'Usuario',
-              telefono: s.telefono || 'No disponible',
-              precioTotal: s.precioReal !== undefined && s.precioReal !== null
-                ? s.precioReal
-                : s.precioTotal || seleccionada.precio || 0,
-              fechaAsignacion: this.formatearFecha(s.fechaAsignacion || s.fechaCreacion),
-              fechaVencimiento: this.formatearFecha(s.fechaVencimiento),
-              fotoUrl: foto,
-              estado: s.estado || 'ACTIVA',
-            };
-          });
+          this.sociosAsignados = sociosData.map((s: any) => ({
+            id: Number(s.idSocio || s.id),
+            idSocioMembresia: s.idSocioMembresia,
+            nombre: s.nombreCompleto || s.nombre || 'Usuario',
+            telefono: s.telefono || 'No disponible',
+            precioTotal: s.precioReal ?? s.precioTotal ?? seleccionada.precio ?? 0,
+            fechaAsignacion: this.formatearFecha(s.fechaAsignacion || s.fechaCreacion),
+            fechaVencimiento: this.formatearFecha(s.fechaVencimiento),
+            fotoUrl: s.fotoUrl || s.fotoPerfil || s.foto || s.avatar || null,
+            estado: s.estado || 'ACTIVA',
+          }));
 
           this.membresiaSeleccionada.sociosActivos = this.sociosAsignados.length;
           this.sociosAsignadosFiltrados = [...this.sociosAsignados];
@@ -415,12 +392,11 @@ export class AssignMembershipComponent implements OnInit {
 
   // MODAL DE ASIGNACIÓN
 
-  async asignarMembresia(id: number): Promise<void> {
+  asignarMembresia(id: number): void {
     const seleccionada = this.membresias.find((m) => m.id === id);
     if (!seleccionada) return;
 
     this.membresiaSeleccionada = seleccionada;
-    await this.cargarUsuariosActivos();
 
     if (seleccionada.esFlexible) {
       this.mostrarModalFlexible = true;
@@ -442,38 +418,7 @@ export class AssignMembershipComponent implements OnInit {
     if (this.vistaActual === 'socios' && this.membresiaSeleccionada) {
       this.verSocios(this.membresiaSeleccionada.id);
     } else {
-      this.cargarMembresias();
-    }
-    this.cargarPorVencer();
-  }
-
-  async cargarUsuariosActivos(): Promise<void> {
-    this.loading = true;
-    try {
-      const response: any = await firstValueFrom(
-        this.membershipService.getUsuariosActivos(),
-      );
-      const usuarios = response || [];
-      this.sociosModal = usuarios.map((u: any) => {
-        const idSocioNum = Number(u.idUsuario || u.id);
-        const foto = u.fotoUrl || u.fotoPerfil || u.foto || u.avatar || this.fotosUsuariosMap.get(idSocioNum) || null;
-
-        return {
-          id: idSocioNum,
-          nombre: u.nombre || 'Usuario',
-          telefono: u.telefono || 'No disponible',
-          fechaRegistro: this.formatearFecha(u.fechaRegistro || u.fechaCreacion),
-          fotoUrl: foto,
-          estado: u.estado || 'ACTIVO',
-        };
-      });
-      this.sociosFiltradosModal = [...this.sociosModal];
-    } catch (error: any) {
-      this.errorMessage = error.error?.message || 'Error al cargar usuarios activos.';
-      this.sociosModal = [];
-      this.sociosFiltradosModal = [];
-    } finally {
-      this.loading = false;
+      this.cargarDashboard(this.paginaMembresiasActual - 1);
     }
   }
 
@@ -488,7 +433,7 @@ export class AssignMembershipComponent implements OnInit {
       showCancelButton: true,
       confirmButtonText: 'Confirmar y Asignar',
       cancelButtonText: 'Cancelar',
-      confirmButtonColor: '#0f1c3f'
+      confirmButtonColor: '#0f1c3f',
     });
 
     if (result.isConfirmed) {
@@ -515,11 +460,11 @@ export class AssignMembershipComponent implements OnInit {
         }
         this.mostrarAlertaExito(
           '¡Membresía Asignada!',
-          `La membresía se ha asignado correctamente a ${socio.nombre}.`,
+          `La membresía se ha asignado correctamente a ${socio.nombre}.`
         );
         this.cerrarModal();
       },
-      error: (error) => {
+      error: (error: any) => {
         this.loading = false;
         this.mostrarAlertaError(error.error?.message || 'Error al asignar la membresía.');
       },
@@ -535,7 +480,7 @@ export class AssignMembershipComponent implements OnInit {
       showCancelButton: true,
       confirmButtonText: 'Confirmar y Asignar',
       cancelButtonText: 'Cancelar',
-      confirmButtonColor: '#0f1c3f'
+      confirmButtonColor: '#0f1c3f',
     });
 
     if (result.isConfirmed) {
@@ -550,7 +495,9 @@ export class AssignMembershipComponent implements OnInit {
       idSocio: socio.id,
       idMembresia: this.membresiaSeleccionada.id,
       cantidadDias: this.diasFlexibles,
-      observaciones: this.observacionesFlexible || `Asignación flexible desde panel admin - ${new Date().toLocaleDateString('es-ES')}`,
+      observaciones:
+        this.observacionesFlexible ||
+        `Asignación flexible desde panel admin - ${new Date().toLocaleDateString('es-ES')}`,
     };
 
     this.loading = true;
@@ -563,11 +510,11 @@ export class AssignMembershipComponent implements OnInit {
         }
         this.mostrarAlertaExito(
           '¡Membresía Flexible Asignada!',
-          `Se han asignado ${this.diasFlexibles} día(s) a ${socio.nombre}.`,
+          `Se han asignado ${this.diasFlexibles} día(s) a ${socio.nombre}.`
         );
         this.cerrarModal();
       },
-      error: (error) => {
+      error: (error: any) => {
         this.loading = false;
         this.mostrarAlertaError(error.error?.message || 'Error al asignar la membresía flexible.');
       },
@@ -588,7 +535,7 @@ export class AssignMembershipComponent implements OnInit {
       showCancelButton: true,
       confirmButtonText: 'Renovar Membresía',
       cancelButtonText: 'Cancelar',
-      confirmButtonColor: '#0f1c3f'
+      confirmButtonColor: '#0f1c3f',
     });
 
     if (result.isConfirmed) {
@@ -597,13 +544,12 @@ export class AssignMembershipComponent implements OnInit {
   }
 
   async ejecutarRenovar(socio: SocioUI): Promise<void> {
-    if (!socio.idSocioMembresia) {
-      this.mostrarAlertaError('No se encontró el ID de la membresía del socio.');
-      return;
-    }
+    if (!socio.idSocioMembresia) return;
 
-    const esFlexible = this.membresiaSeleccionada?.esFlexible ??
-      (socio as any).esFlexible ?? (socio as any).flexible ?? false;
+    const esFlexible =
+      this.membresiaSeleccionada?.esFlexible ??
+      (socio as any).esFlexible ??
+      false;
 
     let cantidadDias: number | undefined;
 
@@ -639,14 +585,16 @@ export class AssignMembershipComponent implements OnInit {
     this.membershipService.renovarMembresia(request).subscribe({
       next: () => {
         this.accionEnProceso = false;
-        this.mostrarAlertaExito('¡Membresía Renovada!', `La membresía de ${socio.nombre} ha sido renovada con éxito.`);
-        this.cargarMembresias();
-        this.cargarPorVencer();
+        this.mostrarAlertaExito(
+          '¡Membresía Renovada!',
+          `La membresía de ${socio.nombre} ha sido renovada con éxito.`
+        );
+        this.cargarDashboard(this.paginaMembresiasActual - 1);
         if (this.membresiaSeleccionada) {
           this.verSocios(this.membresiaSeleccionada.id);
         }
       },
-      error: (error) => {
+      error: (error: any) => {
         this.accionEnProceso = false;
         this.mostrarAlertaError(error.error?.message || 'Error al renovar la membresía.');
       },
@@ -667,7 +615,7 @@ export class AssignMembershipComponent implements OnInit {
       showCancelButton: true,
       confirmButtonText: 'Suspender Membresía',
       cancelButtonText: 'Cancelar',
-      confirmButtonColor: '#0f1c3f'
+      confirmButtonColor: '#0f1c3f',
     });
 
     if (isConfirmed) {
@@ -689,12 +637,12 @@ export class AssignMembershipComponent implements OnInit {
       next: () => {
         this.accionEnProceso = false;
         this.mostrarAlertaExito('¡Membresía Suspendida!', `La membresía de ${socio.nombre} fue suspendida.`);
-        this.cargarMembresias();
+        this.cargarDashboard(this.paginaMembresiasActual - 1);
         if (this.membresiaSeleccionada) {
           this.verSocios(this.membresiaSeleccionada.id);
         }
       },
-      error: (error) => {
+      error: (error: any) => {
         this.accionEnProceso = false;
         this.mostrarAlertaError(error.error?.message || 'Error al suspender la membresía.');
       },
@@ -715,7 +663,7 @@ export class AssignMembershipComponent implements OnInit {
       showCancelButton: true,
       confirmButtonText: 'Eliminar / Cancelar',
       cancelButtonText: 'Cancelar',
-      confirmButtonColor: '#ef4444'
+      confirmButtonColor: '#ef4444',
     });
 
     if (isConfirmed) {
@@ -733,16 +681,19 @@ export class AssignMembershipComponent implements OnInit {
       motivo: motivo,
     };
 
-    this.membershipService.cancelarMembresia(request).subscribe({
+    this.membershipService.cancelaMembresia(request).subscribe({
       next: () => {
         this.accionEnProceso = false;
-        this.mostrarAlertaExito('¡Membresía Cancelada!', `La membresía de ${socio.nombre} ha sido cancelada definitivamente.`);
-        this.cargarMembresias();
+        this.mostrarAlertaExito(
+          '¡Membresía Cancelada!',
+          `La membresía de ${socio.nombre} ha sido cancelada definitivamente.`
+        );
+        this.cargarDashboard(this.paginaMembresiasActual - 1);
         if (this.membresiaSeleccionada) {
           this.verSocios(this.membresiaSeleccionada.id);
         }
       },
-      error: (error) => {
+      error: (error: any) => {
         this.accionEnProceso = false;
         this.mostrarAlertaError(error.error?.message || 'Error al cancelar la membresía.');
       },
@@ -750,8 +701,12 @@ export class AssignMembershipComponent implements OnInit {
   }
 
   async renovarDesdePorVencer(item: any): Promise<void> {
-    const esFlexible = item.esFlexible ?? item.flexible ?? item.membresiaEsFlexible ??
-      item.membresia?.esFlexible ?? (item.cantidadDias !== undefined && item.cantidadDias !== null);
+    const esFlexible =
+      item.esFlexible ??
+      item.flexible ??
+      item.membresiaEsFlexible ??
+      item.membresia?.esFlexible ??
+      (item.cantidadDias !== undefined && item.cantidadDias !== null);
 
     let cantidadDias: number | undefined = item.cantidadDias;
 
@@ -788,12 +743,15 @@ export class AssignMembershipComponent implements OnInit {
       next: () => {
         this.accionEnProceso = false;
         Swal.fire('Éxito', 'La membresía ha sido renovada correctamente', 'success');
-        this.cargarPorVencer();
-        this.cargarMembresias();
+        this.cargarDashboard(this.paginaMembresiasActual - 1);
       },
       error: (err: any) => {
         this.accionEnProceso = false;
-        Swal.fire('Error', err.error?.message || 'Ocurrió un error al intentar renovar la membresía.', 'error');
+        Swal.fire(
+          'Error',
+          err.error?.message || 'Ocurrió un error al intentar renovar la membresía.',
+          'error'
+        );
       },
     });
   }
@@ -807,7 +765,7 @@ export class AssignMembershipComponent implements OnInit {
       text: mensaje,
       confirmButtonText: 'Entendido',
       timer: 3000,
-      confirmButtonColor: '#0f1c3f'
+      confirmButtonColor: '#0f1c3f',
     });
   }
 
@@ -817,7 +775,7 @@ export class AssignMembershipComponent implements OnInit {
       title: 'Ocurrió un error',
       text: mensaje,
       confirmButtonText: 'Aceptar',
-      confirmButtonColor: '#0f1c3f'
+      confirmButtonColor: '#0f1c3f',
     });
   }
 
@@ -828,15 +786,16 @@ export class AssignMembershipComponent implements OnInit {
     this.membresiaSeleccionada = null;
     this.errorMessage = '';
     this.successMessage = '';
-    this.cargarPorVencer();
-    this.cargarMembresias();
+    this.cargarDashboard(this.paginaMembresiasActual - 1);
   }
 
   onSearchModal(event: Event): void {
     const value = (event.target as HTMLInputElement).value.toLowerCase().trim();
     this.searchTermModal = value;
     this.sociosFiltradosModal = this.sociosModal.filter(
-      (s) => (s.nombre || '').toLowerCase().includes(value) || (s.telefono || '').toLowerCase().includes(value),
+      (s) =>
+        (s.nombre || '').toLowerCase().includes(value) ||
+        (s.telefono || '').toLowerCase().includes(value)
     );
     this.sociosModalPaginaActual = 1;
   }
@@ -845,7 +804,9 @@ export class AssignMembershipComponent implements OnInit {
     const value = (event.target as HTMLInputElement).value.toLowerCase().trim();
     this.searchTermSocios = value;
     this.sociosAsignadosFiltrados = this.sociosAsignados.filter(
-      (s) => (s.nombre || '').toLowerCase().includes(value) || (s.telefono || '').toLowerCase().includes(value),
+      (s) =>
+        (s.nombre || '').toLowerCase().includes(value) ||
+        (s.telefono || '').toLowerCase().includes(value)
     );
     this.sociosPaginaActual = 1;
   }

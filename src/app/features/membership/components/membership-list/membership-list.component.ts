@@ -1,8 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MembershipService } from '../../../../core/services/membership.service';
-import { UserService } from '../../../../core/services/user.service'; // <--- IMPORTANTE
-import { forkJoin } from 'rxjs';
 import Swal from 'sweetalert2';
 
 export interface Plan {
@@ -67,6 +65,8 @@ export class MembershipListComponent implements OnInit {
 
   paginaPlanesActual: number = 1;
   itemsPorPaginaPlanes: number = 6;
+  totalPaginasPlanesServer: number = 1;
+  totalElementsPlanes: number = 0;
 
   paginaActual: number = 1;
   itemsPorPagina: number = 6;
@@ -75,28 +75,28 @@ export class MembershipListComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private membershipService: MembershipService,
-    private userService: UserService // <--- INYECTAR SERVICIO DE USUARIOS
+    private membershipService: MembershipService
   ) { }
 
   ngOnInit(): void {
-    this.cargarDatos();
+    this.cargarDatosDashboard(this.paginaPlanesActual - 1);
   }
 
-  cargarDatos(): void {
+  cargarDatosDashboard(page: number = 0): void {
     this.loading = true;
 
-    // Ejecutamos la carga de membresías, datos con socios y los perfiles de usuarios de forma conjunta
-    forkJoin({
-      membresiasData: this.membershipService.getMembresias(),
-      dataConSocios: this.membershipService.getMembresiasConSocios(),
-      usuariosData: this.userService.obtenerTodosLosPerfilesActivos()
-    }).subscribe({
-      next: ({ membresiasData, dataConSocios, usuariosData }) => {
-        // Map de consulta rápida de fotos por idUsuario
+    this.membershipService.getDashboardMembresias(page, this.itemsPorPaginaPlanes).subscribe({
+      next: (dashboardData: any) => {
+        const membresiasPaginadas = dashboardData?.membresiasPaginadas || {};
+        const contentMembresias = membresiasPaginadas.content || [];
+        const usuariosActivos = dashboardData?.usuariosActivos || [];
+
+        this.totalPaginasPlanesServer = membresiasPaginadas.totalPages || 1;
+        this.totalElementsPlanes = membresiasPaginadas.totalElements || 0;
+
         const fotosUsuariosMap = new Map<number, string>();
-        if (usuariosData && Array.isArray(usuariosData)) {
-          usuariosData.forEach((u: any) => {
+        if (Array.isArray(usuariosActivos)) {
+          usuariosActivos.forEach((u: any) => {
             const id = u.idUsuario || u.id;
             const foto = u.fotoUrl || u.fotoPerfil || u.foto || u.avatar;
             if (id && foto) {
@@ -105,8 +105,7 @@ export class MembershipListComponent implements OnInit {
           });
         }
 
-        // Mapear planes
-        this.planes = (membresiasData || []).map((item: any) => ({
+        this.planes = contentMembresias.map((item: any) => ({
           id: item.idMembresia,
           nombre: item.nombre || 'Sin Nombre',
           precio: item.precioTotal || 0,
@@ -116,25 +115,15 @@ export class MembershipListComponent implements OnInit {
           accion: 'Ver Detalle',
           incluyeIA: !!item.incluyeIA,
           esFlexible: !!item.esFlexible,
-          totalSociosAsignados: 0
+          totalSociosAsignados: item.totalSociosAsignados || (item.sociosAsignados ? item.sociosAsignados.length : 0)
         }));
 
-        (dataConSocios || []).forEach((item: any) => {
-          const plan = this.planes.find(p => p.id === item.idMembresia);
-          if (plan) {
-            plan.totalSociosAsignados = item.totalSociosAsignados || 0;
-          }
-        });
-
-        // Mapear miembros asignando la foto recuperada
         this.miembros = [];
-        (dataConSocios || []).forEach((membresia: any) => {
+        contentMembresias.forEach((membresia: any) => {
           if (membresia.sociosAsignados && membresia.sociosAsignados.length > 0) {
             membresia.sociosAsignados.forEach((socio: any) => {
               const idSocioNum = Number(socio.idSocio);
               const dias = socio.diasRestantes ?? 0;
-
-              // Buscar primero en el DTO de socio, si no viene usar la foto del mapa de usuarios
               const fotoEncontrada = socio.fotoUrl || socio.fotoPerfil || socio.foto || socio.avatar || fotosUsuariosMap.get(idSocioNum) || null;
 
               this.miembros.push({
@@ -169,11 +158,11 @@ export class MembershipListComponent implements OnInit {
         this.loading = false;
       },
       error: (error: any) => {
-        console.error('Error al cargar datos:', error);
+        console.error('Error al cargar datos del dashboard:', error);
         this.loading = false;
         Swal.fire({
           title: 'Error',
-          text: 'No se pudieron cargar los datos de membresías y miembros',
+          text: 'No se pudieron cargar los datos del dashboard de membresías',
           icon: 'error',
           confirmButtonColor: '#0c1838'
         });
@@ -234,7 +223,6 @@ export class MembershipListComponent implements OnInit {
     }
 
     this.planesFiltrados = filtrados;
-    this.paginaPlanesActual = 1;
   }
 
   limpiarFiltrosPlanes(): void {
@@ -287,9 +275,9 @@ export class MembershipListComponent implements OnInit {
     this.aplicarFiltrosTabla();
   }
 
-  // PAGINACIÓN PLANES
+  // PAGINACIÓN BD PLANES
   get totalPaginasPlanes(): number {
-    return Math.ceil(this.planesFiltrados.length / this.itemsPorPaginaPlanes) || 1;
+    return this.totalPaginasPlanesServer;
   }
 
   get paginasPlanes(): number[] {
@@ -297,25 +285,27 @@ export class MembershipListComponent implements OnInit {
   }
 
   get planesPaginados(): Plan[] {
-    const inicio = (this.paginaPlanesActual - 1) * this.itemsPorPaginaPlanes;
-    return this.planesFiltrados.slice(inicio, inicio + this.itemsPorPaginaPlanes);
+    return this.planesFiltrados;
   }
 
   cambiarPaginaPlanes(pagina: number): void {
     if (pagina >= 1 && pagina <= this.totalPaginasPlanes) {
       this.paginaPlanesActual = pagina;
+      this.cargarDatosDashboard(pagina - 1);
     }
   }
 
   paginaPlanesAnterior(): void {
     if (this.paginaPlanesActual > 1) {
       this.paginaPlanesActual--;
+      this.cargarDatosDashboard(this.paginaPlanesActual - 1);
     }
   }
 
   paginaPlanesSiguiente(): void {
     if (this.paginaPlanesActual < this.totalPaginasPlanes) {
       this.paginaPlanesActual++;
+      this.cargarDatosDashboard(this.paginaPlanesActual - 1);
     }
   }
 

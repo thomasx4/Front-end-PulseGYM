@@ -21,8 +21,10 @@ export class SidebarComponent implements OnInit {
 
   menuItems: MenuItem[] = [];
   membershipChildren: MenuItem[] = [];
-  usersChildren: MenuItem[] = [];
+  attendanceChildren: MenuItem[] = [];
   isMembershipOpen: boolean = false;
+  isAttendanceOpen: boolean = false;
+  usersChildren: MenuItem[] = [];
   isUsersOpen: boolean = false;
 
   constructor(
@@ -39,11 +41,13 @@ export class SidebarComponent implements OnInit {
     ).subscribe(() => {
       this.isUsersOpen = this.isUsersActive();
       this.isMembershipOpen = this.isMembershipActive();
+      this.isAttendanceOpen = this.isAttendanceActive();
     });
 
     setTimeout(() => {
       this.isUsersOpen = this.isUsersActive();
       this.isMembershipOpen = this.isMembershipActive();
+      this.isAttendanceOpen = this.isAttendanceActive();
     }, 100);
   }
 
@@ -57,6 +61,16 @@ export class SidebarComponent implements OnInit {
       </svg>
     `);
 
+    const historyIcon = this.sanitizer.bypassSecurityTrustHtml(`
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+        <g id="SVGRepo_iconCarrier"> 
+        <path d="M7 3V6M17 3V6M7.10002 20C7.56329 17.7178 9.58104 16 12 16C14.419 16 16.4367 17.7178 16.9 20M6.2 21H17.8C18.9201 21 19.4802 21 19.908 20.782C20.2843 20.5903 20.5903 20.2843 20.782 19.908C21 19.4802 21 18.9201 21 17.8V8.2C21 7.07989 21 6.51984 20.782 6.09202C20.5903 5.71569 20.2843 5.40973 19.908 5.21799C19.4802 5 18.9201 5 17.8 5H6.2C5.0799 5 4.51984 5 4.09202 5.21799C3.71569 5.40973 3.40973 5.71569 3.21799 6.09202C3 6.51984 3 7.07989 3 8.2V17.8C3 18.9201 3 19.4802 3.21799 19.908C3.40973 20.2843 3.71569 20.5903 4.09202 20.782C4.51984 21 5.07989 21 6.2 21ZM14 11C14 12.1046 13.1046 13 12 13C10.8954 13 10 12.1046 10 11C10 9.89543 10.8954 9 12 9C13.1046 9 14 9.89543 14 11Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g>
+      </svg>
+    `);
+
+    // ITEMS DEL SUBMENÚ DE MEMBRESÍAS (SOLO ASIGNAR)
     const profileIcon = this.sanitizer.bypassSecurityTrustHtml(`
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -97,6 +111,15 @@ export class SidebarComponent implements OnInit {
       }
     ];
 
+    this.attendanceChildren = [
+      {
+        label: 'Historial Accesos',
+        route: '/dashboard-admin/attendance/history',
+        iconHtml: historyIcon,
+      }
+    ];
+
+    // MENÚ PRINCIPAL
     this.usersChildren = [
       {
         label: 'Credenciales de Usuarios',
@@ -144,15 +167,6 @@ export class SidebarComponent implements OnInit {
             <path fill-rule="evenodd" clip-rule="evenodd" d="M9.918 4.0006H7.082C6.23326 3.97706 5.52559 4.64492 5.5 5.4936V6.5076C5.52559 7.35629 6.23326 8.02415 7.082 8.0006H9.918C10.7667 8.02415 11.4744 7.35629 11.5 6.5076V5.4936C11.4744 4.64492 10.7667 3.97706 9.918 4.0006Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
             <path fill-rule="evenodd" clip-rule="evenodd" d="M15.082 13.0007H17.917C18.3333 13.0044 18.734 12.8425 19.0309 12.5507C19.3278 12.2588 19.4966 11.861 19.5 11.4447V5.55666C19.4966 5.14054 19.328 4.74282 19.0313 4.45101C18.7346 4.1592 18.3341 3.9972 17.918 4.00066H15.082C14.6659 3.9972 14.2654 4.1592 13.9687 4.45101C13.672 4.74282 13.5034 5.14054 13.5 5.55666V11.4447C13.5034 11.8608 13.672 12.2585 13.9687 12.5503C14.2654 12.8421 14.6659 13.0041 15.082 13.0007Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
             <path fill-rule="evenodd" clip-rule="evenodd" d="M15.082 19.0006H17.917C18.7661 19.0247 19.4744 18.3567 19.5 17.5076V16.4936C19.4744 15.6449 18.7667 14.9771 17.918 15.0006H15.082C14.2333 14.9771 13.5256 15.6449 13.5 16.4936V17.5066C13.525 18.3557 14.2329 19.0241 15.082 19.0006Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-          </svg>
-        `),
-      },
-      {
-        label: 'Attendance',
-        route: '/dashboard-admin/attendance',
-        iconHtml: this.sanitizer.bypassSecurityTrustHtml(`
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="sidebar__nav-icon">
-            <path d="M14 19.2857L15.8 21L20 17M4 21C4 17.134 7.13401 14 11 14C12.4872 14 13.8662 14.4638 15 15.2547M15 7C15 9.20914 13.2091 11 11 11C8.79086 11 7 9.20914 7 7C7 4.79086 8.79086 3 11 3C13.2091 3 15 4.79086 15 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
           </svg>
         `),
       },
@@ -219,9 +233,23 @@ export class SidebarComponent implements OnInit {
     `);
   }
 
+  getAttendanceIcon(): SafeHtml {
+    return this.sanitizer.bypassSecurityTrustHtml(`
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> 
+        <path d="M14 19.2857L15.8 21L20 17M4 21C4 17.134 7.13401 14 11 14C12.4872 14 13.8662 14.4638 15 15.2547M15 7C15 9.20914 13.2091 11 11 11C8.79086 11 7 9.20914 7 7C7 4.79086 8.79086 3 11 3C13.2091 3 15 4.79086 15 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g>
+      </svg>
+    `)
+  }
+
+  // VERIFICAR SI ALGUNA RUTA DE MEMBRESÍAS ESTÁ ACTIVA
   isMembershipActive(): boolean {
     const url = this.router.url;
     return url.includes('/dashboard-admin/memberships');
+  }
+
+  isAttendanceActive(): boolean {
+    const url = this.router.url;
+    return url.includes('/dashboard-admin/attendance');
   }
 
   isUsersActive(): boolean {
@@ -231,6 +259,14 @@ export class SidebarComponent implements OnInit {
 
   goToMembershipList(): void {
     this.router.navigate(['/dashboard-admin/memberships/list']);
+  }
+
+  goToAttendanceList(): void {
+    this.router.navigate(['/dashboard-admin/attendance/list']);
+  }
+
+  onLogout() {
+    console.log('Logout');
   }
 
   logout(): void {

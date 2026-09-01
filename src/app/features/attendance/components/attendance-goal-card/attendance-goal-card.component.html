@@ -1,0 +1,35 @@
+
+<div class="goal-card-container">
+
+  <div class="radial-wrapper">
+    <svg class="radial-svg" viewBox="0 0 36 36">
+      <path
+        class="radial-track"
+        stroke-width="3"
+        fill="none"
+        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+      />
+      <path
+        class="radial-bar"
+        [style.stroke-dasharray]="porcentajeCompletado + ', 100'"
+        stroke-linecap="round"
+        stroke-width="3"
+        fill="none"
+        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+      />
+    </svg>
+
+    <div class="radial-content">
+      <span class="percentage">{{ porcentajeCompletado }}%</span>
+      <span class="label">GOAL REACHED</span>
+    </div>
+  </div>
+
+  <div class="goal-footer">
+    <h3 class="goal-title">Daily Attendance Goal</h3>
+    <p class="goal-description">
+      You are <strong>{{ personasRestantes }} visits</strong> away from your {{ metaAsistenciaDiaria }} visits daily target.
+    </p>
+  </div>
+
+</div>

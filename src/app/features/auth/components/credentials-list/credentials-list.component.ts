@@ -224,9 +224,6 @@ export class CredentialsListComponent implements OnInit {
     this.cargandoPassword = false;
   }
 
-  /**
-   * Invoca la generación de clave temporal en el backend
-   */
   generarContrasenaAleatoria(): void {
     if (!this.usuarioSeleccionado) return;
 
@@ -236,24 +233,18 @@ export class CredentialsListComponent implements OnInit {
     this.authService.generarContrasenaTemporalByAdmin(this.usuarioSeleccionado.email).subscribe({
       next: (res) => {
         this.cargandoPassword = false;
-        const claveTemporal = res.data || 'Error al obtener clave';
 
         Swal.fire({
           icon: 'success',
-          title: '¡Contraseña Temporal Generada!',
+          title: '¡Clave Temporal Enviada!',
           html: `
             <p style="font-size:14px; color:#475569; margin-bottom:12px;">
-              Proporciona esta clave de un solo uso al usuario <b>${this.usuarioSeleccionado.username}</b>.
+              Se ha enviado la contraseña temporal directamente al correo de <b>${this.usuarioSeleccionado.username}</b> (<i>${this.usuarioSeleccionado.email}</i>).
             </p>
-            <div style="background:#f1f5f9; border:2px dashed #0f1c3f; border-radius:10px; padding:16px; font-size:22px; font-weight:800; letter-spacing:3px; color:#0f1c3f; user-select:all; margin-bottom:12px;">
-              ${claveTemporal}
-            </div>
-            <small style="color:#64748b;">El usuario deberá cambiarla obligatoriamente en su próximo inicio de sesión.</small>
+            <small style="color:#64748b;">El usuario deberá consultar su bandeja de entrada y cambiar la clave en su próximo inicio de sesión.</small>
           `,
-          confirmButtonText: 'Copiar y Cerrar',
+          confirmButtonText: 'Entendido',
           confirmButtonColor: '#0f1c3f',
-        }).then(() => {
-          navigator.clipboard.writeText(claveTemporal);
         });
 
         this.cerrarModalPassword();
