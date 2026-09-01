@@ -9,9 +9,10 @@ import { HistorialAccesoResponse, FiltrosHistorial } from '../../features/attend
   providedIn: 'root'
 })
 export class AttendanceService {
-  private apiUrl = `${environment.apiUrl}/pg-ms-operation/api/asistencias`;
+  private baseUrl = `${environment.apiUrl}/pg-ms-operation/api`;
+  private apiUrl = `${this.baseUrl}/asistencias`;
 
-  private historialApiUrl = `${this.apiUrl}/historial-accesos`;
+  private historialApiUrl = `${this.baseUrl}/historial-accesos`;
 
   readonly capacidadDiaria = 4;
 
@@ -26,9 +27,8 @@ export class AttendanceService {
   }
 
   actualizarMetaDiaria(idSede: number, nuevaMeta: number): Observable<void> {
-    return this.http.put<void>(`${this.apiUrl}/meta/${idSede}`, {meta: nuevaMeta});
+    return this.http.put<void>(`${this.apiUrl}/meta/${idSede}`, { meta: nuevaMeta });
   }
-
 
   obtenerHistorialAccesos(filtros: FiltrosHistorial): Observable<HistorialAccesoResponse> {
     let params = new HttpParams();
@@ -37,16 +37,18 @@ export class AttendanceService {
       params = params.set('usuarioId', filtros.usuarioId.toString());
     }
     if (filtros.fechaDesde) {
-      params = params.set('fechaDesde', filtros.fechaDesde);
+      const fDesde = filtros.fechaDesde.split('T')[0];
+      params = params.set('fechaDesde', fDesde);
     }
     if (filtros.fechaHasta) {
-      params = params.set('fechaHasta', filtros.fechaHasta);
+      const fHasta = filtros.fechaHasta.split('T')[0];
+      params = params.set('fechaHasta', fHasta);
     }
     if (filtros.tipoAcceso) {
-      params = params.set('tipoAcceso', filtros.tipoAcceso);
+      params = params.set('tipoAcceso', filtros.tipoAcceso.trim().toUpperCase());
     }
-    if (filtros.resultado) {
-      params = params.set('resultado', filtros.resultado);
+    if (filtros.tipoAcceso) {
+      params = params.set('tipoAcceso', filtros.tipoAcceso.trim().toUpperCase());
     }
 
     params = params.set('page', (filtros.page ?? 0).toString());
