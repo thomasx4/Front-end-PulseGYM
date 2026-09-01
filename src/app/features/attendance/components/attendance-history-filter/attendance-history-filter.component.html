@@ -1,1 +1,50 @@
-<p>attendance-history-filter works!</p>
+<div class="filter-card">
+    <form (ngSubmit)="aplicarFiltros()" class="filter-form">
+
+        <div class="filter-group">
+            <label for="usuarioId">ID Usuario</label>
+            <input type="number" id="usuarioId" [(ngModel)]="usuarioId" name="usuarioId" placeholder="Ej: 4"
+                class="filter-input" />
+        </div>
+
+        <div class="filter-group">
+            <label for="fechaDesde">Fecha Desde</label>
+            <input type="date" id="fechaDesde" [(ngModel)]="fechaDesde" name="fechaDesde" class="filter-input" />
+        </div>
+
+        <div class="filter-group">
+            <label for="fechaHasta">Fecha Hasta</label>
+            <input type="date" id="fechaHasta" [(ngModel)]="fechaHasta" name="fechaHasta" class="filter-input" />
+        </div>
+
+        <div class="filter-group">
+            <label for="tipoAcceso">Tipo Acceso</label>
+            <select id="tipoAcceso" [(ngModel)]="tipoAcceso" name="tipoAcceso" class="filter-select">
+                <option value="">Todos</option>
+                <option value="APP">APP</option>
+                <option value="BIOMETRICO">BIOMÉTRICO</option>
+                <option value="WEB">WEB</option>
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label for="resultado">Resultado</label>
+            <select id="resultado" [(ngModel)]="resultado" name="resultado" class="filter-select">
+                <option value="">Todos</option>
+                <option value="EXITOSO">EXITOSO</option>
+                <option value="FALLIDO">FALLIDO</option>
+                <option value="BLOQUEADO">BLOQUEADO</option>
+            </select>
+        </div>
+
+        <div class="filter-actions">
+            <button type="submit" class="btn-filter btn-filter--primary">
+                Filtrar
+            </button>
+            <button type="button" (click)="limpiarFiltros()" class="btn-filter btn-filter--secondary">
+                Limpiar
+            </button>
+        </div>
+
+    </form>
+</div>

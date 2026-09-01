@@ -67,9 +67,20 @@
     align-items: center;
     justify-content: center;
 
-    &--blue { background: #e0f2fe; color: #0284c7; }
-    &--green { background: #dcfce7; color: #16a34a; }
-    &--red { background: #fee2e2; color: #dc2626; }
+    &--blue {
+      background: #e0f2fe;
+      color: #0284c7;
+    }
+
+    &--green {
+      background: #dcfce7;
+      color: #16a34a;
+    }
+
+    &--red {
+      background: #fee2e2;
+      color: #dc2626;
+    }
   }
 
   &__label {
@@ -136,6 +147,67 @@
   }
 }
 
+.table-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-top: 1px solid #edf2f7;
+  background: #ffffff;
+
+  .showing-text {
+    font-size: 0.825rem;
+    color: #94a3b8;
+
+    strong {
+      color: #334155;
+    }
+  }
+
+  .pagination-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    .pagination-ellipsis {
+      font-size: 0.85rem;
+      color: #94a3b8;
+      padding: 0 4px;
+    }
+
+    .page-arrow,
+    .page-number {
+      min-width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      border: none;
+      background: transparent;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #64748b;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+
+      &:hover:not(:disabled) {
+        background-color: #f1f5f9;
+        color: #0f172a;
+      }
+
+      &.active {
+        background-color: #051f42;
+        color: #ffffff;
+      }
+
+      &:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+      }
+    }
+  }
+}
 
 .user-info {
   display: flex;
@@ -206,7 +278,9 @@
     background: #f1f5f9;
     color: #334155;
 
-    &:hover { background: #e2e8f0; }
+    &:hover {
+      background: #e2e8f0;
+    }
   }
 }
 
@@ -233,7 +307,9 @@
   gap: 1rem;
   color: #64748b;
 
-  &--error { color: #dc2626; }
+  &--error {
+    color: #dc2626;
+  }
 }
 
 .spinner {
@@ -246,5 +322,7 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
