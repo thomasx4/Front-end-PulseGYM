@@ -1,18 +1,23 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
-
+import { HttpClientModule } from '@angular/common/http';
 import { UserRoutingModule } from './user-routing.module';
-import { HomeComponent } from './components/home/home.component';
+import { FormsModule } from '@angular/forms';
+import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { ProfileComponent } from './components/profile/profile.component';
 import { SharedModule } from '../../shared/shared.module';
+import { HistorialFisicoComponent } from './components/historial-fisico/historial-fisico.component';
 
 @NgModule({
   declarations: [
-    HomeComponent
+    DashboardComponent,
+    ProfileComponent,
+    HistorialFisicoComponent
   ],
   imports: [
     CommonModule,
-    RouterModule,
+    HttpClientModule,
+    FormsModule,
     UserRoutingModule,
     SharedModule
   ]

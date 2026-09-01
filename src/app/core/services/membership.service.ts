@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../../../environments/environment';
+import { environment } from '../../../environments/environment';
 
 // INTERFACES
 
@@ -43,7 +43,12 @@ export class MembershipService {
 
     constructor(private http: HttpClient) { }
 
-    // 1. MEMBRESÍAS CRUD
+    getDashboardMembresias(page: number = 0, size: number = 6): Observable<any> {
+        const params = new HttpParams()
+            .set('page', page.toString())
+            .set('size', size.toString());
+        return this.http.get(`${this.apiUrl}/membresias/dashboard`, { params });
+    }
 
     /**
      * Obtiene todas las membresías activas
@@ -101,7 +106,7 @@ export class MembershipService {
         return this.http.delete(`${this.apiUrl}/membresias/${id}`);
     }
 
-    // 2. USUARIOS (SOCIOS)
+    // 3. USUARIOS (SOCIOS)
 
     /**
      * Obtiene todos los usuarios activos para asignar membresía
@@ -110,7 +115,7 @@ export class MembershipService {
         return this.http.get(`${this.apiUrl}/usuarios/activo`);
     }
 
-    // 3. ASIGNACIÓN DE MEMBRESÍAS
+    // 4. ASIGNACIÓN DE MEMBRESÍAS
 
     /**
      * Asigna una membresía a un socio
@@ -140,7 +145,7 @@ export class MembershipService {
         return this.http.get(`${this.apiUrl}/socios-membresias/socio/${idSocio}/activa`);
     }
 
-    // 4. OPERACIONES SOBRE MEMBRESÍAS DE SOCIOS
+    // 5. OPERACIONES SOBRE MEMBRESÍAS DE SOCIOS
 
     /**
      * Renueva una membresía (PUT)
@@ -159,14 +164,14 @@ export class MembershipService {
     /**
      * Cancela una membresía (DELETE)
      */
-    cancelarMembresia(request: CancelarRequest): Observable<any> {
+    cancelaMembresia(request: CancelarRequest): Observable<any> {
         const motivoEncoded = encodeURIComponent(request.motivo);
         return this.http.delete(
             `${this.apiUrl}/socios-membresias/${request.idSocioMembresia}/cancelar?motivo=${motivoEncoded}`
         );
     }
 
-    // 5. REPORTES
+    // 6. REPORTES
 
     /**
      * Obtiene membresías por vencer (1-5 días)

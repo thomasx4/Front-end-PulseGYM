@@ -4,7 +4,7 @@ import { MainLayoutComponent } from './shared/components/main-layout/main-layout
 import { CredentialsListComponent } from './features/auth/components/credentials-list/credentials-list.component';
 import { LoginComponent } from './features/auth/components/login/login.component';
 import { ForgotComponent } from '../app/features/auth/components/forgot/forgot.component';
-import { HomeComponent } from './features/user/components/home/home.component';
+import { DashboardComponent } from './features/user/components/dashboard/dashboard.component';
 import { AuthGuard } from '../app/core/guards/auth.guard';
 
 const routes: Routes = [
@@ -58,7 +58,7 @@ const routes: Routes = [
     },
     { path: 'auth/login', component: LoginComponent },
     { path: 'forgot-password', component: ForgotComponent },
-    { path: 'user', component: HomeComponent },
+    { path: 'user', component: DashboardComponent },
     { path: '', redirectTo: '/auth/login', pathMatch: 'full' },
 ];
 

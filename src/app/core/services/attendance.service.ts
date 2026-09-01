@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../../../environments/environment';
+import { environment } from '../../../environments/environment';
 import { AsistenciaResponseDTO } from '../../features/attendance/models/attendance.model';
 import { HistorialAccesoResponse, FiltrosHistorial } from '../../features/attendance/models/attendance.model';
 
