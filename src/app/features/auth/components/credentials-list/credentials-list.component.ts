@@ -1,11 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { Credencial } from '../../models/auth/auth.model';
-import { AuthService } from '../../../../core/services/auth.service';
-import { UserService } from '../../../../core/services/user.service';
+import { Credencial, RespuestaPaginadaCredenciales } from '../../models/auth/auth.model';
+import { AuthService, FiltrosUsuarios } from '../../../../core/services/auth.service';
 import { FiltrosCredenciales } from '../filter-credentials/filter-credentials.component';
 import Swal from 'sweetalert2';
-import { of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-credentials-list',
@@ -13,16 +10,13 @@ import { catchError } from 'rxjs/operators';
   styleUrls: ['./credentials-list.component.scss']
 })
 export class CredentialsListComponent implements OnInit {
-  todosLosUsuarios: Credencial[] = [];
-  usuariosFiltrados: Credencial[] = [];
   credenciales: Credencial[] = [];
 
-  filtrosActuales: FiltrosCredenciales = {};
   cargando: boolean = false;
   errorMensaje: string = '';
 
   numeroPagina: number = 0;
-  tamanioPagina: number = 5;
+  tamanioPagina: number = 7;
   totalElementos: number = 0;
   totalPaginas: number = 0;
 
@@ -30,74 +24,82 @@ export class CredentialsListComponent implements OnInit {
   totalInactivosGeneral: number = 0;
   totalMesActual: number = 0;
 
+  filtrosActivos: FiltrosUsuarios = {
+    page: 0,
+    size: 7
+  };
+
   mostrarFormulario: boolean = false;
   mostrarModalPassword: boolean = false;
   usuarioSeleccionado: any = null;
   cargandoPassword: boolean = false;
   errorPassword: string = '';
 
-  fotosPorKeyMap: Map<string, string> = new Map<string, string>();
   avatarErrors: Set<string | number> = new Set<string | number>();
 
-  constructor(
-    private authService: AuthService,
-    private userService: UserService
-  ) { }
+  constructor(private authService: AuthService) { }
 
   ngOnInit(): void {
-    this.cargarMapaFotos();
-    this.cargarTodosLosUsuarios();
+    this.cargarCredenciales();
   }
 
-  cargarMapaFotos(): void {
-    this.userService.obtenerTodosLosPerfilesActivos().pipe(
-      catchError((err) => {
-        console.warn('No se pudieron obtener los perfiles para asociar fotos:', err);
-        return of([]);
-      })
-    ).subscribe((usuarios: any[]) => {
-      if (Array.isArray(usuarios)) {
-        usuarios.forEach((u: any) => {
-          const foto = u.fotoUrl || u.fotoPerfil || u.foto || u.avatar;
-          if (foto) {
-            if (u.username) {
-              this.fotosPorKeyMap.set(u.username.toLowerCase().trim(), foto);
-            }
-            if (u.email) {
-              this.fotosPorKeyMap.set(u.email.toLowerCase().trim(), foto);
-            }
-            if (u.idUsuario || u.id) {
-              this.fotosPorKeyMap.set(String(u.idUsuario || u.id), foto);
-            }
-          }
-        });
+  cargarCredenciales(filtros: FiltrosCredenciales = {}): void {
+    this.cargando = true;
+    this.errorMensaje = '';
+
+    this.filtrosActivos = {
+      ...this.filtrosActivos,
+      username: filtros.username,
+      rol: filtros.rol,
+      activo: filtros.activo,
+      direccion: filtros.direccion,
+      page: this.numeroPagina,
+      size: this.tamanioPagina
+    };
+
+    this.authService.listarCredenciales(this.filtrosActivos).subscribe({
+      next: (response: RespuestaPaginadaCredenciales) => {
+        this.credenciales = response.contenido || response.content || [];
+        this.totalElementos = response.totalElementos ?? response.totalElements ?? 0;
+        this.totalPaginas = response.totalPaginas ?? response.totalPages ?? 0;
+        this.numeroPagina = response.numeroPagina ?? response.currentPage ?? response.number ?? 0;
+        this.tamanioPagina = response.tamanioPagina ?? response.size ?? 7;
+
+        this.calcularKpis();
+        this.cargando = false;
+      },
+      error: (err) => {
+        console.error('Error al cargar usuarios:', err);
+        this.errorMensaje = 'No se pudo cargar el listado de usuarios.';
+        this.cargando = false;
       }
     });
   }
 
+  private calcularKpis(): void {
+    this.totalActivosGeneral = this.credenciales.filter(u => u.estado === true).length;
+    this.totalInactivosGeneral = this.credenciales.filter(u => u.estado === false).length;
+
+    const ahora = new Date();
+    const mesActual = ahora.getMonth();
+    const anioActual = ahora.getFullYear();
+
+    this.totalMesActual = this.credenciales.filter(item => {
+      if (!item.fechaRegistro) return false;
+      const fechaRegistro = new Date(item.fechaRegistro);
+      return fechaRegistro.getMonth() === mesActual && fechaRegistro.getFullYear() === anioActual;
+    }).length;
+  }
+
   getFotoCredencial(item: Credencial): string | null {
     if (!item) return null;
-
-    const directFoto = (item as any).fotoUrl || (item as any).avatarUrl || (item as any).foto;
+    const directFoto = item.fotoUrl || item.avatarUrl || item.foto;
     if (directFoto && !directFoto.includes('pravatar.cc') && !directFoto.includes('ui-avatars.com')) {
-      let rawUrl = String(directFoto).trim();
+      const rawUrl = String(directFoto).trim();
       if (rawUrl !== '' && rawUrl !== 'null' && rawUrl !== 'undefined') {
         return rawUrl.startsWith('//') ? `https:${rawUrl}` : rawUrl;
       }
     }
-
-    if (item.id && this.fotosPorKeyMap.has(String(item.id))) {
-      return this.fotosPorKeyMap.get(String(item.id)) || null;
-    }
-
-    if (item.username && this.fotosPorKeyMap.has(item.username.toLowerCase().trim())) {
-      return this.fotosPorKeyMap.get(item.username.toLowerCase().trim()) || null;
-    }
-
-    if (item.email && this.fotosPorKeyMap.has(item.email.toLowerCase().trim())) {
-      return this.fotosPorKeyMap.get(item.email.toLowerCase().trim()) || null;
-    }
-
     return null;
   }
 
@@ -119,96 +121,78 @@ export class CredentialsListComponent implements OnInit {
     return (partes[0].charAt(0) + partes[1].charAt(0)).toUpperCase();
   }
 
-  cargarTodosLosUsuarios(): void {
-    this.cargando = true;
-    this.errorMensaje = '';
-
-    this.authService.listarTodosLosUsuarios().subscribe({
-      next: (usuarios: Credencial[]) => {
-        this.todosLosUsuarios = usuarios || [];
-        this.calcularMetricasLocales();
-        this.aplicarFiltrosYPaginar(0);
-        this.cargando = false;
-      },
-      error: (err) => {
-        console.error('Error al obtener la lista de usuarios:', err);
-        this.errorMensaje = 'No se pudo cargar el listado de usuarios.';
-        this.cargando = false;
-      }
-    });
-  }
-
-  aplicarFiltrosYPaginar(pagina: number = 0): void {
-    let resultado = [...this.todosLosUsuarios];
-
-    if (this.filtrosActuales.username && this.filtrosActuales.username.trim() !== '') {
-      const busqueda = this.filtrosActuales.username.toLowerCase().trim();
-      resultado = resultado.filter(u =>
-        (u.username && u.username.toLowerCase().includes(busqueda)) ||
-        (u.email && u.email.toLowerCase().includes(busqueda))
-      );
-    }
-
-    if (this.filtrosActuales.rol && this.filtrosActuales.rol.trim() !== '') {
-      const rolBuscado = this.filtrosActuales.rol.toLowerCase().trim();
-      resultado = resultado.filter(u => u.rol && u.rol.toLowerCase() === rolBuscado);
-    }
-
-    if (this.filtrosActuales.activo !== undefined && this.filtrosActuales.activo !== null) {
-      resultado = resultado.filter(u => u.estado === this.filtrosActuales.activo);
-    }
-
-    const direccion = this.filtrosActuales.direccion || 'desc';
-    resultado.sort((a, b) => {
-      const idA = a.id || 0;
-      const idB = b.id || 0;
-      return direccion === 'asc' ? idA - idB : idB - idA;
-    });
-
-    this.usuariosFiltrados = resultado;
-    this.totalElementos = this.usuariosFiltrados.length;
-    this.totalPaginas = Math.ceil(this.totalElementos / this.tamanioPagina);
-
-    if (pagina >= this.totalPaginas && this.totalPaginas > 0) {
-      pagina = this.totalPaginas - 1;
-    }
-    this.numeroPagina = Math.max(0, pagina);
-
-    const inicio = this.numeroPagina * this.tamanioPagina;
-    const fin = inicio + this.tamanioPagina;
-    this.credenciales = this.usuariosFiltrados.slice(inicio, fin);
-  }
-
-  private calcularMetricasLocales(): void {
-    this.totalActivosGeneral = this.todosLosUsuarios.filter(u => u.estado === true).length;
-    this.totalInactivosGeneral = this.todosLosUsuarios.filter(u => u.estado === false).length;
-
-    const ahora = new Date();
-    const mesActual = ahora.getMonth();
-    const anioActual = ahora.getFullYear();
-
-    this.totalMesActual = this.todosLosUsuarios.filter(item => {
-      if (!item.fechaRegistro) return false;
-      const fechaRegistro = new Date(item.fechaRegistro);
-      return fechaRegistro.getMonth() === mesActual &&
-        fechaRegistro.getFullYear() === anioActual;
-    }).length;
-  }
-
   toggleEstado(item: Credencial): void {
     const nuevoEstado = !item.estado;
 
     this.authService.cambiarEstado(item.id, nuevoEstado).subscribe({
       next: () => {
         item.estado = nuevoEstado;
-        this.calcularMetricasLocales();
-        this.aplicarFiltrosYPaginar(this.numeroPagina);
+        this.calcularKpis();
       },
       error: (err) => {
         console.error('Error al cambiar el estado:', err);
         this.errorMensaje = 'No se pudo cambiar el estado del usuario.';
       }
     });
+  }
+
+  onFiltrosAplicados(filtros: FiltrosCredenciales): void {
+    this.numeroPagina = 0;
+    this.cargarCredenciales(filtros);
+  }
+
+  irAPagina(p: number): void {
+    if (p !== this.numeroPagina && p >= 0 && p < this.totalPaginas) {
+      this.numeroPagina = p;
+      this.cargarCredenciales();
+    }
+  }
+
+  paginaSiguiente(): void {
+    if (!this.esUltimaPagina) {
+      this.irAPagina(this.numeroPagina + 1);
+    }
+  }
+
+  paginaAnterior(): void {
+    if (this.numeroPagina > 0) {
+      this.irAPagina(this.numeroPagina - 1);
+    }
+  }
+
+  get paginasVisibles(): number[] {
+    const maxVisibles = 4;
+    let inicio = Math.max(0, this.numeroPagina - 1);
+    let fin = inicio + maxVisibles;
+
+    if (fin > this.totalPaginas) {
+      fin = this.totalPaginas;
+      inicio = Math.max(0, fin - maxVisibles);
+    }
+
+    const paginas: number[] = [];
+    for (let i = inicio; i < fin; i++) {
+      paginas.push(i);
+    }
+    return paginas;
+  }
+
+  get mostrarUltimaPagina(): boolean {
+    const paginas = this.paginasVisibles;
+    if (paginas.length === 0) return false;
+    return paginas[paginas.length - 1] < this.totalPaginas - 1;
+  }
+
+  get esUltimaPagina(): boolean {
+    return this.numeroPagina >= this.totalPaginas - 1;
+  }
+
+  obtenerRangoInicio(): number {
+    return this.totalElementos === 0 ? 0 : this.numeroPagina * this.tamanioPagina + 1;
+  }
+
+  obtenerRangoFin(): number {
+    return Math.min((this.numeroPagina + 1) * this.tamanioPagina, this.totalElementos);
   }
 
   abrirModalCambiarPassword(usuario: any): void {
@@ -231,7 +215,7 @@ export class CredentialsListComponent implements OnInit {
     this.errorPassword = '';
 
     this.authService.generarContrasenaTemporalByAdmin(this.usuarioSeleccionado.email).subscribe({
-      next: (res) => {
+      next: () => {
         this.cargandoPassword = false;
 
         Swal.fire({
@@ -256,55 +240,6 @@ export class CredentialsListComponent implements OnInit {
     });
   }
 
-  get paginasVisibles(): number[] {
-    if (this.totalPaginas <= 2) {
-      return Array.from({ length: this.totalPaginas }, (_, i) => i);
-    }
-
-    let inicio = this.numeroPagina;
-
-    if (inicio + 2 > this.totalPaginas) {
-      inicio = this.totalPaginas - 2;
-    }
-
-    return [inicio, inicio + 1];
-  }
-
-  get esUltimaPagina(): boolean {
-    return this.numeroPagina >= this.totalPaginas - 1;
-  }
-
-  irAPagina(p: number): void {
-    if (p !== this.numeroPagina) {
-      this.aplicarFiltrosYPaginar(p);
-    }
-  }
-
-  paginaSiguiente(): void {
-    if (!this.esUltimaPagina) {
-      this.aplicarFiltrosYPaginar(this.numeroPagina + 1);
-    }
-  }
-
-  paginaAnterior(): void {
-    if (this.numeroPagina > 0) {
-      this.aplicarFiltrosYPaginar(this.numeroPagina - 1);
-    }
-  }
-
-  obtenerRangoInicio(): number {
-    return this.totalElementos === 0 ? 0 : this.numeroPagina * this.tamanioPagina + 1;
-  }
-
-  obtenerRangoFin(): number {
-    return Math.min((this.numeroPagina + 1) * this.tamanioPagina, this.totalElementos);
-  }
-
-  onFiltrosAplicados(filtros: FiltrosCredenciales): void {
-    this.filtrosActuales = filtros;
-    this.aplicarFiltrosYPaginar(0);
-  }
-
   abrirFormulario(): void {
     this.mostrarFormulario = true;
   }
@@ -315,7 +250,7 @@ export class CredentialsListComponent implements OnInit {
 
   onUsuarioCreado(): void {
     this.cerrarFormulario();
-    this.cargarTodosLosUsuarios();
+    this.cargarCredenciales();
   }
 
   formatearFecha(fechaStr?: string | Date): string {
