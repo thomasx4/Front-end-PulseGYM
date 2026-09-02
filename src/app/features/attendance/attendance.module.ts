@@ -8,6 +8,7 @@ import { AttendanceListComponent } from './components/attendance-list/attendance
 import { AttendanceHistoryComponent } from './components/attendance-history/attendance-history.component';
 import { AttendanceGoalCardComponent } from './components/attendance-goal-card/attendance-goal-card.component';
 import { AttendanceFilterComponent } from './components/attendance-filter/attendance-filter.component';
+import { AttendanceHistoryFilterComponent } from './components/attendance-history-filter/attendance-history-filter.component';
 
 
 @NgModule({
@@ -16,6 +17,7 @@ import { AttendanceFilterComponent } from './components/attendance-filter/attend
     AttendanceHistoryComponent,
     AttendanceGoalCardComponent,
     AttendanceFilterComponent,
+    AttendanceHistoryFilterComponent,
   ],
   imports: [
     CommonModule,
