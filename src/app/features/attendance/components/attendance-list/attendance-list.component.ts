@@ -334,7 +334,7 @@ export class AttendanceListComponent implements OnInit {
     });
 
     doc.save(`PulseGym_Asistencias_${new Date().toISOString().slice(0, 10)}.pdf`);
-  }
+  }  
 }
 
 
