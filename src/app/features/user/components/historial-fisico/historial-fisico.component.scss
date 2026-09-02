@@ -207,23 +207,25 @@ $red-color: #dc2626;
         display: flex;
         gap: 2rem;
         flex-wrap: wrap;
-
-        div {
+        
+        .meta-item {
             display: flex;
             flex-direction: column;
             align-items: flex-end;
 
-            small {
+            .meta-label {
                 color: $text-secondary;
                 font-size: 0.75rem;
             }
 
-            strong {
+            .meta-value {
                 font-size: 0.9rem;
                 margin-top: 0.2rem;
                 display: flex;
                 align-items: center;
                 gap: 0.3rem;
+                font-weight: 700;
+                color: $text-primary;
             }
         }
     }
@@ -324,7 +326,7 @@ $red-color: #dc2626;
 }
 
 // ============================================
-// LEFT COLUMN
+// LEFT COLUMN - CHART
 // ============================================
 .left-column {
     min-width: 0;
@@ -335,6 +337,18 @@ $red-color: #dc2626;
             height: 260px;
             width: 100%;
             margin-top: 1rem;
+            position: relative;
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 10px;
+            box-sizing: border-box;
+            min-height: 260px;
+            
+            canvas {
+                width: 100% !important;
+                height: 100% !important;
+                display: block;
+            }
         }
     }
 
@@ -599,6 +613,167 @@ $red-color: #dc2626;
 }
 
 // ============================================
+// LOADING MODAL
+// ============================================
+.modal-loading {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 48px 56px;
+    max-width: 360px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.3s ease;
+
+    .loading-spinner-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid #e2e8f0;
+            border-top-color: #2563eb;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .loading-text {
+            font-size: 16px;
+            font-weight: 600;
+            color: #0f172a;
+            margin: 0;
+        }
+    }
+}
+
+// ============================================
+// MODAL DE ERROR
+// ============================================
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 40px 48px 32px;
+    max-width: 420px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.3s ease;
+}
+
+.modal-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+
+    &.error-icon {
+        background: #fef2f2;
+        color: #dc2626;
+    }
+
+    &.error-icon svg {
+        stroke: #dc2626;
+    }
+}
+
+.modal-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 8px;
+}
+
+.modal-message {
+    font-size: 14px;
+    color: #64748b;
+    margin: 0 0 24px;
+    line-height: 1.6;
+
+    strong {
+        color: #0f172a;
+    }
+}
+
+.modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.modal-btn {
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &.modal-btn-secondary {
+        background: #f1f5f9;
+        color: #0f172a;
+
+        &:hover {
+            background: #e2e8f0;
+        }
+    }
+
+    &.modal-btn-primary {
+        background: #0f1c3f;
+        color: #ffffff;
+
+        &:hover {
+            background: #1a2b5c;
+            box-shadow: 0 4px 12px rgba(15, 28, 63, 0.3);
+        }
+    }
+}
+
+// ============================================
+// ANIMACIONES
+// ============================================
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+// ============================================
 // STATE CONTAINER
 // ============================================
 .state-container {
@@ -625,6 +800,154 @@ $red-color: #dc2626;
 }
 
 // ============================================
+// ESTADOS: CARGA, ERROR, SIN DATOS
+// ============================================
+.state-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 40px;
+    background: white;
+    border-radius: 12px;
+    border: 1px solid $border-color;
+    margin: 40px auto;
+    max-width: 500px;
+    width: 90%;
+    min-height: 300px;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+
+    &.error {
+        .error-icon-state {
+            color: $red-color;
+            
+            svg {
+                stroke: $red-color;
+            }
+        }
+    }
+
+    &.empty {
+        .empty-icon-state {
+            color: $text-secondary;
+            
+            svg {
+                stroke: $text-secondary;
+            }
+        }
+    }
+
+    .loading-spinner {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid #e2e8f0;
+            border-top-color: $primary-color;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .loading-text {
+            font-size: 16px;
+            font-weight: 600;
+            color: $text-primary;
+            margin: 0;
+        }
+    }
+
+    .error-icon-state,
+    .empty-icon-state {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 16px;
+        
+        svg {
+            width: 32px;
+            height: 32px;
+        }
+    }
+
+    .error-icon-state {
+        background: #fef2f2;
+        color: $red-color;
+    }
+
+    .empty-icon-state {
+        background: #f1f5f9;
+        color: $text-secondary;
+    }
+
+    .state-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: $text-primary;
+        margin: 0 0 8px 0;
+    }
+
+    .state-message {
+        font-size: 14px;
+        color: $text-secondary;
+        margin: 0 0 24px 0;
+        line-height: 1.6;
+    }
+
+    .state-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        justify-content: center;
+
+        button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            white-space: nowrap;
+
+            svg {
+                width: 16px;
+                height: 16px;
+            }
+        }
+
+        .btn-secondary-state {
+            background: #f1f5f9;
+            color: $text-primary;
+
+            &:hover {
+                background: #e2e8f0;
+            }
+        }
+
+        .btn-primary-state {
+            background: $primary-color;
+            color: #ffffff;
+
+            &:hover {
+                background: darken($primary-color, 8%);
+                box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+            }
+        }
+    }
+}
+
+// ============================================
 // RESPONSIVE
 // ============================================
 
@@ -646,6 +969,10 @@ $red-color: #dc2626;
 
     .section-resumen .kpi-grid {
         grid-template-columns: repeat(3, 1fr);
+    }
+
+    .user-meta {
+        gap: 1.5rem;
     }
 }
 
@@ -679,7 +1006,7 @@ $red-color: #dc2626;
             width: 100%;
             justify-content: flex-start;
 
-            div {
+            .meta-item {
                 align-items: flex-start;
             }
         }
@@ -738,16 +1065,16 @@ $red-color: #dc2626;
             gap: 0.5rem;
             width: 100%;
 
-            div {
+            .meta-item {
                 align-items: flex-start;
                 flex-direction: row;
                 gap: 0.5rem;
 
-                small {
+                .meta-label {
                     font-size: 0.7rem;
                 }
 
-                strong {
+                .meta-value {
                     font-size: 0.8rem;
                 }
             }
@@ -792,7 +1119,28 @@ $red-color: #dc2626;
     }
 
     .chart-card .chart-container {
-        height: 200px;
+        height: 220px;
+    }
+
+    .modal-content {
+        padding: 30px 24px 24px;
+    }
+
+    .modal-title {
+        font-size: 16px;
+    }
+
+    .modal-message {
+        font-size: 13px;
+    }
+
+    .modal-btn {
+        padding: 8px 16px;
+        font-size: 12px;
+    }
+
+    .modal-loading {
+        padding: 32px 24px;
     }
 }
 
@@ -835,5 +1183,36 @@ $red-color: #dc2626;
 
     .silueta-card .silueta-header .title-with-icon h3 {
         font-size: 1rem;
+    }
+
+    .chart-card .chart-container {
+        height: 180px;
+    }
+
+    .user-meta {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .user-meta .meta-item {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .modal-content {
+        padding: 20px 16px 16px;
+    }
+
+    .modal-loading {
+        padding: 24px 16px;
+        
+        .loading-spinner-container .spinner {
+            width: 36px;
+            height: 36px;
+        }
+
+        .loading-spinner-container .loading-text {
+            font-size: 14px;
+        }
     }
 }

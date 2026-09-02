@@ -7,12 +7,14 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { ProfileComponent } from './components/profile/profile.component';
 import { SharedModule } from '../../shared/shared.module';
 import { HistorialFisicoComponent } from './components/historial-fisico/historial-fisico.component';
+import { MembresiasComponent } from './components/membresias/membresias.component';
 
 @NgModule({
   declarations: [
     DashboardComponent,
     ProfileComponent,
-    HistorialFisicoComponent
+    HistorialFisicoComponent,
+    MembresiasComponent
   ],
   imports: [
     CommonModule,

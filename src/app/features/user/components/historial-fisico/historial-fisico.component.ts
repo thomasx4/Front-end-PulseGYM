@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { UserService } from '../../../../core/services/users.service';
 import { AuthService } from '../../../../core/services/auth.service';
@@ -8,9 +8,7 @@ import { AuthService } from '../../../../core/services/auth.service';
   templateUrl: './historial-fisico.component.html',
   styleUrls: ['./historial-fisico.component.scss']
 })
-export class HistorialFisicoComponent implements OnInit, AfterViewInit {
-  @ViewChild('chartCanvas') chartCanvas!: ElementRef<HTMLCanvasElement>;
-  
+export class HistorialFisicoComponent implements OnInit {
   isLoading: boolean = true;
   error: string | null = null;
 
@@ -19,7 +17,7 @@ export class HistorialFisicoComponent implements OnInit, AfterViewInit {
   userPhone: string = '';
   userAvatar: string = '';
   estadoSocio: string = 'SOCIO ACTIVO';
-  fechaIngreso: string = '';
+  fechaIngreso: string = 'No registrada';
   entrenadorAsignado: string = '';
 
   ultimaMedicion: any = {};
@@ -64,6 +62,10 @@ export class HistorialFisicoComponent implements OnInit, AfterViewInit {
 
   private chartInstance: any = null;
 
+  // Modal de error
+  mostrarModalError: boolean = false;
+  modalErrorMessage: string = '';
+
   constructor(
     private userService: UserService,
     private authService: AuthService,
@@ -74,10 +76,6 @@ export class HistorialFisicoComponent implements OnInit, AfterViewInit {
     this.loadUserInfo();
   }
 
-  ngAfterViewInit(): void {
-    // El gráfico se inicializa después de cargar los datos
-  }
-
   loadUserInfo(): void {
     this.authService.getCurrentUser().subscribe({
       next: (user: any) => {
@@ -86,7 +84,6 @@ export class HistorialFisicoComponent implements OnInit, AfterViewInit {
           this.userEmail = user.email || '';
           this.userPhone = (user as any).telefono || '';
         }
-        // Cargar foto de perfil
         this.cargarFotoPerfil();
       },
       error: () => {
@@ -101,13 +98,18 @@ export class HistorialFisicoComponent implements OnInit, AfterViewInit {
         if (data && data.fotoUrl) {
           this.userAvatar = data.fotoUrl;
         } else {
-          // Generar avatar con iniciales si no hay foto
           this.userAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(this.userName)}&background=0F1C3F&color=fff&bold=true`;
         }
+        
+        if (data && data.fechaRegistro) {
+          this.fechaIngreso = this.formatDate(data.fechaRegistro);
+        } else {
+          this.fechaIngreso = 'No registrada';
+        }
+        
         this.cargarHistorial();
       },
       error: () => {
-        // Fallback a avatar con iniciales
         this.userAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(this.userName)}&background=0F1C3F&color=fff&bold=true`;
         this.cargarHistorial();
       }
@@ -117,134 +119,192 @@ export class HistorialFisicoComponent implements OnInit, AfterViewInit {
   cargarHistorial(): void {
     this.isLoading = true;
     this.error = null;
+    this.modalErrorMessage = '';
 
     this.userService.getHistorialFisico().subscribe({
       next: (data: any[]) => {
-        console.log('Historial fisico:', data);
-
+        this.isLoading = false;
+        
         if (data && data.length > 0) {
           this.historialCompleto = data;
           this.ultimaMedicion = data[data.length - 1];
 
           if (this.ultimaMedicion.nombreSocio) {
             this.userName = this.ultimaMedicion.nombreSocio;
-            // Actualizar avatar si el nombre cambió
-            if (!this.userAvatar || this.userAvatar.includes('ui-avatars.com')) {
-              this.userAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(this.userName)}&background=0F1C3F&color=fff&bold=true`;
-            }
           }
 
           if (this.ultimaMedicion.nombreRecepcionista) {
             this.entrenadorAsignado = this.ultimaMedicion.nombreRecepcionista;
           }
 
-          if (data.length > 0 && data[0].fechaMedicion) {
-            this.fechaIngreso = this.formatDate(data[0].fechaMedicion);
+          if (this.fechaIngreso === 'No registrada') {
+            if (data.length > 0 && data[0].fechaMedicion) {
+              this.fechaIngreso = this.formatDate(data[0].fechaMedicion);
+            }
           }
 
           if (data.length > 1) {
             this.calcularComparacion(data[0], this.ultimaMedicion);
+          } else {
+            this.comparacion = {
+              peso: '0.00 kg',
+              grasa: '0.00 %',
+              musculo: '0.00 %',
+              cintura: '0.00 cm'
+            };
           }
 
           this.actualizarSilueta(this.ultimaMedicion);
+          this.cargarEvolucion();
         } else {
-          this.error = 'No hay registros de historial físico disponibles.';
+          // No hay datos, pero no es un error
+          this.historialCompleto = [];
+          this.error = null;
+          this.isLoading = false;
         }
-
-        this.cargarEvolucion();
       },
       error: (err: any) => {
         console.error('Error al cargar historial:', err);
-        this.cargarEvolucion();
+        this.isLoading = false;
+        this.historialCompleto = [];
+        this.error = 'Error al cargar el historial físico. Por favor, intenta de nuevo.';
       }
     });
   }
 
   cargarEvolucion(): void {
+    // Solo cargar evolución si hay datos
+    if (!this.historialCompleto.length) {
+      this.isLoading = false;
+      return;
+    }
+
     this.userService.getEvolucion().subscribe({
       next: (data: any) => {
-        console.log('Evolucion data:', data);
-
         if (data) {
           this.procesarEvolucion(data);
-          
           setTimeout(() => {
             this.initChart();
-          }, 300);
+          }, 600);
+        } else {
+          this.isLoading = false;
         }
-        
-        this.isLoading = false;
       },
       error: (err: any) => {
         console.error('Error al cargar evolucion:', err);
         this.isLoading = false;
+        // No mostramos error aquí para no bloquear la vista
       }
     });
   }
 
   procesarEvolucion(data: any): void {
-    if (data.evolucionPeso && data.evolucionPeso.length > 0) {
-      data.evolucionPeso.forEach((item: any) => {
-        const fecha = this.formatDate(item.fecha);
-        if (!this.evolucionData.fechas.includes(fecha)) {
-          this.evolucionData.fechas.push(fecha);
-        }
-      });
-    }
+    this.evolucionData = {
+      fechas: [],
+      peso: [],
+      grasa: [],
+      musculo: []
+    };
 
-    const fechasMap = new Map();
+    const allDates = new Set<string>();
     
     if (data.evolucionPeso) {
       data.evolucionPeso.forEach((item: any) => {
-        const fecha = this.formatDate(item.fecha);
-        if (!fechasMap.has(fecha)) {
-          fechasMap.set(fecha, { peso: null, grasa: null, musculo: null });
-        }
-        fechasMap.get(fecha).peso = item.valor;
+        allDates.add(item.fecha);
       });
     }
-
     if (data.evolucionGrasa) {
       data.evolucionGrasa.forEach((item: any) => {
-        const fecha = this.formatDate(item.fecha);
-        if (!fechasMap.has(fecha)) {
-          fechasMap.set(fecha, { peso: null, grasa: null, musculo: null });
-        }
-        fechasMap.get(fecha).grasa = item.valor;
+        allDates.add(item.fecha);
       });
     }
-
     if (data.evolucionMusculo) {
       data.evolucionMusculo.forEach((item: any) => {
-        const fecha = this.formatDate(item.fecha);
-        if (!fechasMap.has(fecha)) {
-          fechasMap.set(fecha, { peso: null, grasa: null, musculo: null });
-        }
-        fechasMap.get(fecha).musculo = item.valor;
+        allDates.add(item.fecha);
       });
     }
 
-    const sortedFechas = Array.from(fechasMap.keys()).sort((a, b) => {
-      const dateA = new Date(a);
-      const dateB = new Date(b);
-      return dateA.getTime() - dateB.getTime();
+    const sortedDates = Array.from(allDates).sort();
+
+    const pesoMap = new Map();
+    const grasaMap = new Map();
+    const musculoMap = new Map();
+
+    if (data.evolucionPeso) {
+      data.evolucionPeso.forEach((item: any) => {
+        pesoMap.set(item.fecha, item.valor);
+      });
+    }
+    if (data.evolucionGrasa) {
+      data.evolucionGrasa.forEach((item: any) => {
+        grasaMap.set(item.fecha, item.valor);
+      });
+    }
+    if (data.evolucionMusculo) {
+      data.evolucionMusculo.forEach((item: any) => {
+        musculoMap.set(item.fecha, item.valor);
+      });
+    }
+
+    const fechasFormateadas: string[] = [];
+    const pesoData: (number | null)[] = [];
+    const grasaData: (number | null)[] = [];
+    const musculoData: (number | null)[] = [];
+
+    sortedDates.forEach((fecha: string) => {
+      const dateObj = new Date(fecha);
+      const day = dateObj.getDate();
+      const month = dateObj.toLocaleString('es', { month: 'short' });
+      fechasFormateadas.push(`${day} ${month}`);
+      
+      pesoData.push(pesoMap.has(fecha) ? pesoMap.get(fecha) : null);
+      grasaData.push(grasaMap.has(fecha) ? grasaMap.get(fecha) : null);
+      musculoData.push(musculoMap.has(fecha) ? musculoMap.get(fecha) : null);
     });
 
-    this.evolucionData.fechas = sortedFechas;
-    this.evolucionData.peso = sortedFechas.map((f: string) => fechasMap.get(f)?.peso ?? null);
-    this.evolucionData.grasa = sortedFechas.map((f: string) => fechasMap.get(f)?.grasa ?? null);
-    this.evolucionData.musculo = sortedFechas.map((f: string) => fechasMap.get(f)?.musculo ?? null);
+    this.evolucionData.fechas = fechasFormateadas;
+    this.evolucionData.peso = pesoData;
+    this.evolucionData.grasa = grasaData;
+    this.evolucionData.musculo = musculoData;
   }
 
   initChart(): void {
-    const canvas = this.chartCanvas?.nativeElement;
-    if (!canvas) return;
+    const canvas = document.getElementById('evolucionChart') as HTMLCanvasElement;
+    
+    if (!canvas) {
+      setTimeout(() => {
+        const canvasRetry = document.getElementById('evolucionChart') as HTMLCanvasElement;
+        if (canvasRetry) {
+          this.crearGrafico(canvasRetry);
+        } else {
+          this.isLoading = false;
+        }
+      }, 300);
+      return;
+    }
+
+    this.crearGrafico(canvas);
+  }
+
+  crearGrafico(canvas: HTMLCanvasElement): void {
+    const parent = canvas.parentElement;
+    if (parent) {
+      const width = parent.clientWidth || 800;
+      canvas.width = width;
+      canvas.height = 260;
+      canvas.style.width = '100%';
+      canvas.style.height = '260px';
+    }
 
     const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    if (!ctx) {
+      this.isLoading = false;
+      return;
+    }
 
     if (this.chartInstance) {
       this.chartInstance.destroy();
+      this.chartInstance = null;
     }
 
     const fechas = this.evolucionData.fechas;
@@ -252,15 +312,17 @@ export class HistorialFisicoComponent implements OnInit, AfterViewInit {
     const grasaData = this.evolucionData.grasa;
     const musculoData = this.evolucionData.musculo;
 
-    const hasData = pesoData.some((v: number | null) => v !== null) || 
-                    grasaData.some((v: number | null) => v !== null) || 
-                    musculoData.some((v: number | null) => v !== null);
+    const hasData = pesoData.some((v: number | null) => v !== null) ||
+      grasaData.some((v: number | null) => v !== null) ||
+      musculoData.some((v: number | null) => v !== null);
 
-    if (!hasData || fechas.length === 0) {
+    if (!hasData || fechas.length < 2) {
       ctx.fillStyle = '#94a3b8';
       ctx.font = '14px Inter, sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('No hay datos suficientes para mostrar la evolución', canvas.width / 2, canvas.height / 2);
+      const msg = fechas.length < 2 ? 'Se necesita al menos 2 mediciones para mostrar evolución' : 'No hay datos suficientes para mostrar la evolución';
+      ctx.fillText(msg, canvas.width / 2, canvas.height / 2);
+      this.isLoading = false;
       return;
     }
 
@@ -280,7 +342,8 @@ export class HistorialFisicoComponent implements OnInit, AfterViewInit {
               fill: true,
               tension: 0.3,
               pointRadius: 4,
-              pointBackgroundColor: '#2563eb'
+              pointBackgroundColor: '#2563eb',
+              spanGaps: false
             },
             {
               label: 'Grasa Corporal (%)',
@@ -290,7 +353,8 @@ export class HistorialFisicoComponent implements OnInit, AfterViewInit {
               fill: true,
               tension: 0.3,
               pointRadius: 4,
-              pointBackgroundColor: '#dc2626'
+              pointBackgroundColor: '#dc2626',
+              spanGaps: false
             },
             {
               label: 'Masa Muscular (%)',
@@ -300,7 +364,8 @@ export class HistorialFisicoComponent implements OnInit, AfterViewInit {
               fill: true,
               tension: 0.3,
               pointRadius: 4,
-              pointBackgroundColor: '#059669'
+              pointBackgroundColor: '#059669',
+              spanGaps: false
             }
           ]
         },
@@ -325,7 +390,7 @@ export class HistorialFisicoComponent implements OnInit, AfterViewInit {
             },
             tooltip: {
               callbacks: {
-                label: function(context: any) {
+                label: function (context: any) {
                   let label = context.dataset.label || '';
                   let value = context.parsed.y;
                   if (value !== null && value !== undefined) {
@@ -356,8 +421,11 @@ export class HistorialFisicoComponent implements OnInit, AfterViewInit {
           }
         }
       });
+
+      this.isLoading = false;
     }).catch((error: any) => {
-      console.error('Error loading Chart.js:', error);
+      console.error('Error cargando Chart.js:', error);
+      this.isLoading = false;
     });
   }
 
@@ -417,10 +485,6 @@ export class HistorialFisicoComponent implements OnInit, AfterViewInit {
     return this.formatDate(dateStr);
   }
 
-  actualizarMedicion(): void {
-    console.log('Abrir modal/vista de actualización');
-  }
-
   volver(): void {
     this.router.navigate(['/user/profile']);
   }
@@ -431,5 +495,20 @@ export class HistorialFisicoComponent implements OnInit, AfterViewInit {
 
   onSearch(query: string): void {
     console.log('Busqueda:', query);
+  }
+
+  mostrarErrorModal(mensaje: string): void {
+    this.modalErrorMessage = mensaje;
+    this.mostrarModalError = true;
+  }
+
+  cerrarModalError(): void {
+    this.mostrarModalError = false;
+  }
+
+  recargarDatos(): void {
+    this.mostrarModalError = false;
+    this.error = null;
+    this.cargarHistorial();
   }
 }

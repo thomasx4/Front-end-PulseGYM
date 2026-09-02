@@ -10,11 +10,12 @@
         <p class="subtitle">Aquí tienes un resumen de tu actividad y próximos objetivos.</p>
       </header>
 
-      <div *ngIf="error && !isLoading" class="state-container error">
-        <p>{{ error }}</p>
-        <button (click)="refreshData()" class="btn-retry">Intentar de nuevo</button>
+      <!-- Loading -->
+      <div *ngIf="isLoading" class="state-container">
+        <p>Cargando tu panel...</p>
       </div>
 
+      <!-- Contenido del Dashboard -->
       <div *ngIf="!isLoading && !error" class="dashboard-grid">
         <!-- KPIs -->
         <div class="top-kpis">
@@ -238,4 +239,23 @@
       </div>
     </div>
   </div>
+</div>
+
+<!-- Modal de Error -->
+<div class="modal-overlay" *ngIf="mostrarModalError" (click)="cerrarModalError()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-icon error-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+        </div>
+        <h3 class="modal-title">Error al cargar</h3>
+        <p class="modal-message">{{ modalErrorMessage || 'Ocurrió un error al cargar tu panel.' }}</p>
+        <div class="modal-actions">
+            <button class="modal-btn modal-btn-secondary" (click)="cerrarModalError()">Cancelar</button>
+            <button class="modal-btn modal-btn-primary" (click)="recargarDatos()">Recargar</button>
+        </div>
+    </div>
 </div>
