@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { environment } from '../../../environments/environment';
+import { environment } from '../../../environments/environment.prod';
 import { RespuestaPaginadaCredenciales, RegisterRequestDTO, MessageGlobalDTO, HttpGlobalResponse, Credencial, ChangePasswordDTO } from '../../features/auth/models/auth/auth.model';
 import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Observable, throwError, BehaviorSubject } from 'rxjs';

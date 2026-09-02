@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import { UserService } from '../../../../core/services/users.service';
 import { AuthService } from '../../../../core/services/auth.service';
-import { environment } from '../../../../../environments/environment';
+import { environment } from '../../../../../environments/environment.prod';
 
 @Component({
   selector: 'app-profile',

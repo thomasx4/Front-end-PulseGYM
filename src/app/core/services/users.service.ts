@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { map, tap, catchError } from 'rxjs/operators';
-import { environment } from '../../../environments/environment';
+import { environment } from '../../../environments/environment.prod';
 import { AuthService } from '../services/auth.service';
 import {
   WeekDay,
