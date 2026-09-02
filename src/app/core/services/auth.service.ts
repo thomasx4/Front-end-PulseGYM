@@ -1,13 +1,25 @@
 import { Injectable } from '@angular/core';
-import { environment } from '../../../environments/environment.prod';
-import { RespuestaPaginadaCredenciales, RegisterRequestDTO, MessageGlobalDTO, HttpGlobalResponse, Credencial, ChangePasswordDTO } from '../../features/auth/models/auth/auth.model';
+import { environment } from '../../../environments/environment';
+import { 
+  RespuestaPaginadaCredenciales, 
+  RegisterRequestDTO, 
+  MessageGlobalDTO, 
+  HttpGlobalResponse, 
+  Credencial, 
+  ChangePasswordDTO,
+  AuthCredentials, 
+  User, 
+  RolUsuario,
+  FiltrosUsuarios 
+} from '../../features/auth/models/auth/auth.model';
 import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Observable, throwError, BehaviorSubject } from 'rxjs';
 import { tap, catchError, map, distinctUntilChanged } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import * as CryptoJS from 'crypto-js';
-import { AuthCredentials, AuthResponse, User, RolUsuario } from '../../features/auth/models/auth/auth.model';
 import { jwtDecode } from 'jwt-decode';
+
+export { FiltrosUsuarios };
 
 @Injectable({
   providedIn: 'root'
@@ -18,6 +30,25 @@ export class AuthService {
   private readonly LOCK_KEY = 'login_lock_end_time';
   private readonly LOCK_DURATION = 30000;
   private readonly REQUIRE_CHANGE_PASS_KEY = 'require_change_pass';
+
+  private tokenKey = 'auth_token';
+  private userKey = 'user_data';
+  private roleKey = 'user_role';
+  private secretKey = 'MiClaveSuperSegura2026!';
+
+  private authStatus = new BehaviorSubject<boolean>(this.isLoggedIn());
+  authStatus$ = this.authStatus.asObservable().pipe(distinctUntilChanged());
+
+  private currentUserSubject = new BehaviorSubject<User | null>(this.getUser());
+  currentUser$ = this.currentUserSubject.asObservable().pipe(distinctUntilChanged());
+
+  private requiereCambioSubject = new BehaviorSubject<boolean>(this.debeCambiarContrasena());
+  requiereCambio$ = this.requiereCambioSubject.asObservable().pipe(distinctUntilChanged());
+
+  constructor(
+    private http: HttpClient,
+    private router: Router
+  ) { }
 
   registerCredentials(datos: RegisterRequestDTO): Observable<MessageGlobalDTO> {
     return this.http.post<MessageGlobalDTO>(`${this.apiUrl}/register`, datos);
@@ -40,29 +71,35 @@ export class AuthService {
     return this.http.get<Credencial[]>(`${this.apiUrl}/usuarios/todos`, { params });
   }
 
-  listarCredenciales(
-    pagina: number = 0,
-    tamanio: number = 5,
-    ordenarPor: string = 'id',
-    direccion?: string,
-    rol?: string,
-    activo?: boolean,
-    username?: string
-  ): Observable<RespuestaPaginadaCredenciales> {
-    let params = new HttpParams()
-      .set('pagina', pagina.toString())
-      .set('tamanio', tamanio.toString())
-      .set('ordenarPor', ordenarPor);
+  listarCredenciales(filtros: FiltrosUsuarios = {}): Observable<RespuestaPaginadaCredenciales> {
+    let params = new HttpParams();
 
-    if (rol) params = params.set('rol', rol);
-    if (activo !== undefined) params = params.set('activo', activo);
-    if (direccion) params = params.set('direccion', direccion);
-    if (username) params = params.set('username', username);
+    if (filtros.username) {
+      params = params.set('username', filtros.username);
+    }
+    if (filtros.email) {
+      params = params.set('email', filtros.email);
+    }
+    if (filtros.busqueda) {
+      params = params.set('busqueda', filtros.busqueda);
+    }
+    if (filtros.rol) {
+      params = params.set('rol', filtros.rol);
+    }
+    if (filtros.activo !== undefined && filtros.activo !== null) {
+      params = params.set('activo', filtros.activo.toString());
+    }
+    if (filtros.ordenarPor) {
+      params = params.set('ordenarPor', filtros.ordenarPor);
+    }
+    if (filtros.direccion) {
+      params = params.set('direccion', filtros.direccion);
+    }
 
-    return this.http.get<RespuestaPaginadaCredenciales>(
-      `${this.apiUrl}/usuarios`,
-      { params }
-    );
+    params = params.set('pagina', (filtros.page ?? 0).toString());
+    params = params.set('tamanio', (filtros.size ?? 7).toString());
+
+    return this.http.get<RespuestaPaginadaCredenciales>(`${this.apiUrl}/usuarios`, { params });
   }
 
   cambiarEstado(id: number, nuevoEstado: boolean): Observable<MessageGlobalDTO> {
@@ -71,26 +108,6 @@ export class AuthService {
       { estado: nuevoEstado }
     );
   }
-
-  private tokenKey = 'auth_token';
-  private userKey = 'user_data';
-  private roleKey = 'user_role';
-
-  private secretKey = 'MiClaveSuperSegura2026!';
-
-  private authStatus = new BehaviorSubject<boolean>(this.isLoggedIn());
-  authStatus$ = this.authStatus.asObservable().pipe(distinctUntilChanged());
-
-  private currentUserSubject = new BehaviorSubject<User | null>(this.getUser());
-  currentUser$ = this.currentUserSubject.asObservable().pipe(distinctUntilChanged());
-
-  private requiereCambioSubject = new BehaviorSubject<boolean>(this.debeCambiarContrasena());
-  requiereCambio$ = this.requiereCambioSubject.asObservable().pipe(distinctUntilChanged());
-
-  constructor(
-    private http: HttpClient,
-    private router: Router
-  ) { }
 
   isLoginGloballyLocked(): boolean {
     const lockEndTime = localStorage.getItem(this.LOCK_KEY);
@@ -119,9 +136,6 @@ export class AuthService {
     localStorage.removeItem(this.LOCK_KEY);
   }
 
-  /**
-   * Inicio de sesión
-   */
   login(credentials: AuthCredentials): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/login`, credentials)
       .pipe(
@@ -191,9 +205,6 @@ export class AuthService {
     return localStorage.getItem(this.REQUIRE_CHANGE_PASS_KEY) === 'true';
   }
 
-  /**
-   * Usuario autenticado cambia su contraseña (resuelve contraseña temporal)
-   */
   cambiarContrasenaObligatoria(data: ChangePasswordDTO): Observable<MessageGlobalDTO> {
     return this.http.post<MessageGlobalDTO>(`${this.apiUrl}/change-password`, data).pipe(
       tap(() => {
@@ -209,9 +220,6 @@ export class AuthService {
     );
   }
 
-  /**
-   * Admin / Entrenador / Recepcionista genera contraseña aleatoria temporal
-   */
   generarContrasenaTemporalByAdmin(email: string): Observable<HttpGlobalResponse<string>> {
     return this.http.post<HttpGlobalResponse<string>>(`${this.apiUrl}/change-password-by-admin`, {
       email: email,

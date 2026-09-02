@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CertificateService } from '../../../../../core/services/certificate.service';
-import { UserService } from '../../../../../core/services/user.service';
+import { UserService, FiltrosPerfiles } from '../../../../../core/services/user.service';
 import { CloudinaryService } from '../../../../../core/services/cloudinary.service';
 import Swal from 'sweetalert2';
 
@@ -19,13 +19,15 @@ export class CertificatesFormComponent implements OnInit {
   submitting: boolean = false;
 
   entrenadores: any[] = [];
-  entrenadoresFiltradosModal: any[] = [];
   selectedEntrenador: any = null;
   searchEntrenador: string = '';
 
   showEntrenadorModal: boolean = false;
-  paginaModalActual: number = 1;
+  paginaModalActual: number = 0;
   itemsPorPaginaModal: number = 5;
+  totalElementosModal: number = 0;
+  totalPaginasModal: number = 0;
+  loadingModalUsers: boolean = false;
 
   selectedFile: File | null = null;
   existingUrl: string = '';
@@ -46,7 +48,6 @@ export class CertificatesFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.initForm();
-    this.cargarEntrenadores();
     this.verificarModoEdicion();
   }
 
@@ -58,17 +59,63 @@ export class CertificatesFormComponent implements OnInit {
     });
   }
 
-  private cargarEntrenadores(): void {
-    this.userService.obtenerTodosLosPerfilesActivos().subscribe({
-      next: (data: any[]) => {
-        const lista = data || [];
-        this.entrenadores = lista.filter(u => u.rol && u.rol.toUpperCase() === 'ENTRENADOR');
-        this.entrenadoresFiltradosModal = [...this.entrenadores];
+  cargarEntrenadoresModal(): void {
+    this.loadingModalUsers = true;
+    const busquedaTerm = this.searchEntrenador.trim();
+
+    const filtros: FiltrosPerfiles = {
+      pagina: this.paginaModalActual,
+      tamanio: this.itemsPorPaginaModal,
+      busqueda: busquedaTerm || undefined,
+      rol: 'ENTRENADOR',
+      estado: 'ACTIVO'
+    };
+
+    this.userService.listarPerfilesPaginados(filtros).subscribe({
+      next: (response: any) => {
+        let arrayCompleto: any[] = [];
+
+        if (Array.isArray(response)) {
+          arrayCompleto = response;
+        } else {
+          const listData = response.data || response.contenido || response.content || [];
+          arrayCompleto = Array.isArray(listData) ? listData : [];
+        }
+
+        let listaFiltrada = arrayCompleto;
+
+        // Fallback de filtrado local
+        if (busquedaTerm) {
+          const query = busquedaTerm.toLowerCase();
+          listaFiltrada = listaFiltrada.filter(u =>
+            (u.nombre && u.nombre.toLowerCase().includes(query)) ||
+            (u.apellido && u.apellido.toLowerCase().includes(query)) ||
+            (u.email && u.email.toLowerCase().includes(query)) ||
+            (u.telefono && u.telefono.includes(query))
+          );
+        }
+
+        if (Array.isArray(response) || listaFiltrada.length !== arrayCompleto.length) {
+          this.totalElementosModal = listaFiltrada.length;
+          this.totalPaginasModal = Math.ceil(this.totalElementosModal / this.itemsPorPaginaModal) || 1;
+          const inicioSlice = this.paginaModalActual * this.itemsPorPaginaModal;
+          this.entrenadores = listaFiltrada.slice(inicioSlice, inicioSlice + this.itemsPorPaginaModal);
+        } else {
+          this.entrenadores = listaFiltrada;
+          this.totalElementosModal = response.totalElementos ?? response.totalElements ?? listaFiltrada.length;
+          this.totalPaginasModal = response.totalPaginas ?? response.totalPages ?? 1;
+          this.paginaModalActual = response.numeroPagina ?? response.currentPage ?? response.number ?? 0;
+        }
+
+        this.loadingModalUsers = false;
       },
-      error: () => {
+      error: (error) => {
+        console.error('Error al cargar entrenadores en modal:', error);
         this.entrenadores = [];
-        this.entrenadoresFiltradosModal = [];
-      },
+        this.totalElementosModal = 0;
+        this.totalPaginasModal = 0;
+        this.loadingModalUsers = false;
+      }
     });
   }
 
@@ -97,14 +144,28 @@ export class CertificatesFormComponent implements OnInit {
 
           this.existingUrl = cert.urlPdf;
 
-          const entrenadorEncontrado = this.entrenadores.find((u) => u.idUsuario === cert.idEntrenador);
-          this.selectedEntrenador = entrenadorEncontrado || {
-            idUsuario: cert.idEntrenador,
-            nombre: cert.nombreEntrenador || 'Entrenador',
-            apellido: '',
-            email: 'Sin email',
-            rol: 'ENTRENADOR'
-          };
+          if (cert.idEntrenador) {
+            this.userService.obtenerPerfilPorId(cert.idEntrenador).subscribe({
+              next: (perfil) => {
+                this.selectedEntrenador = perfil || {
+                  idUsuario: cert.idEntrenador,
+                  nombre: cert.nombreEntrenador || 'Entrenador',
+                  apellido: '',
+                  email: 'Sin email',
+                  rol: 'ENTRENADOR'
+                };
+              },
+              error: () => {
+                this.selectedEntrenador = {
+                  idUsuario: cert.idEntrenador,
+                  nombre: cert.nombreEntrenador || 'Entrenador',
+                  apellido: '',
+                  email: 'Sin email',
+                  rol: 'ENTRENADOR'
+                };
+              }
+            });
+          }
           this.avatarSelectedError = false;
         } else {
           Swal.fire({
@@ -183,9 +244,9 @@ export class CertificatesFormComponent implements OnInit {
   abrirModalSeleccionEntrenador(): void {
     if (this.isEditMode) return;
     this.searchEntrenador = '';
-    this.entrenadoresFiltradosModal = [...this.entrenadores];
-    this.paginaModalActual = 1;
+    this.paginaModalActual = 0;
     this.showEntrenadorModal = true;
+    this.cargarEntrenadoresModal();
   }
 
   cerrarModalSeleccionEntrenador(): void {
@@ -193,33 +254,44 @@ export class CertificatesFormComponent implements OnInit {
   }
 
   filtrarEntrenadoresModal(): void {
-    const term = this.searchEntrenador.toLowerCase().trim();
-    if (!term) {
-      this.entrenadoresFiltradosModal = [...this.entrenadores];
-    } else {
-      this.entrenadoresFiltradosModal = this.entrenadores.filter(
-        (u) =>
-          u.nombre?.toLowerCase().includes(term) ||
-          u.apellido?.toLowerCase().includes(term) ||
-          (u.telefono && u.telefono.includes(term)) ||
-          u.email?.toLowerCase().includes(term)
-      );
+    this.paginaModalActual = 0;
+    this.cargarEntrenadoresModal();
+  }
+
+  irPaginaModal(pZeroBased: number): void {
+    if (pZeroBased !== this.paginaModalActual && pZeroBased >= 0 && pZeroBased < this.totalPaginasModal) {
+      this.paginaModalActual = pZeroBased;
+      this.cargarEntrenadoresModal();
     }
-    this.paginaModalActual = 1;
   }
 
-  get entrenadoresPaginados(): any[] {
-    const inicio = (this.paginaModalActual - 1) * this.itemsPorPaginaModal;
-    return this.entrenadoresFiltradosModal.slice(inicio, inicio + this.itemsPorPaginaModal);
+  paginaAnteriorModal(): void {
+    if (this.paginaModalActual > 0) {
+      this.irPaginaModal(this.paginaModalActual - 1);
+    }
   }
 
-  get totalPaginasModal(): number {
-    return Math.ceil(this.entrenadoresFiltradosModal.length / this.itemsPorPaginaModal) || 1;
+  paginaSiguienteModal(): void {
+    if (this.paginaModalActual < this.totalPaginasModal - 1) {
+      this.irPaginaModal(this.paginaModalActual + 1);
+    }
   }
 
   get paginasVisiblesModal(): number[] {
-    const total = this.totalPaginasModal;
-    return Array.from({ length: total }, (_, i) => i + 1);
+    const maxVisibles = 4;
+    let inicio = Math.max(0, this.paginaModalActual - 1);
+    let fin = inicio + maxVisibles;
+
+    if (fin > this.totalPaginasModal) {
+      fin = this.totalPaginasModal;
+      inicio = Math.max(0, fin - maxVisibles);
+    }
+
+    const paginas: number[] = [];
+    for (let i = inicio; i < fin; i++) {
+      paginas.push(i);
+    }
+    return paginas;
   }
 
   seleccionarEntrenadorDesdeModal(entrenador: any): void {

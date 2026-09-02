@@ -114,29 +114,36 @@ export class PhysicalHistoryDetailComponent implements OnInit, OnDestroy, AfterV
     }
   }
 
-  loadDetail(id: number): void {
-    this.loading = true;
-    this.physicalHistoryService.getAll().subscribe({
-      next: (records) => {
-        const found = records.find(r => r.idHistorialFisico === id);
-        if (found) {
-          this.record = found;
-          this.socioHistory = records.filter(r => r.idSocio === found.idSocio)
-            .sort((a, b) => new Date(a.fechaMedicion).getTime() - new Date(b.fechaMedicion).getTime());
+loadDetail(id: number): void {
+  this.loading = true;
+  this.physicalHistoryService.getAll().subscribe({
+    next: (response) => {
+      let records: PhysicalHistory[] = [];
 
-          this.calcularComparacionGeneral();
-          this.cargarPerfilSocio(found.idSocio);
-          this.cargarMedidasSilueta(found);
-          this.cargarEvolucion(found.idSocio);
-        }
-        this.loading = false;
-      },
-      error: () => {
-        this.loading = false;
+      if (Array.isArray(response)) {
+        records = response;
+      } else {
+        records = response.data || response.contenido || response.content || [];
       }
-    });
-  }
 
+      const found = records.find(r => r.idHistorialFisico === id);
+      if (found) {
+        this.record = found;
+        this.socioHistory = records.filter(r => r.idSocio === found.idSocio)
+          .sort((a, b) => new Date(a.fechaMedicion).getTime() - new Date(b.fechaMedicion).getTime());
+
+        this.calcularComparacionGeneral();
+        this.cargarPerfilSocio(found.idSocio);
+        this.cargarMedidasSilueta(found);
+        this.cargarEvolucion(found.idSocio);
+      }
+      this.loading = false;
+    },
+    error: () => {
+      this.loading = false;
+    }
+  });
+}
   calcularComparacionGeneral(): void {
     if (this.socioHistory.length === 0 || !this.record) return;
 

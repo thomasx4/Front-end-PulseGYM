@@ -19,6 +19,8 @@ export interface CertificateUpdate {
 }
 
 export interface CertificateFilter {
+    pagina?: number;
+    tamanio?: number;
     search?: string;
     certificacion?: string;
 }

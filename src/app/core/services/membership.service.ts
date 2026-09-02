@@ -3,7 +3,22 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment.prod';
 
-// INTERFACES
+export interface FiltrosMembresias {
+    pagina?: number;
+    tamanio?: number;
+    busqueda?: string;
+    tipo?: string;
+    esFlexible?: boolean;
+}
+
+export interface FiltrosSociosMembresias {
+    pagina?: number;
+    tamanio?: number;
+    busqueda?: string;
+    incluyeIA?: boolean;
+    esFlexible?: boolean;
+    idMembresia?: number;
+}
 
 export interface AsignacionRequest {
     idSocio: number;
@@ -43,127 +58,156 @@ export class MembershipService {
 
     constructor(private http: HttpClient) { }
 
-    getDashboardMembresias(page: number = 0, size: number = 6): Observable<any> {
-        const params = new HttpParams()
-            .set('page', page.toString())
-            .set('size', size.toString());
+    /**
+     * Obtiene el dashboard con paginación del Backend para socios/membresías
+     */
+    getDashboardMembresias(filtros?: FiltrosSociosMembresias): Observable<any> {
+        let params = new HttpParams();
+
+        if (filtros) {
+            if (filtros.pagina !== undefined && filtros.pagina !== null) {
+                params = params.set('page', filtros.pagina.toString());
+            }
+            if (filtros.tamanio !== undefined && filtros.tamanio !== null) {
+                params = params.set('size', filtros.tamanio.toString());
+            }
+            if (filtros.busqueda) {
+                params = params.set('busqueda', filtros.busqueda);
+            }
+            if (filtros.incluyeIA !== undefined && filtros.incluyeIA !== null) {
+                params = params.set('incluyeIA', filtros.incluyeIA.toString());
+            }
+            if (filtros.esFlexible !== undefined && filtros.esFlexible !== null) {
+                params = params.set('esFlexible', filtros.esFlexible.toString());
+            }
+            if (filtros.idMembresia) {
+                params = params.set('idMembresia', filtros.idMembresia.toString());
+            }
+        }
+
         return this.http.get(`${this.apiUrl}/membresias/dashboard`, { params });
     }
 
     /**
-     * Obtiene todas las membresías activas
+     * Obtiene los planes de membresías paginados desde el Backend
      */
-    getMembresias(): Observable<any> {
-        return this.http.get(`${this.apiUrl}/membresias`);
+    getMembresias(filtros?: FiltrosMembresias): Observable<any> {
+        let params = new HttpParams();
+
+        if (filtros) {
+            if (filtros.pagina !== undefined && filtros.pagina !== null) {
+                params = params.set('page', filtros.pagina.toString());
+            }
+            if (filtros.tamanio !== undefined && filtros.tamanio !== null) {
+                params = params.set('size', filtros.tamanio.toString());
+            }
+            if (filtros.busqueda) {
+                params = params.set('busqueda', filtros.busqueda);
+            }
+            if (filtros.tipo && filtros.tipo !== 'todos') {
+                params = params.set('tipo', filtros.tipo);
+            }
+            if (filtros.esFlexible !== undefined && filtros.esFlexible !== null) {
+                params = params.set('esFlexible', filtros.esFlexible.toString());
+            }
+        }
+
+        return this.http.get(`${this.apiUrl}/membresias`, { params });
     }
 
-    /**
-     * Obtiene una membresía por ID (siempre devuelve la membresía, incluso sin socios)
-     */
     getMembresiaById(idMembresia: number): Observable<any> {
         return this.http.get(`${this.apiUrl}/membresias/${idMembresia}`);
     }
-    
-    /**
-     * Obtiene todas las membresías con sus socios activos asignados
-     */
+
     getMembresiasConSocios(): Observable<any> {
         return this.http.get(`${this.apiUrl}/membresias/todos-con-socios-activos`);
     }
 
     /**
-     * Obtiene una membresía con sus socios ACTIVOS asignados
+     * Obtiene los socios activos de una membresía específica con soporte para paginación
      */
-    getMembresiaConSociosActivos(idMembresia: number): Observable<any> {
-        return this.http.get(`${this.apiUrl}/membresias/${idMembresia}/socios-activos`);
+    getMembresiaConSociosActivos(
+        idMembresia: number,
+        filtros?: { pagina?: number; tamanio?: number; busqueda?: string }
+    ): Observable<any> {
+        let params = new HttpParams();
+
+        if (filtros) {
+            if (filtros.pagina !== undefined && filtros.pagina !== null) {
+                params = params.set('page', filtros.pagina.toString());
+            }
+            if (filtros.tamanio !== undefined && filtros.tamanio !== null) {
+                params = params.set('size', filtros.tamanio.toString());
+            }
+            if (filtros.busqueda) {
+                params = params.set('busqueda', filtros.busqueda);
+            }
+        }
+
+        return this.http.get(`${this.apiUrl}/membresias/${idMembresia}/socios-activos`, { params });
     }
 
-    /**
-     * Obtiene membresías filtradas por categoría (IA)
-     */
     getMembresiasPorCategoria(incluyeIA: boolean): Observable<any> {
         return this.http.get(`${this.apiUrl}/membresias/categoria?incluyeIA=${incluyeIA}`);
     }
 
-    /**
-     * Crea una nueva membresía
-     */
     crearMembresia(data: any): Observable<any> {
         return this.http.post(`${this.apiUrl}/membresias`, data);
     }
 
-    /**
-     * Actualiza una membresía existente
-     */
     actualizarMembresia(id: number, data: any): Observable<any> {
         return this.http.put(`${this.apiUrl}/membresias/${id}`, data);
     }
 
-    /**
-     * Elimina/desactiva una membresía
-     */
     eliminarMembresia(id: number): Observable<any> {
         return this.http.delete(`${this.apiUrl}/membresias/${id}`);
     }
 
-    // 3. USUARIOS (SOCIOS)
+    // USUARIOS ACTIVOS CON PAGINACIÓN Y BÚSQUEDA REMOTA
+    getUsuariosActivos(filtros?: { pagina?: number; tamanio?: number; busqueda?: string }): Observable<any> {
+        let params = new HttpParams();
 
-    /**
-     * Obtiene todos los usuarios activos para asignar membresía
-     */
-    getUsuariosActivos(): Observable<any> {
-        return this.http.get(`${this.apiUrl}/usuarios/activo`);
+        if (filtros) {
+            if (filtros.pagina !== undefined && filtros.pagina !== null) {
+                params = params.set('page', filtros.pagina.toString());
+            }
+            if (filtros.tamanio !== undefined && filtros.tamanio !== null) {
+                params = params.set('size', filtros.tamanio.toString());
+            }
+            if (filtros.busqueda) {
+                params = params.set('busqueda', filtros.busqueda);
+            }
+        }
+
+        return this.http.get(`${this.apiUrl}/usuarios/activo`, { params });
     }
 
-    // 4. ASIGNACIÓN DE MEMBRESÍAS
-
-    /**
-     * Asigna una membresía a un socio
-     */
+    // ASIGNACIÓN
     asignarMembresia(request: AsignacionRequest): Observable<any> {
         return this.http.post(`${this.apiUrl}/socios-membresias/asignar`, request);
     }
 
-    /**
-     * Asigna una membresía flexible a un socio
-     */
     asignarMembresiaFlexible(request: AsignacionFlexibleRequest): Observable<any> {
         return this.http.post(`${this.apiUrl}/socios-membresias/asignar-flexible`, request);
     }
 
-    /**
-     * Consulta las membresías de un socio
-     */
     getMembresiasSocio(idSocio: number): Observable<any> {
         return this.http.get(`${this.apiUrl}/socios-membresias/socio/${idSocio}`);
     }
 
-    /**
-     * Consulta la membresía activa de un socio
-     */
     getMembresiaActivaSocio(idSocio: number): Observable<any> {
         return this.http.get(`${this.apiUrl}/socios-membresias/socio/${idSocio}/activa`);
     }
 
-    // 5. OPERACIONES SOBRE MEMBRESÍAS DE SOCIOS
-
-    /**
-     * Renueva una membresía (PUT)
-     */
+    // OPERACIONES
     renovarMembresia(request: RenovarRequest): Observable<any> {
         return this.http.put(`${this.apiUrl}/socios-membresias/renovar`, request);
     }
 
-    /**
-     * Suspende una membresía (PUT)
-     */
     suspenderMembresia(request: SuspenderRequest): Observable<any> {
         return this.http.put(`${this.apiUrl}/socios-membresias/suspender`, request);
     }
 
-    /**
-     * Cancela una membresía (DELETE)
-     */
     cancelaMembresia(request: CancelarRequest): Observable<any> {
         const motivoEncoded = encodeURIComponent(request.motivo);
         return this.http.delete(
@@ -171,18 +215,11 @@ export class MembershipService {
         );
     }
 
-    // 6. REPORTES
-
-    /**
-     * Obtiene membresías por vencer (1-5 días)
-     */
+    // REPORTES
     getPorVencer(): Observable<any> {
         return this.http.get(`${this.apiUrl}/socios-membresias/por-vencer`);
     }
 
-    /**
-     * Obtiene membresías por vencer con rango de días
-     */
     getPorVencerRango(diasMinimo: number, diasMaximo: number): Observable<any> {
         return this.http.get(
             `${this.apiUrl}/socios-membresias/por-vencer/rango?diasMinimo=${diasMinimo}&diasMaximo=${diasMaximo}`

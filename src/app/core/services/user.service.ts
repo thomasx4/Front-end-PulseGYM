@@ -1,10 +1,30 @@
-// src/app/core/services/user.service.ts
-
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment.prod';
+
+export interface FiltrosPerfiles {
+    pagina?: number;
+    tamanio?: number;
+    busqueda?: string;
+    rol?: string;
+    estado?: string;
+}
+
+export interface RespuestaPaginadaPerfiles {
+    content?: any[];
+    contenido?: any[];
+    currentPage?: number;
+    number?: number;
+    numeroPagina?: number;
+    size?: number;
+    tamanioPagina?: number;
+    totalElements?: number;
+    totalElementos?: number;
+    totalPages?: number;
+    totalPaginas?: number;
+}
 
 @Injectable({
     providedIn: 'root'
@@ -14,23 +34,40 @@ export class UserService {
 
     constructor(private http: HttpClient) { }
 
-    /**
-     * Completa el perfil de un usuario
-     */
+listarPerfilesPaginados(filtros: FiltrosPerfiles = {}): Observable<RespuestaPaginadaPerfiles> {
+    let params = new HttpParams();
+
+    if (filtros.busqueda) {
+        params = params.set('busqueda', filtros.busqueda);
+        params = params.set('search', filtros.busqueda); // Alias por compatibilidad
+    }
+    if (filtros.rol && filtros.rol !== 'todos') {
+        params = params.set('rol', filtros.rol.toUpperCase());
+    }
+    if (filtros.estado && filtros.estado !== 'todos') {
+        params = params.set('estado', filtros.estado.toUpperCase());
+    }
+
+    params = params.set('pagina', (filtros.pagina ?? 0).toString());
+    params = params.set('page', (filtros.pagina ?? 0).toString());
+    params = params.set('tamanio', (filtros.tamanio ?? 7).toString());
+    params = params.set('size', (filtros.tamanio ?? 7).toString());
+
+    return this.http.get<RespuestaPaginadaPerfiles>(this.apiUrl, { params }).pipe(
+        catchError((error) => {
+            console.error('❌ Error al listar perfiles paginados:', error);
+            throw error;
+        })
+    );
+}
+
     completarPerfil(data: any): Observable<any> {
         return this.http.post(`${this.apiUrl}/completar-perfil`, data);
     }
 
-    /**
-     * Obtiene el perfil del usuario autenticado (usando el token)
-     * Este es el método principal para obtener el perfil del usuario logueado
-     */
     obtenerMiPerfil(): Observable<any> {
         return this.http.get(`${this.apiUrl}/mi-perfil`).pipe(
-            map((response: any) => {
-                // Ajustar según la estructura de respuesta del backend
-                return response.data || response;
-            }),
+            map((response: any) => response.data || response),
             catchError((error) => {
                 console.error('❌ Error al obtener perfil:', error);
                 return of(null);
@@ -38,10 +75,6 @@ export class UserService {
         );
     }
 
-
-    /**
-     * Obtiene el perfil de un usuario por ID (solo admin/recepcionista)
-     */
     obtenerPerfilPorId(id: number): Observable<any> {
         return this.http.get(`${this.apiUrl}/${id}`).pipe(
             map((response: any) => response.data || response),
@@ -52,9 +85,6 @@ export class UserService {
         );
     }
 
-    /**
-     * Obtiene todos los perfiles de usuarios (solo admin/recepcionista)
-     */
     obtenerTodosLosPerfiles(): Observable<any> {
         return this.http.get(`${this.apiUrl}`).pipe(
             map((response: any) => response.data || response),
@@ -65,9 +95,6 @@ export class UserService {
         );
     }
 
-    /**
-     * Obtiene todos los perfiles de usuarios activos (solo admin/recepcionista)
-     */
     obtenerTodosLosPerfilesActivos(): Observable<any> {
         return this.http.get(`${this.apiUrl}/activo`).pipe(
             map((response: any) => response.data || response),
@@ -78,9 +105,6 @@ export class UserService {
         );
     }
 
-    /**
-     * Actualiza el perfil de un usuario
-     */
     actualizarPerfil(id: number, data: any): Observable<any> {
         return this.http.put(`${this.apiUrl}/${id}`, data).pipe(
             catchError((error) => {
@@ -90,9 +114,6 @@ export class UserService {
         );
     }
 
-    /**
-     * Cambia el estado de un perfil de usuario (solo admin/recepcionista)
-     */
     cambiarEstadoPerfil(id: number, estado: string): Observable<any> {
         return this.http.patch(`${this.apiUrl}/${id}/estado?estado=${estado}`, {}).pipe(
             catchError((error) => {
@@ -102,9 +123,6 @@ export class UserService {
         );
     }
 
-    /**
-     * Verificar usuario en Auth (solo admin/recepcionista)
-     */
     verificarUsuarioAuth(email: string): Observable<any> {
         return this.http.get(`${this.apiUrl}/auth/verificar-usuario`, {
             params: { email }

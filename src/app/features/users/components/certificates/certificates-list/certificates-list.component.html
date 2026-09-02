@@ -14,7 +14,7 @@
         </button>
     </header>
 
-    <!-- MÉTRICAS ORGANIZADAS EN 2 COLUMNAS SEGUND EL BACKEND -->
+    <!-- MÉTRICAS ORGANIZADAS EN 2 COLUMNAS -->
     <div class="metrics-grid">
         <div class="metric-card metric-card--total">
             <div class="metric-icon">
@@ -47,11 +47,11 @@
     </div>
 
     <!-- FILTROS -->
-    <div class="filters-section">
+    <div class="filters-section" *ngIf="!loading">
         <div class="filters-row">
             <div class="filter-group search-box">
                 <input type="text" placeholder="Buscar por certificación o entrenador..." [(ngModel)]="filtros.search"
-                    (input)="aplicarFiltros()" />
+                    (keyup.enter)="aplicarFiltros()" />
                 <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="11" cy="11" r="8" />
                     <line x1="21" y1="21" x2="16.65" y2="16.65" />
@@ -70,7 +70,7 @@
 
     <!-- TABLA DE CERTIFICACIONES -->
     <section class="table-card">
-        <div class="table-responsive" *ngIf="certificacionesPaginadas.length > 0">
+        <div class="table-responsive" *ngIf="certificaciones.length > 0">
             <table class="custom-table">
                 <thead>
                     <tr>
@@ -81,7 +81,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let cert of certificacionesPaginadas">
+                    <tr *ngFor="let cert of certificaciones">
                         <td>
                             <div class="cert-name-cell">
                                 <div class="pdf-icon-badge">
@@ -104,7 +104,7 @@
                         </td>
                         <td class="text-right">
                             <div class="acciones-container">
-                                <!-- VER PDF (OJO) -->
+                                <!-- VER PDF -->
                                 <button class="btn-action btn-view" (click)="verCertificacion(cert)"
                                     title="Ver detalle de la certificación">
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -114,7 +114,7 @@
                                     </svg>
                                 </button>
 
-                                <!-- EDITAR (LÁPIZ) -->
+                                <!-- EDITAR -->
                                 <button class="btn-action btn-edit" (click)="editarCertificacion(cert.idCertificacion)"
                                     title="Editar certificación">
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -124,7 +124,7 @@
                                     </svg>
                                 </button>
 
-                                <!-- ELIMINAR (CANECA) -->
+                                <!-- ELIMINAR -->
                                 <button class="btn-action btn-delete" (click)="eliminarCertificacion(cert)"
                                     title="Eliminar">
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -141,7 +141,7 @@
             </table>
         </div>
 
-        <div *ngIf="certificacionesFiltradas.length === 0 && !loading" class="empty-state">
+        <div *ngIf="certificaciones.length === 0 && !loading" class="empty-state">
             <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                 <polyline points="14 2 14 8 20 8" />
@@ -150,15 +150,17 @@
             <span>Intenta ajustando el filtro de búsqueda.</span>
         </div>
 
-        <!-- PAGINACIÓN -->
+        <!-- PAGINACIÓN CON FORMATO EXACTO -->
         <footer *ngIf="totalPaginas > 0" class="table-footer">
             <div class="showing-text">Mostrando <strong>{{ inicio }}</strong> a <strong>{{ fin }}</strong> de <strong>{{
                     totalElementos }}</strong> certificaciones</div>
             <div class="pagination-wrapper">
-                <button class="page-arrow" [disabled]="paginaActual === 1" (click)="paginaAnterior()">‹</button>
+                <button class="page-arrow" [disabled]="paginaActual === 0" (click)="paginaAnterior()">‹</button>
+
                 <button *ngFor="let p of paginasVisibles" class="page-number" [class.active]="p === paginaActual"
-                    (click)="irPagina(p)">{{ p }}</button>
-                <button class="page-arrow" [disabled]="paginaActual === totalPaginas"
+                    (click)="irPagina(p)">{{ p + 1 }}</button>
+
+                <button class="page-arrow" [disabled]="paginaActual >= totalPaginas - 1"
                     (click)="paginaSiguiente()">›</button>
             </div>
         </footer>

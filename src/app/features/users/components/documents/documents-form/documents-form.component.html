@@ -180,6 +180,7 @@
 </div>
 
 <!-- MODAL DE SELECCIÓN Y ASIGNACIÓN DE USUARIOS -->
+<!-- MODAL DE SELECCIÓN Y ASIGNACIÓN DE USUARIOS -->
 <div class="modal-overlay" *ngIf="showPartnerModal" (click)="cerrarModalSeleccionSocio()">
     <div class="modal-partner-container" (click)="$event.stopPropagation()">
 
@@ -198,7 +199,7 @@
         <div class="modal-partner-search">
             <div class="search-input-wrapper">
                 <input type="text" placeholder="Buscar por nombre, teléfono o rol..." [(ngModel)]="searchUsuario"
-                    (input)="filtrarSociosModal()" />
+                    (keyup.enter)="filtrarSociosModal()" />
                 <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                     stroke-width="2">
                     <circle cx="11" cy="11" r="8"></circle>
@@ -219,7 +220,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let usuario of sociosPaginados">
+                    <tr *ngFor="let usuario of usuarios">
                         <td>
                             <div class="partner-cell">
                                 <div class="partner-table-avatar">
@@ -240,8 +241,7 @@
                             </span>
                         </td>
                         <td>
-                            <span class="partner-table-contact">{{ usuario.telefono || usuario.email || 'Sin contacto'
-                                }}</span>
+                            <span class="partner-table-contact">{{ usuario.telefono || usuario.email || 'Sin contacto' }}</span>
                         </td>
                         <td class="text-right">
                             <button type="button" class="btn-assign-row" (click)="seleccionarSocioDesdeModal(usuario)">
@@ -249,7 +249,7 @@
                             </button>
                         </td>
                     </tr>
-                    <tr *ngIf="sociosFiltradosModal.length === 0">
+                    <tr *ngIf="usuarios.length === 0 && !loadingModalUsers">
                         <td colspan="4" class="empty-table-msg">
                             No se encontraron usuarios que coincidan con la búsqueda.
                         </td>
@@ -258,19 +258,19 @@
             </table>
         </div>
 
-        <!-- PAGINACIÓN MODAL -->
-        <div class="modal-partner-footer" *ngIf="totalPaginasModal > 1">
+        <!-- PAGINACIÓN MODAL ESTILO USUARIOS -->
+        <div class="modal-partner-footer" *ngIf="totalPaginasModal > 0">
             <div class="pagination-controls">
-                <button type="button" class="btn-page-arrow" [disabled]="paginaModalActual === 1"
-                    (click)="paginaModalActual = paginaModalActual - 1">
+                <button type="button" class="btn-page-arrow" [disabled]="paginaModalActual === 0"
+                    (click)="paginaAnteriorModal()">
                     ‹
                 </button>
-                <button type="button" *ngFor="let pag of paginasVisiblesModal" class="btn-page-num"
-                    [class.active]="pag === paginaModalActual" (click)="paginaModalActual = pag">
-                    {{ pag }}
+                <button type="button" *ngFor="let p of paginasVisiblesModal" class="btn-page-num"
+                    [class.active]="p === paginaModalActual" (click)="irPaginaModal(p)">
+                    {{ p + 1 }}
                 </button>
-                <button type="button" class="btn-page-arrow" [disabled]="paginaModalActual === totalPaginasModal"
-                    (click)="paginaModalActual = paginaModalActual + 1">
+                <button type="button" class="btn-page-arrow" [disabled]="paginaModalActual >= totalPaginasModal - 1"
+                    (click)="paginaSiguienteModal()">
                     ›
                 </button>
             </div>

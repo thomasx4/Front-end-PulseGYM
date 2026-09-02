@@ -11,13 +11,13 @@ import Swal from 'sweetalert2';
 })
 export class CertificatesListComponent implements OnInit {
   certificaciones: Certificate[] = [];
-  certificacionesFiltradas: Certificate[] = [];
   metricas: CertificateMetric | null = null;
   loading: boolean = false;
 
-  paginaActual: number = 1;
+  paginaActual: number = 0;
   itemsPorPagina: number = 5;
   totalElementos: number = 0;
+  totalPaginas: number = 0;
 
   filtros: CertificateFilter = {
     search: '',
@@ -31,68 +31,119 @@ export class CertificatesListComponent implements OnInit {
 
   ngOnInit(): void {
     this.cargarDatos();
+    this.cargarMetricas();
+  }
+
+  cargarMetricas(): void {
+    this.certificateService.obtenerMetricas().subscribe({
+      next: (m) => this.metricas = m,
+      error: () => this.metricas = { totalCertificaciones: 0, entrenadoresCertificados: 0 }
+    });
   }
 
   cargarDatos(): void {
     this.loading = true;
-    this.certificateService.obtenerTodasLasCertificaciones().subscribe({
-      next: (data) => {
-        this.certificaciones = data;
-        this.calcularMetricas(data);
-        this.aplicarFiltros();
+    const searchVal = this.filtros.search?.trim();
+
+    const params: CertificateFilter = {
+      pagina: this.paginaActual,
+      tamanio: this.itemsPorPagina,
+      search: searchVal || undefined
+    };
+
+    this.certificateService.obtenerCertificacionesPaginadas(params).subscribe({
+      next: (response: any) => {
+        let arrayCompleto: Certificate[] = [];
+
+        if (Array.isArray(response)) {
+          arrayCompleto = response;
+        } else {
+          const listData = response.data || response.contenido || response.content || [];
+          arrayCompleto = Array.isArray(listData) ? listData : [];
+        }
+
+        let listaFiltrada = arrayCompleto;
+
+        if (searchVal) {
+          const query = searchVal.toLowerCase();
+          listaFiltrada = listaFiltrada.filter(c =>
+            c.nombreCertificacion?.toLowerCase().includes(query) ||
+            c.nombreEntrenador?.toLowerCase().includes(query)
+          );
+        }
+
+        if (Array.isArray(response) || listaFiltrada.length !== arrayCompleto.length) {
+          this.totalElementos = listaFiltrada.length;
+          this.totalPaginas = Math.ceil(this.totalElementos / this.itemsPorPagina) || 1;
+          const inicioSlice = this.paginaActual * this.itemsPorPagina;
+          this.certificaciones = listaFiltrada.slice(inicioSlice, inicioSlice + this.itemsPorPagina);
+        } else {
+          this.certificaciones = listaFiltrada;
+          this.totalElementos = response.totalElementos ?? response.totalElements ?? listaFiltrada.length;
+          this.totalPaginas = response.totalPaginas ?? response.totalPages ?? 1;
+          this.paginaActual = response.numeroPagina ?? response.currentPage ?? response.number ?? 0;
+        }
+
         this.loading = false;
       },
       error: () => {
         this.certificaciones = [];
-        this.metricas = { totalCertificaciones: 0, entrenadoresCertificados: 0 };
-        this.aplicarFiltros();
+        this.totalElementos = 0;
+        this.totalPaginas = 0;
         this.loading = false;
       }
     });
   }
 
-  private calcularMetricas(data: Certificate[]): void {
-    this.metricas = {
-      totalCertificaciones: data.length,
-      entrenadoresCertificados: new Set(data.map(c => c.idEntrenador)).size
-    };
-  }
-
   aplicarFiltros(): void {
-    let result = [...this.certificaciones];
-
-    if (this.filtros.search?.trim()) {
-      const term = this.filtros.search.toLowerCase().trim();
-      result = result.filter(c =>
-        c.nombreCertificacion?.toLowerCase().includes(term) ||
-        c.nombreEntrenador?.toLowerCase().includes(term)
-      );
-    }
-
-    this.certificacionesFiltradas = result;
-    this.totalElementos = result.length;
-    this.paginaActual = 1;
+    this.paginaActual = 0;
+    this.cargarDatos();
   }
 
-  get certificacionesPaginadas(): Certificate[] {
-    const inicio = (this.paginaActual - 1) * this.itemsPorPagina;
-    return this.certificacionesFiltradas.slice(inicio, inicio + this.itemsPorPagina);
+  get inicio(): number {
+    if (this.totalElementos === 0) return 0;
+    return this.paginaActual * this.itemsPorPagina + 1;
   }
 
-  get totalPaginas(): number {
-    return Math.ceil(this.certificacionesFiltradas.length / this.itemsPorPagina) || 1;
+  get fin(): number {
+    return Math.min((this.paginaActual + 1) * this.itemsPorPagina, this.totalElementos);
   }
 
   get paginasVisibles(): number[] {
-    return Array.from({ length: this.totalPaginas }, (_, i) => i + 1);
+    const maxVisibles = 5;
+    let inicio = Math.max(0, this.paginaActual - 2);
+    let fin = inicio + maxVisibles;
+
+    if (fin > this.totalPaginas) {
+      fin = this.totalPaginas;
+      inicio = Math.max(0, fin - maxVisibles);
+    }
+
+    const paginas: number[] = [];
+    for (let i = inicio; i < fin; i++) {
+      paginas.push(i);
+    }
+    return paginas;
   }
 
-  get inicio(): number { return (this.paginaActual - 1) * this.itemsPorPagina + 1; }
-  get fin(): number { return Math.min(this.paginaActual * this.itemsPorPagina, this.certificacionesFiltradas.length); }
+  irPagina(pZeroBased: number): void {
+    if (pZeroBased !== this.paginaActual && pZeroBased >= 0 && pZeroBased < this.totalPaginas) {
+      this.paginaActual = pZeroBased;
+      this.cargarDatos();
+    }
+  }
 
-  irPagina(p: number): void { this.paginaActual = p; }
-  paginaAnterior(): void { if (this.paginaActual > 1) this.paginaActual--; }
-  paginaSiguiente(): void { if (this.paginaActual < this.totalPaginas) this.paginaActual++; }
+  paginaAnterior(): void {
+    if (this.paginaActual > 0) {
+      this.irPagina(this.paginaActual - 1);
+    }
+  }
+
+  paginaSiguiente(): void {
+    if (this.paginaActual < this.totalPaginas - 1) {
+      this.irPagina(this.paginaActual + 1);
+    }
+  }
 
   limpiarFiltros(): void {
     this.filtros = { search: '', certificacion: 'todos' };
@@ -134,6 +185,7 @@ export class CertificatesListComponent implements OnInit {
               confirmButtonColor: '#0f1c3f'
             });
             this.cargarDatos();
+            this.cargarMetricas();
           },
           error: (error) => {
             Swal.fire({
