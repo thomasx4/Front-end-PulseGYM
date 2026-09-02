@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { DocumentService } from '../../../../../core/services/document.service';
-import { UserService } from '../../../../../core/services/user.service';
+import { UserService, FiltrosPerfiles } from '../../../../../core/services/user.service';
 import { CloudinaryService } from '../../../../../core/services/cloudinary.service';
 import { getTipoDocumentoLabel } from '../../../../../core/models/document';
 import Swal from 'sweetalert2';
@@ -21,13 +21,15 @@ export class DocumentsFormComponent implements OnInit {
   tiposDocumento: string[] = [];
 
   usuarios: any[] = [];
-  sociosFiltradosModal: any[] = [];
   selectedUsuario: any = null;
   searchUsuario: string = '';
 
   showPartnerModal: boolean = false;
-  paginaModalActual: number = 1;
+  paginaModalActual: number = 0;
   itemsPorPaginaModal: number = 5;
+  totalElementosModal: number = 0;
+  totalPaginasModal: number = 0;
+  loadingModalUsers: boolean = false;
 
   selectedFile: File | null = null;
   uploadingFile: boolean = false;
@@ -48,7 +50,6 @@ export class DocumentsFormComponent implements OnInit {
   ngOnInit(): void {
     this.initForm();
     this.cargarTiposDocumento();
-    this.cargarUsuarios();
     this.verificarModoEdicion();
   }
 
@@ -69,16 +70,63 @@ export class DocumentsFormComponent implements OnInit {
     });
   }
 
-  private cargarUsuarios(): void {
-    this.userService.obtenerTodosLosPerfilesActivos().subscribe({
-      next: (data: any[]) => {
-        this.usuarios = data || [];
-        this.sociosFiltradosModal = [...this.usuarios];
+  cargarUsuariosModal(): void {
+    this.loadingModalUsers = true;
+    const busquedaTerm = this.searchUsuario.trim();
+
+    const filtros: FiltrosPerfiles = {
+      pagina: this.paginaModalActual,
+      tamanio: this.itemsPorPaginaModal,
+      busqueda: busquedaTerm || undefined,
+      estado: 'ACTIVO'
+    };
+
+    this.userService.listarPerfilesPaginados(filtros).subscribe({
+      next: (response: any) => {
+        let arrayCompleto: any[] = [];
+
+        if (Array.isArray(response)) {
+          arrayCompleto = response;
+        } else {
+          const listData = response.data || response.contenido || response.content || [];
+          arrayCompleto = Array.isArray(listData) ? listData : [];
+        }
+
+        let listaFiltrada = arrayCompleto;
+
+        // Fallback local por si el endpoint ignora query params
+        if (busquedaTerm) {
+          const query = busquedaTerm.toLowerCase();
+          listaFiltrada = listaFiltrada.filter(u =>
+            (u.nombre && u.nombre.toLowerCase().includes(query)) ||
+            (u.apellido && u.apellido.toLowerCase().includes(query)) ||
+            (u.email && u.email.toLowerCase().includes(query)) ||
+            (u.telefono && u.telefono.includes(query)) ||
+            (u.rol && u.rol.toLowerCase().includes(query))
+          );
+        }
+
+        if (Array.isArray(response) || listaFiltrada.length !== arrayCompleto.length) {
+          this.totalElementosModal = listaFiltrada.length;
+          this.totalPaginasModal = Math.ceil(this.totalElementosModal / this.itemsPorPaginaModal) || 1;
+          const inicioSlice = this.paginaModalActual * this.itemsPorPaginaModal;
+          this.usuarios = listaFiltrada.slice(inicioSlice, inicioSlice + this.itemsPorPaginaModal);
+        } else {
+          this.usuarios = listaFiltrada;
+          this.totalElementosModal = response.totalElementos ?? response.totalElements ?? listaFiltrada.length;
+          this.totalPaginasModal = response.totalPaginas ?? response.totalPages ?? 1;
+          this.paginaModalActual = response.numeroPagina ?? response.currentPage ?? response.number ?? 0;
+        }
+
+        this.loadingModalUsers = false;
       },
-      error: () => {
+      error: (error) => {
+        console.error('Error al cargar usuarios en modal:', error);
         this.usuarios = [];
-        this.sociosFiltradosModal = [];
-      },
+        this.totalElementosModal = 0;
+        this.totalPaginasModal = 0;
+        this.loadingModalUsers = false;
+      }
     });
   }
 
@@ -103,15 +151,28 @@ export class DocumentsFormComponent implements OnInit {
           urlArchivoFirmado: data.urlArchivoFirmado,
         });
 
-        const usuarioEncontrado = this.usuarios.find((u) => u.idUsuario === data.idUsuario);
-
-        this.selectedUsuario = usuarioEncontrado || {
-          idUsuario: data.idUsuario,
-          nombre: data.nombreUsuario || 'Usuario',
-          apellido: '',
-          email: 'Sin email',
-          rol: data.rolUsuario || 'SOCIO'
-        };
+        if (data.idUsuario) {
+          this.userService.obtenerPerfilPorId(data.idUsuario).subscribe({
+            next: (perfil) => {
+              this.selectedUsuario = perfil || {
+                idUsuario: data.idUsuario,
+                nombre: data.nombreUsuario || 'Usuario',
+                apellido: '',
+                email: 'Sin email',
+                rol: data.rolUsuario || 'SOCIO'
+              };
+            },
+            error: () => {
+              this.selectedUsuario = {
+                idUsuario: data.idUsuario,
+                nombre: data.nombreUsuario || 'Usuario',
+                apellido: '',
+                email: 'Sin email',
+                rol: data.rolUsuario || 'SOCIO'
+              };
+            }
+          });
+        }
 
         this.avatarSelectedError = false;
         this.loading = false;
@@ -181,9 +242,9 @@ export class DocumentsFormComponent implements OnInit {
 
   abrirModalSeleccionSocio(): void {
     this.searchUsuario = '';
-    this.sociosFiltradosModal = [...this.usuarios];
-    this.paginaModalActual = 1;
+    this.paginaModalActual = 0;
     this.showPartnerModal = true;
+    this.cargarUsuariosModal();
   }
 
   cerrarModalSeleccionSocio(): void {
@@ -191,34 +252,44 @@ export class DocumentsFormComponent implements OnInit {
   }
 
   filtrarSociosModal(): void {
-    const term = this.searchUsuario.toLowerCase().trim();
-    if (!term) {
-      this.sociosFiltradosModal = [...this.usuarios];
-    } else {
-      this.sociosFiltradosModal = this.usuarios.filter(
-        (u) =>
-          u.nombre?.toLowerCase().includes(term) ||
-          u.apellido?.toLowerCase().includes(term) ||
-          (u.telefono && u.telefono.includes(term)) ||
-          u.email?.toLowerCase().includes(term) ||
-          u.rol?.toLowerCase().includes(term)
-      );
+    this.paginaModalActual = 0;
+    this.cargarUsuariosModal();
+  }
+
+  irPaginaModal(pZeroBased: number): void {
+    if (pZeroBased !== this.paginaModalActual && pZeroBased >= 0 && pZeroBased < this.totalPaginasModal) {
+      this.paginaModalActual = pZeroBased;
+      this.cargarUsuariosModal();
     }
-    this.paginaModalActual = 1;
   }
 
-  get sociosPaginados(): any[] {
-    const inicio = (this.paginaModalActual - 1) * this.itemsPorPaginaModal;
-    return this.sociosFiltradosModal.slice(inicio, inicio + this.itemsPorPaginaModal);
+  paginaAnteriorModal(): void {
+    if (this.paginaModalActual > 0) {
+      this.irPaginaModal(this.paginaModalActual - 1);
+    }
   }
 
-  get totalPaginasModal(): number {
-    return Math.ceil(this.sociosFiltradosModal.length / this.itemsPorPaginaModal) || 1;
+  paginaSiguienteModal(): void {
+    if (this.paginaModalActual < this.totalPaginasModal - 1) {
+      this.irPaginaModal(this.paginaModalActual + 1);
+    }
   }
 
   get paginasVisiblesModal(): number[] {
-    const total = this.totalPaginasModal;
-    return Array.from({ length: total }, (_, i) => i + 1);
+    const maxVisibles = 4;
+    let inicio = Math.max(0, this.paginaModalActual - 1);
+    let fin = inicio + maxVisibles;
+
+    if (fin > this.totalPaginasModal) {
+      fin = this.totalPaginasModal;
+      inicio = Math.max(0, fin - maxVisibles);
+    }
+
+    const paginas: number[] = [];
+    for (let i = inicio; i < fin; i++) {
+      paginas.push(i);
+    }
+    return paginas;
   }
 
   seleccionarSocioDesdeModal(usuario: any): void {

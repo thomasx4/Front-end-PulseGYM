@@ -332,7 +332,7 @@
 
     <div class="modal-partner-search">
       <div class="search-input-wrapper">
-        <input type="text" placeholder="Buscar usuario por nombre, correo o teléfono..." [(ngModel)]="searchSocio" (input)="filtrarSociosModal()" />
+        <input type="text" placeholder="Buscar usuario por nombre, correo o teléfono..." [(ngModel)]="searchSocio" (keyup.enter)="filtrarSociosModal()" />
         <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="11" cy="11" r="8"></circle>
           <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -351,7 +351,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let socio of sociosPaginados">
+          <tr *ngFor="let socio of socios">
             <td>
               <div class="partner-cell">
                 <div class="partner-table-avatar">
@@ -383,7 +383,7 @@
               </button>
             </td>
           </tr>
-          <tr *ngIf="sociosFiltradosModal.length === 0">
+          <tr *ngIf="socios.length === 0 && !loadingSocioUsers">
             <td colspan="4" class="empty-table-msg">
               No se encontraron usuarios que coincidan con la búsqueda.
             </td>
@@ -392,13 +392,15 @@
       </table>
     </div>
 
-    <div class="modal-partner-footer" *ngIf="totalPaginasSocioModal > 1">
+    <div class="modal-partner-footer" *ngIf="totalPaginasSocioModal > 0">
       <div class="pagination-controls">
-        <button type="button" class="btn-page-arrow" [disabled]="paginaSocioModalActual === 1" (click)="paginaSocioModalActual = paginaSocioModalActual - 1">‹</button>
-        <button type="button" *ngFor="let pag of paginasVisiblesSocioModal" class="btn-page-num" [class.active]="pag === paginaSocioModalActual" (click)="paginaSocioModalActual = pag">
-          {{ pag }}
+        <button type="button" class="btn-page-arrow" [disabled]="paginaSocioModalActual === 0" (click)="paginaAnteriorSocioModal()">‹</button>
+
+        <button type="button" *ngFor="let pag of paginasVisiblesSocioModal" class="btn-page-num" [class.active]="pag === paginaSocioModalActual" (click)="irPaginaSocioModal(pag)">
+          {{ pag + 1 }}
         </button>
-        <button type="button" class="btn-page-arrow" [disabled]="paginaSocioModalActual === totalPaginasSocioModal" (click)="paginaSocioModalActual = paginaSocioModalActual + 1">›</button>
+
+        <button type="button" class="btn-page-arrow" [disabled]="paginaSocioModalActual >= totalPaginasSocioModal - 1" (click)="paginaSiguienteSocioModal()">›</button>
       </div>
     </div>
   </div>
@@ -419,7 +421,7 @@
 
     <div class="modal-partner-search">
       <div class="search-input-wrapper">
-        <input type="text" placeholder="Buscar por nombre, correo o teléfono..." [(ngModel)]="searchRecepcionista" (input)="filtrarRecepcionistasModal()" />
+        <input type="text" placeholder="Buscar por nombre, correo o teléfono..." [(ngModel)]="searchRecepcionista" (keyup.enter)="filtrarRecepcionistasModal()" />
         <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="11" cy="11" r="8"></circle>
           <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -438,7 +440,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let rec of recepcionistasPaginados">
+          <tr *ngFor="let rec of recepcionistas">
             <td>
               <div class="partner-cell">
                 <div class="partner-table-avatar partner-table-avatar--reception">
@@ -470,7 +472,7 @@
               </button>
             </td>
           </tr>
-          <tr *ngIf="recepcionistasFiltradosModal.length === 0">
+          <tr *ngIf="recepcionistas.length === 0 && !loadingRecepcionistaUsers">
             <td colspan="4" class="empty-table-msg">
               No se encontraron recepcionistas ni entrenadores.
             </td>
@@ -479,13 +481,15 @@
       </table>
     </div>
 
-    <div class="modal-partner-footer" *ngIf="totalPaginasRecepcionistaModal > 1">
+    <div class="modal-partner-footer" *ngIf="totalPaginasRecepcionistaModal > 0">
       <div class="pagination-controls">
-        <button type="button" class="btn-page-arrow" [disabled]="paginaRecepcionistaModalActual === 1" (click)="paginaRecepcionistaModalActual = paginaRecepcionistaModalActual - 1">‹</button>
-        <button type="button" *ngFor="let pag of paginasVisiblesRecepcionistaModal" class="btn-page-num" [class.active]="pag === paginaRecepcionistaModalActual" (click)="paginaRecepcionistaModalActual = pag">
-          {{ pag }}
+        <button type="button" class="btn-page-arrow" [disabled]="paginaRecepcionistaModalActual === 0" (click)="paginaAnteriorRecepcionistaModal()">‹</button>
+
+        <button type="button" *ngFor="let pag of paginasVisiblesRecepcionistaModal" class="btn-page-num" [class.active]="pag === paginaRecepcionistaModalActual" (click)="irPaginaRecepcionistaModal(pag)">
+          {{ pag + 1 }}
         </button>
-        <button type="button" class="btn-page-arrow" [disabled]="paginaRecepcionistaModalActual === totalPaginasRecepcionistaModal" (click)="paginaRecepcionistaModalActual = paginaRecepcionistaModalActual + 1">›</button>
+
+        <button type="button" class="btn-page-arrow" [disabled]="paginaRecepcionistaModalActual >= totalPaginasRecepcionistaModal - 1" (click)="paginaSiguienteRecepcionistaModal()">›</button>
       </div>
     </div>
   </div>

@@ -56,46 +56,84 @@ export class UserProfileListComponent implements OnInit {
     this.cargarPerfiles();
   }
 
-  cargarPerfiles(): void {
-    this.loading = true;
-    this.errorMensaje = '';
+cargarPerfiles(): void {
+  this.loading = true;
+  this.errorMensaje = '';
 
-    const filtros: FiltrosPerfiles = {
-      pagina: this.numeroPagina,
-      tamanio: this.tamanioPagina,
-      busqueda: this.searchTerm.trim() || undefined,
-      rol: this.filtroRol !== 'todos' ? this.filtroRol : undefined,
-      estado: this.filtroEstado !== 'todos' ? this.filtroEstado : undefined
-    };
+  const rolFiltro = this.filtroRol !== 'todos' ? this.filtroRol.toUpperCase() : undefined;
+  const estadoFiltro = this.filtroEstado !== 'todos' ? this.filtroEstado.toUpperCase() : undefined;
+  const busquedaFiltro = this.searchTerm.trim();
 
-    this.userService.listarPerfilesPaginados(filtros).subscribe({
-      next: (response: any) => {
-        if (Array.isArray(response)) {
-          this.totalElementos = response.length;
-          this.totalPaginas = Math.ceil(this.totalElementos / this.tamanioPagina) || 1;
+  const filtros: FiltrosPerfiles = {
+    pagina: this.numeroPagina,
+    tamanio: this.tamanioPagina,
+    busqueda: busquedaFiltro || undefined,
+    rol: rolFiltro,
+    estado: estadoFiltro
+  };
 
-          const inicioSlice = this.numeroPagina * this.tamanioPagina;
-          const finSlice = inicioSlice + this.tamanioPagina;
-          this.perfiles = response.slice(inicioSlice, finSlice);
-        }
-        else {
-          const listData = response.data || response.contenido || response.content || [];
-          this.perfiles = Array.isArray(listData) ? listData : [];
-          this.totalElementos = response.totalElementos ?? response.totalElements ?? this.perfiles.length;
-          this.totalPaginas = response.totalPaginas ?? response.totalPages ?? 1;
-          this.numeroPagina = response.numeroPagina ?? response.currentPage ?? response.number ?? 0;
-          this.tamanioPagina = response.tamanioPagina ?? response.size ?? 7;
-        }
+  this.userService.listarPerfilesPaginados(filtros).subscribe({
+    next: (response: any) => {
+      let arrayCompleto: UserProfile[] = [];
 
-        this.loading = false;
-      },
-      error: (error: any) => {
-        console.error('Error al cargar perfiles:', error);
-        this.errorMensaje = error.error?.message || 'No se pudieron cargar los perfiles.';
-        this.loading = false;
+      // Si la respuesta es un array plano
+      if (Array.isArray(response)) {
+        arrayCompleto = response;
+      } else {
+        const listData = response.data || response.contenido || response.content || [];
+        arrayCompleto = Array.isArray(listData) ? listData : [];
       }
-    });
-  }
+
+      // Aplicar filtrado local de seguridad por si el backend devuelve todo sin filtrar
+      let listaFiltrada = arrayCompleto;
+
+      if (busquedaFiltro) {
+        const query = busquedaFiltro.toLowerCase();
+        listaFiltrada = listaFiltrada.filter(p =>
+          (p.nombre && p.nombre.toLowerCase().includes(query)) ||
+          (p.apellido && p.apellido.toLowerCase().includes(query)) ||
+          (p.email && p.email.toLowerCase().includes(query)) ||
+          (p.documentoIdentidad && p.documentoIdentidad.includes(query))
+        );
+      }
+
+      if (rolFiltro) {
+        listaFiltrada = listaFiltrada.filter(p => 
+          p.rol && p.rol.toUpperCase() === rolFiltro
+        );
+      }
+
+      if (estadoFiltro) {
+        listaFiltrada = listaFiltrada.filter(p => 
+          p.estado && p.estado.toUpperCase() === estadoFiltro
+        );
+      }
+
+      // Actualizar variables de paginación con el resultado filtrado
+      this.totalElementos = response.totalElementos ?? response.totalElements ?? listaFiltrada.length;
+      
+      if (Array.isArray(response) || listaFiltrada.length !== arrayCompleto.length) {
+        this.totalElementos = listaFiltrada.length;
+        this.totalPaginas = Math.ceil(this.totalElementos / this.tamanioPagina) || 1;
+        const inicioSlice = this.numeroPagina * this.tamanioPagina;
+        const finSlice = inicioSlice + this.tamanioPagina;
+        this.perfiles = listaFiltrada.slice(inicioSlice, finSlice);
+      } else {
+        this.perfiles = listaFiltrada;
+        this.totalPaginas = response.totalPaginas ?? response.totalPages ?? 1;
+        this.numeroPagina = response.numeroPagina ?? response.currentPage ?? response.number ?? 0;
+        this.tamanioPagina = response.tamanioPagina ?? response.size ?? 7;
+      }
+
+      this.loading = false;
+    },
+    error: (error: any) => {
+      console.error('Error al cargar perfiles:', error);
+      this.errorMensaje = error.error?.message || 'No se pudieron cargar los perfiles.';
+      this.loading = false;
+    }
+  });
+}
 
   aplicarFiltros(): void {
     this.numeroPagina = 0;

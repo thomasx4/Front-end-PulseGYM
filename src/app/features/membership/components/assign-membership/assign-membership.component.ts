@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import {
   MembershipService,
   AsignacionRequest,
@@ -7,6 +9,7 @@ import {
   SuspenderRequest,
   CancelarRequest,
 } from '../../../../core/services/membership.service';
+import { UserService, FiltrosPerfiles } from '../../../../core/services/user.service';
 import Swal from 'sweetalert2';
 
 export interface MembresiaUI {
@@ -25,14 +28,17 @@ export interface SocioUI {
   id: number;
   idSocioMembresia?: number;
   nombre: string;
+  apellido?: string;
   telefono: string;
+  email?: string;
   precioTotal?: number;
   fechaAsignacion?: string;
   fechaVencimiento?: string;
   fechaRegistro?: string;
-  avatarUrl?: string;
   fotoUrl?: string;
   estado: string;
+  rol?: any;
+  _avatarError?: boolean;
 }
 
 @Component({
@@ -49,68 +55,111 @@ export class AssignMembershipComponent implements OnInit {
   membresiaSeleccionada: MembresiaUI | null = null;
   membresiasPorVencer: any[] = [];
 
-  avatarErrors: Set<string> = new Set<string>();
+  failedAvatars: Set<string> = new Set<string>();
 
-  // MODAL DE ASIGNACIÓN
+  // MODALES Y ESTADOS DE CARGA
   mostrarModal: boolean = false;
   mostrarModalFlexible: boolean = false;
-  searchTermModal: string = '';
   loading: boolean = true;
   errorMessage: string = '';
   successMessage: string = '';
+
+  // SUBJECTS PARA BÚSQUEDAS CON DEBOUNCE
+  private searchModalSubject: Subject<string> = new Subject<string>();
+  private searchSociosSubject: Subject<string> = new Subject<string>();
 
   // MODAL FLEXIBLE
   diasFlexibles: number = 1;
   observacionesFlexible: string = '';
 
-  // FILTROS
+  // FILTROS Y BÚSQUEDA EN LISTA DE SOCIOS ASIGNADOS
   searchTermSocios: string = '';
 
-  // PAGINACIÓN MEMBRESÍAS (TARJETAS)
-  paginaMembresiasActual: number = 1;
-  itemsPorPaginaMembresias: number = 6;
+  // PAGINACIÓN DE TARJETAS DE MEMBRESÍAS
+  paginaMembresiasActual: number = 0; // 0-based
+  readonly itemsPorPaginaMembresias: number = 6;
   totalMembresiasBackend: number = 0;
+  totalPaginasMembresiasBackend: number = 1;
 
-  // SOCIOS ASIGNADOS (PAGINACIÓN)
+  // PAGINACIÓN Y LISTADO DE SOCIOS ASIGNADOS
   sociosAsignados: SocioUI[] = [];
-  sociosAsignadosFiltrados: SocioUI[] = [];
-  sociosPaginaActual: number = 1;
-  sociosItemsPorPagina: number = 5;
+  sociosPaginaActual: number = 0; // 0-based
+  readonly sociosItemsPorPagina: number = 6;
+  totalSociosAsignadosBackend: number = 0;
+  totalPaginasSociosBackend: number = 1;
 
-  // SOCIOS MODAL (PAGINACIÓN)
+  // MODAL SELECCIÓN SOCIOS
   sociosModal: SocioUI[] = [];
-  sociosFiltradosModal: SocioUI[] = [];
-  sociosModalPaginaActual: number = 1;
-  sociosModalItemsPorPagina: number = 5;
+  searchTermModal: string = '';
+  loadingModalSocios: boolean = false;
+  paginaSocioModalActual: number = 0; // 0-based
+  readonly itemsPorPaginaSocioModal: number = 5;
+  totalElementosSocioModal: number = 0;
+  totalPaginasSocioModal: number = 0;
 
-  // ACCIONES - Estado de carga
+  // ACCIONES GENERALES
   accionEnProceso: boolean = false;
 
-  // PAGINACIÓN POR VENCER
-  paginaPorVencerActual: number = 1;
+  // PAGINACIÓN SOCIOS POR VENCER
+  paginaPorVencerActual: number = 1; // 1-based local
   readonly itemsPorPaginaPorVencer: number = 6;
 
-  constructor(private membershipService: MembershipService) { }
+  constructor(
+    private membershipService: MembershipService,
+    private userService: UserService
+  ) { }
 
   ngOnInit(): void {
     this.cargarDashboard(0);
+
+    this.searchModalSubject.pipe(
+      debounceTime(350),
+      distinctUntilChanged()
+    ).subscribe((term: string) => {
+      this.searchTermModal = term;
+      this.paginaSocioModalActual = 0;
+      this.cargarSociosModalBackend();
+    });
+
+    this.searchSociosSubject.pipe(
+      debounceTime(350),
+      distinctUntilChanged()
+    ).subscribe((term: string) => {
+      this.searchTermSocios = term;
+      this.sociosPaginaActual = 0;
+      if (this.membresiaSeleccionada) {
+        this.verSocios(this.membresiaSeleccionada.id, 0);
+      }
+    });
   }
 
-  cargarDashboard(page: number = 0): void {
+  // --- DASHBOARD PRINCIPAL ---
+  cargarDashboard(pageIndexZeroBased: number = 0): void {
     this.loading = true;
     this.errorMessage = '';
+    this.paginaMembresiasActual = pageIndexZeroBased;
 
-    this.membershipService.getDashboardMembresias(page, this.itemsPorPaginaMembresias).subscribe({
+    this.membershipService.getDashboardMembresias({
+      pagina: pageIndexZeroBased,
+      tamanio: this.itemsPorPaginaMembresias
+    }).subscribe({
       next: (res: any) => {
         try {
           const responseBody = res?.data || res || {};
 
-          const membresiasPaginadas = responseBody.membresiasPaginadas || responseBody.membresias || {};
-          const listMembresias: any[] = Array.isArray(membresiasPaginadas)
-            ? membresiasPaginadas
-            : (membresiasPaginadas.content || responseBody.content || []);
+          const membresiasPaginadas = responseBody.membresiasPaginadas || responseBody.membresias || responseBody;
+          let listMembresias: any[] = [];
 
-          this.totalMembresiasBackend = membresiasPaginadas.totalElements ?? listMembresias.length;
+          if (Array.isArray(membresiasPaginadas)) {
+            listMembresias = membresiasPaginadas;
+            this.totalMembresiasBackend = listMembresias.length;
+            this.totalPaginasMembresiasBackend = Math.ceil(this.totalMembresiasBackend / this.itemsPorPaginaMembresias) || 1;
+          } else {
+            listMembresias = membresiasPaginadas?.content || membresiasPaginadas?.data || membresiasPaginadas?.contenido || [];
+            this.totalMembresiasBackend = membresiasPaginadas?.totalElementos ?? membresiasPaginadas?.totalElements ?? listMembresias.length;
+            this.totalPaginasMembresiasBackend = membresiasPaginadas?.totalPaginas ?? membresiasPaginadas?.totalPages ?? (Math.ceil(this.totalMembresiasBackend / this.itemsPorPaginaMembresias) || 1);
+            this.paginaMembresiasActual = membresiasPaginadas?.numeroPagina ?? membresiasPaginadas?.currentPage ?? membresiasPaginadas?.number ?? pageIndexZeroBased;
+          }
 
           this.membresias = listMembresias.map((item: any) => ({
             id: Number(item.idMembresia || item.id),
@@ -128,27 +177,8 @@ export class AssignMembershipComponent implements OnInit {
             esFlexible: !!item.esFlexible,
           }));
 
-          const usuariosRaw = responseBody.usuariosActivos || [];
-          const usuariosData = Array.isArray(usuariosRaw) ? usuariosRaw : (usuariosRaw.content || []);
-          this.sociosModal = usuariosData.map((u: any) => ({
-            id: Number(u.idUsuario || u.id),
-            nombre: u.nombreCompleto || `${u.nombre || ''} ${u.apellido || ''}`.trim() || 'Usuario',
-            telefono: u.telefono || u.celular || 'No disponible',
-            fechaRegistro: this.formatearFecha(u.fechaRegistro || u.fechaCreacion || u.createdAt),
-            fotoUrl: u.fotoUrl || u.fotoPerfil || u.foto || u.avatar || null,
-            estado: u.estado || 'ACTIVO',
-          }));
-          this.sociosFiltradosModal = [...this.sociosModal];
-
-          const porVencerRaw =
-            responseBody.membresiasPorVencer ||
-            responseBody.membresiasProximasAVencer ||
-            responseBody.porVencer ||
-            [];
-
-          const porVencerData = Array.isArray(porVencerRaw)
-            ? porVencerRaw
-            : (porVencerRaw.content || []);
+          const porVencerRaw = responseBody.membresiasPorVencer || responseBody.porVencer || [];
+          const porVencerData = Array.isArray(porVencerRaw) ? porVencerRaw : (porVencerRaw.content || porVencerRaw.data || []);
 
           this.membresiasPorVencer = porVencerData.map((item: any) => ({
             ...item,
@@ -157,195 +187,56 @@ export class AssignMembershipComponent implements OnInit {
             idSocioMembresia: Number(item.idSocioMembresia || item.id),
             nombreSocio: item.nombreSocio || item.nombreCompleto || item.nombre || 'Socio',
             tipoMembresia: item.tipoMembresia || item.nombreMembresia || item.membresia || 'Plan Activo',
-            diasRestantes: item.diasRestantes ?? item.diasParaVencer ?? item.diasRestantesVencimiento ?? 0,
+            diasRestantes: item.diasRestantes ?? item.diasParaVencer ?? 0,
             fotoUrl: item.fotoUrl || item.fotoPerfil || item.foto || item.avatar || null,
           }));
 
         } catch (err) {
-          console.error('Error al mapear la respuesta del dashboard:', err);
+          console.error('Error al mapear dashboard:', err);
         } finally {
           this.loading = false;
         }
       },
       error: (error: any) => {
-        console.error('Error HTTP al cargar dashboard:', error);
         this.errorMessage = error.error?.message || 'Error al conectar con el servidor de membresías.';
         this.loading = false;
       },
     });
   }
 
-  // HELPER DE AVATAR Y FOTOS
-
-  getFotoSocio(socio: any): string | null {
-    if (!socio) return null;
-    const directFoto =
-      socio.fotoUrl ||
-      socio.avatarUrl ||
-      socio.fotoPerfil ||
-      socio.foto ||
-      socio.avatar;
-
-    if (
-      directFoto &&
-      !directFoto.includes('ui-avatars.com') &&
-      !directFoto.includes('default-avatar.png')
-    ) {
-      let rawUrl = String(directFoto).trim();
-      if (rawUrl !== '' && rawUrl !== 'null' && rawUrl !== 'undefined') {
-        return rawUrl.startsWith('//') ? `https:${rawUrl}` : rawUrl;
-      }
-    }
-    return null;
-  }
-
-  onAvatarError(key: string | number): void {
-    if (key) {
-      this.avatarErrors.add(String(key));
-    }
-  }
-
-  hasAvatarError(key: string | number): boolean {
-    return this.avatarErrors.has(String(key));
-  }
-
-  getInitials(nombre?: string): string {
-    if (!nombre) return 'U';
-    const partes = nombre.trim().split(' ').filter((p) => p.length > 0);
-    if (partes.length === 0) return 'U';
-    if (partes.length === 1) return partes[0].charAt(0).toUpperCase();
-    return (partes[0].charAt(0) + partes[1].charAt(0)).toUpperCase();
-  }
-
-  // GETTERS PAGINACIÓN MEMBRESÍAS
-
-  get membresiasPaginadas(): MembresiaUI[] {
-    return this.membresias;
-  }
-
-  get totalPaginasMembresias(): number {
-    return Math.ceil(this.totalMembresiasBackend / this.itemsPorPaginaMembresias) || 1;
-  }
-
-  get paginasMembresias(): number[] {
-    return Array.from({ length: this.totalPaginasMembresias }, (_, i) => i + 1);
-  }
-
-  // GETTERS PAGINACIÓN POR VENCER
-
-  get membresiasPorVencerPaginadas(): any[] {
-    const inicio = (this.paginaPorVencerActual - 1) * this.itemsPorPaginaPorVencer;
-    return this.membresiasPorVencer.slice(inicio, inicio + this.itemsPorPaginaPorVencer);
-  }
-
-  get totalPaginasPorVencer(): number {
-    return Math.ceil(this.membresiasPorVencer.length / this.itemsPorPaginaPorVencer) || 1;
-  }
-
-  get paginasPorVencer(): number[] {
-    return Array.from({ length: this.totalPaginasPorVencer }, (_, i) => i + 1);
-  }
-
-  // GETTERS PAGINACIÓN SOCIOS
-
-  get sociosPaginados(): SocioUI[] {
-    const inicio = (this.sociosPaginaActual - 1) * this.sociosItemsPorPagina;
-    return this.sociosAsignadosFiltrados.slice(inicio, inicio + this.sociosItemsPorPagina);
-  }
-
-  get totalSociosPaginas(): number {
-    return Math.ceil(this.sociosAsignadosFiltrados.length / this.sociosItemsPorPagina) || 1;
-  }
-
-  get paginasSocios(): number[] {
-    return Array.from({ length: this.totalSociosPaginas }, (_, i) => i + 1);
-  }
-
-  // GETTERS PAGINACIÓN MODAL
-
-  get sociosModalPaginados(): SocioUI[] {
-    const inicio = (this.sociosModalPaginaActual - 1) * this.sociosModalItemsPorPagina;
-    return this.sociosFiltradosModal.slice(inicio, inicio + this.sociosModalItemsPorPagina);
-  }
-
-  get totalSociosModalPaginas(): number {
-    return Math.ceil(this.sociosFiltradosModal.length / this.sociosModalItemsPorPagina) || 1;
-  }
-
-  get paginasModal(): number[] {
-    return Array.from({ length: this.totalSociosModalPaginas }, (_, i) => i + 1);
-  }
-
-  // MÉTODOS DE PAGINACIÓN MEMBRESÍAS
-
-  cambiarPaginaMembresias(pagina: number): void {
-    if (pagina >= 1 && pagina <= this.totalPaginasMembresias) {
-      this.paginaMembresiasActual = pagina;
-      this.cargarDashboard(pagina - 1);
-    }
-  }
-
-  paginaAnteriorMembresias(): void {
-    if (this.paginaMembresiasActual > 1) {
-      this.cambiarPaginaMembresias(this.paginaMembresiasActual - 1);
-    }
-  }
-
-  paginaSiguienteMembresias(): void {
-    if (this.paginaMembresiasActual < this.totalPaginasMembresias) {
-      this.cambiarPaginaMembresias(this.paginaMembresiasActual + 1);
-    }
-  }
-
-  // MÉTODOS DE PAGINACIÓN POR VENCER
-
-  paginaAnteriorPorVencer(): void {
-    if (this.paginaPorVencerActual > 1) {
-      this.paginaPorVencerActual--;
-    }
-  }
-
-  paginaSiguientePorVencer(): void {
-    if (this.paginaPorVencerActual < this.totalPaginasPorVencer) {
-      this.paginaPorVencerActual++;
-    }
-  }
-
-  irAPaginaPorVencer(pagina: number): void {
-    this.paginaPorVencerActual = pagina;
-  }
-
-  // MÉTODOS DE PAGINACIÓN SOCIOS
-
-  cambiarPaginaSocios(pagina: number): void {
-    if (pagina >= 1 && pagina <= this.totalSociosPaginas) {
-      this.sociosPaginaActual = pagina;
-    }
-  }
-
-  // MÉTODOS DE PAGINACIÓN MODAL
-
-  cambiarPaginaModal(pagina: number): void {
-    if (pagina >= 1 && pagina <= this.totalSociosModalPaginas) {
-      this.sociosModalPaginaActual = pagina;
-    }
-  }
-
-  // VER SOCIOS DETALLE
-
-  verSocios(id: number): void {
+  // --- SOCIOS ASIGNADOS ---
+  verSocios(id: number, pageIndexZeroBased: number = 0): void {
     this.loading = true;
-    this.errorMessage = '';
-    this.successMessage = '';
+    this.sociosPaginaActual = pageIndexZeroBased;
 
-    this.membershipService.getMembresiaConSociosActivos(id).subscribe({
+    this.membershipService.getMembresiaConSociosActivos(id, {
+      pagina: pageIndexZeroBased,
+      tamanio: this.sociosItemsPorPagina,
+      busqueda: this.searchTermSocios.trim() || undefined
+    }).subscribe({
       next: (response: any) => {
-        const seleccionada = this.membresias.find((m) => m.id === id);
+        const seleccionada = this.membresias.find((m) => m.id === id) || this.membresiaSeleccionada;
         if (seleccionada) {
           this.membresiaSeleccionada = seleccionada;
-          const sociosData = response?.sociosAsignados || response?.data || response?.content || [];
+          const sociosDataRaw = response?.sociosAsignados || response?.data || response;
+          let listSocios: any[] = [];
 
-          if (!sociosData || sociosData.length === 0) {
+          if (Array.isArray(sociosDataRaw)) {
+            // Paginación manual client-side si el backend no la manda estructurada
+            const todosLosSocios = sociosDataRaw;
+            this.totalSociosAsignadosBackend = response?.totalSociosAsignados ?? response?.totalElements ?? todosLosSocios.length;
+            this.totalPaginasSociosBackend = Math.ceil(this.totalSociosAsignadosBackend / this.sociosItemsPorPagina) || 1;
+            
+            const inicio = pageIndexZeroBased * this.sociosItemsPorPagina;
+            listSocios = todosLosSocios.slice(inicio, inicio + this.sociosItemsPorPagina);
+          } else {
+            listSocios = sociosDataRaw?.content || sociosDataRaw?.data || sociosDataRaw?.contenido || [];
+            this.totalSociosAsignadosBackend = sociosDataRaw?.totalElementos ?? sociosDataRaw?.totalElements ?? response?.totalSociosAsignados ?? listSocios.length;
+            this.totalPaginasSociosBackend = sociosDataRaw?.totalPaginas ?? sociosDataRaw?.totalPages ?? (Math.ceil(this.totalSociosAsignadosBackend / this.sociosItemsPorPagina) || 1);
+            this.sociosPaginaActual = sociosDataRaw?.numeroPagina ?? sociosDataRaw?.currentPage ?? sociosDataRaw?.number ?? pageIndexZeroBased;
+          }
+
+          if ((!listSocios || listSocios.length === 0) && pageIndexZeroBased === 0 && !this.searchTermSocios) {
             this.loading = false;
             Swal.fire({
               icon: 'info',
@@ -357,11 +248,12 @@ export class AssignMembershipComponent implements OnInit {
             return;
           }
 
-          this.sociosAsignados = sociosData.map((s: any) => ({
-            id: Number(s.idSocio || s.id),
-            idSocioMembresia: s.idSocioMembresia,
-            nombre: s.nombreCompleto || s.nombre || 'Usuario',
-            telefono: s.telefono || 'No disponible',
+          this.sociosAsignados = listSocios.map((s: any) => ({
+            id: Number(s.idSocio || s.idUsuario || s.id),
+            idSocioMembresia: s.idSocioMembresia || s.id,
+            nombre: s.nombreCompleto || `${s.nombre || ''} ${s.apellido || ''}`.trim() || 'Usuario',
+            telefono: s.telefono || s.celular || 'No disponible',
+            email: s.email || s.correo || '',
             precioTotal: s.precioReal ?? s.precioTotal ?? seleccionada.precio ?? 0,
             fechaAsignacion: this.formatearFecha(s.fechaAsignacion || s.fechaCreacion),
             fechaVencimiento: this.formatearFecha(s.fechaVencimiento),
@@ -369,9 +261,7 @@ export class AssignMembershipComponent implements OnInit {
             estado: s.estado || 'ACTIVA',
           }));
 
-          this.membresiaSeleccionada.sociosActivos = this.sociosAsignados.length;
-          this.sociosAsignadosFiltrados = [...this.sociosAsignados];
-          this.sociosPaginaActual = 1;
+          this.membresiaSeleccionada.sociosActivos = this.totalSociosAsignadosBackend;
           this.vistaActual = 'socios';
         }
         this.loading = false;
@@ -390,13 +280,194 @@ export class AssignMembershipComponent implements OnInit {
     });
   }
 
-  // MODAL DE ASIGNACIÓN
+  // --- CARGA MODAL SOCIOS ---
+  cargarSociosModalBackend(): void {
+    this.loadingModalSocios = true;
+    const busquedaTerm = this.searchTermModal.trim();
+
+    const filtros: FiltrosPerfiles = {
+      pagina: this.paginaSocioModalActual,
+      tamanio: this.itemsPorPaginaSocioModal,
+      busqueda: busquedaTerm || undefined,
+      estado: 'ACTIVO'
+    };
+
+    this.userService.listarPerfilesPaginados(filtros).subscribe({
+      next: (response: any) => {
+        let arrayCompleto: any[] = [];
+
+        if (Array.isArray(response)) {
+          arrayCompleto = response;
+        } else {
+          const listData = response.data || response.contenido || response.content || [];
+          arrayCompleto = Array.isArray(listData) ? listData : [];
+        }
+
+        let listaFiltrada = arrayCompleto;
+
+        if (busquedaTerm) {
+          const query = busquedaTerm.toLowerCase();
+          listaFiltrada = listaFiltrada.filter(u =>
+            (u.nombre && u.nombre.toLowerCase().includes(query)) ||
+            (u.apellido && u.apellido.toLowerCase().includes(query)) ||
+            (u.email && u.email.toLowerCase().includes(query)) ||
+            (u.telefono && u.telefono.includes(query))
+          );
+        }
+
+        let MappedList: SocioUI[] = [];
+
+        if (Array.isArray(response) || listaFiltrada.length !== arrayCompleto.length) {
+          this.totalElementosSocioModal = listaFiltrada.length;
+          this.totalPaginasSocioModal = Math.ceil(this.totalElementosSocioModal / this.itemsPorPaginaSocioModal) || 1;
+          const inicioSlice = this.paginaSocioModalActual * this.itemsPorPaginaSocioModal;
+          MappedList = listaFiltrada.slice(inicioSlice, inicioSlice + this.itemsPorPaginaSocioModal);
+        } else {
+          MappedList = listaFiltrada;
+          this.totalElementosSocioModal = response.totalElementos ?? response.totalElements ?? listaFiltrada.length;
+          this.totalPaginasSocioModal = response.totalPaginas ?? response.totalPages ?? 1;
+          this.paginaSocioModalActual = response.numeroPagina ?? response.currentPage ?? response.number ?? 0;
+        }
+
+        this.sociosModal = MappedList.map((u: any) => ({
+          id: Number(u.idUsuario || u.id),
+          nombre: u.nombreCompleto || `${u.nombre || ''} ${u.apellido || ''}`.trim() || 'Usuario',
+          apellido: u.apellido || '',
+          telefono: u.telefono || u.celular || 'No disponible',
+          email: u.email || '',
+          fechaRegistro: this.formatearFecha(u.fechaRegistro || u.fechaCreacion || u.createdAt),
+          fotoUrl: u.fotoUrl || u.fotoPerfil || u.foto || u.avatar || null,
+          estado: u.estado || 'ACTIVO',
+          rol: u.rol
+        }));
+
+        this.loadingModalSocios = false;
+      },
+      error: (err) => {
+        console.error('Error al consultar usuarios:', err);
+        this.sociosModal = [];
+        this.totalElementosSocioModal = 0;
+        this.totalPaginasSocioModal = 0;
+        this.loadingModalSocios = false;
+      }
+    });
+  }
+
+  // --- PROPIEDADES DE COMPATIBILIDAD CON TEMPLATE ---
+  get getFotoSocio(): (socio: any) => string | null {
+    return this.getUserFoto.bind(this);
+  }
+
+  get totalPaginasMembresias(): number {
+    return this.totalPaginasMembresiasBackend;
+  }
+
+  get totalSociosPaginas(): number {
+    return this.totalPaginasSociosBackend;
+  }
+
+  get sociosModalPaginaActual(): number {
+    return this.paginaSocioModalActual + 1;
+  }
+
+  get totalSociosModalPaginas(): number {
+    return this.totalPaginasSocioModal;
+  }
+
+  get paginasModal(): number[] {
+    return this.paginasVisiblesModal.map(p => p + 1);
+  }
+
+  cambiarPaginaModal(paginaUnoBased: number): void {
+    this.irPaginaSocioModal(paginaUnoBased - 1);
+  }
+
+  // --- MANEJO DE IMÁGENES Y AVATAR ---
+  getUserFoto(socio: any): string | null {
+    if (!socio) return null;
+    let rawUrl = socio.fotoUrl || socio.avatarUrl || socio.fotoPerfil || socio.foto || socio.avatar || null;
+
+    if (!rawUrl || typeof rawUrl !== 'string') return null;
+
+    rawUrl = rawUrl.trim();
+    if (rawUrl === '' || rawUrl === 'null' || rawUrl === 'undefined') return null;
+
+    if (rawUrl.startsWith('//')) {
+      return `https:${rawUrl}`;
+    }
+
+    return rawUrl;
+  }
+
+  onAvatarError(key: string): void {
+    if (key) {
+      this.failedAvatars.add(key);
+    }
+  }
+
+  hasAvatarError(key: string): boolean {
+    return this.failedAvatars.has(key);
+  }
+
+  getInitials(nombre?: string): string {
+    if (!nombre) return '?';
+    const partes = nombre.trim().split(' ').filter((p) => p.length > 0);
+    if (partes.length === 0) return '?';
+    if (partes.length === 1) return partes[0].charAt(0).toUpperCase();
+    return (partes[0].charAt(0) + partes[1].charAt(0)).toUpperCase();
+  }
+
+  // --- ACCIONES MODAL ---
+  onSearchModal(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.searchModalSubject.next(value);
+  }
+
+  irPaginaSocioModal(pZeroBased: number): void {
+    if (pZeroBased !== this.paginaSocioModalActual && pZeroBased >= 0 && pZeroBased < this.totalPaginasSocioModal) {
+      this.paginaSocioModalActual = pZeroBased;
+      this.cargarSociosModalBackend();
+    }
+  }
+
+  paginaAnteriorModal(): void {
+    if (this.paginaSocioModalActual > 0) {
+      this.irPaginaSocioModal(this.paginaSocioModalActual - 1);
+    }
+  }
+
+  paginaSiguienteModal(): void {
+    if (this.paginaSocioModalActual < this.totalPaginasSocioModal - 1) {
+      this.irPaginaSocioModal(this.paginaSocioModalActual + 1);
+    }
+  }
+
+  get paginasVisiblesModal(): number[] {
+    const maxVisibles = 4;
+    let inicio = Math.max(0, this.paginaSocioModalActual - 1);
+    let fin = inicio + maxVisibles;
+
+    if (fin > this.totalPaginasSocioModal) {
+      fin = this.totalPaginasSocioModal;
+      inicio = Math.max(0, fin - maxVisibles);
+    }
+
+    const paginas: number[] = [];
+    for (let i = inicio; i < fin; i++) {
+      paginas.push(i);
+    }
+    return paginas;
+  }
 
   asignarMembresia(id: number): void {
     const seleccionada = this.membresias.find((m) => m.id === id);
     if (!seleccionada) return;
 
     this.membresiaSeleccionada = seleccionada;
+    this.searchTermModal = '';
+    this.paginaSocioModalActual = 0;
+
+    this.cargarSociosModalBackend();
 
     if (seleccionada.esFlexible) {
       this.mostrarModalFlexible = true;
@@ -404,9 +475,96 @@ export class AssignMembershipComponent implements OnInit {
       this.observacionesFlexible = '';
     } else {
       this.mostrarModal = true;
-      this.searchTermModal = '';
-      this.sociosModalPaginaActual = 1;
     }
+  }
+
+  // --- PAGINACIÓN TARJETAS Y SOCIOS ---
+  get paginasMembresias(): number[] {
+    const maxVisibles = 5;
+    let inicio = Math.max(0, this.paginaMembresiasActual - 2);
+    let fin = inicio + maxVisibles;
+
+    if (fin > this.totalPaginasMembresiasBackend) {
+      fin = this.totalPaginasMembresiasBackend;
+      inicio = Math.max(0, fin - maxVisibles);
+    }
+
+    const paginas: number[] = [];
+    for (let i = inicio; i < fin; i++) {
+      paginas.push(i);
+    }
+    return paginas;
+  }
+
+  cambiarPaginaMembresias(pZeroBased: number): void {
+    if (pZeroBased >= 0 && pZeroBased < this.totalPaginasMembresiasBackend) {
+      this.cargarDashboard(pZeroBased);
+    }
+  }
+
+  paginaAnteriorMembresias(): void {
+    if (this.paginaMembresiasActual > 0) this.cambiarPaginaMembresias(this.paginaMembresiasActual - 1);
+  }
+
+  paginaSiguienteMembresias(): void {
+    if (this.paginaMembresiasActual < this.totalPaginasMembresiasBackend - 1) this.cambiarPaginaMembresias(this.paginaMembresiasActual + 1);
+  }
+
+  get paginasSocios(): number[] {
+    const maxVisibles = 5;
+    let inicio = Math.max(0, this.sociosPaginaActual - 2);
+    let fin = inicio + maxVisibles;
+
+    if (fin > this.totalPaginasSociosBackend) {
+      fin = this.totalPaginasSociosBackend;
+      inicio = Math.max(0, fin - maxVisibles);
+    }
+
+    const paginas: number[] = [];
+    for (let i = inicio; i < fin; i++) {
+      paginas.push(i);
+    }
+    return paginas;
+  }
+
+  cambiarPaginaSocios(pZeroBased: number): void {
+    if (pZeroBased >= 0 && pZeroBased < this.totalPaginasSociosBackend && this.membresiaSeleccionada) {
+      this.verSocios(this.membresiaSeleccionada.id, pZeroBased);
+    }
+  }
+
+  paginaAnteriorSocios(): void {
+    if (this.sociosPaginaActual > 0) this.cambiarPaginaSocios(this.sociosPaginaActual - 1);
+  }
+
+  paginaSiguienteSocios(): void {
+    if (this.sociosPaginaActual < this.totalPaginasSociosBackend - 1) this.cambiarPaginaSocios(this.sociosPaginaActual + 1);
+  }
+
+  // --- PAGINACIÓN POR VENCER ---
+  get membresiasPorVencerPaginadas(): any[] {
+    const inicio = (this.paginaPorVencerActual - 1) * this.itemsPorPaginaPorVencer;
+    return this.membresiasPorVencer.slice(inicio, inicio + this.itemsPorPaginaPorVencer);
+  }
+
+  get totalPaginasPorVencer(): number {
+    return Math.ceil(this.membresiasPorVencer.length / this.itemsPorPaginaPorVencer) || 1;
+  }
+
+  get paginasPorVencer(): number[] {
+    return Array.from({ length: this.totalPaginasPorVencer }, (_, i) => i + 1);
+  }
+
+  paginaAnteriorPorVencer(): void {
+    if (this.paginaPorVencerActual > 1) this.paginaPorVencerActual--;
+  }
+
+  paginaSiguientePorVencer(): void {
+    if (this.paginaPorVencerActual < this.totalPaginasPorVencer) this.paginaPorVencerActual++;
+  }
+
+  irAPaginaPorVencer(pagina: number): void {
+    this.paginaPorVencerActual = pagina;
   }
 
   cerrarModal(): void {
@@ -416,14 +574,13 @@ export class AssignMembershipComponent implements OnInit {
     this.successMessage = '';
 
     if (this.vistaActual === 'socios' && this.membresiaSeleccionada) {
-      this.verSocios(this.membresiaSeleccionada.id);
+      this.verSocios(this.membresiaSeleccionada.id, 0);
     } else {
-      this.cargarDashboard(this.paginaMembresiasActual - 1);
+      this.cargarDashboard(this.paginaMembresiasActual);
     }
   }
 
-  // CONFIRMACIONES Y ACCIONES
-
+  // --- OPERACIONES ---
   async confirmarAsignacion(socio: SocioUI) {
     if (!this.membresiaSeleccionada) return;
 
@@ -521,8 +678,6 @@ export class AssignMembershipComponent implements OnInit {
     });
   }
 
-  // RENOVAR, SUSPENDER, CANCELAR
-
   async abrirModalRenovar(socio: SocioUI) {
     if (!socio.idSocioMembresia) {
       this.mostrarAlertaError('No se puede renovar: falta el ID de la membresía.');
@@ -546,11 +701,7 @@ export class AssignMembershipComponent implements OnInit {
   async ejecutarRenovar(socio: SocioUI): Promise<void> {
     if (!socio.idSocioMembresia) return;
 
-    const esFlexible =
-      this.membresiaSeleccionada?.esFlexible ??
-      (socio as any).esFlexible ??
-      false;
-
+    const esFlexible = this.membresiaSeleccionada?.esFlexible ?? (socio as any).esFlexible ?? false;
     let cantidadDias: number | undefined;
 
     if (esFlexible) {
@@ -585,13 +736,10 @@ export class AssignMembershipComponent implements OnInit {
     this.membershipService.renovarMembresia(request).subscribe({
       next: () => {
         this.accionEnProceso = false;
-        this.mostrarAlertaExito(
-          '¡Membresía Renovada!',
-          `La membresía de ${socio.nombre} ha sido renovada con éxito.`
-        );
-        this.cargarDashboard(this.paginaMembresiasActual - 1);
+        this.mostrarAlertaExito('¡Membresía Renovada!', `La membresía de ${socio.nombre} ha sido renovada con éxito.`);
+        this.cargarDashboard(this.paginaMembresiasActual);
         if (this.membresiaSeleccionada) {
-          this.verSocios(this.membresiaSeleccionada.id);
+          this.verSocios(this.membresiaSeleccionada.id, 0);
         }
       },
       error: (error: any) => {
@@ -637,9 +785,9 @@ export class AssignMembershipComponent implements OnInit {
       next: () => {
         this.accionEnProceso = false;
         this.mostrarAlertaExito('¡Membresía Suspendida!', `La membresía de ${socio.nombre} fue suspendida.`);
-        this.cargarDashboard(this.paginaMembresiasActual - 1);
+        this.cargarDashboard(this.paginaMembresiasActual);
         if (this.membresiaSeleccionada) {
-          this.verSocios(this.membresiaSeleccionada.id);
+          this.verSocios(this.membresiaSeleccionada.id, 0);
         }
       },
       error: (error: any) => {
@@ -684,13 +832,10 @@ export class AssignMembershipComponent implements OnInit {
     this.membershipService.cancelaMembresia(request).subscribe({
       next: () => {
         this.accionEnProceso = false;
-        this.mostrarAlertaExito(
-          '¡Membresía Cancelada!',
-          `La membresía de ${socio.nombre} ha sido cancelada definitivamente.`
-        );
-        this.cargarDashboard(this.paginaMembresiasActual - 1);
+        this.mostrarAlertaExito('¡Membresía Cancelada!', `La membresía de ${socio.nombre} ha sido cancelada definitivamente.`);
+        this.cargarDashboard(this.paginaMembresiasActual);
         if (this.membresiaSeleccionada) {
-          this.verSocios(this.membresiaSeleccionada.id);
+          this.verSocios(this.membresiaSeleccionada.id, 0);
         }
       },
       error: (error: any) => {
@@ -701,13 +846,7 @@ export class AssignMembershipComponent implements OnInit {
   }
 
   async renovarDesdePorVencer(item: any): Promise<void> {
-    const esFlexible =
-      item.esFlexible ??
-      item.flexible ??
-      item.membresiaEsFlexible ??
-      item.membresia?.esFlexible ??
-      (item.cantidadDias !== undefined && item.cantidadDias !== null);
-
+    const esFlexible = item.esFlexible ?? item.flexible ?? item.membresiaEsFlexible ?? item.membresia?.esFlexible ?? (item.cantidadDias !== undefined && item.cantidadDias !== null);
     let cantidadDias: number | undefined = item.cantidadDias;
 
     if (esFlexible || !cantidadDias) {
@@ -743,21 +882,16 @@ export class AssignMembershipComponent implements OnInit {
       next: () => {
         this.accionEnProceso = false;
         Swal.fire('Éxito', 'La membresía ha sido renovada correctamente', 'success');
-        this.cargarDashboard(this.paginaMembresiasActual - 1);
+        this.cargarDashboard(this.paginaMembresiasActual);
       },
       error: (err: any) => {
         this.accionEnProceso = false;
-        Swal.fire(
-          'Error',
-          err.error?.message || 'Ocurrió un error al intentar renovar la membresía.',
-          'error'
-        );
+        Swal.fire('Error', err.error?.message || 'Ocurrió un error al intentar renovar la membresía.', 'error');
       },
     });
   }
 
-  // ALERTAS
-
+  // --- AUXILIARES ---
   mostrarAlertaExito(titulo: string, mensaje: string): void {
     Swal.fire({
       icon: 'success',
@@ -779,39 +913,18 @@ export class AssignMembershipComponent implements OnInit {
     });
   }
 
-  // NAVEGACIÓN Y FILTROS
-
   volverAMembresias(): void {
     this.vistaActual = 'tarjetas';
     this.membresiaSeleccionada = null;
     this.errorMessage = '';
     this.successMessage = '';
-    this.cargarDashboard(this.paginaMembresiasActual - 1);
-  }
-
-  onSearchModal(event: Event): void {
-    const value = (event.target as HTMLInputElement).value.toLowerCase().trim();
-    this.searchTermModal = value;
-    this.sociosFiltradosModal = this.sociosModal.filter(
-      (s) =>
-        (s.nombre || '').toLowerCase().includes(value) ||
-        (s.telefono || '').toLowerCase().includes(value)
-    );
-    this.sociosModalPaginaActual = 1;
+    this.cargarDashboard(this.paginaMembresiasActual);
   }
 
   onSearchSociosAsignados(event: Event): void {
-    const value = (event.target as HTMLInputElement).value.toLowerCase().trim();
-    this.searchTermSocios = value;
-    this.sociosAsignadosFiltrados = this.sociosAsignados.filter(
-      (s) =>
-        (s.nombre || '').toLowerCase().includes(value) ||
-        (s.telefono || '').toLowerCase().includes(value)
-    );
-    this.sociosPaginaActual = 1;
+    const value = (event.target as HTMLInputElement).value;
+    this.searchSociosSubject.next(value);
   }
-
-  // UTILIDADES
 
   formatearFecha(fecha: string | Date | undefined): string {
     if (!fecha) return '-';

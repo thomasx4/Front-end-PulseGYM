@@ -1,8 +1,30 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { PhysicalHistory, PhysicalHistoryRequest, PhysicalHistoryEvolutionResponse } from '../models/physical-history';
 import { environment } from '../../../environments/environment';
+
+export interface FiltrosHistorialFisico {
+  pagina?: number;
+  tamanio?: number;
+  busqueda?: string;
+  idSocio?: number;
+  fechaInicio?: string;
+  fechaFin?: string;
+}
+
+export interface PhysicalHistoryPageResponse {
+  data?: PhysicalHistory[];
+  contenido?: PhysicalHistory[];
+  content?: PhysicalHistory[];
+  totalElementos?: number;
+  totalElements?: number;
+  totalPaginas?: number;
+  totalPages?: number;
+  numeroPagina?: number;
+  currentPage?: number;
+  number?: number;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -12,8 +34,31 @@ export class PhysicalHistoryService {
 
   constructor(private http: HttpClient) {}
 
-  getAll(): Observable<PhysicalHistory[]> {
-    return this.http.get<PhysicalHistory[]>(this.apiUrl);
+  getAll(filtros?: FiltrosHistorialFisico): Observable<PhysicalHistoryPageResponse | PhysicalHistory[]> {
+    let params = new HttpParams();
+
+    if (filtros) {
+      if (filtros.pagina !== undefined && filtros.pagina !== null) {
+        params = params.set('page', filtros.pagina.toString());
+      }
+      if (filtros.tamanio !== undefined && filtros.tamanio !== null) {
+        params = params.set('size', filtros.tamanio.toString());
+      }
+      if (filtros.busqueda) {
+        params = params.set('busqueda', filtros.busqueda);
+      }
+      if (filtros.idSocio) {
+        params = params.set('idSocio', filtros.idSocio.toString());
+      }
+      if (filtros.fechaInicio) {
+        params = params.set('fechaInicio', filtros.fechaInicio);
+      }
+      if (filtros.fechaFin) {
+        params = params.set('fechaFin', filtros.fechaFin);
+      }
+    }
+
+    return this.http.get<PhysicalHistoryPageResponse | PhysicalHistory[]>(this.apiUrl, { params });
   }
 
   getBySocio(idSocio: number): Observable<PhysicalHistory[]> {

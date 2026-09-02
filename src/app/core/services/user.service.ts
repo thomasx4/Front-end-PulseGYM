@@ -34,29 +34,32 @@ export class UserService {
 
     constructor(private http: HttpClient) { }
 
-    listarPerfilesPaginados(filtros: FiltrosPerfiles = {}): Observable<RespuestaPaginadaPerfiles> {
-        let params = new HttpParams();
+listarPerfilesPaginados(filtros: FiltrosPerfiles = {}): Observable<RespuestaPaginadaPerfiles> {
+    let params = new HttpParams();
 
-        if (filtros.busqueda) {
-            params = params.set('busqueda', filtros.busqueda);
-        }
-        if (filtros.rol && filtros.rol !== 'todos') {
-            params = params.set('rol', filtros.rol);
-        }
-        if (filtros.estado && filtros.estado !== 'todos') {
-            params = params.set('estado', filtros.estado);
-        }
-
-        params = params.set('pagina', (filtros.pagina ?? 0).toString());
-        params = params.set('tamanio', (filtros.tamanio ?? 7).toString());
-
-        return this.http.get<RespuestaPaginadaPerfiles>(this.apiUrl, { params }).pipe(
-            catchError((error) => {
-                console.error('❌ Error al listar perfiles paginados:', error);
-                throw error;
-            })
-        );
+    if (filtros.busqueda) {
+        params = params.set('busqueda', filtros.busqueda);
+        params = params.set('search', filtros.busqueda); // Alias por compatibilidad
     }
+    if (filtros.rol && filtros.rol !== 'todos') {
+        params = params.set('rol', filtros.rol.toUpperCase());
+    }
+    if (filtros.estado && filtros.estado !== 'todos') {
+        params = params.set('estado', filtros.estado.toUpperCase());
+    }
+
+    params = params.set('pagina', (filtros.pagina ?? 0).toString());
+    params = params.set('page', (filtros.pagina ?? 0).toString());
+    params = params.set('tamanio', (filtros.tamanio ?? 7).toString());
+    params = params.set('size', (filtros.tamanio ?? 7).toString());
+
+    return this.http.get<RespuestaPaginadaPerfiles>(this.apiUrl, { params }).pipe(
+        catchError((error) => {
+            console.error('❌ Error al listar perfiles paginados:', error);
+            throw error;
+        })
+    );
+}
 
     completarPerfil(data: any): Observable<any> {
         return this.http.post(`${this.apiUrl}/completar-perfil`, data);
