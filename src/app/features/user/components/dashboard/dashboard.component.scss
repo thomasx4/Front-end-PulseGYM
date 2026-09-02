@@ -345,6 +345,123 @@
   .arrow { color: #cbd5e0; font-size: 16px; }
 }
 
+// ============================================
+// MODAL DE ERROR
+// ============================================
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 40px 48px 32px;
+    max-width: 420px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.3s ease;
+}
+
+.modal-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+
+    &.error-icon {
+        background: #fef2f2;
+        color: #dc2626;
+    }
+
+    &.error-icon svg {
+        stroke: #dc2626;
+    }
+}
+
+.modal-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 8px;
+}
+
+.modal-message {
+    font-size: 14px;
+    color: #64748b;
+    margin: 0 0 24px;
+    line-height: 1.6;
+
+    strong {
+        color: #0f172a;
+    }
+}
+
+.modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.modal-btn {
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &.modal-btn-secondary {
+        background: #f1f5f9;
+        color: #0f172a;
+
+        &:hover {
+            background: #e2e8f0;
+        }
+    }
+
+    &.modal-btn-primary {
+        background: #0f1c3f;
+        color: #ffffff;
+
+        &:hover {
+            background: #1a2b5c;
+            box-shadow: 0 4px 12px rgba(15, 28, 63, 0.3);
+        }
+    }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
 /* RESPONSIVE */
 @media (max-width: 992px) {
   .dashboard-main {
@@ -435,7 +552,7 @@
   box-sizing: border-box;
 }
 
-// ... resto del código igual hasta RESPONSIVE ...
+
 
 /* ============================================
    MONITORES GRANDES (> 1400px)

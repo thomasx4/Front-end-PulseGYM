@@ -46,6 +46,10 @@ export class DashboardComponent implements OnInit {
   userRole: string = 'Socio';
   avatarUrl: string = '';
 
+  // Modal de error
+  mostrarModalError: boolean = false;
+  modalErrorMessage: string = '';
+
   constructor(
     private userService: UserService,
     private authService: AuthService
@@ -74,6 +78,7 @@ export class DashboardComponent implements OnInit {
   loadDashboardData(): void {
     this.isLoading = true;
     this.error = null;
+    this.modalErrorMessage = '';
 
     this.userService.getDashboardSocio().subscribe({
       next: (data) => {
@@ -94,12 +99,8 @@ export class DashboardComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error al cargar dashboard:', err);
-        let errorMsg = 'Error al cargar los datos del dashboard';
-        if (err.error?.message) {
-          errorMsg = err.error.message;
-        }
-        this.error = errorMsg;
         this.isLoading = false;
+        this.mostrarErrorModal('Ocurrió un error al cargar tu panel. Por favor, intenta de nuevo.');
       }
     });
   }
@@ -196,5 +197,22 @@ export class DashboardComponent implements OnInit {
 
   onSearch(query: string): void {
     console.log('Busqueda:', query);
+  }
+
+  // ============================================
+  // MODAL DE ERROR
+  // ============================================
+  mostrarErrorModal(mensaje: string): void {
+    this.modalErrorMessage = mensaje;
+    this.mostrarModalError = true;
+  }
+
+  cerrarModalError(): void {
+    this.mostrarModalError = false;
+  }
+
+  recargarDatos(): void {
+    this.mostrarModalError = false;
+    this.loadDashboardData();
   }
 }

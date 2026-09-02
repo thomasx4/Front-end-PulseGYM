@@ -26,19 +26,19 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   slides = [
     {
-      title: 'Bienvenido a PulseGym',
-      subtitle:
-        'Transforma tu cuerpo, transforma tu vida. Únete a la comunidad fitness más grande.',
+      title: 'Bienvenido a Pulse GYM',
+      subtitle: 'Transforma tu cuerpo, transforma tu vida. Únete a la comunidad fitness más grande.',
+      image: 'assets/img/login-slide-1.jpg'
     },
     {
       title: 'Entrena con los mejores',
-      subtitle:
-        'Accede a entrenamientos personalizados y alcanza tus metas más rápido.',
+      subtitle: 'Accede a entrenamientos personalizados y alcanza tus metas más rápido.',
+      image: 'assets/img/login-slide-2.jpg'
     },
     {
       title: 'Sigue tu progreso',
-      subtitle:
-        'Monitorea tus avances y celebra cada logro en tu camino fitness.',
+      subtitle: 'Monitorea tus avances y celebra cada logro en tu camino fitness.',
+      image: 'assets/img/login-slide-3.jpg'
     },
   ];
   currentSlide = 0;
@@ -125,16 +125,10 @@ export class LoginComponent implements OnInit, OnDestroy {
     }, 1000);
   }
 
-  /**
-   * Verifica si el login está bloqueado globalmente
-   */
   isLoginLocked(): boolean {
     return this.authService.isLoginGloballyLocked();
   }
 
-  /**
-   * Obtiene los segundos restantes de bloqueo
-   */
   getRemainingSeconds(): number {
     return this.lockRemainingSeconds;
   }

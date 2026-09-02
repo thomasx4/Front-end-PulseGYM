@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
@@ -9,16 +10,19 @@ import { AuthService } from '../../../core/services/auth.service';
 export class NavbarComponent {
   isMobileOpen = false;
 
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private router: Router
+  ) {}
 
   toggleMobileMenu(): void {
     this.isMobileOpen = !this.isMobileOpen;
   }
 
-  /**
-   * Cerrar sesión - Usa el AuthService que ya tiene el método logout()
-   */
   logout(): void {
+    // 1. Limpiar todo
     this.authService.logout();
+    // 2. Redirigir al login (reemplazar historial para evitar volver atrás)
+    this.router.navigate(['/auth/login'], { replaceUrl: true });
   }
 }

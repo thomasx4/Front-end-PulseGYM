@@ -1,0 +1,1009 @@
+:host {
+    display: block;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: #1a202c;
+}
+
+// ============================================
+// LAYOUT PRINCIPAL
+// ============================================
+.membresias-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+.membresias-main {
+    flex: 1;
+    margin-left: 260px;
+    min-height: 100vh;
+    background: #f4f6f9;
+    width: calc(100% - 260px);
+    max-width: calc(100% - 260px);
+    overflow-x: hidden;
+}
+
+.main-container {
+    padding: 32px 48px;
+    width: 100%;
+    box-sizing: border-box;
+
+    .page-header {
+        margin-bottom: 24px;
+
+        h1 {
+            font-size: 22px;
+            font-weight: 700;
+            margin: 0 0 4px 0;
+        }
+
+        .subtitle {
+            color: #6b7280;
+            font-size: 14px;
+            margin: 0;
+        }
+    }
+
+    // ============================================
+    // STATE CONTAINER
+    // ============================================
+    .state-container {
+        padding: 40px;
+        text-align: center;
+        background: white;
+        border-radius: 12px;
+
+        &.error {
+            color: #dc2626;
+        }
+
+        .btn-retry {
+            padding: 8px 16px;
+            background: #0b132b;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 12px;
+
+            &:hover {
+                background: #1c2541;
+            }
+        }
+    }
+}
+
+// ============================================
+// TARJETA DESTACADA - MEMBRESÍA ACTUAL
+// ============================================
+.current-membership-card {
+    background: linear-gradient(135deg, #0b132b 0%, #1a2a4a 100%);
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 40px;
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+
+    .current-membership-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 12px;
+
+        .current-badge {
+            background: #f5b042;
+            color: #0b132b;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 14px;
+            border-radius: 12px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .current-status {
+            font-size: 12px;
+            color: #10b981;
+            font-weight: 600;
+            background: rgba(16, 185, 129, 0.15);
+            padding: 4px 12px;
+            border-radius: 12px;
+        }
+    }
+
+    .current-membership-body {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 32px;
+
+        .current-membership-info {
+            h2 {
+                font-size: 28px;
+                font-weight: 800;
+                margin: 0 0 8px 0;
+            }
+
+            .current-description {
+                font-size: 14px;
+                color: rgba(255, 255, 255, 0.7);
+                margin-bottom: 20px;
+            }
+
+            .current-details {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 12px 24px;
+
+                .detail-item {
+                    .detail-label {
+                        display: block;
+                        font-size: 10px;
+                        color: rgba(255, 255, 255, 0.5);
+                        text-transform: uppercase;
+                        letter-spacing: 0.3px;
+                        font-weight: 600;
+                    }
+
+                    .detail-value {
+                        font-size: 14px;
+                        font-weight: 600;
+                        color: #ffffff;
+                    }
+                }
+            }
+        }
+
+        .current-membership-benefits {
+            h4 {
+                font-size: 13px;
+                font-weight: 700;
+                color: rgba(255, 255, 255, 0.8);
+                margin: 0 0 12px 0;
+                text-transform: uppercase;
+                letter-spacing: 0.3px;
+            }
+
+            ul {
+                list-style: none;
+                padding: 0;
+                margin: 0 0 16px 0;
+
+                li {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    font-size: 13px;
+                    color: rgba(255, 255, 255, 0.85);
+                    margin-bottom: 8px;
+
+                    .check-icon {
+                        color: #10b981;
+                        font-weight: bold;
+                    }
+                }
+            }
+
+            .current-restrictions {
+                font-size: 12px;
+                color: rgba(255, 255, 255, 0.6);
+                margin-bottom: 16px;
+
+                strong {
+                    color: rgba(255, 255, 255, 0.8);
+                }
+            }
+
+            .btn-change-membership {
+                background: rgba(255, 255, 255, 0.1);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                color: #ffffff;
+                padding: 10px 20px;
+                border-radius: 8px;
+                font-size: 13px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s ease;
+
+                &:hover {
+                    background: rgba(255, 255, 255, 0.2);
+                }
+            }
+        }
+    }
+}
+
+// ============================================
+// SECCIÓN TÍTULO
+// ============================================
+.section-title {
+    margin-bottom: 24px;
+
+    h3 {
+        font-size: 18px;
+        font-weight: 700;
+        margin: 0 0 4px 0;
+        color: #0f172a;
+    }
+
+    .section-subtitle {
+        color: #6b7280;
+        font-size: 14px;
+        margin: 0;
+    }
+}
+
+// ============================================
+// GRID DE PLANES - 3 columnas x 2 filas
+// ============================================
+.planes-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+.plan-card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    border: 1px solid #e5e7eb;
+    transition: all 0.2s ease;
+
+    &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+    }
+
+    .card-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+
+        .badge-tipo {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+
+            &.badge-standard {
+                background-color: #e0e7ff;
+                color: #4338ca;
+            }
+
+            &.badge-premium {
+                background-color: #fef3c7;
+                color: #d97706;
+            }
+        }
+
+        .duracion-tag {
+            font-size: 11px;
+            font-weight: 700;
+            color: #6b7280;
+            text-transform: uppercase;
+        }
+    }
+
+    .precio-container {
+        margin-bottom: 16px;
+
+        .precio {
+            font-size: 22px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+    }
+
+    .pills-row {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+
+        .pill-info {
+            background: #f3f4f6;
+            color: #6b7280;
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 6px;
+        }
+    }
+
+    .beneficios-list {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 24px 0;
+        flex-grow: 1;
+
+        li {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #4b5563;
+            margin-bottom: 10px;
+
+            .check-icon {
+                color: #10b981;
+                font-weight: bold;
+            }
+        }
+    }
+
+    .card-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+
+        button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            white-space: nowrap;
+            width: 100%;
+
+            &.btn-dark {
+                background: #0b132b;
+                color: #ffffff;
+
+                &:hover {
+                    background: #1c2541;
+                }
+            }
+
+            &.btn-light {
+                background: #f1f5f9;
+                color: #334155;
+
+                &:hover {
+                    background: #e2e8f0;
+                }
+            }
+        }
+    }
+}
+
+// ============================================
+// HEADER ACTIONS - BOTONES DEL DETALLE
+// ============================================
+.detalle-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 12px;
+
+    .breadcrumb {
+        font-size: 13px;
+        color: #9ca3af;
+
+        .active {
+            color: #111827;
+            font-weight: 600;
+        }
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+
+        button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            white-space: nowrap;
+
+            &.btn-back {
+                background: #ffffff;
+                border: 1px solid #e2e8f0;
+                color: #475569;
+
+                &:hover {
+                    background: #f8fafc;
+                }
+            }
+
+            &.btn-primary {
+                background: #0b132b;
+                color: #ffffff;
+
+                &:hover {
+                    background: #1c2541;
+                }
+            }
+        }
+    }
+}
+
+// ============================================
+// DETALLE
+// ============================================
+.detalle-title-section {
+    margin-bottom: 24px;
+
+    h1 {
+        font-size: 26px;
+        font-weight: 800;
+        margin: 0 0 4px 0;
+    }
+
+    .subtitle {
+        color: #6b7280;
+        font-size: 14px;
+        margin: 0;
+    }
+}
+
+.detalle-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+}
+
+.info-block {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+
+    h3 {
+        font-size: 15px;
+        font-weight: 700;
+        margin: 0 0 16px 0;
+        color: #111827;
+    }
+
+    .grid-2col {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px 32px;
+
+        label {
+            font-size: 10px;
+            font-weight: 700;
+            color: #9ca3af;
+            letter-spacing: 0.5px;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        p {
+            margin: 0;
+            font-size: 14px;
+            font-weight: 600;
+            color: #1f2937;
+
+            &.highlight {
+                font-size: 16px;
+                font-weight: 800;
+            }
+
+            &.status-active {
+                color: #10b981;
+            }
+        }
+    }
+
+    .text-gray {
+        color: #6b7280;
+        font-size: 14px;
+        margin: 0;
+    }
+
+    .config-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid #f3f4f6;
+        font-size: 13px;
+
+        &:last-child {
+            border-bottom: none;
+        }
+
+        .badge-incluido {
+            color: #10b981;
+            font-weight: 600;
+        }
+    }
+}
+
+.beneficios-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    li {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        color: #4b5563;
+        margin-bottom: 10px;
+
+        .check-icon {
+            color: #10b981;
+            font-weight: bold;
+        }
+    }
+}
+
+// ============================================
+// CONFIGURACIÓN ADICIONAL - AZUL
+// ============================================
+.config-adicional {
+    border: 1px solid #dbeafe;
+    background: #1a2b5c;
+
+    h3 {
+        color: #ffffff;
+    }
+
+    .config-row {
+        border-bottom: 1px solid #ffffff;
+
+        &:last-child {
+            border-bottom: none;
+        }
+
+        span:first-child {
+            color: #ffffff;
+            font-weight: 500;
+        }
+
+        .badge-incluido {
+            color: #ffffff;
+            font-weight: 600;
+            background: #0f1c3f;
+            padding: 2px 12px;
+            border-radius: 12px;
+        }
+
+        .text-gray {
+            color: #ffffff;
+        }
+    }
+}
+
+// ============================================
+// BOTÓN BLOQUE
+// ============================================
+.btn-block {
+    width: 100%;
+    justify-content: center;
+    margin-top: 8px;
+}
+
+// ============================================
+// PAGINACIÓN
+// ============================================
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 32px;
+    padding: 16px 0;
+
+    .pagination-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+        background: #ffffff;
+        color: #1f2937;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        &:hover:not(:disabled) {
+            background: #f3f4f6;
+            border-color: #d1d5db;
+        }
+
+        &:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+    }
+
+    .pagination-page {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        border: 1px solid transparent;
+        background: transparent;
+        color: #6b7280;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+
+        &:hover {
+            background: #f3f4f6;
+            border-color: #e5e7eb;
+        }
+
+        &.active {
+            background: #0b132b;
+            color: #ffffff;
+            border-color: #0b132b;
+        }
+    }
+}
+
+// ============================================
+// EMPTY STATE
+// ============================================
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #6b7280;
+    font-size: 14px;
+
+    p {
+        margin: 0;
+    }
+}
+
+// ============================================
+// MODAL
+// ============================================
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 40px 48px 32px;
+    max-width: 420px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.3s ease;
+}
+
+.modal-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+
+    &.warning-icon {
+        background: #fffbeb;
+        color: #d97706;
+    }
+
+    &.error-icon {
+        background: #fef2f2;
+        color: #dc2626;
+    }
+
+    &.warning-icon svg,
+    &.error-icon svg {
+        stroke: currentColor;
+    }
+}
+
+.modal-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 8px;
+}
+
+.modal-message {
+    font-size: 14px;
+    color: #64748b;
+    margin: 0 0 24px;
+    line-height: 1.6;
+
+    strong {
+        color: #0f172a;
+    }
+}
+
+.modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.modal-btn {
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &.modal-btn-secondary {
+        background: #f1f5f9;
+        color: #0f172a;
+
+        &:hover {
+            background: #e2e8f0;
+        }
+    }
+
+    &.modal-btn-primary {
+        background: #0b132b;
+        color: #ffffff;
+
+        &:hover {
+            background: #1c2541;
+            box-shadow: 0 4px 12px rgba(11, 19, 43, 0.3);
+        }
+    }
+}
+
+// ============================================
+// ANIMACIONES
+// ============================================
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+
+
+// ============================================
+// RESPONSIVE
+// ============================================
+
+// Tablets grandes (1200px)
+@media (max-width: 1200px) {
+    .planes-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+}
+
+// Tablets (992px)
+@media (max-width: 992px) {
+    .membresias-main {
+        margin-left: 0;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .main-container {
+        padding: 20px 24px;
+    }
+
+    .detalle-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .current-membership-card .current-membership-body {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+
+    .current-membership-card .current-membership-body .current-membership-info .current-details {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+// Móviles (768px)
+@media (max-width: 768px) {
+    .main-container {
+        padding: 16px;
+    }
+
+    .planes-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .detalle-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .detalle-title-section h1 {
+        font-size: 22px;
+    }
+
+    .info-block .grid-2col {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .plan-card {
+        padding: 20px;
+    }
+
+    .plan-card .precio-container .precio {
+        font-size: 20px;
+    }
+
+    .header-actions {
+        width: 100%;
+    }
+
+    .header-actions button {
+        flex: 1;
+        justify-content: center;
+    }
+
+    .current-membership-card {
+        padding: 20px;
+    }
+
+    .current-membership-card .current-membership-body .current-membership-info h2 {
+        font-size: 22px;
+    }
+
+    .current-membership-card .current-membership-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .current-membership-card .current-membership-body .current-membership-benefits .btn-change-membership {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .pagination-container {
+        gap: 4px;
+        flex-wrap: wrap;
+    }
+
+    .pagination-btn {
+        width: 32px;
+        height: 32px;
+    }
+
+    .pagination-page {
+        width: 32px;
+        height: 32px;
+        font-size: 12px;
+    }
+}
+
+// Móviles pequeños (600px)
+@media (max-width: 600px) {
+    .current-membership-card .current-membership-body .current-membership-info .current-details {
+        grid-template-columns: 1fr;
+    }
+
+    .planes-grid {
+        grid-template-columns: 1fr;
+        max-width: 420px;
+    }
+}
+
+// Móviles muy pequeños (480px)
+@media (max-width: 480px) {
+    .main-container {
+        padding: 12px;
+    }
+
+    .main-container .page-header h1 {
+        font-size: 18px;
+    }
+
+    .plan-card {
+        padding: 16px;
+    }
+
+    .plan-card .precio-container .precio {
+        font-size: 18px;
+    }
+
+    .plan-card .beneficios-list li {
+        font-size: 12px;
+    }
+
+    .plan-card .card-top .duracion-tag {
+        font-size: 10px;
+    }
+
+    .info-block {
+        padding: 16px;
+    }
+
+    .detalle-title-section h1 {
+        font-size: 18px;
+    }
+
+    .card-actions button {
+        font-size: 12px;
+        padding: 8px 12px;
+    }
+
+    .header-actions button {
+        font-size: 12px;
+        padding: 8px 12px;
+    }
+
+    .modal-content {
+        padding: 24px 20px 20px;
+    }
+
+    .modal-title {
+        font-size: 16px;
+    }
+
+    .modal-message {
+        font-size: 13px;
+    }
+
+    .modal-btn {
+        padding: 8px 16px;
+        font-size: 12px;
+    }
+
+    .current-membership-card {
+        padding: 16px;
+    }
+
+    .current-membership-card .current-membership-body .current-membership-info h2 {
+        font-size: 18px;
+    }
+
+    .section-title h3 {
+        font-size: 16px;
+    }
+}

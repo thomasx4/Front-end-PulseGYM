@@ -1,0 +1,251 @@
+<div class="membresias-layout">
+    <app-navbar></app-navbar>
+
+    <div class="membresias-main">
+        <app-header></app-header>
+
+        <div class="main-container">
+            <!-- Estado de Carga -->
+            <div *ngIf="isLoading" class="state-container">
+                <p>Cargando membresías...</p>
+            </div>
+
+            <!-- VISTA 1: LISTADO DE MEMBRESÍAS -->
+            <ng-container *ngIf="!isLoading && !error && vistaActual === 'listado'">
+                <header class="page-header">
+                    <h1>Planes Disponibles</h1>
+                    <p class="subtitle" *ngIf="membresiaActual">Tu plan actual: <strong>{{ membresiaActual.nombre }}</strong></p>
+                </header>
+
+                <!-- Tarjeta Destacada: Membresía Actual -->
+                <div class="current-membership-card" *ngIf="membresiaActual">
+                    <div class="current-membership-header">
+                        <span class="current-badge">TU PLAN ACTUAL</span>
+                        <span class="current-status">Activo</span>
+                    </div>
+                    <div class="current-membership-body">
+                        <div class="current-membership-info">
+                            <h2>{{ membresiaActual.nombre }}</h2>
+                            <p class="current-description">{{ membresiaActual.descripcion }}</p>
+                            <div class="current-details">
+                                <div class="detail-item">
+                                    <span class="detail-label">Precio</span>
+                                    <span class="detail-value">${{ membresiaActual.precio | number:'1.2-2' }}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Duración</span>
+                                    <span class="detail-value">{{ membresiaActual.duracionDescripcion }}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Tipo</span>
+                                    <span class="detail-value">{{ membresiaActual.tipoDuracion }}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Flexible</span>
+                                    <span class="detail-value">{{ membresiaActual.esFlexible ? 'Sí' : 'No' }}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Asistente IA</span>
+                                    <span class="detail-value">{{ membresiaActual.incluyeIA ? 'Incluido' : 'No' }}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Precio por día</span>
+                                    <span class="detail-value">${{ membresiaActual.precioPorDia | number:'1.2-2' }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="current-membership-benefits">
+                            <h4>Beneficios incluidos</h4>
+                            <ul>
+                                <li *ngFor="let beneficio of membresiaActual.beneficios">
+                                    <span class="check-icon">✓</span>
+                                    {{ beneficio }}
+                                </li>
+                            </ul>
+                            <p class="current-restrictions" *ngIf="membresiaActual.restricciones && membresiaActual.restricciones !== 'Sin restricciones'">
+                                <strong>Restricciones:</strong> {{ membresiaActual.restricciones }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grid de Membresías Disponibles -->
+                <div class="section-title" *ngIf="membresiasFiltradas.length > 0">
+                    <h3>Otras membresías disponibles</h3>
+                    <p class="section-subtitle">Conoce los demás planes que tenemos para ti</p>
+                </div>
+
+                <div class="planes-grid">
+                    <div *ngFor="let plan of membresiasPaginadas" class="plan-card">
+                        <div class="card-top">
+                            <div class="badge-group">
+                                <span class="badge-tipo" [ngClass]="{'badge-standard': !plan.incluyeIA, 'badge-premium': plan.incluyeIA}">
+                                    {{ plan.incluyeIA ? 'PREMIUM IA' : 'STANDARD' }}
+                                </span>
+                            </div>
+                            <span class="duracion-tag">{{ plan.duracionDescripcion }}</span>
+                        </div>
+
+                        <div class="precio-container">
+                            <span class="precio">${{ plan.precio | number:'1.2-2' }}</span>
+                        </div>
+
+                        <div class="pills-row">
+                            <span *ngIf="plan.esFlexible" class="pill-info">Flexible</span>
+                            <span *ngIf="plan.incluyeIA" class="pill-info">Asistente IA</span>
+                        </div>
+
+                        <ul class="beneficios-list">
+                            <li *ngFor="let beneficio of plan.beneficios">
+                                <span class="check-icon">✓</span>
+                                <span>{{ beneficio }}</span>
+                            </li>
+                        </ul>
+
+                        <div class="card-actions">
+                            <button class="btn btn-dark" (click)="verDetalle(plan)">Ver Detalle</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Paginación -->
+                <div class="pagination-container" *ngIf="hayPaginas">
+                    <button class="pagination-btn" 
+                            [disabled]="paginaActual === 1" 
+                            (click)="cambiarPagina(paginaActual - 1)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M15 18l-6-6 6-6" />
+                        </svg>
+                    </button>
+                    
+                    <span *ngFor="let p of paginasDisponibles" 
+                          class="pagination-page" 
+                          [class.active]="p === paginaActual"
+                          (click)="cambiarPagina(p)">
+                        {{ p }}
+                    </span>
+                    
+                    <button class="pagination-btn" 
+                            [disabled]="paginaActual === totalPaginas" 
+                            (click)="cambiarPagina(paginaActual + 1)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 18l6-6-6-6" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Mensaje cuando no hay membresías -->
+                <div *ngIf="membresiasFiltradas.length === 0 && !isLoading" class="empty-state">
+                    <p>No hay otras membresías disponibles.</p>
+                </div>
+            </ng-container>
+
+            <!-- VISTA 2: DETALLE DE LA MEMBRESÍA -->
+<ng-container *ngIf="!isLoading && !error && vistaActual === 'detalle' && membresiaSeleccionada">
+    <div class="detalle-header">
+        <div class="breadcrumb">
+            <span (click)="volverAlListado()" style="cursor:pointer;">Membresías</span> / <span class="active">Detalle</span>
+        </div>
+        <div class="header-actions">
+            <button class="btn btn-back" (click)="volverAlListado()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M15 18l-6-6 6-6" />
+                </svg>
+                Volver
+            </button>
+        </div>
+    </div>
+
+    <div class="detalle-title-section">
+        <h1>{{ membresiaSeleccionada.nombre }}</h1>
+        <p class="subtitle">Información completa del plan de membresía</p>
+    </div>
+
+    <div class="detalle-grid">
+        <!-- Columna Izquierda -->
+        <div class="left-column">
+            <div class="info-block">
+                <h3>Información General</h3>
+                <div class="grid-2col">
+                    <div>
+                        <label>NOMBRE DEL PLAN</label>
+                        <p>{{ membresiaSeleccionada.nombre }}</p>
+                    </div>
+                    <div>
+                        <label>PRECIO TOTAL</label>
+                        <p class="highlight">${{ membresiaSeleccionada.precio | number }}</p>
+                    </div>
+                    <div>
+                        <label>DURACIÓN</label>
+                        <p>{{ membresiaSeleccionada.duracionDescripcion }}</p>
+                    </div>
+                    <div>
+                        <label>TIPO DE DURACIÓN</label>
+                        <p>{{ membresiaSeleccionada.tipoDuracion }}</p>
+                    </div>
+                    <div>
+                        <label>PRECIO POR DÍA</label>
+                        <p>${{ membresiaSeleccionada.precioPorDia | number }}</p>
+                    </div>
+                    <div>
+                        <label>ESTADO</label>
+                        <p class="status-active">{{ membresiaSeleccionada.esActual ? 'Activo' : 'Disponible' }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-block">
+                <h3>Descripción</h3>
+                <p class="text-gray">{{ membresiaSeleccionada.descripcion }}</p>
+            </div>
+
+            <div class="info-block">
+                <h3>Beneficios</h3>
+                <ul class="beneficios-list">
+                    <li *ngFor="let beneficio of membresiaSeleccionada.beneficios">
+                        <span class="check-icon">✓</span>
+                        <span>{{ beneficio }}</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Columna Derecha -->
+        <div class="right-column">
+            <div class="info-block">
+                <h3>Información Adicional</h3>
+                <div class="config-row">
+                    <span>Restricciones</span>
+                    <span class="text-gray">{{ membresiaSeleccionada.restricciones }}</span>
+                </div>
+                <div class="config-row" *ngIf="membresiaSeleccionada.esActual">
+                    <span>Estado de membresía</span>
+                    <span class="badge-incluido">Activa</span>
+                </div>
+            </div>
+
+            <div class="info-block" *ngIf="membresiaSeleccionada.esActual">
+                <h3>Tu Plan Actual</h3>
+                <p class="text-gray">Esta es tu membresía activa. Si deseas cambiar de plan, acércate a recepción.</p>
+                <button class="btn btn-dark btn-block" (click)="cambiarMembresia()">Solicitar cambio</button>
+            </div>
+
+            <!-- Configuración Adicional - Ahora debajo de Información Adicional -->
+            <div class="info-block config-adicional">
+                <h3>Configuración Adicional</h3>
+                <div class="config-row">
+                    <span>Asistente IA</span>
+                    <span [class.badge-incluido]="membresiaSeleccionada.incluyeIA" [class.text-gray]="!membresiaSeleccionada.incluyeIA">
+                        {{ membresiaSeleccionada.incluyeIA ? 'Incluido' : 'No' }}
+                    </span>
+                </div>
+                <div class="config-row">
+                    <span>Membresía Flexible</span>
+                    <span [class.badge-incluido]="membresiaSeleccionada.esFlexible" [class.text-gray]="!membresiaSeleccionada.esFlexible">
+                        {{ membresiaSeleccionada.esFlexible ? 'Sí' : 'No' }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-container>
