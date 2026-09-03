@@ -13,6 +13,9 @@ import { AuthModule } from '../auth/auth.module';
 import { PhysicalHistoryListComponent } from './components/physical-history/physical-history-list/physical-history-list.component';
 import { PhysicalHistoryFormComponent } from './components/physical-history/physical-history-form/physical-history-form.component';
 import { PhysicalHistoryDetailComponent } from './components/physical-history/physical-history-detail/physical-history-detail.component';
+import { MedicalProfileListComponent } from './components/medical-profile/medical-profile-list/medical-profile-list.component';
+import { MedicalProfileDetailComponent } from './components/medical-profile/medical-profile-detail/medical-profile-detail.component';
+import { MedicalProfileFormComponent } from './components/medical-profile/medical-profile-form/medical-profile-form.component';
 
 @NgModule({
   declarations: [
@@ -24,7 +27,10 @@ import { PhysicalHistoryDetailComponent } from './components/physical-history/ph
     CertificatesDetailComponent,
     PhysicalHistoryListComponent,
     PhysicalHistoryFormComponent,
-    PhysicalHistoryDetailComponent
+    PhysicalHistoryDetailComponent,
+    MedicalProfileListComponent,
+    MedicalProfileDetailComponent,
+    MedicalProfileFormComponent
   ],
   imports: [
     CommonModule,
