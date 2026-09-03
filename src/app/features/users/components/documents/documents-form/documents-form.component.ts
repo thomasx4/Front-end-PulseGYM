@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { DocumentService } from '../../../../../core/services/document.service';
-import { UserService, FiltrosPerfiles } from '../../../../../core/services/user.service';
+import { FiltrosPerfiles, UserService } from '../../../../../core/services/user.service';
 import { CloudinaryService } from '../../../../../core/services/cloudinary.service';
 import { getTipoDocumentoLabel } from '../../../../../core/models/document';
 import Swal from 'sweetalert2';
@@ -70,58 +70,27 @@ export class DocumentsFormComponent implements OnInit {
     });
   }
 
-  cargarUsuariosModal(): void {
+ cargarUsuariosModal(): void {
     this.loadingModalUsers = true;
-    const busquedaTerm = this.searchUsuario.trim();
-
     const filtros: FiltrosPerfiles = {
       pagina: this.paginaModalActual,
       tamanio: this.itemsPorPaginaModal,
-      busqueda: busquedaTerm || undefined,
       estado: 'ACTIVO'
     };
 
+    if (this.searchUsuario && this.searchUsuario.trim() !== '') {
+      filtros.busqueda = this.searchUsuario.trim();
+    }
+
     this.userService.listarPerfilesPaginados(filtros).subscribe({
-      next: (response: any) => {
-        let arrayCompleto: any[] = [];
-
-        if (Array.isArray(response)) {
-          arrayCompleto = response;
-        } else {
-          const listData = response.data || response.contenido || response.content || [];
-          arrayCompleto = Array.isArray(listData) ? listData : [];
-        }
-
-        let listaFiltrada = arrayCompleto;
-
-        // Fallback local por si el endpoint ignora query params
-        if (busquedaTerm) {
-          const query = busquedaTerm.toLowerCase();
-          listaFiltrada = listaFiltrada.filter(u =>
-            (u.nombre && u.nombre.toLowerCase().includes(query)) ||
-            (u.apellido && u.apellido.toLowerCase().includes(query)) ||
-            (u.email && u.email.toLowerCase().includes(query)) ||
-            (u.telefono && u.telefono.includes(query)) ||
-            (u.rol && u.rol.toLowerCase().includes(query))
-          );
-        }
-
-        if (Array.isArray(response) || listaFiltrada.length !== arrayCompleto.length) {
-          this.totalElementosModal = listaFiltrada.length;
-          this.totalPaginasModal = Math.ceil(this.totalElementosModal / this.itemsPorPaginaModal) || 1;
-          const inicioSlice = this.paginaModalActual * this.itemsPorPaginaModal;
-          this.usuarios = listaFiltrada.slice(inicioSlice, inicioSlice + this.itemsPorPaginaModal);
-        } else {
-          this.usuarios = listaFiltrada;
-          this.totalElementosModal = response.totalElementos ?? response.totalElements ?? listaFiltrada.length;
-          this.totalPaginasModal = response.totalPaginas ?? response.totalPages ?? 1;
-          this.paginaModalActual = response.numeroPagina ?? response.currentPage ?? response.number ?? 0;
-        }
-
+      next: (res: any) => {
         this.loadingModalUsers = false;
+        this.usuarios = res.content || res.contenido || res.data || [];
+        this.totalElementosModal = res.totalElements ?? res.totalElementos ?? 0;
+        this.totalPaginasModal = res.totalPages ?? res.totalPaginas ?? 0;
       },
       error: (error) => {
-        console.error('Error al cargar usuarios en modal:', error);
+        console.error('Error al cargar usuarios paginados:', error);
         this.usuarios = [];
         this.totalElementosModal = 0;
         this.totalPaginasModal = 0;

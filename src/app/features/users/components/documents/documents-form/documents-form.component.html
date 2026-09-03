@@ -180,7 +180,6 @@
 </div>
 
 <!-- MODAL DE SELECCIÓN Y ASIGNACIÓN DE USUARIOS -->
-<!-- MODAL DE SELECCIÓN Y ASIGNACIÓN DE USUARIOS -->
 <div class="modal-overlay" *ngIf="showPartnerModal" (click)="cerrarModalSeleccionSocio()">
     <div class="modal-partner-container" (click)="$event.stopPropagation()">
 
@@ -220,6 +219,17 @@
                     </tr>
                 </thead>
                 <tbody>
+                    <!-- Estado de Carga -->
+                    <tr *ngIf="loadingModalUsers">
+                        <td colspan="4" class="loading-table-msg">
+                            <div class="spinner-container">
+                                <span class="spinner-small"></span>
+                                <span>Cargando usuarios...</span>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Filas de Usuarios -->
                     <tr *ngFor="let usuario of usuarios">
                         <td>
                             <div class="partner-cell">

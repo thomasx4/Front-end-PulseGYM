@@ -18,6 +18,8 @@ export interface FiltrosSociosMembresias {
     incluyeIA?: boolean;
     esFlexible?: boolean;
     idMembresia?: number;
+    pagePorVencer?: number;
+    sizePorVencer?: number;
 }
 
 export interface AsignacionRequest {
@@ -50,6 +52,64 @@ export interface CancelarRequest {
     motivo: string;
 }
 
+export interface DashboardResponse {
+    membresiasPaginadas: PageResponse<MembresiaDashboard>;
+    membresiasPorVencer: PageResponse<any>;
+    usuariosActivos?: any[];
+}
+
+export interface PageResponse<T> {
+    content: T[];
+    totalPages: number;
+    totalElements: number;
+    number: number;
+    size: number;
+    first: boolean;
+    last: boolean;
+    empty: boolean;
+}
+
+export interface MembresiaDashboard {
+    idMembresia: number;
+    nombre: string;
+    precioTotal: number;
+    incluyeIA: boolean;
+    esFlexible: boolean;
+    sociosAsignados: SocioAsignado[];
+    totalSociosAsignados: number;
+}
+
+export interface SocioAsignado {
+    idSocioMembresia: number;
+    idSocio: number;
+    nombreCompleto: string;
+    email: string;
+    telefono: string;
+    precioTotal: number;
+    precioReal: number;
+    esFlexible: boolean;
+    precioPorDia: number;
+    cantidadDias: number;
+    tipoMembresiaDescripcion: string;
+    fechaInicio: string;
+    fechaVencimiento: string;
+    estado: string;
+    diasRestantes: number;
+    estaActiva: boolean;
+    estaVencida: boolean;
+    observaciones: string;
+    fechaCreacion: string;
+    fechaActualizacion: string;
+    fotoUrl?: string | null;
+    avatarUrl?: string;
+    membresia?: {
+        idMembresia: number;
+        nombre: string;
+        incluyeIA: boolean;
+        esFlexible: boolean;
+    };
+}
+
 @Injectable({
     providedIn: 'root',
 })
@@ -58,9 +118,26 @@ export class MembershipService {
 
     constructor(private http: HttpClient) { }
 
-    /**
-     * Obtiene el dashboard con paginación del Backend para socios/membresías
-     */
+    getSociosAsignadosPaginados(
+        idMembresia: number,
+        page: number = 0,
+        size: number = 6,
+        busqueda?: string
+    ): Observable<PageResponse<SocioAsignado>> {
+        let params = new HttpParams()
+            .set('page', page.toString())
+            .set('size', size.toString());
+
+        if (busqueda) {
+            params = params.set('busqueda', busqueda);
+        }
+
+        return this.http.get<PageResponse<SocioAsignado>>(
+            `${this.apiUrl}/socios-membresias/membresia/${idMembresia}/socios-paginados`,
+            { params }
+        );
+    }
+
     getDashboardMembresias(filtros?: FiltrosSociosMembresias): Observable<any> {
         let params = new HttpParams();
 
@@ -83,17 +160,19 @@ export class MembershipService {
             if (filtros.idMembresia) {
                 params = params.set('idMembresia', filtros.idMembresia.toString());
             }
+            if (filtros.pagePorVencer !== undefined && filtros.pagePorVencer !== null) {
+                params = params.set('pagePorVencer', filtros.pagePorVencer.toString());
+            }
+            if (filtros.sizePorVencer !== undefined && filtros.sizePorVencer !== null) {
+                params = params.set('sizePorVencer', filtros.sizePorVencer.toString());
+            }
         }
 
         return this.http.get(`${this.apiUrl}/membresias/dashboard`, { params });
     }
 
-    /**
-     * Obtiene los planes de membresías paginados desde el Backend
-     */
     getMembresias(filtros?: FiltrosMembresias): Observable<any> {
         let params = new HttpParams();
-
         if (filtros) {
             if (filtros.pagina !== undefined && filtros.pagina !== null) {
                 params = params.set('page', filtros.pagina.toString());
@@ -111,7 +190,6 @@ export class MembershipService {
                 params = params.set('esFlexible', filtros.esFlexible.toString());
             }
         }
-
         return this.http.get(`${this.apiUrl}/membresias`, { params });
     }
 
@@ -119,19 +197,11 @@ export class MembershipService {
         return this.http.get(`${this.apiUrl}/membresias/${idMembresia}`);
     }
 
-    getMembresiasConSocios(): Observable<any> {
-        return this.http.get(`${this.apiUrl}/membresias/todos-con-socios-activos`);
-    }
-
-    /**
-     * Obtiene los socios activos de una membresía específica con soporte para paginación
-     */
     getMembresiaConSociosActivos(
         idMembresia: number,
         filtros?: { pagina?: number; tamanio?: number; busqueda?: string }
     ): Observable<any> {
         let params = new HttpParams();
-
         if (filtros) {
             if (filtros.pagina !== undefined && filtros.pagina !== null) {
                 params = params.set('page', filtros.pagina.toString());
@@ -143,7 +213,6 @@ export class MembershipService {
                 params = params.set('busqueda', filtros.busqueda);
             }
         }
-
         return this.http.get(`${this.apiUrl}/membresias/${idMembresia}/socios-activos`, { params });
     }
 
@@ -163,10 +232,8 @@ export class MembershipService {
         return this.http.delete(`${this.apiUrl}/membresias/${id}`);
     }
 
-    // USUARIOS ACTIVOS CON PAGINACIÓN Y BÚSQUEDA REMOTA
     getUsuariosActivos(filtros?: { pagina?: number; tamanio?: number; busqueda?: string }): Observable<any> {
         let params = new HttpParams();
-
         if (filtros) {
             if (filtros.pagina !== undefined && filtros.pagina !== null) {
                 params = params.set('page', filtros.pagina.toString());
@@ -178,11 +245,9 @@ export class MembershipService {
                 params = params.set('busqueda', filtros.busqueda);
             }
         }
-
         return this.http.get(`${this.apiUrl}/usuarios/activo`, { params });
     }
 
-    // ASIGNACIÓN
     asignarMembresia(request: AsignacionRequest): Observable<any> {
         return this.http.post(`${this.apiUrl}/socios-membresias/asignar`, request);
     }
@@ -199,7 +264,6 @@ export class MembershipService {
         return this.http.get(`${this.apiUrl}/socios-membresias/socio/${idSocio}/activa`);
     }
 
-    // OPERACIONES
     renovarMembresia(request: RenovarRequest): Observable<any> {
         return this.http.put(`${this.apiUrl}/socios-membresias/renovar`, request);
     }
@@ -215,7 +279,6 @@ export class MembershipService {
         );
     }
 
-    // REPORTES
     getPorVencer(): Observable<any> {
         return this.http.get(`${this.apiUrl}/socios-membresias/por-vencer`);
     }
@@ -223,6 +286,28 @@ export class MembershipService {
     getPorVencerRango(diasMinimo: number, diasMaximo: number): Observable<any> {
         return this.http.get(
             `${this.apiUrl}/socios-membresias/por-vencer/rango?diasMinimo=${diasMinimo}&diasMaximo=${diasMaximo}`
+        );
+    }
+
+    getSociosActivosPaginadosServer(filtros: FiltrosSociosMembresias = {}): Observable<PageResponse<SocioAsignado>> {
+        let params = new HttpParams();
+        params = params.set('page', (filtros.pagina ?? 0).toString());
+        params = params.set('size', (filtros.tamanio ?? 6).toString());
+        if (filtros.busqueda) {
+            params = params.set('busqueda', filtros.busqueda);
+        }
+        if (filtros.incluyeIA !== undefined && filtros.incluyeIA !== null) {
+            params = params.set('incluyeIA', filtros.incluyeIA.toString());
+        }
+        if (filtros.esFlexible !== undefined && filtros.esFlexible !== null) {
+            params = params.set('esFlexible', filtros.esFlexible.toString());
+        }
+        if (filtros.idMembresia) {
+            params = params.set('idMembresia', filtros.idMembresia.toString());
+        }
+        return this.http.get<PageResponse<SocioAsignado>>(
+            `${this.apiUrl}/socios-membresias/socios-activos-paginados`,
+            { params }
         );
     }
 }

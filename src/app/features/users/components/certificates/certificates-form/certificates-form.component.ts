@@ -61,17 +61,9 @@ export class CertificatesFormComponent implements OnInit {
 
   cargarEntrenadoresModal(): void {
     this.loadingModalUsers = true;
-    const busquedaTerm = this.searchEntrenador.trim();
+    const busquedaTerm = this.searchEntrenador.trim().toLowerCase();
 
-    const filtros: FiltrosPerfiles = {
-      pagina: this.paginaModalActual,
-      tamanio: this.itemsPorPaginaModal,
-      busqueda: busquedaTerm || undefined,
-      rol: 'ENTRENADOR',
-      estado: 'ACTIVO'
-    };
-
-    this.userService.listarPerfilesPaginados(filtros).subscribe({
+    this.userService.obtenerTodosLosUsuariosActivos().subscribe({
       next: (response: any) => {
         let arrayCompleto: any[] = [];
 
@@ -82,31 +74,29 @@ export class CertificatesFormComponent implements OnInit {
           arrayCompleto = Array.isArray(listData) ? listData : [];
         }
 
-        let listaFiltrada = arrayCompleto;
+        let listaEntrenadores = arrayCompleto.filter(u => {
+          const rol = (u.rol || '').toUpperCase();
+          return rol === 'ENTRENADOR' || rol === 'TRAINER';
+        });
 
-        // Fallback de filtrado local
         if (busquedaTerm) {
-          const query = busquedaTerm.toLowerCase();
-          listaFiltrada = listaFiltrada.filter(u =>
-            (u.nombre && u.nombre.toLowerCase().includes(query)) ||
-            (u.apellido && u.apellido.toLowerCase().includes(query)) ||
-            (u.email && u.email.toLowerCase().includes(query)) ||
-            (u.telefono && u.telefono.includes(query))
+          listaEntrenadores = listaEntrenadores.filter(u =>
+            (u.nombre && u.nombre.toLowerCase().includes(busquedaTerm)) ||
+            (u.apellido && u.apellido.toLowerCase().includes(busquedaTerm)) ||
+            (u.email && u.email.toLowerCase().includes(busquedaTerm)) ||
+            (u.telefono && u.telefono.includes(busquedaTerm))
           );
         }
 
-        if (Array.isArray(response) || listaFiltrada.length !== arrayCompleto.length) {
-          this.totalElementosModal = listaFiltrada.length;
-          this.totalPaginasModal = Math.ceil(this.totalElementosModal / this.itemsPorPaginaModal) || 1;
-          const inicioSlice = this.paginaModalActual * this.itemsPorPaginaModal;
-          this.entrenadores = listaFiltrada.slice(inicioSlice, inicioSlice + this.itemsPorPaginaModal);
-        } else {
-          this.entrenadores = listaFiltrada;
-          this.totalElementosModal = response.totalElementos ?? response.totalElements ?? listaFiltrada.length;
-          this.totalPaginasModal = response.totalPaginas ?? response.totalPages ?? 1;
-          this.paginaModalActual = response.numeroPagina ?? response.currentPage ?? response.number ?? 0;
+        this.totalElementosModal = listaEntrenadores.length;
+        this.totalPaginasModal = Math.ceil(this.totalElementosModal / this.itemsPorPaginaModal) || 1;
+
+        if (this.paginaModalActual >= this.totalPaginasModal) {
+          this.paginaModalActual = Math.max(0, this.totalPaginasModal - 1);
         }
 
+        const inicioSlice = this.paginaModalActual * this.itemsPorPaginaModal;
+        this.entrenadores = listaEntrenadores.slice(inicioSlice, inicioSlice + this.itemsPorPaginaModal);
         this.loadingModalUsers = false;
       },
       error: (error) => {

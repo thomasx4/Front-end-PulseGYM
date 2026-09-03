@@ -65,51 +65,62 @@ export class PhysicalHistoryListComponent implements OnInit {
     });
   }
 
- fetchData(): void {
-  this.loading = true;
+  fetchData(): void {
+    this.loading = true;
 
-  const filtros: FiltrosHistorialFisico = {
-    pagina: this.currentPage,
-    tamanio: this.pageSize,
-    busqueda: this.searchQuery.trim() || undefined,
-    idSocio: this.selectedSocioId !== 'ALL' ? Number(this.selectedSocioId) : undefined,
-    fechaInicio: this.startDate || undefined,
-    fechaFin: this.endDate || undefined
-  };
+    const inicio = this.startDate ? `${this.startDate}T00:00:00` : undefined;
+    const fin = this.endDate ? `${this.endDate}T23:59:59` : undefined;
 
-  this.physicalHistoryService.getAll(filtros).subscribe({
-    next: (response: any) => {
-      let rawData: PhysicalHistory[] = [];
+    const filtros: FiltrosHistorialFisico = {
+      pagina: this.currentPage,
+      tamanio: this.pageSize,
+      busqueda: this.searchQuery.trim() || undefined,
+      idSocio: this.selectedSocioId !== 'ALL' ? Number(this.selectedSocioId) : undefined,
+      fechaInicio: inicio,
+      fechaFin: fin
+    };
 
-      if (Array.isArray(response)) {
-        rawData = response;
-        this.totalElements = rawData.length;
-        this.totalPages = Math.ceil(this.totalElements / this.pageSize) || 1;
-        const startIndex = this.currentPage * this.pageSize;
-        this.paginatedRecords = rawData.slice(startIndex, startIndex + this.pageSize);
-      } else {
-        rawData = response.data || response.contenido || response.content || [];
-        this.totalElements = response.totalElementos ?? response.totalElements ?? rawData.length;
-        this.totalPages = (response.totalPaginas ?? response.totalPages) || Math.ceil(this.totalElements / this.pageSize) || 1;
-        this.currentPage = response.numeroPagina ?? response.currentPage ?? response.number ?? this.currentPage;
-        this.paginatedRecords = rawData;
+    this.physicalHistoryService.getAll(filtros).subscribe({
+      next: (response: any) => {
+        let rawData: PhysicalHistory[] = [];
+
+        if (Array.isArray(response)) {
+          rawData = response;
+          this.totalElements = rawData.length;
+          this.totalPages = Math.ceil(this.totalElements / this.pageSize) || 1;
+          this.paginatedRecords = rawData;
+        } else {
+          rawData = response.content || response.data || response.contenido || [];
+          
+          const totalElemVal = response.totalElements ?? response.totalElementos;
+          this.totalElements = totalElemVal !== undefined && totalElemVal !== null ? totalElemVal : rawData.length;
+
+          const totalPagVal = response.totalPages ?? response.totalPaginas;
+          this.totalPages = totalPagVal !== undefined && totalPagVal !== null ? totalPagVal : (Math.ceil(this.totalElements / this.pageSize) || 1);
+
+          const pageNumVal = response.number ?? response.currentPage ?? response.numeroPagina;
+          this.currentPage = pageNumVal !== undefined && pageNumVal !== null ? pageNumVal : this.currentPage;
+
+          this.paginatedRecords = rawData;
+        }
+
+        if (this.uniqueSocios.length === 0 && rawData.length > 0) {
+          this.extractUniqueSocios(rawData);
+        }
+
+        this.records = this.calculateTrends(rawData);
+        this.calculateKPIs(rawData);
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Error al obtener historiales físicos:', err);
+        this.paginatedRecords = [];
+        this.totalElements = 0;
+        this.totalPages = 1;
+        this.loading = false;
       }
-
-      this.records = this.calculateTrends(rawData);
-      if (this.uniqueSocios.length === 0 && rawData.length > 0) {
-        this.extractUniqueSocios(rawData);
-      }
-
-      this.calculateKPIs(rawData);
-      this.loading = false;
-    },
-    error: (err) => {
-      console.error('Error al obtener historiales físicos:', err);
-      this.paginatedRecords = [];
-      this.loading = false;
-    }
-  });
-}
+    });
+  }
 
   getUserFoto(item: PhysicalHistory): string | null {
     if (!item) return null;

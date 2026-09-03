@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { UserService, FiltrosPerfiles, RespuestaPaginadaPerfiles } from '../../../../core/services/user.service';
+import { UserService, FiltrosPerfiles } from '../../../../core/services/user.service';
 import Swal from 'sweetalert2';
 
 export interface UserProfile {
