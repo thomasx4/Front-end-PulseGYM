@@ -12,18 +12,45 @@ export interface FiltrosPerfiles {
     estado?: string;
 }
 
-export interface RespuestaPaginadaPerfiles {
-    content?: any[];
-    contenido?: any[];
-    currentPage?: number;
-    number?: number;
-    numeroPagina?: number;
-    size?: number;
-    tamanioPagina?: number;
-    totalElements?: number;
-    totalElementos?: number;
-    totalPages?: number;
-    totalPaginas?: number;
+export interface PageResponse<T> {
+    content: T[];
+    totalPages: number;
+    totalElements: number;
+    number: number;
+    size: number;
+    first: boolean;
+    last: boolean;
+    empty: boolean;
+}
+
+export interface UsuarioPerfilResponseDTO {
+    idUsuario: number;
+    nombre: string;
+    apellido: string;
+    email: string;
+    sexo?: string;
+    telefono?: string;
+    documentoIdentidad?: string;
+    fotoUrl?: string;
+    fechaContratacion?: string;
+    especialidad?: string;
+    anosExperiencia?: number;
+    horarioDisponibilidad?: string;
+    tarifaHora?: number;
+    turno?: string;
+    fechaNacimiento?: string;
+    contactoEmergenciaNombre?: string;
+    contactoEmergenciaTelefono?: string;
+    objetivoPrincipal?: string;
+    nivelExperiencia?: string;
+    fechaRegistro?: string;
+    idSede?: number;
+    estado: string;
+    biometricDeviceId?: string;
+    rol?: string;
+    username?: string;
+    nombreCompleto?: string;
+    fechaCreacion?: string;
 }
 
 @Injectable({
@@ -34,32 +61,49 @@ export class UserService {
 
     constructor(private http: HttpClient) { }
 
-listarPerfilesPaginados(filtros: FiltrosPerfiles = {}): Observable<RespuestaPaginadaPerfiles> {
-    let params = new HttpParams();
+    listarPerfilesPaginados(filtros: FiltrosPerfiles = {}): Observable<PageResponse<UsuarioPerfilResponseDTO>> {
+        let params = new HttpParams()
+            .set('page', (filtros.pagina ?? 0).toString())
+            .set('size', (filtros.tamanio ?? 10).toString());
 
-    if (filtros.busqueda) {
-        params = params.set('busqueda', filtros.busqueda);
-        params = params.set('search', filtros.busqueda); // Alias por compatibilidad
-    }
-    if (filtros.rol && filtros.rol !== 'todos') {
-        params = params.set('rol', filtros.rol.toUpperCase());
-    }
-    if (filtros.estado && filtros.estado !== 'todos') {
-        params = params.set('estado', filtros.estado.toUpperCase());
+        if (filtros.estado && filtros.estado !== 'todos') {
+            params = params.set('estado', filtros.estado.toUpperCase());
+        }
+
+        if (filtros.busqueda) {
+            params = params.set('busqueda', filtros.busqueda);
+        }
+
+        return this.http.get<PageResponse<UsuarioPerfilResponseDTO>>(
+            `${this.apiUrl}/paginados`,
+            { params }
+        ).pipe(
+            catchError((error) => {
+                console.error('❌ Error al listar perfiles paginados:', error);
+                throw error;
+            })
+        );
     }
 
-    params = params.set('pagina', (filtros.pagina ?? 0).toString());
-    params = params.set('page', (filtros.pagina ?? 0).toString());
-    params = params.set('tamanio', (filtros.tamanio ?? 7).toString());
-    params = params.set('size', (filtros.tamanio ?? 7).toString());
+    obtenerTodosLosUsuariosActivos(): Observable<UsuarioPerfilResponseDTO[]> {
+        return this.http.get<UsuarioPerfilResponseDTO[]>(`${this.apiUrl}/activo`).pipe(
+            map((response: any) => response.data || response || []),
+            catchError((error) => {
+                console.error('❌ Error al obtener perfiles activos:', error);
+                return of([]);
+            })
+        );
+    }
 
-    return this.http.get<RespuestaPaginadaPerfiles>(this.apiUrl, { params }).pipe(
-        catchError((error) => {
-            console.error('❌ Error al listar perfiles paginados:', error);
-            throw error;
-        })
-    );
-}
+    obtenerTodosLosPerfiles(): Observable<UsuarioPerfilResponseDTO[]> {
+        return this.http.get<UsuarioPerfilResponseDTO[]>(`${this.apiUrl}`).pipe(
+            map((response: any) => response.data || response || []),
+            catchError((error) => {
+                console.error('❌ Error al obtener todos los perfiles:', error);
+                return of([]);
+            })
+        );
+    }
 
     completarPerfil(data: any): Observable<any> {
         return this.http.post(`${this.apiUrl}/completar-perfil`, data);
@@ -80,26 +124,6 @@ listarPerfilesPaginados(filtros: FiltrosPerfiles = {}): Observable<RespuestaPagi
             map((response: any) => response.data || response),
             catchError((error) => {
                 console.error('❌ Error al obtener perfil por ID:', error);
-                return of(null);
-            })
-        );
-    }
-
-    obtenerTodosLosPerfiles(): Observable<any> {
-        return this.http.get(`${this.apiUrl}`).pipe(
-            map((response: any) => response.data || response),
-            catchError((error) => {
-                console.error('❌ Error al obtener todos los perfiles:', error);
-                return of(null);
-            })
-        );
-    }
-
-    obtenerTodosLosPerfilesActivos(): Observable<any> {
-        return this.http.get(`${this.apiUrl}/activo`).pipe(
-            map((response: any) => response.data || response),
-            catchError((error) => {
-                console.error('❌ Error al obtener perfiles activos:', error);
                 return of(null);
             })
         );
@@ -132,5 +156,9 @@ listarPerfilesPaginados(filtros: FiltrosPerfiles = {}): Observable<RespuestaPagi
                 throw error;
             })
         );
+    }
+
+    listarPerfiles(filtros?: FiltrosPerfiles): Observable<any> {
+        return this.listarPerfilesPaginados(filtros || {});
     }
 }
