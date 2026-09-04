@@ -39,6 +39,16 @@ const routes: Routes = [
                 ]
             },
             {
+                path: 'headquarters',
+                children: [
+                    {
+                        path: '',
+                        loadChildren: () =>
+                            import('./features/headquarters/headquarters.module').then((m) => m.HeadquartersModule),
+                    }
+                ]
+            },
+            {
                 path: 'memberships',
                 loadChildren: () =>
                     import('./features/membership/membership.module').then((m) => m.MembershipModule),

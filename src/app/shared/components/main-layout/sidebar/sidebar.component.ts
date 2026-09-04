@@ -180,6 +180,22 @@ export class SidebarComponent implements OnInit {
         `),
       },
       {
+        label: 'Sedes',
+        route: '/dashboard-admin/headquarters',
+        iconHtml: this.sanitizer.bypassSecurityTrustHtml(`
+          <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 21h18"></path>
+            <path d="M9 8h1"></path>
+            <path d="M9 12h1"></path>
+            <path d="M9 16h1"></path>
+            <path d="M14 8h1"></path>
+            <path d="M14 12h1"></path>
+            <path d="M14 16h1"></path>
+            <path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"></path>
+          </svg>
+         `)
+      },
+      {
         label: 'Equipment',
         route: '/dashboard-admin/equipment',
         iconHtml: this.sanitizer.bypassSecurityTrustHtml(`
