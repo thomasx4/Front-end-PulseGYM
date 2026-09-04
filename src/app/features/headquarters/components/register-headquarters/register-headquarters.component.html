@@ -67,18 +67,6 @@
           required />
       </div>
 
-      <div class="form-group">
-        <label for="cantidadEquipos">Cantidad Inicial de Equipos</label>
-        <input 
-          type="number" 
-          id="cantidadEquipos" 
-          [(ngModel)]="cantidadEquipos" 
-          name="cantidadEquipos" 
-          placeholder="Ej: 10" 
-          min="0"
-          class="form-input" />
-      </div>
-
       <footer class="modal-footer">
         <button type="button" class="btn-outline" (click)="cerrar()" [disabled]="cargando">
           Cancelar
