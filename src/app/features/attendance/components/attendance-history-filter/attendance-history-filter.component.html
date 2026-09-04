@@ -2,9 +2,9 @@
     <form (ngSubmit)="aplicarFiltros()" class="filter-form">
 
         <div class="filter-group">
-            <label for="usuarioId">ID Usuario</label>
-            <input type="number" id="usuarioId" [(ngModel)]="usuarioId" name="usuarioId" placeholder="Ej: 4"
-                class="filter-input" />
+            <label for="nombreUsuario">Usuario</label>
+            <input type="text" id="nombreUsuario" [(ngModel)]="nombreUsuario" name="nombreUsuario"
+                placeholder="Ej: Carlos Pérez" class="filter-input" />
         </div>
 
         <div class="filter-group">

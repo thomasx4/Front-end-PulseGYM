@@ -33,8 +33,8 @@ export class AttendanceService {
   obtenerHistorialAccesos(filtros: FiltrosHistorial): Observable<HistorialAccesoResponse> {
     let params = new HttpParams();
 
-    if (filtros.usuarioId !== undefined && filtros.usuarioId !== null) {
-      params = params.set('usuarioId', filtros.usuarioId.toString());
+    if (filtros.nombreUsuario && filtros.nombreUsuario.trim() !== '') {
+      params = params.set('nombreUsuario', filtros.nombreUsuario.trim());
     }
     if (filtros.fechaDesde) {
       const fDesde = filtros.fechaDesde.split('T')[0];
