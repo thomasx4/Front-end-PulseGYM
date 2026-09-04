@@ -10,6 +10,7 @@ export interface FiltrosPerfiles {
     busqueda?: string;
     rol?: string;
     estado?: string;
+    roles?: string[];
 }
 
 export interface PageResponse<T> {
@@ -72,6 +73,10 @@ export class UserService {
 
         if (filtros.busqueda) {
             params = params.set('busqueda', filtros.busqueda);
+        }
+
+        if (filtros.roles && filtros.roles.length > 0) {
+            params = params.set('roles', filtros.roles.join(','));
         }
 
         return this.http.get<PageResponse<UsuarioPerfilResponseDTO>>(
