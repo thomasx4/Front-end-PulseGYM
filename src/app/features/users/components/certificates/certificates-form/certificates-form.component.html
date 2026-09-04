@@ -4,8 +4,7 @@
         <div>
             <h1 class="form-title">{{ isEditMode ? 'Editar Certificación' : 'Nueva Certificación' }}</h1>
             <p class="form-subtitle">
-                {{ isEditMode ? 'Actualiza la información de la certificación registrada.' : 'Registra una nueva
-                certificación para un entrenador.' }}
+                {{ isEditMode ? 'Actualiza la información de la certificación registrada.' : 'Registra una nueva certificación para un entrenador.' }}
             </p>
         </div>
         <button class="btn-back" (click)="volver()">
@@ -146,10 +145,8 @@
                                     <polyline points="14 2 14 8 20 8" />
                                 </svg>
                                 <div>
-                                    <span class="file-name">{{ selectedFile ? selectedFile.name : 'Certificación
-                                        cargada.pdf' }}</span>
-                                    <span class="file-size" *ngIf="selectedFile">{{ (selectedFile.size / 1024 /
-                                        1024).toFixed(2) }} MB</span>
+                                    <span class="file-name">{{ selectedFile ? selectedFile.name : 'Certificación cargada.pdf' }}</span>
+                                    <span class="file-size" *ngIf="selectedFile">{{ (selectedFile.size / 1024 / 1024).toFixed(2) }} MB</span>
                                     <a class="file-size" *ngIf="!selectedFile && existingUrl" [href]="existingUrl"
                                         target="_blank" (click)="$event.stopPropagation()">Ver PDF actual</a>
                                 </div>
@@ -220,37 +217,47 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let entrenador of entrenadores">
-                        <td>
-                            <div class="partner-cell">
-                                <div class="partner-table-avatar">
-                                    <img *ngIf="getEntrenadorFoto(entrenador) && !hasModalAvatarError(entrenador.idUsuario)"
-                                        [src]="getEntrenadorFoto(entrenador)" [alt]="entrenador.nombre"
-                                        class="partner-table-avatar__img" crossOrigin="anonymous"
-                                        (error)="onModalAvatarError(entrenador.idUsuario)" />
-                                    <span
-                                        *ngIf="!getEntrenadorFoto(entrenador) || hasModalAvatarError(entrenador.idUsuario)">
-                                        {{ getInitials(entrenador.nombre, entrenador.apellido) }}
-                                    </span>
-                                </div>
-                                <span class="partner-table-name">{{ entrenador.nombre }} {{ entrenador.apellido }}</span>
-                            </div>
-                        </td>
-                        <td>
-                            <span class="partner-table-contact">{{ entrenador.telefono || entrenador.email || 'Sin contacto' }}</span>
-                        </td>
-                        <td class="text-right">
-                            <button type="button" class="btn-assign-row"
-                                (click)="seleccionarEntrenadorDesdeModal(entrenador)">
-                                Asignar
-                            </button>
-                        </td>
-                    </tr>
-                    <tr *ngIf="entrenadores.length === 0 && !loadingModalUsers">
+                    <!-- Fila de carga (Se muestra únicamente mientras carga) -->
+                    <tr *ngIf="loadingModalUsers">
                         <td colspan="3" class="empty-table-msg">
-                            No se encontraron entrenadores que coincidan con la búsqueda.
+                            Cargando entrenador...
                         </td>
                     </tr>
+
+                    <!-- Filas de datos (Solo se muestran cuando TERMINA de cargar) -->
+                    <ng-container *ngIf="!loadingModalUsers">
+                        <tr *ngFor="let entrenador of entrenadores">
+                            <td>
+                                <div class="partner-cell">
+                                    <div class="partner-table-avatar">
+                                        <img *ngIf="getEntrenadorFoto(entrenador) && !hasModalAvatarError(entrenador.idUsuario)"
+                                            [src]="getEntrenadorFoto(entrenador)" [alt]="entrenador.nombre"
+                                            class="partner-table-avatar__img" crossOrigin="anonymous"
+                                            (error)="onModalAvatarError(entrenador.idUsuario)" />
+                                        <span
+                                            *ngIf="!getEntrenadorFoto(entrenador) || hasModalAvatarError(entrenador.idUsuario)">
+                                            {{ getInitials(entrenador.nombre, entrenador.apellido) }}
+                                        </span>
+                                    </div>
+                                    <span class="partner-table-name">{{ entrenador.nombre }} {{ entrenador.apellido }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="partner-table-contact">{{ entrenador.telefono || entrenador.email || 'Sin contacto' }}</span>
+                            </td>
+                            <td class="text-right">
+                                <button type="button" class="btn-assign-row"
+                                    (click)="seleccionarEntrenadorDesdeModal(entrenador)">
+                                    Asignar
+                                </button>
+                            </td>
+                        </tr>
+                        <tr *ngIf="entrenadores.length === 0">
+                            <td colspan="3" class="empty-table-msg">
+                                No se encontraron entrenadores que coincidan con la búsqueda.
+                            </td>
+                        </tr>
+                    </ng-container>
                 </tbody>
             </table>
         </div>

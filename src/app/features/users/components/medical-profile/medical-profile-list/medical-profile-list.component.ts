@@ -26,7 +26,7 @@ export class MedicalProfileListComponent implements OnInit {
   countConAlergias: number = 0;
   countConCondiciones: number = 0;
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(private http: HttpClient, private router: Router) { }
 
   ngOnInit(): void {
     this.cargarPerfiles();
@@ -47,7 +47,7 @@ export class MedicalProfileListComponent implements OnInit {
         this.perfiles = response.content || response.contenido || response.data || [];
         this.totalElements = response.totalElements || response.totalElementos || this.perfiles.length;
         this.totalPages = response.totalPages || response.totalPaginas || 1;
-        
+
         this.calcularMetricas();
         this.loading = false;
       },
@@ -96,7 +96,7 @@ export class MedicalProfileListComponent implements OnInit {
   }
 
   irANuevoPerfil(): void {
-    this.router.navigate(['/dashboard-admin/users/profiles']); 
+    this.router.navigate(['/dashboard-admin/users/medical-profile/new']);
   }
 
   verDetalle(idSocio: number): void {

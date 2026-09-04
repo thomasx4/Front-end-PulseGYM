@@ -1,1 +1,101 @@
-<p>medical-profile-detail works!</p>
+<div class="form-container">
+    <!-- ENCABEZADO DE NAVEGACIÓN -->
+    <div class="form-header-nav">
+        <div class="breadcrumb">
+            <span>Perfiles Médicos</span> &gt; <span class="current">Detalle</span>
+        </div>
+        <button type="button" class="btn-back" (click)="volverALista()">
+            ← Volver a la lista
+        </button>
+    </div>
+
+    <div class="form-header">
+        <h1 class="form-title">Detalle del Perfil Médico</h1>
+    </div>
+
+    <!-- ESTADO DE CARGA -->
+    <div *ngIf="loading" class="loading-state">
+        Cargando información del perfil médico...
+    </div>
+
+    <!-- CONTENIDO DEL DETALLE -->
+    <div *ngIf="!loading && perfil" class="detail-card">
+        <!-- ENCABEZADO DEL SOCIO -->
+        <div class="profile-header-info">
+            <div class="partner-avatar">
+                <span>{{ getIniciales(perfil.nombreSocio) }}</span>
+            </div>
+            <div class="partner-main-text">
+                <h2 class="partner-name">{{ perfil.nombreSocio || 'Sin nombre' }}</h2>
+                <span class="partner-id">ID Socio: {{ perfil.idSocio }}</span>
+            </div>
+            <div class="update-info">
+                <div class="update-texts">
+                    <span class="update-label">Última actualización</span>
+                    <span class="update-date">{{ perfil.fechaActualizacion ? (perfil.fechaActualizacion | date:'dd MMM
+                        yyyy - hh:mm a') : 'N/D' }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIONES DE INFORMACIÓN: FÍSICA Y MÉDICA -->
+        <div class="info-sections-grid">
+            <!-- Información Física -->
+            <div class="info-box">
+                <h3 class="info-box-title">Información Física</h3>
+                <div class="info-row">
+                    <span class="info-label">Peso</span>
+                    <span class="info-value">{{ perfil.pesoKg ? perfil.pesoKg + ' kg' : 'No registrado' }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Estatura</span>
+                    <span class="info-value">{{ perfil.estaturaCm ? perfil.estaturaCm + ' cm' : 'No registrado'
+                        }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Porcentaje de Grasa</span>
+                    <span class="info-value" [class.not-registered]="!perfil.porcentajeGrasa">
+                        {{ perfil.porcentajeGrasa ? perfil.porcentajeGrasa + '%' : 'No registrado' }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Información Médica -->
+            <div class="info-box">
+                <h3 class="info-box-title">Información Médica</h3>
+                <div class="info-row">
+                    <span class="info-label">Alergias</span>
+                    <span class="info-value"
+                        [class.badge-alert]="perfil.alergias && perfil.alergias.toLowerCase() !== 'ninguna'">
+                        {{ perfil.alergias || 'Ninguna' }}
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Condiciones Crónicas</span>
+                    <span class="info-value"
+                        [class.badge-alert]="perfil.condicionesCronicas && perfil.condicionesCronicas.toLowerCase() !== 'ninguna'">
+                        {{ perfil.condicionesCronicas || 'Ninguna' }}
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Lesiones Previas</span>
+                    <span class="info-value"
+                        [class.not-registered]="!perfil.lesionesPrevias || perfil.lesionesPrevias.toLowerCase() === 'ninguna'">
+                        {{ perfil.lesionesPrevias || 'No registradas' }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ACCIÓN DE EDITAR -->
+        <div class="detail-actions">
+            <button type="button" class="btn-edit" (click)="editarPerfil()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+                Editar Perfil
+            </button>
+        </div>
+    </div>
+</div>

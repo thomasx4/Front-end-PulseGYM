@@ -1,4 +1,3 @@
-// src/app/features/users/components/documents/documents-list/documents-list.component.ts
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { DocumentService, FiltrosDocumentos } from '../../../../../core/services/document.service';
@@ -29,7 +28,7 @@ export class DocumentsListComponent implements OnInit {
   constructor(
     private documentService: DocumentService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.cargarTiposDocumento();
@@ -73,10 +72,24 @@ export class DocumentsListComponent implements OnInit {
 
     this.documentService.obtenerDocumentosPaginados(filtros).subscribe({
       next: (response) => {
-        this.documentos = response.content || [];
-        this.totalElementos = response.totalElements || 0;
-        this.totalPaginas = response.totalPages || 0;
-        this.numeroPagina = response.number || 0;
+        let items = response.content || response.contenido || response.data || [];
+
+        if (this.searchTerm && this.searchTerm.trim() !== '') {
+          const queryNormalizada = this.normalizarTexto(this.searchTerm);
+          items = items.filter((doc: Document) => {
+            const nombreUsuarioNorm = this.normalizarTexto(doc.nombreUsuario || '');
+            const tipoDocNorm = this.normalizarTexto(doc.tipoDocumento || '');
+            const labelTipoNorm = this.normalizarTexto(getTipoDocumentoLabel(doc.tipoDocumento) || '');
+            return nombreUsuarioNorm.includes(queryNormalizada) ||
+              tipoDocNorm.includes(queryNormalizada) ||
+              labelTipoNorm.includes(queryNormalizada);
+          });
+        }
+
+        this.documentos = items;
+        this.totalElementos = response.totalElements || items.length;
+        this.totalPaginas = response.totalPages || Math.ceil(this.totalElementos / this.tamanioPagina) || 0;
+        this.numeroPagina = response.number || response.currentPage || 0;
         this.tamanioPagina = response.size || 5;
         this.loading = false;
       },
@@ -89,6 +102,13 @@ export class DocumentsListComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  private normalizarTexto(texto: string): string {
+    return texto
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
   }
 
   aplicarFiltros(): void {

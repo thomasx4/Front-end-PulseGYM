@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { PhysicalHistoryService, FiltrosHistorialFisico } from '../../../../../core/services/physical-history.service';
+import { PhysicalHistoryService } from '../../../../../core/services/physical-history.service';
 import { UserService } from '../../../../../core/services/user.service';
 import { PhysicalHistory } from '../../../../../core/models/physical-history';
 
@@ -38,7 +38,7 @@ export class PhysicalHistoryListComponent implements OnInit {
     private physicalHistoryService: PhysicalHistoryService,
     private userService: UserService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadUsersAndData();
@@ -68,55 +68,71 @@ export class PhysicalHistoryListComponent implements OnInit {
   fetchData(): void {
     this.loading = true;
 
-    const inicio = this.startDate ? `${this.startDate}T00:00:00` : undefined;
-    const fin = this.endDate ? `${this.endDate}T23:59:59` : undefined;
+    this.physicalHistoryService.getAll().subscribe({
+      next: (data) => {
+        const rawData = data || [];
 
-    const filtros: FiltrosHistorialFisico = {
-      pagina: this.currentPage,
-      tamanio: this.pageSize,
-      busqueda: this.searchQuery.trim() || undefined,
-      idSocio: this.selectedSocioId !== 'ALL' ? Number(this.selectedSocioId) : undefined,
-      fechaInicio: inicio,
-      fechaFin: fin
-    };
+        rawData.forEach((item: any) => {
+          const realId = item.idHistorialFisico || item.id || item.idHistorial;
+          item.idHistorialFisico = realId;
+          item.id = realId;
+          item.idHistorial = realId;
+        });
 
-    this.physicalHistoryService.getAll(filtros).subscribe({
-      next: (response: any) => {
-        let rawData: PhysicalHistory[] = [];
+        this.extractUniqueSocios(rawData);
 
-        if (Array.isArray(response)) {
-          rawData = response;
-          this.totalElements = rawData.length;
-          this.totalPages = Math.ceil(this.totalElements / this.pageSize) || 1;
-          this.paginatedRecords = rawData;
-        } else {
-          rawData = response.content || response.data || response.contenido || [];
-          
-          const totalElemVal = response.totalElements ?? response.totalElementos;
-          this.totalElements = totalElemVal !== undefined && totalElemVal !== null ? totalElemVal : rawData.length;
+        let filtered = [...rawData];
 
-          const totalPagVal = response.totalPages ?? response.totalPaginas;
-          this.totalPages = totalPagVal !== undefined && totalPagVal !== null ? totalPagVal : (Math.ceil(this.totalElements / this.pageSize) || 1);
-
-          const pageNumVal = response.number ?? response.currentPage ?? response.numeroPagina;
-          this.currentPage = pageNumVal !== undefined && pageNumVal !== null ? pageNumVal : this.currentPage;
-
-          this.paginatedRecords = rawData;
+        if (this.selectedSocioId && this.selectedSocioId !== 'ALL') {
+          const socioIdNum = Number(this.selectedSocioId);
+          filtered = filtered.filter(item => item.idSocio === socioIdNum);
         }
 
-        if (this.uniqueSocios.length === 0 && rawData.length > 0) {
-          this.extractUniqueSocios(rawData);
+        if (this.startDate) {
+          const startDateTime = new Date(`${this.startDate}T00:00:00`).getTime();
+          filtered = filtered.filter(item => new Date(item.fechaMedicion).getTime() >= startDateTime);
+        }
+        if (this.endDate) {
+          const endDateTime = new Date(`${this.endDate}T23:59:59`).getTime();
+          filtered = filtered.filter(item => new Date(item.fechaMedicion).getTime() <= endDateTime);
         }
 
-        this.records = this.calculateTrends(rawData);
+        if (this.searchQuery && this.searchQuery.trim() !== '') {
+          const query = this.searchQuery.trim().toLowerCase();
+          filtered = filtered.filter(item => {
+            const socioName = (item.nombreSocio || '').toLowerCase();
+            const recepName = (item.nombreRecepcionista || '').toLowerCase();
+            return socioName.includes(query) || recepName.includes(query);
+          });
+        }
+
+        const processedTrends = this.calculateTrends(filtered);
+        
+        this.records = [...processedTrends].sort((a, b) => 
+          new Date(b.fechaMedicion).getTime() - new Date(a.fechaMedicion).getTime()
+        );
+
+        this.totalElements = this.records.length;
+        this.totalPages = Math.ceil(this.totalElements / this.pageSize) || 1;
+        
+        if (this.currentPage >= this.totalPages) {
+          this.currentPage = 0;
+        }
+
+        const startIndex = this.currentPage * this.pageSize;
+        const endIndex = startIndex + this.pageSize;
+        this.paginatedRecords = this.records.slice(startIndex, endIndex);
+
         this.calculateKPIs(rawData);
         this.loading = false;
       },
       error: (err) => {
         console.error('Error al obtener historiales físicos:', err);
+        this.records = [];
         this.paginatedRecords = [];
         this.totalElements = 0;
         this.totalPages = 1;
+        this.currentPage = 0;
         this.loading = false;
       }
     });
@@ -128,13 +144,13 @@ export class PhysicalHistoryListComponent implements OnInit {
     const userId = item.idRecepcionista || item.idSocio;
     const profile = this.userProfilesMap.get(userId);
 
-    let rawUrl = 
+    let rawUrl =
       (item as any).fotoUrl ||
       (item as any).fotoPerfil ||
       (item as any).foto ||
-      profile?.fotoUrl || 
-      profile?.fotoPerfil || 
-      profile?.foto || 
+      profile?.fotoUrl ||
+      profile?.fotoPerfil ||
+      profile?.foto ||
       profile?.avatar ||
       null;
 
@@ -170,7 +186,7 @@ export class PhysicalHistoryListComponent implements OnInit {
   }
 
   private calculateTrends(data: PhysicalHistory[]): PhysicalHistory[] {
-    const sorted = [...data].sort((a, b) => 
+    const sorted = [...data].sort((a, b) =>
       new Date(a.fechaMedicion).getTime() - new Date(b.fechaMedicion).getTime()
     );
 
@@ -202,7 +218,22 @@ export class PhysicalHistoryListComponent implements OnInit {
 
   private extractUniqueSocios(data: PhysicalHistory[]): void {
     const map = new Map<number, string>();
-    data.forEach(r => map.set(r.idSocio, r.nombreSocio));
+    data.forEach(r => {
+      if (r.idSocio) {
+        let name = r.nombreSocio;
+        if (!name || name.trim() === '') {
+          const profile = this.userProfilesMap.get(r.idSocio);
+          if (profile) {
+            name = `${profile.nombre || ''} ${profile.apellido || ''}`.trim();
+          }
+        }
+        if (name) {
+          map.set(r.idSocio, name);
+        } else {
+          map.set(r.idSocio, `Socio ID: ${r.idSocio}`);
+        }
+      }
+    });
     this.uniqueSocios = Array.from(map.entries()).map(([id, name]) => ({ id, name }));
   }
 
@@ -237,7 +268,9 @@ export class PhysicalHistoryListComponent implements OnInit {
   goToPage(pZeroBased: number): void {
     if (pZeroBased >= 0 && pZeroBased < this.totalPages && pZeroBased !== this.currentPage) {
       this.currentPage = pZeroBased;
-      this.fetchData();
+      const startIndex = this.currentPage * this.pageSize;
+      const endIndex = startIndex + this.pageSize;
+      this.paginatedRecords = this.records.slice(startIndex, endIndex);
     }
   }
 
@@ -250,12 +283,12 @@ export class PhysicalHistoryListComponent implements OnInit {
   }
 
   private calculateKPIs(data: PhysicalHistory[]): void {
-    this.totalRecords = this.totalElements;
+    this.totalRecords = data.length;
     if (data.length > 0) {
       const dates = data
         .map(r => new Date(r.fechaMedicion).getTime())
         .sort((a, b) => a - b);
-      
+
       this.firstDate = new Date(dates[0]).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
       this.lastDate = new Date(dates[dates.length - 1]).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
 
@@ -278,10 +311,20 @@ export class PhysicalHistoryListComponent implements OnInit {
   }
 
   onViewDetail(id: number): void {
-    this.router.navigate(['/dashboard-admin/users/physical-history/detail', id]);
+    const validId = Number(id);
+    if (!validId || isNaN(validId)) {
+      console.error('Error crítico: El ID del historial físico es inválido:', id);
+      return;
+    }
+    this.router.navigate(['/dashboard-admin/users/physical-history/detail', validId]);
   }
 
   onEdit(id: number): void {
-    this.router.navigate(['/dashboard-admin/users/physical-history/edit', id]);
+    const validId = Number(id);
+    if (!validId || isNaN(validId)) {
+      console.error('Error crítico: El ID del historial físico para editar es inválido:', id);
+      return;
+    }
+    this.router.navigate(['/dashboard-admin/users/physical-history/edit', validId]);
   }
 }
