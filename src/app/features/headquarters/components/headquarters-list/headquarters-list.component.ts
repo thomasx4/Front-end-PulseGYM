@@ -26,7 +26,6 @@ export class HeadquartersListComponent implements OnInit {
   }
 
   cargarSedes(): void {
-    this.cargando = true;
     this.errorMensaje = '';
 
     if (this.filtroNombre.trim()) {
