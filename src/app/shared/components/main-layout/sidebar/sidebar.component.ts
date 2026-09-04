@@ -169,7 +169,7 @@ export class SidebarComponent implements OnInit {
 
     this.menuItems = [
       {
-        label: 'Dashboard',
+        label: 'Tablero', // Traducido de Dashboard
         route: '/dashboard-admin',
         exact: true,
         iconHtml: this.sanitizer.bypassSecurityTrustHtml(`
@@ -182,7 +182,7 @@ export class SidebarComponent implements OnInit {
         `),
       },
       {
-        label: 'Payments',
+        label: 'Pagos', // Traducido de Payments y apuntando a su ruta correspondiente
         route: '/dashboard-admin/payments',
         iconHtml: this.sanitizer.bypassSecurityTrustHtml(`
           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="sidebar__nav-icon">
@@ -207,7 +207,7 @@ export class SidebarComponent implements OnInit {
          `)
       },
       {
-        label: 'Equipment',
+        label: 'Equipos', // Traducido de Equipment
         route: '/dashboard-admin/equipment',
         iconHtml: this.sanitizer.bypassSecurityTrustHtml(`
           <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="sidebar__nav-icon">
@@ -227,7 +227,7 @@ export class SidebarComponent implements OnInit {
         `),
       },
       {
-        label: 'Reports',
+        label: 'Reportes', // Traducido de Reports
         route: '/dashboard-admin/reports',
         iconHtml: this.sanitizer.bypassSecurityTrustHtml(`
           <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="sidebar__nav-icon">

@@ -58,6 +58,11 @@ const routes: Routes = [
                 loadChildren: () =>
                     import('./features/attendance/attendance.module').then((m) => m.AttendanceModule),
             },
+            {
+                path: 'payments',
+                loadChildren: () =>
+                    import('./features/payments/payments/payments.module').then((m) => m.PaymentsModule),
+            },
         ],
     },
     {
