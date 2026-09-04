@@ -38,9 +38,9 @@ export class FilterCredentialsComponent {
     const esEmail = texto.includes('@');
 
     const filtros: FiltrosCredenciales = {
+      busqueda: texto ? texto : undefined,
       username: !esEmail && texto ? texto : undefined,
       email: esEmail && texto ? texto : undefined,
-      busqueda: texto ? texto : undefined,
       rol: this.rolSeleccionado || undefined,
       activo: this.estadoSeleccionado === '' ? undefined : this.estadoSeleccionado === 'activo',
       direccion: this.direccionSeleccionado
