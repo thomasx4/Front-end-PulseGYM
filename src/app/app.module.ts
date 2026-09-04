@@ -14,10 +14,16 @@ import { MembershipModule } from './features/membership/membership.module';
 import { AttendanceModule } from './features/attendance/attendance.module';
 import { LoadingSpinnerComponent } from './shared/components/loading-spinner/loading-spinner.component';
 import { LoadingInterceptor } from './core/interceptors/loading.interceptor';
+import { PaymentListComponent } from './features/payments/components/payment-list/payment-list.component';
+import { PaymentFormComponent } from './features/payments/components/payment-form/payment-form.component';
+import { PaymentDetailComponent } from './features/payments/components/payment-detail/payment-detail.component';
 
 @NgModule({
   declarations: [
     AppComponent,
+    PaymentListComponent,
+    PaymentFormComponent,
+    PaymentDetailComponent,
   ],
   imports: [
     BrowserModule,
