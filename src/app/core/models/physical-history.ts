@@ -1,5 +1,7 @@
 export interface PhysicalHistory {
     idHistorialFisico: number;
+    id?: number;          
+    idHistorial?: number; 
     idSocio: number;
     nombreSocio: string;
     idRecepcionista?: number;

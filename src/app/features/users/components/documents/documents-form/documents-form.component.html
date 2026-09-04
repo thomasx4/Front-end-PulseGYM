@@ -4,8 +4,7 @@
         <div>
             <h1 class="form-title">{{ isEditMode ? 'Editar Documento' : 'Nuevo Documento Legal' }}</h1>
             <p class="form-subtitle">
-                {{ isEditMode ? 'Actualiza la información del documento legal.' : 'Registra un nuevo documento legal
-                para un usuario.' }}
+                {{ isEditMode ? 'Actualiza la información del documento legal.' : 'Registra un nuevo documento legal para un usuario.' }}
             </p>
         </div>
         <button class="btn-back" (click)="volver()">
@@ -23,8 +22,7 @@
             <div class="form-section">
                 <div class="section-header">
                     <h3>Información del Documento</h3>
-                    <p>Asigna el usuario correspondiente (Socio, Entrenador, Recepcionista, Admin) y define el tipo de
-                        documento legal.</p>
+                    <p>Asigna el usuario correspondiente (Socio, Entrenador, Recepcionista, Admin) y define el tipo de documento legal.</p>
                 </div>
 
                 <!-- SELECCIÓN DE USUARIO MEDIANTE BOTÓN/CARD -->
@@ -219,51 +217,51 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Estado de Carga -->
+                    <!-- Fila de carga (Se muestra únicamente mientras carga) -->
                     <tr *ngIf="loadingModalUsers">
-                        <td colspan="4" class="loading-table-msg">
-                            <div class="spinner-container">
-                                <span class="spinner-small"></span>
-                                <span>Cargando usuarios...</span>
-                            </div>
+                        <td colspan="4" class="empty-table-msg">
+                            Cargando usuarios...
                         </td>
                     </tr>
 
-                    <!-- Filas de Usuarios -->
-                    <tr *ngFor="let usuario of usuarios">
-                        <td>
-                            <div class="partner-cell">
-                                <div class="partner-table-avatar">
-                                    <img *ngIf="getUsuarioFoto(usuario) && !hasModalAvatarError(usuario.idUsuario)"
-                                        [src]="getUsuarioFoto(usuario)" [alt]="usuario.nombre"
-                                        class="partner-table-avatar__img" crossOrigin="anonymous"
-                                        (error)="onModalAvatarError(usuario.idUsuario)" />
-                                    <span *ngIf="!getUsuarioFoto(usuario) || hasModalAvatarError(usuario.idUsuario)">
-                                        {{ getInitials(usuario.nombre, usuario.apellido) }}
-                                    </span>
+                    <!-- Filas de datos (Solo se muestran cuando TERMINA de cargar) -->
+                    <ng-container *ngIf="!loadingModalUsers">
+                        <tr *ngFor="let usuario of usuarios">
+                            <td>
+                                <div class="partner-cell">
+                                    <div class="partner-table-avatar">
+                                        <img *ngIf="getUsuarioFoto(usuario) && !hasModalAvatarError(usuario.idUsuario)"
+                                            [src]="getUsuarioFoto(usuario)" [alt]="usuario.nombre"
+                                            class="partner-table-avatar__img" crossOrigin="anonymous"
+                                            (error)="onModalAvatarError(usuario.idUsuario)" />
+                                        <span *ngIf="!getUsuarioFoto(usuario) || hasModalAvatarError(usuario.idUsuario)">
+                                            {{ getInitials(usuario.nombre, usuario.apellido) }}
+                                        </span>
+                                    </div>
+                                    <span class="partner-table-name">{{ usuario.nombre }} {{ usuario.apellido }}</span>
                                 </div>
-                                <span class="partner-table-name">{{ usuario.nombre }} {{ usuario.apellido }}</span>
-                            </div>
-                        </td>
-                        <td>
-                            <span class="role-badge" [ngClass]="getRolClass(usuario.rol)">
-                                {{ getRolLabel(usuario.rol) }}
-                            </span>
-                        </td>
-                        <td>
-                            <span class="partner-table-contact">{{ usuario.telefono || usuario.email || 'Sin contacto' }}</span>
-                        </td>
-                        <td class="text-right">
-                            <button type="button" class="btn-assign-row" (click)="seleccionarSocioDesdeModal(usuario)">
-                                Asignar
-                            </button>
-                        </td>
-                    </tr>
-                    <tr *ngIf="usuarios.length === 0 && !loadingModalUsers">
-                        <td colspan="4" class="empty-table-msg">
-                            No se encontraron usuarios que coincidan con la búsqueda.
-                        </td>
-                    </tr>
+                            </td>
+                            <td>
+                                <span class="role-badge" [ngClass]="getRolClass(usuario.rol)">
+                                    {{ getRolLabel(usuario.rol) }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="partner-table-contact">{{ usuario.telefono || usuario.email || 'Sin contacto' }}</span>
+                            </td>
+                            <td class="text-right">
+                                <button type="button" class="btn-assign-row"
+                                    (click)="seleccionarSocioDesdeModal(usuario)">
+                                    Asignar
+                                </button>
+                            </td>
+                        </tr>
+                        <tr *ngIf="usuarios.length === 0">
+                            <td colspan="4" class="empty-table-msg">
+                                No se encontraron usuarios que coincidan con la búsqueda.
+                            </td>
+                        </tr>
+                    </ng-container>
                 </tbody>
             </table>
         </div>

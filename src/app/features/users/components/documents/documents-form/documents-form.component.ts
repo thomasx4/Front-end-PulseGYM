@@ -70,7 +70,7 @@ export class DocumentsFormComponent implements OnInit {
     });
   }
 
- cargarUsuariosModal(): void {
+  cargarUsuariosModal(): void {
     this.loadingModalUsers = true;
     const filtros: FiltrosPerfiles = {
       pagina: this.paginaModalActual,

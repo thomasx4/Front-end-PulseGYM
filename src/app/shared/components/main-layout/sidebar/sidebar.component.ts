@@ -70,7 +70,6 @@ export class SidebarComponent implements OnInit {
       </svg>
     `);
 
-    // ITEMS DEL SUBMENÚ DE MEMBRESÍAS (SOLO ASIGNAR)
     const profileIcon = this.sanitizer.bypassSecurityTrustHtml(`
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -103,6 +102,14 @@ export class SidebarComponent implements OnInit {
       </svg>
     `);
 
+    const medicalProfileIcon = this.sanitizer.bypassSecurityTrustHtml(`
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"></path>
+        <line x1="12" y1="8" x2="12" y2="16"></line>
+        <line x1="8" y1="12" x2="16" y2="12"></line>
+      </svg>
+    `);
+
     this.membershipChildren = [
       {
         label: 'Asignar Membresía',
@@ -119,7 +126,6 @@ export class SidebarComponent implements OnInit {
       }
     ];
 
-    // MENÚ PRINCIPAL
     this.usersChildren = [
       {
         label: 'Credenciales de Usuarios',
@@ -153,6 +159,11 @@ export class SidebarComponent implements OnInit {
         label: 'Historial Físico',
         route: '/dashboard-admin/users/physical-history',
         iconHtml: physicalHistoryIcon,
+      },
+      {
+        label: 'Perfiles Médicos',
+        route: '/dashboard-admin/users/medical-profile',
+        iconHtml: medicalProfileIcon,
       }
     ];
 
@@ -257,7 +268,6 @@ export class SidebarComponent implements OnInit {
     `)
   }
 
-  // VERIFICAR SI ALGUNA RUTA DE MEMBRESÍAS ESTÁ ACTIVA
   isMembershipActive(): boolean {
     const url = this.router.url;
     return url.includes('/dashboard-admin/memberships');
