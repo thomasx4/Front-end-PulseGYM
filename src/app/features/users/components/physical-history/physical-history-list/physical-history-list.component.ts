@@ -56,10 +56,49 @@ export class PhysicalHistoryListComponent implements OnInit {
             }
           });
         }
-        this.fetchData();
+        this.loadGlobalResumen();
       },
       error: (err) => {
         console.error('Error al cargar mapa de usuarios para fotos:', err);
+        this.loadGlobalResumen();
+      }
+    });
+  }
+
+  loadGlobalResumen(): void {
+    this.physicalHistoryService.getResumenMetricas().subscribe({
+      next: (resumen) => {
+        this.totalRecords = resumen.totalRecords || 0;
+
+        if (resumen.primeraFecha) {
+          this.firstDate = new Date(resumen.primeraFecha).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+        } else {
+          this.firstDate = '-';
+        }
+
+        if (resumen.ultimaFecha) {
+          this.lastDate = new Date(resumen.ultimaFecha).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+
+          if (resumen.primeraFecha && resumen.totalRecords > 1) {
+            const diffTime = Math.abs(new Date(resumen.ultimaFecha).getTime() - new Date(resumen.primeraFecha).getTime());
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            this.avgDaysBetween = Math.round(diffDays / (resumen.totalRecords - 1));
+          } else {
+            this.avgDaysBetween = 0;
+          }
+        } else {
+          this.lastDate = '-';
+          this.avgDaysBetween = 0;
+        }
+
+        if (resumen.socios && resumen.socios.length > 0) {
+          this.uniqueSocios = resumen.socios.map(s => ({ id: s.id, name: s.nombre }));
+        }
+
+        this.fetchData();
+      },
+      error: (err) => {
+        console.error('Error al obtener el resumen de métricas:', err);
         this.fetchData();
       }
     });
@@ -68,9 +107,23 @@ export class PhysicalHistoryListComponent implements OnInit {
   fetchData(): void {
     this.loading = true;
 
-    this.physicalHistoryService.getAll().subscribe({
-      next: (data) => {
-        const rawData = data || [];
+    const socioParam = this.selectedSocioId === 'ALL' ? undefined : this.selectedSocioId;
+
+    this.physicalHistoryService.getPaginados(
+      this.currentPage,
+      this.pageSize,
+      socioParam,
+      this.startDate,
+      this.endDate,
+      this.searchQuery,
+      'fechaMedicion',
+      'desc'
+    ).subscribe({
+      next: (response) => {
+        const rawData = response.content || [];
+
+        this.totalElements = response.totalElements || 0;
+        this.totalPages = response.totalPages || 1;
 
         rawData.forEach((item: any) => {
           const realId = item.idHistorialFisico || item.id || item.idHistorial;
@@ -79,55 +132,15 @@ export class PhysicalHistoryListComponent implements OnInit {
           item.idHistorial = realId;
         });
 
-        this.extractUniqueSocios(rawData);
+        const processedTrends = this.calculateTrends(rawData);
 
-        let filtered = [...rawData];
+        this.records = processedTrends;
+        this.paginatedRecords = processedTrends;
 
-        if (this.selectedSocioId && this.selectedSocioId !== 'ALL') {
-          const socioIdNum = Number(this.selectedSocioId);
-          filtered = filtered.filter(item => item.idSocio === socioIdNum);
-        }
-
-        if (this.startDate) {
-          const startDateTime = new Date(`${this.startDate}T00:00:00`).getTime();
-          filtered = filtered.filter(item => new Date(item.fechaMedicion).getTime() >= startDateTime);
-        }
-        if (this.endDate) {
-          const endDateTime = new Date(`${this.endDate}T23:59:59`).getTime();
-          filtered = filtered.filter(item => new Date(item.fechaMedicion).getTime() <= endDateTime);
-        }
-
-        if (this.searchQuery && this.searchQuery.trim() !== '') {
-          const query = this.searchQuery.trim().toLowerCase();
-          filtered = filtered.filter(item => {
-            const socioName = (item.nombreSocio || '').toLowerCase();
-            const recepName = (item.nombreRecepcionista || '').toLowerCase();
-            return socioName.includes(query) || recepName.includes(query);
-          });
-        }
-
-        const processedTrends = this.calculateTrends(filtered);
-        
-        this.records = [...processedTrends].sort((a, b) => 
-          new Date(b.fechaMedicion).getTime() - new Date(a.fechaMedicion).getTime()
-        );
-
-        this.totalElements = this.records.length;
-        this.totalPages = Math.ceil(this.totalElements / this.pageSize) || 1;
-        
-        if (this.currentPage >= this.totalPages) {
-          this.currentPage = 0;
-        }
-
-        const startIndex = this.currentPage * this.pageSize;
-        const endIndex = startIndex + this.pageSize;
-        this.paginatedRecords = this.records.slice(startIndex, endIndex);
-
-        this.calculateKPIs(rawData);
         this.loading = false;
       },
       error: (err) => {
-        console.error('Error al obtener historiales físicos:', err);
+        console.error('Error al obtener historiales físicos paginados:', err);
         this.records = [];
         this.paginatedRecords = [];
         this.totalElements = 0;
@@ -268,9 +281,7 @@ export class PhysicalHistoryListComponent implements OnInit {
   goToPage(pZeroBased: number): void {
     if (pZeroBased >= 0 && pZeroBased < this.totalPages && pZeroBased !== this.currentPage) {
       this.currentPage = pZeroBased;
-      const startIndex = this.currentPage * this.pageSize;
-      const endIndex = startIndex + this.pageSize;
-      this.paginatedRecords = this.records.slice(startIndex, endIndex);
+      this.fetchData(); // Vuelve a consultar al backend con la nueva página
     }
   }
 
