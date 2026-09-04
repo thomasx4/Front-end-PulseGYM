@@ -381,9 +381,7 @@
     }
 }
 
-
-/* ESTILOS DE LA VENTANA MODAL*/
-
+/* ESTILOS DE LA VENTANA MODAL */
 .modal-overlay {
     position: fixed;
     inset: 0;
@@ -572,11 +570,36 @@
     }
 }
 
-.empty-table-msg {
+.empty-table-msg,
+.loading-table-msg {
     text-align: center;
-    color: #94a3b8;
+    color: #64748b;
     padding: 24px;
     font-size: 0.85rem;
+}
+
+.spinner-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-weight: 500;
+    color: #475569;
+}
+
+.spinner-small {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #cbd5e1;
+    border-top-color: #0f1c3f;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .modal-partner-footer {
@@ -622,7 +645,7 @@
     text-align: right;
 }
 
-/* DENTRO DE .partner-selected-card .partner-info */
+/* AVATAR STYLES */
 .partner-avatar {
     width: 44px;
     height: 44px;
@@ -644,7 +667,6 @@
     }
 }
 
-/* DENTRO DE .partner-cell */
 .partner-table-avatar {
     width: 34px;
     height: 34px;

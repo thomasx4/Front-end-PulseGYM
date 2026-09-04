@@ -63,15 +63,8 @@ export class MembershipDetailComponent implements OnInit, OnDestroy {
   plan: Plan | null = null;
   socios: Socio[] = [];
   totalSocios: number = 0;
-  revenueEstimado: number = 0;
-  precioTotalFormateado: string = '$ 0';
-  precioPorDiaFormateado: string = '$ 0';
-  revenueFormateado: string = '$ 0';
   loading: boolean = true;
   planId: number | null = null;
-
-  // Manejo de errores de avatar
-  avatarErrors: Set<number> = new Set<number>();
 
   private destroy$ = new Subject<void>();
 
@@ -121,16 +114,13 @@ export class MembershipDetailComponent implements OnInit, OnDestroy {
       ? data.beneficios.split(',').map((b: string) => b.trim())
       : ['Sin beneficios'];
 
-    const precioTotal = data.precioTotal || 0;
-    const precioPorDia = data.precioPorDia || 0;
-
     this.plan = {
       id: data.idMembresia,
       nombre: data.nombre,
       cantidad: data.cantidad || 1,
       tipoDuracion: data.tipoDuracion || 'MES',
-      precioPorDia,
-      precioTotal,
+      precioPorDia: data.precioPorDia || 0,
+      precioTotal: data.precioTotal || 0,
       descripcion: this.generarDescripcion(data),
       beneficios: beneficiosArray,
       incluyeIA: data.incluyeIA ?? false,
@@ -138,15 +128,13 @@ export class MembershipDetailComponent implements OnInit, OnDestroy {
       activo: data.activo ?? true,
     };
 
-    // Cargar socios asignados y cruzar con perfiles completos de usuario para foto de perfil
     forkJoin({
       sociosRes: this.membershipService.getMembresiaConSociosActivos(data.idMembresia).pipe(catchError(() => of(null))),
-      usuariosRes: this.userService.obtenerTodosLosPerfilesActivos().pipe(catchError(() => of([])))
+      usuariosRes: this.userService.listarPerfilesPaginados().pipe(catchError(() => of([])))
     }).subscribe({
       next: ({ sociosRes, usuariosRes }) => {
         const rawSocios = sociosRes?.sociosAsignados || sociosRes?.data || [];
         
-        // Crear mapa de fotos por ID
         const fotosUsuariosMap = new Map<number, string>();
         if (Array.isArray(usuariosRes)) {
           usuariosRes.forEach((u: any) => {
@@ -158,53 +146,34 @@ export class MembershipDetailComponent implements OnInit, OnDestroy {
           });
         }
 
-        // Mapear fotos a cada socio
-        this.socios = rawSocios.map((socio: any) => {
-          const idSocioNum = Number(socio.idSocio);
-          const fotoEncontrada = socio.fotoUrl || socio.fotoPerfil || socio.foto || socio.avatar || fotosUsuariosMap.get(idSocioNum) || null;
-          
-          return {
-            ...socio,
-            fotoUrl: fotoEncontrada
-          };
-        });
+        this.socios = rawSocios.map((socio: any) => ({
+          ...socio,
+          fotoUrl: socio.fotoUrl || socio.fotoPerfil || socio.foto || socio.avatar || fotosUsuariosMap.get(Number(socio.idSocio)) || null
+        }));
 
         this.totalSocios = this.socios.length;
-        this.actualizarMetricas();
         this.loading = false;
       },
       error: () => {
         this.socios = [];
         this.totalSocios = 0;
-        this.actualizarMetricas();
         this.loading = false;
       }
     });
   }
 
-  // --- HELPER DE FOTOS DE PERFIL ---
-
   getSocioFoto(socio: Socio): string | null {
     if (!socio || !socio.fotoUrl) return null;
-
     let rawUrl = String(socio.fotoUrl).trim();
     if (rawUrl === '' || rawUrl === 'null' || rawUrl === 'undefined') return null;
-
-    if (rawUrl.startsWith('//')) {
-      return `https:${rawUrl}`;
-    }
-
-    return rawUrl;
+    return rawUrl.startsWith('//') ? `https:${rawUrl}` : rawUrl;
   }
 
   onAvatarError(idSocio: number): void {
-    if (idSocio) {
-      this.avatarErrors.add(idSocio);
-    }
   }
 
   hasAvatarError(idSocio: number): boolean {
-    return this.avatarErrors.has(idSocio);
+    return false;
   }
 
   getInitials(nombreCompleto?: string): string {
@@ -215,40 +184,20 @@ export class MembershipDetailComponent implements OnInit, OnDestroy {
     return (partes[0].charAt(0) + partes[1].charAt(0)).toUpperCase();
   }
 
-  private actualizarMetricas(): void {
-    const precioTotal = this.plan?.precioTotal || 0;
-    this.revenueEstimado = precioTotal * this.totalSocios;
-    this.precioTotalFormateado = this.formatearPrecio(precioTotal);
-    this.precioPorDiaFormateado = this.formatearPrecio(this.plan?.precioPorDia || 0);
-    this.revenueFormateado = this.formatearPrecio(this.revenueEstimado);
-  }
-
   private manejarError(error: unknown): void {
     console.error('Error al cargar el plan:', error);
     this.loading = false;
 
     const err = error as any;
-    if (err.status === 404) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Membresía no encontrada',
-        text: 'La membresía que buscas no existe o ha sido eliminada.',
-        confirmButtonText: 'Volver',
-        confirmButtonColor: '#0f1c3f',
-      }).then(() => {
-        this.router.navigate(['/dashboard-admin/memberships/list']);
-      });
-    } else {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'No se pudo cargar la membresía.',
-        confirmButtonText: 'Volver',
-        confirmButtonColor: '#0f1c3f',
-      }).then(() => {
-        this.router.navigate(['/dashboard-admin/memberships/list']);
-      });
-    }
+    Swal.fire({
+      icon: 'error',
+      title: err.status === 404 ? 'Membresía no encontrada' : 'Error',
+      text: err.status === 404 ? 'La membresía que buscas no existe o ha sido eliminada.' : 'No se pudo cargar la membresía.',
+      confirmButtonText: 'Volver',
+      confirmButtonColor: '#0f1c3f',
+    }).then(() => {
+      this.router.navigate(['/dashboard-admin/memberships/list']);
+    });
   }
 
   generarDescripcion(data: MembershipResponseDTO): string {
