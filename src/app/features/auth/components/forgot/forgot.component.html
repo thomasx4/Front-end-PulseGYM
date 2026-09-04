@@ -1,24 +1,33 @@
 <div class="forgot-container">
-    <div class="forgot-left">
+    <!-- Panel Izquierdo con Slider -->
+    <div class="forgot-left" [style.backgroundImage]="'url(' + currentImage + ')'">
         <div class="overlay"></div>
         <div class="brand-content">
             <h1 class="brand-title">{{ slides[currentSlide].title }}</h1>
             <p class="brand-subtitle">{{ slides[currentSlide].subtitle }}</p>
             <div class="slider-dots">
-                <span *ngFor="let slide of slides; let i = index" class="dot" [class.active]="i === currentSlide"
-                    (click)="goToSlide(i)">
+                <span *ngFor="let slide of slides; let i = index" 
+                      class="dot" 
+                      [class.active]="i === currentSlide"
+                      (click)="goToSlide(i)">
                 </span>
             </div>
         </div>
     </div>
 
+    <!-- Panel Derecho con Formulario -->
     <div class="forgot-right">
         <div class="forgot-form-wrapper">
             
+            <!-- ===== PASO 1: SOLICITAR USUARIO ===== -->
             <ng-container *ngIf="currentStep === 'username'">
                 <div class="form-header">
                     <h2>Recuperar Contraseña</h2>
                     <p class="form-subtitle">Ingresa tu nombre de usuario para recibir un código de verificación en tu correo.</p>
+                </div>
+
+                <div *ngIf="errorMessage" class="alert alert-danger">
+                    {{ errorMessage }}
                 </div>
 
                 <form [formGroup]="usernameForm" (ngSubmit)="onSubmitUsername()" class="forgot-form">
@@ -37,37 +46,49 @@
                         <span class="error-message" *ngIf="username?.invalid && (username?.touched || submitted)">
                             <span *ngIf="username?.errors?.['required']">El usuario es obligatorio</span>
                             <span *ngIf="username?.errors?.['minlength']">Mínimo 3 caracteres</span>
+                            <span *ngIf="username?.errors?.['maxlength']">Máximo 50 caracteres</span>
                         </span>
                     </div>
 
-                    <button type="submit" class="btn-submit">
-                        Enviar código
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left: 6px;">
-                            <path d="M22 2L11 13"></path>
-                            <path d="M22 2l-7 20-4-9-9-4 20-7z"></path>
-                        </svg>
+                    <button type="submit" class="btn-submit" [disabled]="isLoading">
+                        <ng-container *ngIf="!isLoading">
+                            Enviar código
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left: 6px;">
+                                <path d="M22 2L11 13"></path>
+                                <path d="M22 2l-7 20-4-9-9-4 20-7z"></path>
+                            </svg>
+                        </ng-container>
+                        <ng-container *ngIf="isLoading">
+                            <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                            Verificando...
+                        </ng-container>
                     </button>
 
                     <div class="back-link">
-                    <button type="button" class="link-button" routerLink="/auth/login">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M19 12H5"></path>
-                            <path d="m12 19-7-7 7-7"></path>
-                        </svg>
-                    Volver al inicio de sesión
-                    </button>
-            </div>
+                        <button type="button" class="link-button" routerLink="/auth/login">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M19 12H5"></path>
+                                <path d="m12 19-7-7 7-7"></path>
+                            </svg>
+                            Volver al inicio de sesión
+                        </button>
+                    </div>
                 </form>
             </ng-container>
 
+            <!-- ===== PASO 2: RESTABLECER CONTRASEÑA ===== -->
             <ng-container *ngIf="currentStep === 'password'">
                 <div class="form-header">
                     <h2>Restablecer Contraseña</h2>
                     <p class="form-subtitle">Ingresa el código de verificación y tu nueva contraseña.</p>
                 </div>
 
+                <div *ngIf="errorMessage" class="alert alert-danger">
+                    {{ errorMessage }}
+                </div>
+
                 <form [formGroup]="resetForm" (ngSubmit)="onSubmitReset()" class="forgot-form">
-                    
+                    <!-- Campo: Código -->
                     <div class="form-group">
                         <label for="token">CÓDIGO DE VERIFICACIÓN</label>
                         <div class="input-wrapper">
@@ -87,6 +108,7 @@
                         </span>
                     </div>
 
+                    <!-- Campo: Nueva Contraseña -->
                     <div class="form-group">
                         <label for="newPassword">NUEVA CONTRASEÑA</label>
                         <div class="input-wrapper">
@@ -97,14 +119,53 @@
                                 </svg>
                             </span>
                             <input id="newPassword" type="password" formControlName="newPassword" placeholder="••••••••"
-                                [class.error]="newPassword?.invalid && (newPassword?.touched || submitted)">
+                                [class.error]="hasFieldError('newPassword')">
                         </div>
-                        <span class="error-message" *ngIf="newPassword?.invalid && (newPassword?.touched || submitted)">
-                            <span *ngIf="newPassword?.errors?.['required']">La contraseña es obligatoria</span>
-                            <span *ngIf="newPassword?.errors?.['minlength']">Mínimo 6 caracteres</span>
+                        <span class="error-message" *ngIf="hasFieldError('newPassword')">
+                            {{ getPasswordErrorMessage() }}
                         </span>
+                        <!-- Requisitos de contraseña -->
+                        <div class="password-requirements">
+                            <span class="requirement" [class.valid]="newPassword?.value?.length >= 8">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" [attr.stroke]="newPassword?.value?.length >= 8 ? '#10b981' : '#94a3b8'" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                Mínimo 8 caracteres
+                            </span>
+                            <span class="requirement" [class.valid]="hasUpperCase(newPassword?.value || '')">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" [attr.stroke]="hasUpperCase(newPassword?.value || '') ? '#10b981' : '#94a3b8'" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                Una mayúscula
+                            </span>
+                            <span class="requirement" [class.valid]="hasLowerCase(newPassword?.value || '')">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" [attr.stroke]="hasLowerCase(newPassword?.value || '') ? '#10b981' : '#94a3b8'" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                Una minúscula
+                            </span>
+                            <span class="requirement" [class.valid]="hasNumber(newPassword?.value || '')">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" [attr.stroke]="hasNumber(newPassword?.value || '') ? '#10b981' : '#94a3b8'" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                Un número
+                            </span>
+                            <span class="requirement" [class.valid]="hasSpecialChar(newPassword?.value || '')">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" [attr.stroke]="hasSpecialChar(newPassword?.value || '') ? '#10b981' : '#94a3b8'" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                Carácter especial
+                            </span>
+                            <span class="requirement" [class.valid]="!newPassword?.value?.includes(' ')">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" [attr.stroke]="!newPassword?.value?.includes(' ') ? '#10b981' : '#94a3b8'" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                Sin espacios
+                            </span>
+                        </div>
                     </div>
 
+                    <!-- Campo: Confirmar Contraseña -->
                     <div class="form-group">
                         <label for="confirmPassword">CONFIRMAR CONTRASEÑA</label>
                         <div class="input-wrapper">
@@ -116,26 +177,41 @@
                             </span>
                             <input id="confirmPassword" type="password" formControlName="confirmPassword"
                                 placeholder="••••••••"
-                                [class.error]="(confirmPassword?.invalid || resetForm.errors?.['mismatch']) && (confirmPassword?.touched || submitted)">
+                                [class.error]="hasFieldError('confirmPassword') || (hasFormError('mismatch') && confirmPassword?.value)">
                         </div>
-                        <span class="error-message"
-                            *ngIf="(confirmPassword?.invalid || resetForm.errors?.['mismatch']) && (confirmPassword?.touched || submitted)">
-                            <span *ngIf="confirmPassword?.errors?.['required']">Confirma tu contraseña</span>
-                            <span *ngIf="resetForm.errors?.['mismatch']">Las contraseñas no coinciden</span>
+                        <span class="error-message" *ngIf="hasFieldError('confirmPassword') || (hasFormError('mismatch') && confirmPassword?.value)">
+                            {{ getConfirmPasswordErrorMessage() }}
                         </span>
                     </div>
 
-                    <button type="submit" class="btn-submit">
-                        Cambiar contraseña
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left: 6px;">
-                            <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path>
-                        </svg>
+                    <button type="submit" class="btn-submit" [disabled]="isLoading">
+                        <ng-container *ngIf="!isLoading">
+                            Cambiar contraseña
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left: 6px;">
+                                <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path>
+                            </svg>
+                        </ng-container>
+                        <ng-container *ngIf="isLoading">
+                            <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                            Procesando...
+                        </ng-container>
                     </button>
 
                     <div class="resend-link">
                         <span>¿No recibiste el código?</span>
-                        <button type="button" class="link-button" (click)="resendToken()">Reenviar</button>
+                        <button type="button" class="link-button" (click)="resendToken()" [disabled]="isLoading">
+                            <ng-container *ngIf="!isLoading">Reenviar</ng-container>
+                            <ng-container *ngIf="isLoading">
+                                <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                                Enviando...
+                            </ng-container>
+                        </button>
                     </div>
+
+                    <!-- Mensaje informativo -->
+                    <p *ngIf="infoMessage" class="info-text">
+                        {{ infoMessage }}
+                    </p>
 
                     <div class="back-link">
                         <button type="button" class="link-button" (click)="goToStep('username')">
@@ -149,6 +225,7 @@
                 </form>
             </ng-container>
 
+            <!-- ===== PASO 3: ÉXITO ===== -->
             <ng-container *ngIf="currentStep === 'success'">
                 <div class="success-state">
                     <div class="success-icon">
@@ -170,8 +247,9 @@
                 </div>
             </ng-container>
 
-        </div>
+        </div> <!-- Cierre de forgot-form-wrapper -->
 
+        <!-- Botón de ayuda -->
         <button type="button" class="help-button" title="Ayuda">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="12" r="10"></circle>
@@ -179,5 +257,7 @@
                 <path d="M12 17h.01"></path>
             </svg>
         </button>
-    </div>
-</div>
+
+    </div> <!-- Cierre de forgot-right -->
+
+</div> <!-- Cierre de forgot-container -->

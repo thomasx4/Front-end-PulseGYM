@@ -1,0 +1,94 @@
+<div class="modal-backdrop" (click)="cerrar()">
+  <div class="modal-dialog" (click)="$event.stopPropagation()">
+    
+    <header class="modal-header">
+      <h2 class="modal-title">
+        {{ esEdicion ? 'Editar Sede' : 'Registrar Nueva Sede' }}
+      </h2>
+      <button type="button" class="close-btn" (click)="cerrar()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </header>
+
+    <form (ngSubmit)="guardarSede()" class="modal-body">
+      
+      <div *ngIf="errorMensaje" class="alert-error">
+        {{ errorMensaje }}
+      </div>
+
+      <div class="form-group">
+        <label for="nombreSede">Nombre de la Sede <span class="required">*</span></label>
+        <input 
+          type="text" 
+          id="nombreSede" 
+          [(ngModel)]="nombreSede" 
+          name="nombreSede" 
+          placeholder="Ej: Sede Norte" 
+          class="form-input" 
+          required />
+      </div>
+
+      <div class="form-group">
+        <label for="ciudad">Ciudad <span class="required">*</span></label>
+        <input 
+          type="text" 
+          id="ciudad" 
+          [(ngModel)]="ciudad" 
+          name="ciudad" 
+          placeholder="Ej: Bogotá" 
+          class="form-input" 
+          required />
+      </div>
+
+      <div class="form-group">
+        <label for="direccion">Dirección <span class="required">*</span></label>
+        <input 
+          type="text" 
+          id="direccion" 
+          [(ngModel)]="direccion" 
+          name="direccion" 
+          placeholder="Ej: Calle 67 #67-67" 
+          class="form-input" 
+          required />
+      </div>
+
+      <div class="form-group">
+        <label for="telefono">Teléfono / Celular <span class="required">*</span></label>
+        <input 
+          type="text" 
+          id="telefono" 
+          [(ngModel)]="telefono" 
+          name="telefono" 
+          placeholder="Ej: 3676766767" 
+          class="form-input" 
+          required />
+      </div>
+
+      <div class="form-group">
+        <label for="cantidadEquipos">Cantidad Inicial de Equipos</label>
+        <input 
+          type="number" 
+          id="cantidadEquipos" 
+          [(ngModel)]="cantidadEquipos" 
+          name="cantidadEquipos" 
+          placeholder="Ej: 10" 
+          min="0"
+          class="form-input" />
+      </div>
+
+      <footer class="modal-footer">
+        <button type="button" class="btn-outline" (click)="cerrar()" [disabled]="cargando">
+          Cancelar
+        </button>
+        <button type="submit" class="btn-primary" [disabled]="cargando">
+          {{ cargando ? 'Guardando...' : (esEdicion ? 'Actualizar Sede' : 'Guardar Sede') }}
+        </button>
+      </footer>
+
+    </form>
+
+  </div>
+</div>

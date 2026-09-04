@@ -1,8 +1,23 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
-import { environment } from '../../../environments/environment';
+import { environment } from '../../../environments/environment.prod';
 import { Certificate, CertificateRequest, CertificateUpdate, CertificateFilter, CertificateMetric } from '../models/certificate';
+
+export interface RespuestaPaginadaCertificaciones {
+  content?: Certificate[];
+  contenido?: Certificate[];
+  data?: Certificate[];
+  currentPage?: number;
+  number?: number;
+  numeroPagina?: number;
+  size?: number;
+  tamanioPagina?: number;
+  totalElements?: number;
+  totalElementos?: number;
+  totalPages?: number;
+  totalPaginas?: number;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -11,6 +26,23 @@ export class CertificateService {
   private apiUrl = `${environment.apiUrl}/pg-ms-users/api/v1/usuarios/certificaciones`;
 
   constructor(private http: HttpClient) { }
+
+  /** GET: Obtener certificaciones paginadas */
+  obtenerCertificacionesPaginadas(filtros: CertificateFilter = {}): Observable<RespuestaPaginadaCertificaciones> {
+    let params = new HttpParams();
+
+    if (filtros.search) {
+      params = params.set('search', filtros.search);
+      params = params.set('busqueda', filtros.search);
+    }
+
+    params = params.set('pagina', (filtros.pagina ?? 0).toString());
+    params = params.set('page', (filtros.pagina ?? 0).toString());
+    params = params.set('tamanio', (filtros.tamanio ?? 5).toString());
+    params = params.set('size', (filtros.tamanio ?? 5).toString());
+
+    return this.http.get<RespuestaPaginadaCertificaciones>(this.apiUrl, { params });
+  }
 
   /** GET: Obtener todas las certificaciones */
   obtenerTodasLasCertificaciones(): Observable<Certificate[]> {
@@ -46,4 +78,8 @@ export class CertificateService {
       }))
     );
   }
+
+  getTodasSociosMembresiasActivas(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/socios-membresias/activas`);
 }
+} 

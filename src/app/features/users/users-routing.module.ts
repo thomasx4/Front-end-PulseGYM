@@ -42,6 +42,11 @@ const routes: Routes = [
     loadChildren: () =>
       import('./physical-history/physical-history.module').then((m) => m.PhysicalHistoryModule)
   },
+  {
+    path: 'medical-profile',
+    loadChildren: () =>
+      import('./medical-profile/medical-profile.module').then((m) => m.MedicalProfileModule)
+  }
 ];
 
 @NgModule({

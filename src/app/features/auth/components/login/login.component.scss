@@ -40,13 +40,13 @@ body {
 .login-left {
     position: relative;
     width: 50%;
-    background-image: url('../../../../../../public/img/Container-login.png');
     background-size: cover;
     background-position: center;
     display: flex;
     align-items: flex-end;
     padding: 60px;
     overflow: hidden;
+    transition: background-image 0.8s ease-in-out;
 
     .overlay {
         position: absolute;
@@ -55,6 +55,7 @@ body {
                 rgba(10, 42, 74, 0.92) 0%,
                 rgba(10, 42, 74, 0.75) 50%,
                 rgba(10, 42, 74, 0.85) 100%);
+        transition: background 0.3s ease;
     }
 
     .brand-content {
@@ -62,6 +63,7 @@ body {
         z-index: 1;
         color: #ffffff;
         max-width: 450px;
+        animation: fadeInUp 0.6s ease-out;
     }
 
     .brand-title {
@@ -101,6 +103,17 @@ body {
                 background: rgba(255, 255, 255, 0.6);
             }
         }
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 
@@ -167,6 +180,7 @@ body {
             text-decoration: none;
             font-weight: 500;
             transition: color 0.2s;
+            cursor: pointer;
 
             &:hover {
                 color: $primary-blue;
@@ -274,6 +288,11 @@ body {
     &:active {
         transform: translateY(0);
     }
+
+    &:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
 }
 
 .help-button {
@@ -352,12 +371,6 @@ body {
 
 @keyframes spinner-border {
     100% { transform: rotate(360deg); }
-}
-
-/* Mejora visual para el botón deshabilitado */
-.btn-login:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
 }
 
 @media (max-width: 992px) {

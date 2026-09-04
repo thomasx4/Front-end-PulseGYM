@@ -4,8 +4,7 @@
         <div>
             <h1 class="form-title">{{ isEditMode ? 'Editar Documento' : 'Nuevo Documento Legal' }}</h1>
             <p class="form-subtitle">
-                {{ isEditMode ? 'Actualiza la información del documento legal.' : 'Registra un nuevo documento legal
-                para un usuario.' }}
+                {{ isEditMode ? 'Actualiza la información del documento legal.' : 'Registra un nuevo documento legal para un usuario.' }}
             </p>
         </div>
         <button class="btn-back" (click)="volver()">
@@ -23,8 +22,7 @@
             <div class="form-section">
                 <div class="section-header">
                     <h3>Información del Documento</h3>
-                    <p>Asigna el usuario correspondiente (Socio, Entrenador, Recepcionista, Admin) y define el tipo de
-                        documento legal.</p>
+                    <p>Asigna el usuario correspondiente (Socio, Entrenador, Recepcionista, Admin) y define el tipo de documento legal.</p>
                 </div>
 
                 <!-- SELECCIÓN DE USUARIO MEDIANTE BOTÓN/CARD -->
@@ -198,7 +196,7 @@
         <div class="modal-partner-search">
             <div class="search-input-wrapper">
                 <input type="text" placeholder="Buscar por nombre, teléfono o rol..." [(ngModel)]="searchUsuario"
-                    (input)="filtrarSociosModal()" />
+                    (keyup.enter)="filtrarSociosModal()" />
                 <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                     stroke-width="2">
                     <circle cx="11" cy="11" r="8"></circle>
@@ -219,58 +217,68 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let usuario of sociosPaginados">
-                        <td>
-                            <div class="partner-cell">
-                                <div class="partner-table-avatar">
-                                    <img *ngIf="getUsuarioFoto(usuario) && !hasModalAvatarError(usuario.idUsuario)"
-                                        [src]="getUsuarioFoto(usuario)" [alt]="usuario.nombre"
-                                        class="partner-table-avatar__img" crossOrigin="anonymous"
-                                        (error)="onModalAvatarError(usuario.idUsuario)" />
-                                    <span *ngIf="!getUsuarioFoto(usuario) || hasModalAvatarError(usuario.idUsuario)">
-                                        {{ getInitials(usuario.nombre, usuario.apellido) }}
-                                    </span>
-                                </div>
-                                <span class="partner-table-name">{{ usuario.nombre }} {{ usuario.apellido }}</span>
-                            </div>
-                        </td>
-                        <td>
-                            <span class="role-badge" [ngClass]="getRolClass(usuario.rol)">
-                                {{ getRolLabel(usuario.rol) }}
-                            </span>
-                        </td>
-                        <td>
-                            <span class="partner-table-contact">{{ usuario.telefono || usuario.email || 'Sin contacto'
-                                }}</span>
-                        </td>
-                        <td class="text-right">
-                            <button type="button" class="btn-assign-row" (click)="seleccionarSocioDesdeModal(usuario)">
-                                Asignar
-                            </button>
-                        </td>
-                    </tr>
-                    <tr *ngIf="sociosFiltradosModal.length === 0">
+                    <!-- Fila de carga (Se muestra únicamente mientras carga) -->
+                    <tr *ngIf="loadingModalUsers">
                         <td colspan="4" class="empty-table-msg">
-                            No se encontraron usuarios que coincidan con la búsqueda.
+                            Cargando usuarios...
                         </td>
                     </tr>
+
+                    <!-- Filas de datos (Solo se muestran cuando TERMINA de cargar) -->
+                    <ng-container *ngIf="!loadingModalUsers">
+                        <tr *ngFor="let usuario of usuarios">
+                            <td>
+                                <div class="partner-cell">
+                                    <div class="partner-table-avatar">
+                                        <img *ngIf="getUsuarioFoto(usuario) && !hasModalAvatarError(usuario.idUsuario)"
+                                            [src]="getUsuarioFoto(usuario)" [alt]="usuario.nombre"
+                                            class="partner-table-avatar__img" crossOrigin="anonymous"
+                                            (error)="onModalAvatarError(usuario.idUsuario)" />
+                                        <span *ngIf="!getUsuarioFoto(usuario) || hasModalAvatarError(usuario.idUsuario)">
+                                            {{ getInitials(usuario.nombre, usuario.apellido) }}
+                                        </span>
+                                    </div>
+                                    <span class="partner-table-name">{{ usuario.nombre }} {{ usuario.apellido }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="role-badge" [ngClass]="getRolClass(usuario.rol)">
+                                    {{ getRolLabel(usuario.rol) }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="partner-table-contact">{{ usuario.telefono || usuario.email || 'Sin contacto' }}</span>
+                            </td>
+                            <td class="text-right">
+                                <button type="button" class="btn-assign-row"
+                                    (click)="seleccionarSocioDesdeModal(usuario)">
+                                    Asignar
+                                </button>
+                            </td>
+                        </tr>
+                        <tr *ngIf="usuarios.length === 0">
+                            <td colspan="4" class="empty-table-msg">
+                                No se encontraron usuarios que coincidan con la búsqueda.
+                            </td>
+                        </tr>
+                    </ng-container>
                 </tbody>
             </table>
         </div>
 
-        <!-- PAGINACIÓN MODAL -->
-        <div class="modal-partner-footer" *ngIf="totalPaginasModal > 1">
+        <!-- PAGINACIÓN MODAL ESTILO USUARIOS -->
+        <div class="modal-partner-footer" *ngIf="totalPaginasModal > 0">
             <div class="pagination-controls">
-                <button type="button" class="btn-page-arrow" [disabled]="paginaModalActual === 1"
-                    (click)="paginaModalActual = paginaModalActual - 1">
+                <button type="button" class="btn-page-arrow" [disabled]="paginaModalActual === 0"
+                    (click)="paginaAnteriorModal()">
                     ‹
                 </button>
-                <button type="button" *ngFor="let pag of paginasVisiblesModal" class="btn-page-num"
-                    [class.active]="pag === paginaModalActual" (click)="paginaModalActual = pag">
-                    {{ pag }}
+                <button type="button" *ngFor="let p of paginasVisiblesModal" class="btn-page-num"
+                    [class.active]="p === paginaModalActual" (click)="irPaginaModal(p)">
+                    {{ p + 1 }}
                 </button>
-                <button type="button" class="btn-page-arrow" [disabled]="paginaModalActual === totalPaginasModal"
-                    (click)="paginaModalActual = paginaModalActual + 1">
+                <button type="button" class="btn-page-arrow" [disabled]="paginaModalActual >= totalPaginasModal - 1"
+                    (click)="paginaSiguienteModal()">
                     ›
                 </button>
             </div>

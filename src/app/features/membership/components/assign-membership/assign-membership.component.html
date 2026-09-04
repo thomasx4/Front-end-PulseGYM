@@ -18,7 +18,8 @@
     </div>
 
     <!-- SECCIÓN POR VENCER (ÚNICA) -->
-<div class="por-vencer-container" *ngIf="!loading && vistaActual === 'tarjetas'">        <div class="por-vencer-header">
+    <div class="por-vencer-container" *ngIf="!loading && vistaActual === 'tarjetas'">
+        <div class="por-vencer-header">
             <div class="por-vencer-header__title">
                 <div class="icon-pulse-wrapper">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -39,10 +40,11 @@
             <div *ngFor="let item of membresiasPorVencerPaginadas; trackBy: trackByItemId" class="por-vencer-card">
                 <div class="por-vencer-card__user">
                     <div class="avatar-container">
-                        <img *ngIf="getFotoSocio(item) && !hasAvatarError('pv_' + (item.idSocio || item.id))"
-                            [src]="getFotoSocio(item)" [alt]="item.nombreSocio || item.nombre" class="user-avatar"
-                            crossOrigin="anonymous" (error)="onAvatarError('pv_' + (item.idSocio || item.id))" />
-                        <div *ngIf="!getFotoSocio(item) || hasAvatarError('pv_' + (item.idSocio || item.id))" class="user-avatar-initials">
+                        <img *ngIf="getUserFoto(item) && !hasAvatarError('pv_' + (item.idSocio || item.id))"
+                            [src]="getUserFoto(item)" [alt]="item.nombreSocio || item.nombre" class="user-avatar"
+                            (error)="onAvatarError('pv_' + (item.idSocio || item.id))" />
+                        <div *ngIf="!getUserFoto(item) || hasAvatarError('pv_' + (item.idSocio || item.id))"
+                            class="user-avatar-initials">
                             {{ getInitials(item.nombreSocio || item.nombre) }}
                         </div>
                     </div>
@@ -85,20 +87,21 @@
         </div>
     </div>
 
-    <!-- VISTA 1: TARJETAS DE MEMBRESÍAS CON PAGINACIÓN BD -->
+    <!-- VISTA 1: TARJETAS DE MEMBRESÍAS CON PAGINACIÓN BD (6 POR PÁGINA) -->
     <ng-container *ngIf="!loading && vistaActual === 'tarjetas'">
         <div class="membership-header">
             <h1>Asignar Membresía</h1>
             <p class="membership-subtitle">Selecciona una membresía activa para asignarla a un socio.</p>
         </div>
 
-        <!-- ESTADO VACÍO CUANDO NO HAY MEMBRESÍAS REGISTRADAS -->
-        <div *ngIf="membresias.length === 0" class="empty-state-card" style="text-align: center; padding: 40px; background: white; border-radius: 16px;">
-            <p style="font-size: 16px; color: #64748b; margin: 0;">No se encontraron membresías activas registradas en el sistema.</p>
+        <div *ngIf="membresias.length === 0" class="empty-state-card"
+            style="text-align: center; padding: 40px; background: white; border-radius: 16px;">
+            <p style="font-size: 16px; color: #64748b; margin: 0;">No se encontraron membresías activas registradas en
+                el sistema.</p>
         </div>
 
         <div *ngIf="membresias.length > 0" class="membership-grid">
-            <div *ngFor="let membresia of membresiasPaginadas; trackBy: trackByMembresiaId" class="membership-card">
+            <div *ngFor="let membresia of membresias; trackBy: trackByMembresiaId" class="membership-card">
                 <div class="membership-card__body">
                     <h2 class="membership-card__title">{{ membresia.nombre }}</h2>
                     <div class="membership-card__price">
@@ -145,20 +148,20 @@
             </div>
         </div>
 
-        <!-- PAGINACIÓN MEMBRESÍAS CONECTADA A LA BD -->
-        <div class="membresias-pagination" *ngIf="totalPaginasMembresias > 1">
+        <!-- PAGINACIÓN MEMBRESÍAS -->
+        <div class="membresias-pagination" *ngIf="totalPaginasMembresiasBackend > 1">
             <button class="page-btn" (click)="paginaAnteriorMembresias()"
-                [disabled]="paginaMembresiasActual === 1 || loading">
+                [disabled]="paginaMembresiasActual === 0 || loading">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="15 18 9 12 15 6" />
                 </svg>
             </button>
             <button class="page-btn" *ngFor="let p of paginasMembresias" [class.active]="p === paginaMembresiasActual"
                 [disabled]="loading" (click)="cambiarPaginaMembresias(p)">
-                {{ p }}
+                {{ p + 1 }}
             </button>
             <button class="page-btn" (click)="paginaSiguienteMembresias()"
-                [disabled]="paginaMembresiasActual === totalPaginasMembresias || loading">
+                [disabled]="paginaMembresiasActual >= totalPaginasMembresiasBackend - 1 || loading">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="9 18 15 12 9 6" />
                 </svg>
@@ -247,14 +250,15 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let socio of sociosPaginados; trackBy: trackBySocioId">
+                        <tr *ngFor="let socio of sociosAsignados; trackBy: trackBySocioId">
                             <td>
                                 <div class="user-profile">
                                     <div class="avatar-container">
-                                        <img *ngIf="getFotoSocio(socio) && !hasAvatarError('tabla_' + socio.id)"
-                                            [src]="getFotoSocio(socio)" [alt]="socio.nombre" class="user-profile__avatar"
-                                            crossOrigin="anonymous" (error)="onAvatarError('tabla_' + socio.id)" />
-                                        <div *ngIf="!getFotoSocio(socio) || hasAvatarError('tabla_' + socio.id)" class="user-avatar-initials">
+                                        <img *ngIf="getUserFoto(socio) && !hasAvatarError('tabla_' + socio.id)"
+                                            [src]="getUserFoto(socio)" [alt]="socio.nombre" class="user-profile__avatar"
+                                            (error)="onAvatarError('tabla_' + socio.id)" />
+                                        <div *ngIf="!getUserFoto(socio) || hasAvatarError('tabla_' + socio.id)"
+                                            class="user-avatar-initials">
                                             {{ getInitials(socio.nombre) }}
                                         </div>
                                     </div>
@@ -297,37 +301,26 @@
                                 </div>
                             </td>
                         </tr>
-                        <tr *ngIf="sociosAsignadosFiltrados.length === 0">
+                        <tr *ngIf="sociosAsignados.length === 0">
                             <td colspan="6" class="empty-state">No hay socios asignados.</td>
                         </tr>
                     </tbody>
                 </table>
 
-                <!-- PAGINACIÓN SOCIOS ASIGNADOS -->
-                <div class="table-footer" *ngIf="sociosAsignadosFiltrados.length > 0">
+                <div class="table-footer" *ngIf="sociosAsignados.length > 0">
                     <span class="table-footer__info">
-                        Mostrando {{ sociosPaginados.length }} de {{ sociosAsignadosFiltrados.length }} socios
+                        Mostrando {{ sociosAsignados.length }} de {{ totalSociosAsignadosBackend }} socios
                     </span>
-                    <div class="membresias-pagination" *ngIf="totalSociosPaginas > 1">
-                        <button class="page-btn" (click)="cambiarPaginaSocios(sociosPaginaActual - 1)"
-                            [disabled]="sociosPaginaActual === 1 || loading">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
-                                <polyline points="15 18 9 12 15 6" />
-                            </svg>
-                        </button>
-                        <button class="page-btn" *ngFor="let page of paginasSocios"
+                    <div class="table-footer__pagination" *ngIf="totalPaginasSociosBackend > 1">
+                        <button class="p-arrow" (click)="paginaAnteriorSocios()"
+                            [disabled]="sociosPaginaActual === 0 || loading">&lt;</button>
+                        <button class="p-num" *ngFor="let page of paginasSocios"
                             [class.active]="sociosPaginaActual === page" [disabled]="loading"
                             (click)="cambiarPaginaSocios(page)">
-                            {{ page }}
+                            {{ page + 1 }}
                         </button>
-                        <button class="page-btn" (click)="cambiarPaginaSocios(sociosPaginaActual + 1)"
-                            [disabled]="sociosPaginaActual === totalSociosPaginas || loading">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
-                                <polyline points="9 18 15 12 9 6" />
-                            </svg>
-                        </button>
+                        <button class="p-arrow" (click)="paginaSiguienteSocios()"
+                            [disabled]="sociosPaginaActual >= totalPaginasSociosBackend - 1 || loading">&gt;</button>
                     </div>
                 </div>
             </div>
@@ -370,46 +363,52 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let socio of sociosModalPaginados; trackBy: trackBySocioId">
-                        <td>
-                            <div class="socio-cell">
-                                <div class="avatar-container">
-                                    <img *ngIf="getFotoSocio(socio) && !hasAvatarError('modal_' + socio.id)"
-                                        [src]="getFotoSocio(socio)" [alt]="socio.nombre" class="socio-cell__avatar"
-                                        crossOrigin="anonymous" (error)="onAvatarError('modal_' + socio.id)" />
-                                    <div *ngIf="!getFotoSocio(socio) || hasAvatarError('modal_' + socio.id)" class="user-avatar-initials modal-avatar-initials">
-                                        {{ getInitials(socio.nombre) }}
+                    <tr *ngIf="loadingModalSocios">
+                        <td colspan="4" class="empty-state">Cargando socios...</td>
+                    </tr>
+                    <ng-container *ngIf="!loadingModalSocios">
+                        <tr *ngFor="let socio of sociosModal; trackBy: trackBySocioId">
+                            <td>
+                                <div class="socio-cell">
+                                    <div class="avatar-container">
+                                        <img *ngIf="getUserFoto(socio) && !hasAvatarError('modal_' + socio.id)"
+                                            [src]="getUserFoto(socio)" [alt]="socio.nombre" class="socio-cell__avatar"
+                                            (error)="onAvatarError('modal_' + socio.id)" />
+                                        <div *ngIf="!getUserFoto(socio) || hasAvatarError('modal_' + socio.id)"
+                                            class="user-avatar-initials modal-avatar-initials">
+                                            {{ getInitials(socio.nombre) }}
+                                        </div>
                                     </div>
+                                    <span class="socio-cell__name">{{ socio.nombre }}</span>
                                 </div>
-                                <span class="socio-cell__name">{{ socio.nombre }}</span>
-                            </div>
-                        </td>
-                        <td class="tel-cell">{{ socio.telefono }}</td>
-                        <td class="date-cell">{{ socio.fechaRegistro }}</td>
-                        <td class="action-cell">
-                            <button type="button" class="btn-assign" [disabled]="loading"
-                                (click)="confirmarAsignacion(socio)">
-                                {{ loading ? 'Asignando...' : 'Asignar' }}
-                            </button>
-                        </td>
-                    </tr>
-                    <tr *ngIf="sociosFiltradosModal.length === 0">
-                        <td colspan="4" class="empty-state">No se encontraron socios disponibles.</td>
-                    </tr>
+                            </td>
+                            <td class="tel-cell">{{ socio.telefono }}</td>
+                            <td class="date-cell">{{ socio.fechaRegistro }}</td>
+                            <td class="action-cell">
+                                <button type="button" class="btn-assign" [disabled]="loading"
+                                    (click)="confirmarAsignacion(socio)">
+                                    {{ loading ? 'Asignando...' : 'Asignar' }}
+                                </button>
+                            </td>
+                        </tr>
+                        <tr *ngIf="sociosModal.length === 0">
+                            <td colspan="4" class="empty-state">No se encontraron socios disponibles.</td>
+                        </tr>
+                    </ng-container>
                 </tbody>
             </table>
         </div>
 
-        <div class="modal-dialog__pagination" *ngIf="sociosFiltradosModal.length > 0">
-            <button type="button" class="page-arrow" (click)="cambiarPaginaModal(sociosModalPaginaActual - 1)"
-                [disabled]="sociosModalPaginaActual === 1 || loading">&lt;</button>
-            <button *ngFor="let page of paginasModal; trackBy: trackByIndex" type="button" class="page-num"
-                [class.active]="sociosModalPaginaActual === page" [disabled]="loading"
-                (click)="cambiarPaginaModal(page)">
-                {{ page }}
+        <div class="modal-dialog__pagination" *ngIf="totalPaginasSocioModal > 1">
+            <button type="button" class="page-arrow" (click)="paginaAnteriorModal()"
+                [disabled]="paginaSocioModalActual === 0 || loadingModalSocios">&lt;</button>
+            <button *ngFor="let page of paginasVisiblesModal; trackBy: trackByIndex" type="button" class="page-num"
+                [class.active]="paginaSocioModalActual === page" [disabled]="loadingModalSocios"
+                (click)="irPaginaSocioModal(page)">
+                {{ page + 1 }}
             </button>
-            <button type="button" class="page-arrow" (click)="cambiarPaginaModal(sociosModalPaginaActual + 1)"
-                [disabled]="sociosModalPaginaActual === totalSociosModalPaginas || loading">&gt;</button>
+            <button type="button" class="page-arrow" (click)="paginaSiguienteModal()"
+                [disabled]="paginaSocioModalActual >= totalPaginasSocioModal - 1 || loadingModalSocios">&gt;</button>
         </div>
     </div>
 </div>
@@ -461,46 +460,52 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let socio of sociosModalPaginados; trackBy: trackBySocioId">
-                        <td>
-                            <div class="socio-cell">
-                                <div class="avatar-container">
-                                    <img *ngIf="getFotoSocio(socio) && !hasAvatarError('modal_flex_' + socio.id)"
-                                        [src]="getFotoSocio(socio)" [alt]="socio.nombre" class="socio-cell__avatar"
-                                        crossOrigin="anonymous" (error)="onAvatarError('modal_flex_' + socio.id)" />
-                                    <div *ngIf="!getFotoSocio(socio) || hasAvatarError('modal_flex_' + socio.id)" class="user-avatar-initials modal-avatar-initials">
-                                        {{ getInitials(socio.nombre) }}
+                    <tr *ngIf="loadingModalSocios">
+                        <td colspan="4" class="empty-state">Cargando socios...</td>
+                    </tr>
+                    <ng-container *ngIf="!loadingModalSocios">
+                        <tr *ngFor="let socio of sociosModal; trackBy: trackBySocioId">
+                            <td>
+                                <div class="socio-cell">
+                                    <div class="avatar-container">
+                                        <img *ngIf="getUserFoto(socio) && !hasAvatarError('modal_flex_' + socio.id)"
+                                            [src]="getUserFoto(socio)" [alt]="socio.nombre" class="socio-cell__avatar"
+                                            (error)="onAvatarError('modal_flex_' + socio.id)" />
+                                        <div *ngIf="!getUserFoto(socio) || hasAvatarError('modal_flex_' + socio.id)"
+                                            class="user-avatar-initials modal-avatar-initials">
+                                            {{ getInitials(socio.nombre) }}
+                                        </div>
                                     </div>
+                                    <span class="socio-cell__name">{{ socio.nombre }}</span>
                                 </div>
-                                <span class="socio-cell__name">{{ socio.nombre }}</span>
-                            </div>
-                        </td>
-                        <td class="tel-cell">{{ socio.telefono }}</td>
-                        <td class="date-cell">{{ socio.fechaRegistro }}</td>
-                        <td class="action-cell">
-                            <button type="button" class="btn-assign" [disabled]="loading"
-                                (click)="confirmarAsignacionFlexible(socio)">
-                                {{ loading ? 'Asignando...' : 'Asignar' }}
-                            </button>
-                        </td>
-                    </tr>
-                    <tr *ngIf="sociosFiltradosModal.length === 0">
-                        <td colspan="4" class="empty-state">No se encontraron socios disponibles.</td>
-                    </tr>
+                            </td>
+                            <td class="tel-cell">{{ socio.telefono }}</td>
+                            <td class="date-cell">{{ socio.fechaRegistro }}</td>
+                            <td class="action-cell">
+                                <button type="button" class="btn-assign" [disabled]="loading"
+                                    (click)="confirmarAsignacionFlexible(socio)">
+                                    {{ loading ? 'Asignando...' : 'Asignar' }}
+                                </button>
+                            </td>
+                        </tr>
+                        <tr *ngIf="sociosModal.length === 0">
+                            <td colspan="4" class="empty-state">No se encontraron socios disponibles.</td>
+                        </tr>
+                    </ng-container>
                 </tbody>
             </table>
         </div>
 
-        <div class="modal-dialog__pagination" *ngIf="sociosFiltradosModal.length > 0">
-            <button type="button" class="page-arrow" (click)="cambiarPaginaModal(sociosModalPaginaActual - 1)"
-                [disabled]="sociosModalPaginaActual === 1 || loading">&lt;</button>
-            <button *ngFor="let page of paginasModal; trackBy: trackByIndex" type="button" class="page-num"
-                [class.active]="sociosModalPaginaActual === page" [disabled]="loading"
-                (click)="cambiarPaginaModal(page)">
-                {{ page }}
+        <div class="modal-dialog__pagination" *ngIf="totalPaginasSocioModal > 1">
+            <button type="button" class="page-arrow" (click)="paginaAnteriorModal()"
+                [disabled]="paginaSocioModalActual === 0 || loadingModalSocios">&lt;</button>
+            <button *ngFor="let page of paginasVisiblesModal; trackBy: trackByIndex" type="button" class="page-num"
+                [class.active]="paginaSocioModalActual === page" [disabled]="loadingModalSocios"
+                (click)="irPaginaSocioModal(page)">
+                {{ page + 1 }}
             </button>
-            <button type="button" class="page-arrow" (click)="cambiarPaginaModal(sociosModalPaginaActual + 1)"
-                [disabled]="sociosModalPaginaActual === totalSociosModalPaginas || loading">&gt;</button>
+            <button type="button" class="page-arrow" (click)="paginaSiguienteModal()"
+                [disabled]="paginaSocioModalActual >= totalPaginasSocioModal - 1 || loadingModalSocios">&gt;</button>
         </div>
     </div>
 </div>

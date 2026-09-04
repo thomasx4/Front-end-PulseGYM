@@ -10,17 +10,6 @@
         </div>
         <h1 class="page-header__title">Historial Físico</h1>
       </div>
-      <div class="page-header__breadcrumb">
-        <span>Inicio</span>
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polyline points="9 18 15 12 9 6"></polyline>
-        </svg>
-        <span>Historial Físico</span>
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polyline points="9 18 15 12 9 6"></polyline>
-        </svg>
-        <span class="active">Lista de Mediciones</span>
-      </div>
     </div>
 
     <div class="page-header__actions">
@@ -136,7 +125,7 @@
           <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
         </svg>
         <input type="text" placeholder="Buscar por recepcionista o socio..." [(ngModel)]="searchQuery"
-          (input)="applyFilters()" class="search-input" />
+          (keyup.enter)="applyFilters()" class="search-input" />
       </div>
     </div>
   </div>
@@ -287,7 +276,7 @@
           </td>
         </tr>
 
-        <tr *ngIf="filteredRecords.length === 0">
+        <tr *ngIf="paginatedRecords.length === 0 && !loading">
           <td colspan="8" class="empty-row">
             No se encontraron registros de historial físico para los filtros seleccionados.
           </td>
@@ -296,18 +285,19 @@
     </table>
 
     <!-- PIE DE PAGINACIÓN -->
-    <div class="pagination-footer">
+    <div class="pagination-footer" *ngIf="totalPages > 0">
       <span class="pagination-footer__info">
-        Mostrando {{ startIndex }} a {{ endIndex }} de {{ filteredRecords.length }} mediciones
+        Mostrando {{ startIndex }} a {{ endIndex }} de {{ totalElements }} mediciones
       </span>
       <div class="pagination-controls">
-        <button class="page-btn" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">&lt;</button>
+        <button class="page-btn" [disabled]="currentPage === 0" (click)="goToPage(currentPage - 1)">‹</button>
+
         <button *ngFor="let page of pagesArray" class="page-btn" [class.page-btn--active]="page === currentPage"
           (click)="goToPage(page)">
-          {{ page }}
+          {{ page + 1 }}
         </button>
-        <button class="page-btn" [disabled]="currentPage === totalPages"
-          (click)="goToPage(currentPage + 1)">&gt;</button>
+
+        <button class="page-btn" [disabled]="currentPage >= totalPages - 1" (click)="goToPage(currentPage + 1)">›</button>
       </div>
     </div>
   </div>

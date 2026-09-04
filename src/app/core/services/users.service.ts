@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { map, tap, catchError } from 'rxjs/operators';
-import { environment } from '../../../environments/environment';
+import { environment } from '../../../environments/environment.prod';
 import { AuthService } from '../services/auth.service';
 import {
   WeekDay,
@@ -11,6 +11,28 @@ import {
   WeeklySummary,
   DashboardSocioResponse
 } from '../../features/user/models/user.module';
+
+export interface FiltrosMembresias {
+  busqueda?: string;
+  pagina?: number;
+  tamanio?: number;
+}
+
+export interface RespuestaPaginadaMembresias {
+  content?: any[];
+  contenido?: any[];
+  currentPage?: number;
+  number?: number;
+  numeroPagina?: number;
+  size?: number;
+  tamanioPagina?: number;
+  totalElements?: number;
+  totalElementos?: number;
+  totalPages?: number;
+  totalPaginas?: number;
+  last?: boolean;
+  ultima?: boolean;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -188,4 +210,48 @@ export class UserService {
     );
   }
 
+  getMiMembresiaActiva(): Observable<any> {
+    const url = `${this.apiUrl}/pg-ms-users/api/v1/socios-membresias/mi-membresia-activa`;
+    return this.http.get<any>(url, { headers: this.getHeaders() }).pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.error('Error en getMiMembresiaActiva:', error);
+        return of(null);
+      })
+    );
+  }
+
+  getMembresiasPaginadas(filtros: FiltrosMembresias = {}): Observable<RespuestaPaginadaMembresias> {
+    let params = new HttpParams();
+
+    if (filtros.busqueda) {
+      params = params.set('busqueda', filtros.busqueda);
+    }
+
+    params = params.set('pagina', (filtros.pagina ?? 0).toString());
+    params = params.set('tamanio', (filtros.tamanio ?? 6).toString());
+
+    const url = `${this.apiUrl}/pg-ms-users/api/v1/membresias`;
+    return this.http.get<RespuestaPaginadaMembresias>(url, { headers: this.getHeaders(), params }).pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.error('Error al obtener membresias paginadas:', error);
+        return of({
+          contenido: [],
+          totalElementos: 0,
+          totalPaginas: 0,
+          numeroPagina: 0,
+          tamanioPagina: 6
+        });
+      })
+    );
+  }
+
+  getMembresias(): Observable<any[]> {
+    const url = `${this.apiUrl}/pg-ms-users/api/v1/membresias`;
+    return this.http.get<any[]>(url, { headers: this.getHeaders() }).pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.error('Error en getMembresias:', error);
+        return of([]);
+      })
+    );
+  }
 }

@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PhysicalHistoryService } from '../../../../../core/services/physical-history.service';
-import { UserService } from '../../../../../core/services/user.service';
-import { PhysicalHistoryRequest } from '../../../../../core/models/physical-history';
+import { UserService, FiltrosPerfiles } from '../../../../../core/services/user.service';
+import { PhysicalHistory, PhysicalHistoryRequest } from '../../../../../core/models/physical-history';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -18,26 +18,27 @@ export class PhysicalHistoryFormComponent implements OnInit {
   loading: boolean = false;
   submitting: boolean = false;
 
-  // Lógica y Modales de Usuarios
-  allUsers: any[] = [];
-
-  // Usuario a Evaluar (Cualquier rol)
+  // Modales y Paginación de Usuario a Evaluar
   socios: any[] = [];
-  sociosFiltradosModal: any[] = [];
   selectedSocio: any = null;
   searchSocio: string = '';
   showSocioModal: boolean = false;
-  paginaSocioModalActual: number = 1;
+  paginaSocioModalActual: number = 0;
   itemsPorPaginaSocioModal: number = 5;
+  totalElementosSocioModal: number = 0;
+  totalPaginasSocioModal: number = 0;
+  loadingSocioUsers: boolean = false;
 
-  // Encargado (Solo RECEPCIONISTA o ENTRENADOR)
+  // Modales y Paginación de Encargado (RECEPCIONISTA / ENTRENADOR)
   recepcionistas: any[] = [];
-  recepcionistasFiltradosModal: any[] = [];
   selectedRecepcionista: any = null;
   searchRecepcionista: string = '';
   showRecepcionistaModal: boolean = false;
-  paginaRecepcionistaModalActual: number = 1;
+  paginaRecepcionistaModalActual: number = 0;
   itemsPorPaginaRecepcionistaModal: number = 5;
+  totalElementosRecepcionistaModal: number = 0;
+  totalPaginasRecepcionistaModal: number = 0;
+  loadingRecepcionistaUsers: boolean = false;
 
   editMetaInfo = {
     fechaFormatted: '',
@@ -50,11 +51,10 @@ export class PhysicalHistoryFormComponent implements OnInit {
     private router: Router,
     private physicalHistoryService: PhysicalHistoryService,
     private userService: UserService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.initForm();
-    this.loadUsers();
 
     this.route.params.subscribe(params => {
       if (params['id']) {
@@ -91,33 +91,117 @@ export class PhysicalHistoryFormComponent implements OnInit {
     });
   }
 
-  private loadUsers(): void {
-    this.userService.obtenerTodosLosPerfilesActivos().subscribe({
-      next: (users: any[]) => {
-        this.allUsers = users || [];
+  private normalizarTexto(texto: string): string {
+    if (!texto) return '';
+    return texto
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, ' ');
+  }
 
-        // 1. Asignable Usuario a evaluar: CUALQUIER USUARIO REGISTRADO
-        this.socios = [...this.allUsers];
-        this.sociosFiltradosModal = [...this.socios];
+  cargarSociosModal(): void {
+    this.loadingSocioUsers = true;
+    const busquedaTerm = this.searchSocio.trim();
 
-        // 2. Asignable Encargado: ÚNICAMENTE RECEPCIONISTA O ENTRENADOR
-        this.recepcionistas = this.allUsers.filter(u => {
-          const rol = this.getRolNombre(u).toUpperCase();
-          return rol.includes('RECEPCIONISTA') || rol.includes('ENTRENADOR');
-        });
-        this.recepcionistasFiltradosModal = [...this.recepcionistas];
+    const filtros: FiltrosPerfiles = {
+      pagina: this.paginaSocioModalActual,
+      tamanio: this.itemsPorPaginaSocioModal,
+      busqueda: busquedaTerm || undefined,
+      estado: 'ACTIVO'
+    };
+
+    this.userService.listarPerfilesPaginados(filtros).subscribe({
+      next: (response: any) => {
+        if (Array.isArray(response)) {
+          this.socios = response;
+          this.totalElementosSocioModal = response.length;
+          this.totalPaginasSocioModal = 1;
+        } else {
+          this.socios = response.data || response.contenido || response.content || [];
+          this.totalElementosSocioModal = response.totalElementos ?? response.totalElements ?? 0;
+          this.totalPaginasSocioModal = response.totalPaginas ?? response.totalPages ?? 0;
+          this.paginaSocioModalActual = response.numeroPagina ?? response.currentPage ?? response.number ?? 0;
+        }
+        this.loadingSocioUsers = false;
       },
-      error: (err) => {
-        console.error('Error al cargar lista de usuarios:', err);
+      error: () => {
+        this.socios = [];
+        this.totalElementosSocioModal = 0;
+        this.totalPaginasSocioModal = 0;
+        this.loadingSocioUsers = false;
       }
     });
   }
 
-  private loadRecordData(id: number): void {
+  // --- OBTENCIÓN DINÁMICA DE ENCARGADOS PARA MODAL ---
+  cargarRecepcionistasModal(): void {
+    this.loadingRecepcionistaUsers = true;
+    const busquedaTerm = this.searchRecepcionista.trim();
+    let busquedaCompleta = '';
+
+    if (busquedaTerm) {
+      busquedaCompleta = busquedaTerm;
+    }
+
+    const filtros: FiltrosPerfiles = {
+      pagina: this.paginaRecepcionistaModalActual,
+      tamanio: this.itemsPorPaginaRecepcionistaModal,
+      busqueda: busquedaCompleta || undefined,
+      estado: 'ACTIVO',
+      roles: ['ADMINISTRADOR', 'RECEPCIONISTA', 'ENTRENADOR']
+    };
+
+    this.userService.listarPerfilesPaginados(filtros).subscribe({
+      next: (response: any) => {
+        let arrayCompleto: any[] = [];
+
+        if (Array.isArray(response)) {
+          arrayCompleto = response;
+        } else {
+          const listData = response.data || response.contenido || response.content || [];
+          arrayCompleto = Array.isArray(listData) ? listData : [];
+        }
+
+        let listaFiltrada = arrayCompleto.filter(u => {
+          const estado = (u.estado || u.status || 'ACTIVO').toString().toUpperCase();
+          const activo = estado === 'ACTIVO' && !u.eliminado && !u.deletedAt;
+
+          const rolTexto = (this.getRolNombre(u) || u.rol || '').toString().toUpperCase();
+
+          const esAdmin = rolTexto.includes('ADMINISTRADOR') || rolTexto.includes('ADMIN');
+          const esRecepcionista = rolTexto.includes('RECEPCIONISTA') || rolTexto.includes('RECEPCION');
+          const esEntrenador = rolTexto.includes('ENTRENADOR') || rolTexto.includes('COACH');
+
+          return activo && (esAdmin || esRecepcionista || esEntrenador);
+        });
+
+        this.recepcionistas = listaFiltrada;
+        this.totalElementosRecepcionistaModal = response.totalElementos ?? response.totalElements ?? listaFiltrada.length;
+        this.totalPaginasRecepcionistaModal = (response.totalPaginas ?? response.totalPages) || Math.ceil(this.totalElementosRecepcionistaModal / this.itemsPorPaginaRecepcionistaModal) || 1;
+        this.paginaRecepcionistaModalActual = response.numeroPagina ?? response.currentPage ?? response.number ?? 0;
+
+        this.loadingRecepcionistaUsers = false;
+      },
+      error: (err) => {
+        console.error('Error al cargar encargados:', err);
+        this.recepcionistas = [];
+        this.totalElementosRecepcionistaModal = 0;
+        this.totalPaginasRecepcionistaModal = 0;
+        this.loadingRecepcionistaUsers = false;
+      }
+    });
+  }
+
+
+ private loadRecordData(id: number): void {
     this.loading = true;
     this.physicalHistoryService.getAll().subscribe({
-      next: (records) => {
-        const item = records.find(r => r.idHistorialFisico === id);
+      next: (response) => {
+        const records: PhysicalHistory[] = response || [];
+
+        const item = records.find((r: PhysicalHistory) => r.idHistorialFisico === id);
         if (item) {
           this.form.patchValue({
             idSocio: item.idSocio,
@@ -141,24 +225,46 @@ export class PhysicalHistoryFormComponent implements OnInit {
             pantorrillaDerCm: item.pantorrillaDerCm || null
           });
 
-          // Vincular Usuario seleccionado en Edición
-          const socioEncontrado = this.allUsers.find(u => (u.idUsuario || u.id) === item.idSocio);
-          this.selectedSocio = socioEncontrado || {
-            idUsuario: item.idSocio,
-            nombre: item.nombreSocio || 'Usuario',
-            apellido: '',
-            email: ''
-          };
+          if (item.idSocio) {
+            this.userService.obtenerPerfilPorId(item.idSocio).subscribe({
+              next: (perfil) => {
+                this.selectedSocio = perfil || {
+                  idUsuario: item.idSocio,
+                  nombre: item.nombreSocio || 'Usuario',
+                  apellido: '',
+                  email: ''
+                };
+              },
+              error: () => {
+                this.selectedSocio = {
+                  idUsuario: item.idSocio,
+                  nombre: item.nombreSocio || 'Usuario',
+                  apellido: '',
+                  email: ''
+                };
+              }
+            });
+          }
 
-          // Vincular Encargado seleccionado en Edición si existe
           if (item.idRecepcionista) {
-            const recEncontrado = this.allUsers.find(u => (u.idUsuario || u.id) === item.idRecepcionista);
-            this.selectedRecepcionista = recEncontrado || {
-              idUsuario: item.idRecepcionista,
-              nombre: item.nombreRecepcionista || 'Recepcionista',
-              apellido: '',
-              email: ''
-            };
+            this.userService.obtenerPerfilPorId(item.idRecepcionista).subscribe({
+              next: (perfil) => {
+                this.selectedRecepcionista = perfil || {
+                  idUsuario: item.idRecepcionista,
+                  nombre: item.nombreRecepcionista || 'Recepcionista',
+                  apellido: '',
+                  email: ''
+                };
+              },
+              error: () => {
+                this.selectedRecepcionista = {
+                  idUsuario: item.idRecepcionista,
+                  nombre: item.nombreRecepcionista || 'Recepcionista',
+                  apellido: '',
+                  email: ''
+                };
+              }
+            });
           }
 
           this.editMetaInfo = {
@@ -174,22 +280,17 @@ export class PhysicalHistoryFormComponent implements OnInit {
       }
     });
   }
-
-  // --- MÉTODOS AUXILIARES DE FOTO CLOUDINARY (`fotoUrl`), ROL Y BADGES ---
+  
+  // --- AUXILIARES Y FOTOS ---
 
   getUserFoto(user: any): string | null {
     if (!user) return null;
 
-    // Se agrega fotoUrl que es como viene en UserProfile
-    let rawUrl = 
+    let rawUrl =
       user.fotoUrl ||
-      user.fotoPerfil || 
-      user.foto || 
-      user.avatar || 
-      user.imagen || 
-      user.profilePicture ||
-      user.perfil?.fotoUrl ||
-      user.perfil?.fotoPerfil ||
+      user.fotoPerfil ||
+      user.foto ||
+      user.avatar ||
       null;
 
     if (!rawUrl || typeof rawUrl !== 'string') return null;
@@ -228,14 +329,14 @@ export class PhysicalHistoryFormComponent implements OnInit {
     return 'rol-default';
   }
 
-  // --- LÓGICA DE MODAL Y SELECCIÓN DE USUARIO A EVALUAR ---
+  // --- SELECCIÓN Y MODAL DE USUARIO (SOCIO) ---
 
   abrirModalSocio(): void {
     if (this.isEditMode) return;
     this.searchSocio = '';
-    this.sociosFiltradosModal = [...this.socios];
-    this.paginaSocioModalActual = 1;
+    this.paginaSocioModalActual = 0;
     this.showSocioModal = true;
+    this.cargarSociosModal();
   }
 
   cerrarModalSocio(): void {
@@ -243,33 +344,44 @@ export class PhysicalHistoryFormComponent implements OnInit {
   }
 
   filtrarSociosModal(): void {
-    const term = this.searchSocio.toLowerCase().trim();
-    if (!term) {
-      this.sociosFiltradosModal = [...this.socios];
-    } else {
-      this.sociosFiltradosModal = this.socios.filter(
-        u =>
-          u.nombre?.toLowerCase().includes(term) ||
-          u.apellido?.toLowerCase().includes(term) ||
-          (u.telefono && u.telefono.includes(term)) ||
-          u.email?.toLowerCase().includes(term)
-      );
+    this.paginaSocioModalActual = 0;
+    this.cargarSociosModal();
+  }
+
+  irPaginaSocioModal(pZeroBased: number): void {
+    if (pZeroBased !== this.paginaSocioModalActual && pZeroBased >= 0 && pZeroBased < this.totalPaginasSocioModal) {
+      this.paginaSocioModalActual = pZeroBased;
+      this.cargarSociosModal();
     }
-    this.paginaSocioModalActual = 1;
   }
 
-  get sociosPaginados(): any[] {
-    const inicio = (this.paginaSocioModalActual - 1) * this.itemsPorPaginaSocioModal;
-    return this.sociosFiltradosModal.slice(inicio, inicio + this.itemsPorPaginaSocioModal);
+  paginaAnteriorSocioModal(): void {
+    if (this.paginaSocioModalActual > 0) {
+      this.irPaginaSocioModal(this.paginaSocioModalActual - 1);
+    }
   }
 
-  get totalPaginasSocioModal(): number {
-    return Math.ceil(this.sociosFiltradosModal.length / this.itemsPorPaginaSocioModal) || 1;
+  paginaSiguienteSocioModal(): void {
+    if (this.paginaSocioModalActual < this.totalPaginasSocioModal - 1) {
+      this.irPaginaSocioModal(this.paginaSocioModalActual + 1);
+    }
   }
 
   get paginasVisiblesSocioModal(): number[] {
-    const total = this.totalPaginasSocioModal;
-    return Array.from({ length: total }, (_, i) => i + 1);
+    const maxVisibles = 4;
+    let inicio = Math.max(0, this.paginaSocioModalActual - 1);
+    let fin = inicio + maxVisibles;
+
+    if (fin > this.totalPaginasSocioModal) {
+      fin = this.totalPaginasSocioModal;
+      inicio = Math.max(0, fin - maxVisibles);
+    }
+
+    const paginas: number[] = [];
+    for (let i = inicio; i < fin; i++) {
+      paginas.push(i);
+    }
+    return paginas;
   }
 
   seleccionarSocioModal(socio: any): void {
@@ -281,7 +393,7 @@ export class PhysicalHistoryFormComponent implements OnInit {
     Swal.fire({
       icon: 'success',
       title: 'Usuario seleccionado',
-      text: `${socio.nombre} ${socio.apellido} ha sido asignado para evaluación.`,
+      text: `${socio.nombre} ${socio.apellido || ''} ha sido asignado para evaluación.`,
       timer: 1400,
       showConfirmButton: false,
     });
@@ -293,14 +405,14 @@ export class PhysicalHistoryFormComponent implements OnInit {
     this.form.patchValue({ idSocio: null });
   }
 
-  // --- LÓGICA DE MODAL Y SELECCIÓN DE RECEPCIONISTA / ENTRENADOR ---
+  // --- SELECCIÓN Y MODAL DE ENCARGADO (RECEPCIONISTA) ---
 
   abrirModalRecepcionista(): void {
     if (this.isEditMode) return;
     this.searchRecepcionista = '';
-    this.recepcionistasFiltradosModal = [...this.recepcionistas];
-    this.paginaRecepcionistaModalActual = 1;
+    this.paginaRecepcionistaModalActual = 0;
     this.showRecepcionistaModal = true;
+    this.cargarRecepcionistasModal();
   }
 
   cerrarModalRecepcionista(): void {
@@ -308,33 +420,44 @@ export class PhysicalHistoryFormComponent implements OnInit {
   }
 
   filtrarRecepcionistasModal(): void {
-    const term = this.searchRecepcionista.toLowerCase().trim();
-    if (!term) {
-      this.recepcionistasFiltradosModal = [...this.recepcionistas];
-    } else {
-      this.recepcionistasFiltradosModal = this.recepcionistas.filter(
-        u =>
-          u.nombre?.toLowerCase().includes(term) ||
-          u.apellido?.toLowerCase().includes(term) ||
-          (u.telefono && u.telefono.includes(term)) ||
-          u.email?.toLowerCase().includes(term)
-      );
+    this.paginaRecepcionistaModalActual = 0;
+    this.cargarRecepcionistasModal();
+  }
+
+  irPaginaRecepcionistaModal(pZeroBased: number): void {
+    if (pZeroBased !== this.paginaRecepcionistaModalActual && pZeroBased >= 0 && pZeroBased < this.totalPaginasRecepcionistaModal) {
+      this.paginaRecepcionistaModalActual = pZeroBased;
+      this.cargarRecepcionistasModal();
     }
-    this.paginaRecepcionistaModalActual = 1;
   }
 
-  get recepcionistasPaginados(): any[] {
-    const inicio = (this.paginaRecepcionistaModalActual - 1) * this.itemsPorPaginaRecepcionistaModal;
-    return this.recepcionistasFiltradosModal.slice(inicio, inicio + this.itemsPorPaginaRecepcionistaModal);
+  paginaAnteriorRecepcionistaModal(): void {
+    if (this.paginaRecepcionistaModalActual > 0) {
+      this.irPaginaRecepcionistaModal(this.paginaRecepcionistaModalActual - 1);
+    }
   }
 
-  get totalPaginasRecepcionistaModal(): number {
-    return Math.ceil(this.recepcionistasFiltradosModal.length / this.itemsPorPaginaRecepcionistaModal) || 1;
+  paginaSiguienteRecepcionistaModal(): void {
+    if (this.paginaRecepcionistaModalActual < this.totalPaginasRecepcionistaModal - 1) {
+      this.irPaginaRecepcionistaModal(this.paginaRecepcionistaModalActual + 1);
+    }
   }
 
   get paginasVisiblesRecepcionistaModal(): number[] {
-    const total = this.totalPaginasRecepcionistaModal;
-    return Array.from({ length: total }, (_, i) => i + 1);
+    const maxVisibles = 4;
+    let inicio = Math.max(0, this.paginaRecepcionistaModalActual - 1);
+    let fin = inicio + maxVisibles;
+
+    if (fin > this.totalPaginasRecepcionistaModal) {
+      fin = this.totalPaginasRecepcionistaModal;
+      inicio = Math.max(0, fin - maxVisibles);
+    }
+
+    const paginas: number[] = [];
+    for (let i = inicio; i < fin; i++) {
+      paginas.push(i);
+    }
+    return paginas;
   }
 
   seleccionarRecepcionistaModal(recepcionista: any): void {
@@ -346,7 +469,7 @@ export class PhysicalHistoryFormComponent implements OnInit {
     Swal.fire({
       icon: 'success',
       title: 'Encargado asignado',
-      text: `${recepcionista.nombre} ${recepcionista.apellido} ha sido asignado.`,
+      text: `${recepcionista.nombre} ${recepcionista.apellido || ''} ha sido asignado.`,
       timer: 1400,
       showConfirmButton: false,
     });
@@ -358,7 +481,7 @@ export class PhysicalHistoryFormComponent implements OnInit {
     this.form.patchValue({ idRecepcionista: null });
   }
 
-  // --- ENVÍO DE FORMULARIO ---
+  // --- ENVÍO DEL FORMULARIO ---
 
   onSubmit(): void {
     if (this.form.invalid) {

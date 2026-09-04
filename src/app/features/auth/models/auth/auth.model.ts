@@ -52,15 +52,25 @@ export interface Credencial {
   rol: string;
   estado: boolean;
   fechaRegistro?: string;
+  fotoUrl?: string;
+  avatarUrl?: string;
+  foto?: string;
 }
 
 export interface RespuestaPaginadaCredenciales {
-  contenido: Credencial[];
-  numeroPagina: number;
-  tamanioPagina: number;
-  totalElementos: number;
-  totalPaginas: number;
-  ultima: boolean;
+  content?: Credencial[];
+  contenido?: Credencial[];
+  currentPage?: number;
+  number?: number;
+  numeroPagina?: number;
+  size?: number;
+  tamanioPagina?: number;
+  totalElements?: number;
+  totalElementos?: number;
+  totalPages?: number;
+  totalPaginas?: number;
+  last?: boolean;
+  ultima?: boolean;
 }
 
 export enum RolUsuario {
@@ -68,4 +78,16 @@ export enum RolUsuario {
   ENTRENADOR = 'entrenador',
   RECEPCIONISTA = 'recepcionista',
   USER = 'socio'
+}
+
+export interface FiltrosUsuarios {
+  page?: number;
+  size?: number;
+  ordenarPor?: string;
+  direccion?: string;
+  rol?: string;
+  activo?: boolean;
+  username?: string;
+  email?: string;
+  busqueda?: string;
 }

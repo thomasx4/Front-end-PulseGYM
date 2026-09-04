@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { MembershipService } from '../../../../core/services/membership.service';
-import Swal from 'sweetalert2';
+import { FiltrosSociosMembresias, MembershipService, PageResponse, SocioAsignado } from '../../../../core/services/membership.service';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { UserService } from '../../../../core/services/user.service';
 
 export interface Plan {
   id: number;
@@ -37,7 +39,7 @@ export interface Miembro {
   incluyeIA?: boolean;
   esFlexible?: boolean;
   idMembresia?: number;
-  fotoUrl?: string;
+  fotoUrl?: string | null;
 }
 
 @Component({
@@ -46,183 +48,125 @@ export interface Miembro {
   styleUrls: ['./membership-list.component.scss']
 })
 export class MembershipListComponent implements OnInit {
-  planes: Plan[] = [];
+  // Datos Planes
+  todosLosPlanes: Plan[] = [];
   planesFiltrados: Plan[] = [];
+  planes: Plan[] = [];
 
+  // Miembros
   miembros: Miembro[] = [];
-  miembrosFiltradosList: Miembro[] = [];
 
-  loading: boolean = false;
+  loadingPlanes: boolean = false;
+  loadingTabla: boolean = false;
 
+  // Filtros Planes
   searchTermPlan: string = '';
   filtroPlanTipo: string = 'todos';
   filtroPlanFlexible: string = 'todos';
 
+  // Paginación Planes
+  paginaPlanesActual: number = 0;
+  itemsPorPaginaPlanes: number = 6;
+  totalPaginasPlanes: number = 1;
+
+  // Filtros Socios
   searchTerm: string = '';
   filtroIA: string = 'todos';
   filtroFlexible: string = 'todos';
   filtroMembresia: string = 'todos';
 
-  paginaPlanesActual: number = 1;
-  itemsPorPaginaPlanes: number = 6;
-  totalPaginasPlanesServer: number = 1;
-  totalElementsPlanes: number = 0;
-
-  paginaActual: number = 1;
+  // Paginación Socios
+  paginaActual: number = 0;
   itemsPorPagina: number = 6;
+  totalPaginas: number = 1;
+  totalElementos: number = 0;
 
+  // 👇 AGREGADO PARA AVATARES
   avatarErrors: Set<number> = new Set<number>();
 
   constructor(
     private router: Router,
-    private membershipService: MembershipService
+    private membershipService: MembershipService,
+    private userService: UserService 
   ) { }
 
   ngOnInit(): void {
-    this.cargarDatosDashboard(this.paginaPlanesActual - 1);
+    this.cargarPlanes();
+    this.cargarTablaMiembros();
   }
 
-  cargarDatosDashboard(page: number = 0): void {
-    this.loading = true;
+  cargarPlanes(): void {
+    this.loadingPlanes = true;
 
-    this.membershipService.getDashboardMembresias(page, this.itemsPorPaginaPlanes).subscribe({
-      next: (dashboardData: any) => {
-        const membresiasPaginadas = dashboardData?.membresiasPaginadas || {};
-        const contentMembresias = membresiasPaginadas.content || [];
-        const usuariosActivos = dashboardData?.usuariosActivos || [];
-
-        this.totalPaginasPlanesServer = membresiasPaginadas.totalPages || 1;
-        this.totalElementsPlanes = membresiasPaginadas.totalElements || 0;
-
-        const fotosUsuariosMap = new Map<number, string>();
-        if (Array.isArray(usuariosActivos)) {
-          usuariosActivos.forEach((u: any) => {
-            const id = u.idUsuario || u.id;
-            const foto = u.fotoUrl || u.fotoPerfil || u.foto || u.avatar;
-            if (id && foto) {
-              fotosUsuariosMap.set(Number(id), foto);
-            }
-          });
+    this.membershipService.getMembresias({ tamanio: 100 }).subscribe({
+      next: (res) => {
+        let rawList: any[] = [];
+        if (Array.isArray(res)) {
+          rawList = res;
+        } else if (res?.content && Array.isArray(res.content)) {
+          rawList = res.content;
         }
 
-        this.planes = contentMembresias.map((item: any) => ({
-          id: item.idMembresia,
+        this.todosLosPlanes = rawList.map((item: any) => ({
+          id: item.idMembresia || item.id,
           nombre: item.nombre || 'Sin Nombre',
-          precio: item.precioTotal || 0,
+          precio: item.precioTotal || item.precio || 0,
           badge: item.incluyeIA ? 'PREMIUM' : 'STANDARD',
           badgeClass: item.incluyeIA ? 'badge-elite' : 'badge-essential',
-          beneficios: item.beneficios ? item.beneficios.split(',').map((b: string) => b.trim()) : ['Sin beneficios especificados'],
+          beneficios: this.parseBeneficios(item.beneficios),
           accion: 'Ver Detalle',
           incluyeIA: !!item.incluyeIA,
           esFlexible: !!item.esFlexible,
-          totalSociosAsignados: item.totalSociosAsignados || (item.sociosAsignados ? item.sociosAsignados.length : 0)
+          totalSociosAsignados: item.sociosAsignados?.length || item.totalSociosAsignados || 0
         }));
 
-        this.miembros = [];
-        contentMembresias.forEach((membresia: any) => {
-          if (membresia.sociosAsignados && membresia.sociosAsignados.length > 0) {
-            membresia.sociosAsignados.forEach((socio: any) => {
-              const idSocioNum = Number(socio.idSocio);
-              const dias = socio.diasRestantes ?? 0;
-              const fotoEncontrada = socio.fotoUrl || socio.fotoPerfil || socio.foto || socio.avatar || fotosUsuariosMap.get(idSocioNum) || null;
-
-              this.miembros.push({
-                id: socio.idSocio,
-                nombre: socio.nombreCompleto?.split(' ')[0] || 'Usuario',
-                apellido: socio.nombreCompleto?.split(' ').slice(1).join(' ') || '',
-                email: socio.email || 'Sin correo',
-                telefono: socio.telefono || 'N/A',
-                plan: membresia.nombre,
-                planClass: membresia.incluyeIA ? 'tier-elite' : 'tier-essential',
-                joinDate: socio.fechaInicio ? new Date(socio.fechaInicio).toLocaleDateString('es-ES', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A',
-                status: socio.estado === 'ACTIVA' ? 'Activa' : 'Inactiva',
-                statusClass: socio.estado === 'ACTIVA' ? 'active' : 'cancelled',
-                nextBilling: socio.fechaVencimiento ? new Date(socio.fechaVencimiento).toLocaleDateString('es-ES', { month: 'short', day: 'numeric', year: 'numeric' }) : '--',
-                nombreMembresia: membresia.nombre,
-                fechaInicio: socio.fechaInicio,
-                fechaFin: socio.fechaVencimiento,
-                estado: socio.estado === 'ACTIVA' ? 'Activo' : 'Inactivo',
-                diasRestantes: dias,
-                diasClass: dias <= 3 ? 'urgente' : (dias <= 7 ? 'alerta' : ''),
-                incluyeIA: membresia.incluyeIA,
-                esFlexible: membresia.esFlexible,
-                idMembresia: membresia.idMembresia,
-                fotoUrl: fotoEncontrada
-              });
-            });
-          }
-        });
-
         this.aplicarFiltrosPlanes();
-        this.aplicarFiltrosTabla();
-        this.loading = false;
+        this.loadingPlanes = false;
       },
-      error: (error: any) => {
-        console.error('Error al cargar datos del dashboard:', error);
-        this.loading = false;
-        Swal.fire({
-          title: 'Error',
-          text: 'No se pudieron cargar los datos del dashboard de membresías',
-          icon: 'error',
-          confirmButtonColor: '#0c1838'
-        });
+      error: (err) => {
+        console.error('Error al cargar planes:', err);
+        this.loadingPlanes = false;
       }
     });
   }
 
-  // --- HELPER DE FOTOS DE PERFIL ---
-
-  getMiembroFoto(miembro: Miembro): string | null {
-    if (!miembro || !miembro.fotoUrl) return null;
-
-    let rawUrl = String(miembro.fotoUrl).trim();
-    if (rawUrl === '' || rawUrl === 'null' || rawUrl === 'undefined') return null;
-
-    if (rawUrl.startsWith('//')) {
-      return `https:${rawUrl}`;
+  private parseBeneficios(beneficios: any): string[] {
+    if (!beneficios) return ['Sin beneficios especificados'];
+    if (typeof beneficios === 'string') {
+      return beneficios.split(',').map((b: string) => b.trim());
     }
-
-    return rawUrl;
+    return Array.isArray(beneficios) ? beneficios : [beneficios];
   }
 
-  onAvatarError(idSocio: number): void {
-    if (idSocio) {
-      this.avatarErrors.add(idSocio);
-    }
-  }
-
-  hasAvatarError(idSocio: number): boolean {
-    return this.avatarErrors.has(idSocio);
-  }
-
-  getInitials(nombre?: string, apellido?: string): string {
-    const n = nombre ? nombre.trim().charAt(0) : '?';
-    const a = apellido ? apellido.trim().charAt(0) : '';
-    return (n + a).toUpperCase() || '?';
-  }
-
-  // FILTROS PLANES
   aplicarFiltrosPlanes(): void {
-    let filtrados = [...this.planes];
+    let result = [...this.todosLosPlanes];
 
     if (this.filtroPlanTipo === 'premium') {
-      filtrados = filtrados.filter(p => p.incluyeIA === true);
+      result = result.filter(p => p.incluyeIA);
     } else if (this.filtroPlanTipo === 'standard') {
-      filtrados = filtrados.filter(p => p.incluyeIA === false);
+      result = result.filter(p => !p.incluyeIA);
     }
 
     if (this.filtroPlanFlexible === 'flexible') {
-      filtrados = filtrados.filter(p => p.esFlexible === true);
+      result = result.filter(p => p.esFlexible);
     } else if (this.filtroPlanFlexible === 'noFlexible') {
-      filtrados = filtrados.filter(p => p.esFlexible === false);
+      result = result.filter(p => !p.esFlexible);
     }
 
     if (this.searchTermPlan.trim()) {
-      const term = this.searchTermPlan.toLowerCase().trim();
-      filtrados = filtrados.filter(p => p.nombre.toLowerCase().includes(term));
+      const term = this.searchTermPlan.trim().toLowerCase();
+      result = result.filter(p => p.nombre.toLowerCase().includes(term));
     }
 
-    this.planesFiltrados = filtrados;
+    this.planesFiltrados = result;
+    this.paginaPlanesActual = 0;
+    this.actualizarPaginacionPlanes();
+  }
+
+  actualizarPaginacionPlanes(): void {
+    this.totalPaginasPlanes = Math.ceil(this.planesFiltrados.length / this.itemsPorPaginaPlanes) || 1;
+    const inicio = this.paginaPlanesActual * this.itemsPorPaginaPlanes;
+    this.planes = this.planesFiltrados.slice(inicio, inicio + this.itemsPorPaginaPlanes);
   }
 
   limpiarFiltrosPlanes(): void {
@@ -232,39 +176,112 @@ export class MembershipListComponent implements OnInit {
     this.aplicarFiltrosPlanes();
   }
 
-  // FILTROS TABLA SOCIOS
+  cambiarPaginaPlanes(pagina: number): void {
+    if (pagina >= 0 && pagina < this.totalPaginasPlanes) {
+      this.paginaPlanesActual = pagina;
+      this.actualizarPaginacionPlanes();
+    }
+  }
+
+  paginaPlanesAnterior(): void {
+    if (this.paginaPlanesActual > 0) {
+      this.paginaPlanesActual--;
+      this.actualizarPaginacionPlanes();
+    }
+  }
+
+  paginaPlanesSiguiente(): void {
+    if (this.paginaPlanesActual < this.totalPaginasPlanes - 1) {
+      this.paginaPlanesActual++;
+      this.actualizarPaginacionPlanes();
+    }
+  }
+
+  get paginasPlanes(): number[] {
+    return Array.from({ length: this.totalPaginasPlanes }, (_, i) => i);
+  }
+
+cargarTablaMiembros(): void {
+  this.loadingTabla = true;
+
+  const filtros: FiltrosSociosMembresias = {
+    pagina: this.paginaActual,
+    tamanio: this.itemsPorPagina,
+    busqueda: this.searchTerm.trim() || undefined,
+    incluyeIA: this.filtroIA === 'conIA' ? true : (this.filtroIA === 'sinIA' ? false : undefined),
+    esFlexible: this.filtroFlexible === 'flexible' ? true : (this.filtroFlexible === 'noFlexible' ? false : undefined),
+    idMembresia: this.filtroMembresia !== 'todos' ? Number(this.filtroMembresia) : undefined
+  };
+
+  forkJoin({
+    socios: this.membershipService.getSociosActivosPaginadosServer(filtros),
+    usuarios: this.userService.listarPerfilesPaginados({ tamanio: 100 }).pipe(catchError(() => of({ content: [] })))
+  }).subscribe({
+    next: ({ socios, usuarios }) => {
+      const listaUsuarios = usuarios?.content || [];
+
+      const fotosMap = new Map<number, string>();
+      if (Array.isArray(listaUsuarios)) {
+        listaUsuarios.forEach((u: any) => {
+          const id = Number(u.idUsuario || u.id);
+          const foto = u.fotoUrl || u.fotoPerfil || u.foto || u.avatar;
+          if (id && foto) {
+            fotosMap.set(id, foto);
+          }
+        });
+      }
+
+      this.totalPaginas = socios.totalPages || 1;
+      this.totalElementos = socios.totalElements || 0;
+      this.paginaActual = socios.number || 0;
+
+      this.miembros = socios.content.map((socio: SocioAsignado) => {
+        const membresia = socio.membresia || socio as any;
+        const dias = socio.diasRestantes ?? 0;
+        
+        const idSocioNum = Number(socio.idSocio);
+        const fotoUrlFinal = fotosMap.get(idSocioNum) || socio.fotoUrl || null;
+        
+        return {
+          id: idSocioNum,
+          nombre: socio.nombreCompleto?.split(' ')[0] || 'Usuario',
+          apellido: socio.nombreCompleto?.split(' ').slice(1).join(' ') || '',
+          email: socio.email || 'Sin correo',
+          telefono: socio.telefono || 'N/A',
+          plan: membresia?.nombre || socio.tipoMembresiaDescripcion || 'Sin plan',
+          planClass: membresia?.incluyeIA ? 'tier-elite' : 'tier-essential',
+          joinDate: socio.fechaInicio ? new Date(socio.fechaInicio).toLocaleDateString('es-ES', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A',
+          status: socio.estado === 'ACTIVA' ? 'Activa' : 'Inactiva',
+          statusClass: socio.estado === 'ACTIVA' ? 'active' : 'cancelled',
+          nextBilling: socio.fechaVencimiento ? new Date(socio.fechaVencimiento).toLocaleDateString('es-ES', { month: 'short', day: 'numeric', year: 'numeric' }) : '--',
+          nombreMembresia: membresia?.nombre || socio.tipoMembresiaDescripcion,
+          fechaInicio: socio.fechaInicio,
+          fechaFin: socio.fechaVencimiento,
+          estado: socio.estado === 'ACTIVA' ? 'Activo' : 'Inactivo',
+          diasRestantes: dias,
+          diasClass: dias <= 3 ? 'urgente' : (dias <= 7 ? 'alerta' : ''),
+          incluyeIA: !!membresia?.incluyeIA,
+          esFlexible: !!membresia?.esFlexible || socio.esFlexible || false,
+          idMembresia: membresia?.idMembresia || 0,
+          fotoUrl: fotoUrlFinal
+        };
+      });
+
+      this.loadingTabla = false;
+    },
+    error: (err) => {
+      console.error('Error al cargar socios paginados:', err);
+      this.miembros = [];
+      this.totalElementos = 0;
+      this.totalPaginas = 0;
+      this.loadingTabla = false;
+    }
+  });
+}
+
   aplicarFiltrosTabla(): void {
-    let filtrados = [...this.miembros];
-
-    if (this.filtroIA === 'conIA') {
-      filtrados = filtrados.filter(m => m.incluyeIA === true);
-    } else if (this.filtroIA === 'sinIA') {
-      filtrados = filtrados.filter(m => m.incluyeIA === false);
-    }
-
-    if (this.filtroFlexible === 'flexible') {
-      filtrados = filtrados.filter(m => m.esFlexible === true);
-    } else if (this.filtroFlexible === 'noFlexible') {
-      filtrados = filtrados.filter(m => m.esFlexible === false);
-    }
-
-    if (this.filtroMembresia !== 'todos') {
-      filtrados = filtrados.filter(m => m.idMembresia === +this.filtroMembresia);
-    }
-
-    if (this.searchTerm.trim()) {
-      const term = this.searchTerm.toLowerCase().trim();
-      filtrados = filtrados.filter(m =>
-        m.nombre.toLowerCase().includes(term) ||
-        m.apellido.toLowerCase().includes(term) ||
-        `${m.nombre} ${m.apellido}`.toLowerCase().includes(term) ||
-        m.email.toLowerCase().includes(term) ||
-        m.plan.toLowerCase().includes(term)
-      );
-    }
-
-    this.miembrosFiltradosList = filtrados;
-    this.paginaActual = 1;
+    this.paginaActual = 0;
+    this.cargarTablaMiembros();
   }
 
   limpiarFiltros(): void {
@@ -275,83 +292,67 @@ export class MembershipListComponent implements OnInit {
     this.aplicarFiltrosTabla();
   }
 
-  // PAGINACIÓN BD PLANES
-  get totalPaginasPlanes(): number {
-    return this.totalPaginasPlanesServer;
-  }
-
-  get paginasPlanes(): number[] {
-    return Array.from({ length: this.totalPaginasPlanes }, (_, i) => i + 1);
-  }
-
-  get planesPaginados(): Plan[] {
-    return this.planesFiltrados;
-  }
-
-  cambiarPaginaPlanes(pagina: number): void {
-    if (pagina >= 1 && pagina <= this.totalPaginasPlanes) {
-      this.paginaPlanesActual = pagina;
-      this.cargarDatosDashboard(pagina - 1);
-    }
-  }
-
-  paginaPlanesAnterior(): void {
-    if (this.paginaPlanesActual > 1) {
-      this.paginaPlanesActual--;
-      this.cargarDatosDashboard(this.paginaPlanesActual - 1);
-    }
-  }
-
-  paginaPlanesSiguiente(): void {
-    if (this.paginaPlanesActual < this.totalPaginasPlanes) {
-      this.paginaPlanesActual++;
-      this.cargarDatosDashboard(this.paginaPlanesActual - 1);
-    }
-  }
-
-  // PAGINACIÓN SOCIOS
-  get totalPaginas(): number {
-    return Math.ceil(this.miembrosFiltradosList.length / this.itemsPorPagina) || 1;
-  }
-
-  get paginas(): number[] {
-    const total = this.totalPaginas;
-    const maxVisible = 5;
-    let start = Math.max(1, this.paginaActual - Math.floor(maxVisible / 2));
-    let end = Math.min(total, start + maxVisible - 1);
-    if (end - start < maxVisible - 1) {
-      start = Math.max(1, end - maxVisible + 1);
-    }
-    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
-  }
-
-  get inicio(): number {
-    return (this.paginaActual - 1) * this.itemsPorPagina;
-  }
-
-  get fin(): number {
-    return Math.min(this.inicio + this.itemsPorPagina, this.miembrosFiltradosList.length);
-  }
-
-  get miembrosPaginados(): Miembro[] {
-    return this.miembrosFiltradosList.slice(this.inicio, this.fin);
-  }
-
   irPagina(pagina: number): void {
-    if (pagina >= 1 && pagina <= this.totalPaginas) {
+    if (pagina >= 0 && pagina < this.totalPaginas && pagina !== this.paginaActual) {
       this.paginaActual = pagina;
+      this.cargarTablaMiembros();
     }
   }
 
   paginaAnterior(): void {
-    if (this.paginaActual > 1) this.paginaActual--;
+    if (this.paginaActual > 0) {
+      this.paginaActual--;
+      this.cargarTablaMiembros();
+    }
   }
 
   paginaSiguiente(): void {
-    if (this.paginaActual < this.totalPaginas) this.paginaActual++;
+    if (this.paginaActual < this.totalPaginas - 1) {
+      this.paginaActual++;
+      this.cargarTablaMiembros();
+    }
   }
 
-  // NAVEGACIÓN Y ACCIONES
+  get inicio(): number {
+    return this.totalElementos === 0 ? 0 : this.paginaActual * this.itemsPorPagina + 1;
+  }
+
+  get fin(): number {
+    return Math.min((this.paginaActual + 1) * this.itemsPorPagina, this.totalElementos);
+  }
+
+  get paginas(): number[] {
+    const maxVisible = 5;
+    let start = Math.max(0, this.paginaActual - Math.floor(maxVisible / 2));
+    let end = Math.min(this.totalPaginas, start + maxVisible);
+
+    if (end - start < maxVisible) {
+      start = Math.max(0, end - maxVisible);
+    }
+    return Array.from({ length: end - start }, (_, i) => start + i);
+  }
+
+  getMiembroFoto(miembro: Miembro): string | null {
+    if (!miembro) return null;
+    return miembro.fotoUrl || null;
+  }
+
+  onAvatarError(id: number): void {
+    if (id) {
+      this.avatarErrors.add(id);
+    }
+  }
+
+  hasAvatarError(id: number): boolean {
+    return this.avatarErrors.has(id);
+  }
+
+  getInitials(nombre?: string, apellido?: string): string {
+    const n = nombre ? nombre.trim().charAt(0) : '?';
+    const a = apellido ? apellido.trim().charAt(0) : '';
+    return (n + a).toUpperCase() || '?';
+  }
+
   crearNuevaMembresia(): void {
     this.router.navigate(['/dashboard-admin/memberships/new']);
   }
@@ -363,4 +364,6 @@ export class MembershipListComponent implements OnInit {
   verDetallePlan(plan: Plan): void {
     this.router.navigate(['/dashboard-admin/memberships/detail', plan.id]);
   }
+
+  
 }

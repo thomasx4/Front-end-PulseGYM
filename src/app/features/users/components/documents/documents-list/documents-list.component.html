@@ -1,5 +1,4 @@
 <div class="documents-container">
-    <!-- HEADER -->
     <header class="page-header">
         <div>
             <h1 class="page-title">Documentos Legales</h1>
@@ -14,7 +13,6 @@
         </button>
     </header>
 
-    <!-- MÉTRICAS ORGANIZADAS EN 2 COLUMNAS -->
     <div class="metrics-grid">
         <div class="metric-card metric-card--activos">
             <div class="metric-icon">
@@ -47,17 +45,17 @@
     </div>
 
     <!-- FILTROS -->
-    <div class="filters-section">
+    <div class="filters-section" *ngIf="!loading">
         <div class="filters-row">
             <div class="filter-group">
-                <input type="text" placeholder="Buscar por socio..." [(ngModel)]="filtros.search" (input)="aplicarFiltros()" />
+                <input type="text" placeholder="Buscar por socio o documento..." [(ngModel)]="searchTerm" (keyup.enter)="aplicarFiltros()" />
                 <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="11" cy="11" r="8" />
                     <line x1="21" y1="21" x2="16.65" y2="16.65" />
                 </svg>
             </div>
             <div class="filter-group">
-                <select [(ngModel)]="filtros.tipoDocumento" (change)="aplicarFiltros()">
+                <select [(ngModel)]="filtroTipo" (change)="aplicarFiltros()">
                     <option value="todos">Todos los tipos</option>
                     <option *ngFor="let tipo of tiposDocumento" [value]="tipo">
                         {{ getTipoDocumentoLabel(tipo) }}
@@ -65,7 +63,7 @@
                 </select>
             </div>
             <div class="filter-group">
-                <select [(ngModel)]="filtros.estado" (change)="aplicarFiltros()">
+                <select [(ngModel)]="filtroEstado" (change)="aplicarFiltros()">
                     <option value="todos">Todos los estados</option>
                     <option value="VIGENTE">Vigente</option>
                     <option value="VENCIDO">Vencido</option>
@@ -83,7 +81,11 @@
 
     <!-- TABLA -->
     <section class="table-card">
-        <div class="table-responsive" *ngIf="documentosPaginados.length > 0">
+        <div *ngIf="errorMensaje" class="alert-error">
+            {{ errorMensaje }}
+        </div>
+
+        <div class="table-responsive" *ngIf="documentos.length > 0">
             <table class="custom-table">
                 <thead>
                     <tr>
@@ -95,7 +97,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let doc of documentosPaginados">
+                    <tr *ngFor="let doc of documentos">
                         <td>
                             <div class="doc-name">
                                 <div class="pdf-icon-badge">
@@ -143,7 +145,7 @@
             </table>
         </div>
 
-        <div *ngIf="documentosFiltrados.length === 0 && !loading" class="empty-state">
+        <div *ngIf="documentos.length === 0 && !loading" class="empty-state">
             <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                 <polyline points="14 2 14 8 20 8" />
@@ -152,13 +154,22 @@
             <span>Prueba ajustando los filtros o crea un nuevo documento.</span>
         </div>
 
-        <!-- PAGINACIÓN -->
+        <!-- PAGINACIÓN CON FORMATO EXACTO A USUARIOS -->
         <footer *ngIf="totalPaginas > 0" class="table-footer">
-            <div class="showing-text">Mostrando <strong>{{ inicio }}</strong> a <strong>{{ fin }}</strong> de <strong>{{ totalElementos }}</strong> documentos</div>
+            <div class="showing-text">
+                Mostrando <strong>{{ inicio }}</strong> a <strong>{{ fin }}</strong> de <strong>{{ totalElementos }}</strong> documentos
+            </div>
+
             <div class="pagination-wrapper">
-                <button class="page-arrow" [disabled]="paginaActual === 1" (click)="paginaAnterior()">‹</button>
-                <button *ngFor="let p of paginasVisibles" class="page-number" [class.active]="p === paginaActual" (click)="irPagina(p)">{{ p }}</button>
-                <button class="page-arrow" [disabled]="paginaActual === totalPaginas" (click)="paginaSiguiente()">›</button>
+                <button class="page-arrow" [disabled]="numeroPagina === 0" (click)="paginaAnterior()">‹</button>
+
+                <button *ngFor="let p of paginasVisibles" class="page-number" [class.active]="p === numeroPagina"
+                    (click)="irPagina(p)">
+                    {{ p + 1 }}
+                </button>
+
+                <button class="page-arrow" [disabled]="numeroPagina >= totalPaginas - 1"
+                    (click)="paginaSiguiente()">›</button>
             </div>
         </footer>
     </section>

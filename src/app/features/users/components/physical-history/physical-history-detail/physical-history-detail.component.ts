@@ -117,7 +117,9 @@ export class PhysicalHistoryDetailComponent implements OnInit, OnDestroy, AfterV
   loadDetail(id: number): void {
     this.loading = true;
     this.physicalHistoryService.getAll().subscribe({
-      next: (records) => {
+      next: (response) => {
+        const records: PhysicalHistory[] = response || [];
+
         const found = records.find(r => r.idHistorialFisico === id);
         if (found) {
           this.record = found;

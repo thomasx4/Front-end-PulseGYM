@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { PhysicalHistory, PhysicalHistoryRequest, PhysicalHistoryEvolutionResponse } from '../models/physical-history';
-import { environment } from '../../../environments/environment';
+import { environment } from '../../../environments/environment.prod';
 
 @Injectable({
   providedIn: 'root'
@@ -10,14 +11,38 @@ import { environment } from '../../../environments/environment';
 export class PhysicalHistoryService {
   private apiUrl = `${environment.apiUrl}/pg-ms-users/api/v1/usuarios/historial-fisico`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getAll(): Observable<PhysicalHistory[]> {
-    return this.http.get<PhysicalHistory[]>(this.apiUrl);
+    return this.http.get<PhysicalHistory[]>(this.apiUrl).pipe(
+      map((items: any[]) => {
+        if (items) {
+          items.forEach(item => {
+            const normalizedId = item.idHistorialFisico || item.id || item.idHistorial;
+            item.idHistorialFisico = normalizedId;
+            item.id = normalizedId;
+            item.idHistorial = normalizedId;
+          });
+        }
+        return items || [];
+      })
+    );
   }
 
   getBySocio(idSocio: number): Observable<PhysicalHistory[]> {
-    return this.http.get<PhysicalHistory[]>(`${this.apiUrl}/socio/${idSocio}`);
+    return this.http.get<PhysicalHistory[]>(`${this.apiUrl}/socio/${idSocio}`).pipe(
+      map((items: any[]) => {
+        if (items) {
+          items.forEach(item => {
+            const normalizedId = item.idHistorialFisico || item.id || item.idHistorial;
+            item.idHistorialFisico = normalizedId;
+            item.id = normalizedId;
+            item.idHistorial = normalizedId;
+          });
+        }
+        return items || [];
+      })
+    );
   }
 
   getEvolucionBySocio(idSocio: number): Observable<PhysicalHistoryEvolutionResponse> {
