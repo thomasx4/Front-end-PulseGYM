@@ -1,7 +1,7 @@
 export interface PhysicalHistory {
     idHistorialFisico: number;
-    id?: number;          
-    idHistorial?: number; 
+    id?: number;
+    idHistorial?: number;
     idSocio: number;
     nombreSocio: string;
     idRecepcionista?: number;
@@ -62,4 +62,26 @@ export interface PhysicalHistoryEvolutionResponse {
     evolucionPeso: PhysicalHistoryEvolutionItem[];
     evolucionGrasa: PhysicalHistoryEvolutionItem[];
     evolucionMusculo: PhysicalHistoryEvolutionItem[];
+}
+
+export interface PageResponse<T> {
+    content: T[];
+    totalElements: number;
+    totalPages: number;
+    size: number;
+    number: number;
+    first: boolean;
+    last: boolean;
+}
+
+export interface SocioSimpleDTO {
+    id: number;
+    nombre: string;
+}
+
+export interface HistorialResumenDTO {
+    totalRecords: number;
+    primeraFecha: string | null;
+    ultimaFecha: string | null;
+    socios: SocioSimpleDTO[];
 }
