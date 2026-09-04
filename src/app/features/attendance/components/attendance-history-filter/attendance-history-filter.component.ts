@@ -10,7 +10,7 @@ export class AttendanceHistoryFilterComponent {
 
   @Output() filterChange = new EventEmitter<FiltrosHistorial>();
 
-  usuarioId: number | null = null;
+  nombreUsuario: string = '';
   fechaDesde: string = '';
   fechaHasta: string = '';
   tipoAcceso: string = '';
@@ -19,8 +19,8 @@ export class AttendanceHistoryFilterComponent {
   aplicarFiltros(): void {
     const filtros: FiltrosHistorial = {};
 
-    if (this.usuarioId !== null && this.usuarioId > 0) {
-      filtros.usuarioId = Number(this.usuarioId);
+    if (this.nombreUsuario && this.nombreUsuario.trim()) {
+      filtros.nombreUsuario = this.nombreUsuario.trim();
     }
 
     if (this.fechaDesde && this.fechaDesde.trim() !== '') {
@@ -43,7 +43,7 @@ export class AttendanceHistoryFilterComponent {
   }
 
   limpiarFiltros(): void {
-    this.usuarioId = null;
+    this.nombreUsuario = '';
     this.fechaDesde = '';
     this.fechaHasta = '';
     this.tipoAcceso = '';

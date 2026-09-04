@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
+import { environment } from '../../../environments/environment.prod';
 import { AsistenciaResponseDTO } from '../../features/attendance/models/attendance.model';
 import { HistorialAccesoResponse, FiltrosHistorial } from '../../features/attendance/models/attendance.model';
 
@@ -33,8 +33,8 @@ export class AttendanceService {
   obtenerHistorialAccesos(filtros: FiltrosHistorial): Observable<HistorialAccesoResponse> {
     let params = new HttpParams();
 
-    if (filtros.usuarioId !== undefined && filtros.usuarioId !== null) {
-      params = params.set('usuarioId', filtros.usuarioId.toString());
+    if (filtros.nombreUsuario && filtros.nombreUsuario.trim() !== '') {
+      params = params.set('nombreUsuario', filtros.nombreUsuario.trim());
     }
     if (filtros.fechaDesde) {
       const fDesde = filtros.fechaDesde.split('T')[0];
