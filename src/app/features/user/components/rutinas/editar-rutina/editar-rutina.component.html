@@ -1,0 +1,338 @@
+<div class="editar-rutina-layout">
+    <app-navbar></app-navbar>
+
+    <div class="editar-rutina-main">
+        <app-header></app-header>
+
+        <div class="editar-rutina-container">
+
+            <!-- Contenido -->
+            <ng-container *ngIf="!isLoading && rutina">
+                <!-- Encabezado de la página -->
+                <header class="top-header">
+                    <div class="header-left">
+                        <a class="back-link" (click)="volver()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="19" y1="12" x2="5" y2="12"></line>
+                                <polyline points="12 19 5 12 12 5"></polyline>
+                            </svg>
+                            Volver a mis rutinas
+                        </a>
+                        <h1>Editar rutina</h1>
+                        <p>Modifica los detalles de tu rutina, ejercicios y estructura semanal.</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn-outline" (click)="volver()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                            Cancelar
+                        </button>
+                        <button class="btn-primary" (click)="guardarCambios()" [disabled]="isLoading">
+                            <ng-container *ngIf="!isLoading">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                Guardar cambios
+                            </ng-container>
+                            <ng-container *ngIf="isLoading">
+                                <span class="spinner-border"></span>
+                                Guardando...
+                            </ng-container>
+                        </button>
+                    </div>
+                </header>
+
+                <!-- Hero Card Banner - Modo Edición -->
+                <section class="hero-card">
+                    <div class="hero-content">
+                        <div class="main-info">
+                            <div class="title-row">
+                                <div class="icon-avatar logo-avatar">
+                                    <img src="../../../../../../favicon.ico" alt="Pulse GYM" class="logo-img">
+                                </div>
+                                <input class="title-input" type="text" [(ngModel)]="rutina.nombre" placeholder="Nombre de la rutina">
+                            </div>
+                            <textarea class="description-textarea" [(ngModel)]="rutina.descripcion" rows="3" placeholder="Descripción de la rutina"></textarea>
+
+                            <div class="pills-row">
+                                <span class="pill">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                                    </svg>
+                                    {{ totalDiasConEjercicios }} dias por semana
+                                </span>
+                                <span class="pill">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <polyline points="12 6 12 12 16 14"></polyline>
+                                    </svg>
+                                    {{ totalEjercicios }} ejercicios
+                                </span>
+                                <span class="pill" *ngIf="rutina.generadaPorIA">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M12 2a10 10 0 1 0 10 10 10 10 0 0 0-10-10z"/>
+                                        <path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12z"/>
+                                        <path d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/>
+                                    </svg>
+                                    Generada por IA
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="metadata-column">
+                            <div class="meta-item">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                                </svg>
+                                <div>
+                                    <span class="meta-label">Creado el</span>
+                                    <strong class="meta-value">{{ rutina.fechaGeneracion | date:'dd MMM yyyy' }}</strong>
+                                </div>
+                            </div>
+
+                            <div class="meta-item">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                                <div>
+                                    <span class="meta-label">Version</span>
+                                    <strong class="meta-value">v{{ rutina.version }}</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Layout Principal de 2 Columnas -->
+                <main class="main-grid">
+                    <!-- Columna Izquierda: Estructura de Días -->
+                    <section class="content-card structure-section">
+                        <div class="section-header">
+                            <div class="title-with-icon">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="8" y1="6" x2="21" y2="6"></line>
+                                    <line x1="8" y1="12" x2="21" y2="12"></line>
+                                    <line x1="8" y1="18" x2="21" y2="18"></line>
+                                    <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                                    <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                                    <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                                </svg>
+                                <h3>Estructura de la rutina</h3>
+                            </div>
+                            <span class="pill-tag">{{ totalDiasConEjercicios }} dias</span>
+                        </div>
+
+                        <div class="days-list">
+                            <div class="day-item" *ngFor="let dia of dias; let i = index">
+                                <!-- Header del día -->
+                                <div class="day-row" (click)="toggleDia(i)">
+                                    <div class="day-left">
+                                        <div class="day-badge logo-badge">
+                                            <img src="../../../../../../favicon.ico" alt="Pulse GYM" class="badge-logo">
+                                        </div>
+                                        <div class="day-details">
+                                            <h4>{{ dia.nombre }}</h4>
+                                            <p>{{ dia.enfoque }}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="day-right">
+                                        <span class="meta-count">
+                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M6.5 6.5h11M6.5 17.5h11M2 12h20M4 7v10M20 7v10" />
+                                            </svg>
+                                            {{ dia.ejerciciosCount }} ejercicios
+                                        </span>
+                                        <span class="meta-duration">
+                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <circle cx="12" cy="12" r="10"></circle>
+                                                <polyline points="12 6 12 12 16 14"></polyline>
+                                            </svg>
+                                            {{ dia.duracionMin }} min
+                                        </span>
+                                        <div class="chevron-btn" [class.rotated]="diaExpandido === i">
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <polyline points="6 9 12 15 18 9"></polyline>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Ejercicios del día (expandible) - Modo Edición -->
+                                <div class="ejercicios-container" *ngIf="diaExpandido === i">
+                                    <div class="ejercicio-item" *ngFor="let ejercicio of dia.ejercicios; let j = index">
+                                        <div class="ejercicio-header">
+                                            <span class="ejercicio-numero">{{ j + 1 }}</span>
+                                            <div class="ejercicio-info">
+                                                <span class="ejercicio-nombre">{{ ejercicio.nombreEjercicio }}</span>
+                                                <span class="ejercicio-grupo">{{ ejercicio.grupoMuscular || 'Cardio' }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="ejercicio-detalles">
+                                            <!-- Campos editables -->
+                                            <div class="edit-grid">
+                                                <div class="edit-field">
+                                                    <label>Series</label>
+                                                    <input type="number" [(ngModel)]="ejercicio.series" min="1" max="10">
+                                                </div>
+                                                <div class="edit-field">
+                                                    <label>Reps min</label>
+                                                    <input type="number" [(ngModel)]="ejercicio.repeticionesMin" min="0" max="50">
+                                                </div>
+                                                <div class="edit-field">
+                                                    <label>Reps max</label>
+                                                    <input type="number" [(ngModel)]="ejercicio.repeticionesMax" min="0" max="50">
+                                                </div>
+                                                <div class="edit-field">
+                                                    <label>Peso (kg)</label>
+                                                    <input type="number" [(ngModel)]="ejercicio.pesoSugerido" min="0" step="0.5">
+                                                </div>
+                                                <div class="edit-field">
+                                                    <label>Descanso (seg)</label>
+                                                    <input type="number" [(ngModel)]="ejercicio.descansoSegundos" min="0" max="300" step="5">
+                                                </div>
+                                            </div>
+                                            <div class="edit-notas">
+                                                <label>Notas</label>
+                                                <input type="text" [(ngModel)]="ejercicio.notas" placeholder="Notas del ejercicio">
+                                            </div>
+                                            <div class="equipos-container" *ngIf="ejercicio.equipoRequerido && ejercicio.equipoRequerido !== 'Sin equipo'">
+                                                <span class="equipos-label">Equipos:</span>
+                                                <span class="equipo-tag">{{ ejercicio.equipoRequerido }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Columna Derecha: Sidebar con Info Adicional y Equipamiento -->
+                    <aside class="sidebar-column">
+                        <!-- Tarjeta: Información Adicional -->
+                        <div class="content-card side-card">
+                            <div class="side-card-title">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                                    <polyline points="10 9 9 9 8 9"></polyline>
+                                </svg>
+                                <h3>Información adicional</h3>
+                            </div>
+
+                            <div class="info-list">
+                                <div class="info-row">
+                                    <div class="info-label">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <polyline points="12 6 12 12 16 14"></polyline>
+                                        </svg>
+                                        Total ejercicios
+                                    </div>
+                                    <strong>{{ totalEjercicios }}</strong>
+                                </div>
+
+                                <div class="info-row">
+                                    <div class="info-label">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                                        </svg>
+                                        Dias por semana
+                                    </div>
+                                    <strong>{{ totalDiasConEjercicios }} dias</strong>
+                                </div>
+
+                                <div class="info-row">
+                                    <div class="info-label">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M12 2a10 10 0 1 0 10 10 10 10 0 0 0-10-10z"/>
+                                            <path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12z"/>
+                                            <path d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/>
+                                        </svg>
+                                        Version
+                                    </div>
+                                    <strong>v{{ rutina.version }}</strong>
+                                </div>
+
+                                <div class="info-row" *ngIf="rutina.generadaPorIA">
+                                    <div class="info-label">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M12 2a10 10 0 1 0 10 10 10 10 0 0 0-10-10z"/>
+                                            <path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12z"/>
+                                            <path d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/>
+                                        </svg>
+                                        Generada por
+                                    </div>
+                                    <strong>IA</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tarjeta: Equipamiento Necesario -->
+                        <div class="content-card side-card">
+                            <div class="side-card-title">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M6.5 6.5h11M6.5 17.5h11M2 12h20M4 7v10M20 7v10" />
+                                </svg>
+                                <h3>Equipamiento necesario</h3>
+                            </div>
+
+                            <div class="equipment-grid">
+                                <div class="equipment-item" *ngFor="let item of equipamiento">
+                                    <div class="eq-icon">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <rect x="2" y="19" width="20" height="2" rx="1" />
+                                            <rect x="11" y="4" width="2" height="15" rx="1" />
+                                            <rect x="5" y="10" width="8" height="4" rx="1" />
+                                            <rect x="3" y="6" width="3" height="10" rx="1" />
+                                            <rect x="16" y="6" width="3" height="8" rx="1" />
+                                            <circle cx="17.5" cy="14" r="2" />
+                                            <line x1="17.5" y1="16" x2="17.5" y2="18" />
+                                        </svg>
+                                    </div>
+                                    <span>{{ item.nombre }}</span>
+                                </div>
+                                <div *ngIf="equipamiento.length === 0" class="equipment-empty">
+                                    <span>No se requiere equipamiento especial</span>
+                                </div>
+                            </div>
+                        </div>
+                    </aside>
+                </main>
+            </ng-container>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Error -->
+<div class="modal-overlay" *ngIf="showErrorModal" (click)="onCloseModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-icon error-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+        </div>
+        <h3 class="modal-title">{{ errorModalTitle || 'Error' }}</h3>
+        <p class="modal-message">{{ errorModalMessage || 'Ocurrio un error. Por favor, intenta de nuevo.' }}</p>
+        <div class="modal-actions">
+            <button class="modal-btn modal-btn-secondary" (click)="onCloseModal()">Cancelar</button>
+            <button class="modal-btn modal-btn-primary" (click)="onRetry()">Reintentar</button>
+        </div>
+    </div>
+</div>

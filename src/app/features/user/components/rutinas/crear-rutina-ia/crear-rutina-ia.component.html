@@ -1,0 +1,150 @@
+<div class="crear-rutina-ia-layout">
+    <app-navbar></app-navbar>
+
+    <div class="crear-rutina-ia-main">
+        <app-header></app-header>
+
+        <div class="crear-rutina-ia-wrapper">
+            <header class="page-header">
+                <div class="page-header__left">
+                    <button class="btn-back" (click)="cancelar()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 12H5"/>
+                            <path d="m12 19-7-7 7-7"/>
+                        </svg>
+                        Cancelar
+                    </button>
+                    <div>
+                        <h1>Crear rutina IA</h1>
+                        <p class="subtitle">Nuestra IA diseñara la rutina perfecta para ti</p>
+                    </div>
+                </div>
+                <div class="page-header__right">
+                    <button class="btn btn--primary" (click)="generarRutinaIA()" [disabled]="isLoading">
+                        <ng-container *ngIf="!isLoading">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2a10 10 0 1 0 10 10 10 10 0 0 0-10-10z"/>
+                                <path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12z"/>
+                                <path d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/>
+                            </svg>
+                            Generar rutina IA
+                        </ng-container>
+                        <ng-container *ngIf="isLoading">
+                            <span class="spinner-border"></span>
+                            Generando...
+                        </ng-container>
+                    </button>
+                </div>
+            </header>
+
+            <div *ngIf="errorMessage" class="alert alert-danger">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                {{ errorMessage }}
+            </div>
+
+            <form class="rutina-form" (ngSubmit)="generarRutinaIA()">
+                <section class="form-section">
+                    <div class="section-header">
+                        <span class="step-number">1</span>
+                        <h2>Configuracion de la rutina</h2>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="dias">Dias por semana <span class="required">*</span></label>
+                            <select id="dias" [(ngModel)]="datosIA.diasPorSemana" name="dias" required>
+                                <option value="">Selecciona los dias</option>
+                                <option *ngFor="let d of diasDisponibles" [value]="d.value">{{ d.label }}</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="semanas">Duracion en semanas <span class="required">*</span></label>
+                            <select id="semanas" [(ngModel)]="datosIA.duracionSemanas" name="semanas" required>
+                                <option value="">Selecciona la duracion</option>
+                                <option *ngFor="let s of duracionesSemanas" [value]="s.value">{{ s.label }}</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label>Incluir cardio</label>
+                            <div class="toggle-group">
+                                <button type="button" class="toggle-btn" 
+                                        [class.active]="datosIA.incluirCardio" 
+                                        (click)="datosIA.incluirCardio = true">
+                                    Si
+                                </button>
+                                <button type="button" class="toggle-btn" 
+                                        [class.active]="!datosIA.incluirCardio" 
+                                        (click)="datosIA.incluirCardio = false">
+                                    No
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de IA Pensando -->
+<div class="modal-overlay ia-thinking-modal" *ngIf="isLoading">
+    <div class="modal-content modal-thinking" (click)="$event.stopPropagation()">
+        <div class="thinking-container">
+            <!-- Icono de IA -->
+            <div class="ia-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M12 2a10 10 0 1 0 10 10 10 10 0 0 0-10-10z"/>
+                    <path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12z"/>
+                    <path d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/>
+                    <path d="M7 7l2 2"/>
+                    <path d="M15 7l-2 2"/>
+                    <path d="M7 15l2-2"/>
+                    <path d="M15 15l-2-2"/>
+                </svg>
+            </div>
+
+            <!-- Animación de pensamiento -->
+            <div class="thinking-animation">
+                <div class="brain-wave"></div>
+                <div class="brain-wave delay-1"></div>
+                <div class="brain-wave delay-2"></div>
+            </div>
+
+            <!-- Texto -->
+            <h3>La IA está diseñando tu rutina</h3>
+            <p class="thinking-text">
+                <span class="dot">.</span>
+                <span class="dot delay-1">.</span>
+                <span class="dot delay-2">.</span>
+            </p>
+            <p class="thinking-subtext">
+                Analizando tu perfil y creando la rutina perfecta...
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Error -->
+<div class="modal-overlay" *ngIf="showErrorModal" (click)="onCloseModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-icon error-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+        </div>
+        <h3 class="modal-title">{{ errorModalTitle || 'Error' }}</h3>
+        <p class="modal-message">{{ errorModalMessage || 'Ocurrio un error. Por favor, intenta de nuevo.' }}</p>
+        <div class="modal-actions">
+            <button class="modal-btn modal-btn-secondary" (click)="onCloseModal()">Cancelar</button>
+            <button class="modal-btn modal-btn-primary" (click)="onRetry()">Reintentar</button>
+        </div>
+    </div>
+</div>
