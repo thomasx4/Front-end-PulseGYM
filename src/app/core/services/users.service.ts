@@ -254,4 +254,14 @@ export class UserService {
       })
     );
   }
+
+  actualizarPerfilMedico(data: any): Observable<any> {
+    const url = `${this.apiUrl}/pg-ms-users/api/v1/usuarios/perfil-medico/mi-perfil-medico`;
+    return this.http.put<any>(url, data, { headers: this.getJsonHeaders() }).pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.error('Error en actualizarPerfilMedico:', error);
+        return of(null);
+      })
+    );
+  }
 }

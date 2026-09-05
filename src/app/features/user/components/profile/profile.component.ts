@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { UserService } from '../../../../core/services/users.service';
 import { AuthService } from '../../../../core/services/auth.service';
@@ -57,7 +58,8 @@ export class ProfileComponent implements OnInit {
     pesoKg: 0,
     estaturaCm: 0,
     alergias: '',
-    condicionesCronicas: ''
+    condicionesCronicas: '',
+    fechaActualizacion: ''
   };
 
   historialFisico: any = {
@@ -102,11 +104,16 @@ export class ProfileComponent implements OnInit {
 
   constructor(
     private userService: UserService,
-    private authService: AuthService
+    private authService: AuthService,
+    private router: Router
   ) { }
 
   ngOnInit(): void {
     this.loadUserInfo();
+  }
+
+  verPerfilMedico(): void {
+    this.router.navigate(['/user/detalle-medico']);
   }
 
   loadUserInfo(): void {
@@ -152,21 +159,22 @@ export class ProfileComponent implements OnInit {
     });
 
     this.userService.getPerfilMedico().subscribe({
-      next: (data: any) => {
+    next: (data: any) => {
         if (data) {
-          this.perfilMedico = {
-            pesoKg: data.pesoKg || 0,
-            estaturaCm: data.estaturaCm || 0,
-            alergias: data.alergias || '',
-            condicionesCronicas: data.condicionesCronicas || ''
-          };
-          this.actualizarMedidas();
+            this.perfilMedico = {
+                pesoKg: data.pesoKg || 0,
+                estaturaCm: data.estaturaCm || 0,
+                alergias: data.alergias || '',
+                condicionesCronicas: data.condicionesCronicas || '',
+                fechaActualizacion: data.fechaActualizacion || new Date().toISOString()
+            };
+            this.actualizarMedidas();
         }
-      },
-      error: (err: any) => {
+    },
+    error: (err: any) => {
         console.warn('perfil-medico fallo:', err.status);
-      }
-    });
+    }
+});
 
     this.userService.getHistorialFisico().subscribe({
       next: (data: any) => {
@@ -461,14 +469,14 @@ export class ProfileComponent implements OnInit {
         method: 'POST',
         body: formData
       })
-      .then((response: any) => response.json())
-      .then((data: any) => {
-        observer.next(data);
-        observer.complete();
-      })
-      .catch((error: any) => {
-        observer.error(error);
-      });
+        .then((response: any) => response.json())
+        .then((data: any) => {
+          observer.next(data);
+          observer.complete();
+        })
+        .catch((error: any) => {
+          observer.error(error);
+        });
     });
   }
 

@@ -72,7 +72,26 @@
     color: #0f172a;
 }
 
-/* ========== TARJETA DE PERFIL ========== */
+/* ============================================
+   PROFILE GRID - 3 COLUMNAS
+   ============================================ */
+.profile-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+    width: 100%;
+}
+
+/* ===== COLUMNA DERECHA (Contactos + Perfil Médico) ===== */
+.columna-derecha {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* ============================================
+   TARJETA DE PERFIL PRINCIPAL (SIN CAMBIOS)
+   ============================================ */
 .profile-card {
     padding: 34px 38px 0;
     margin-bottom: 30px;
@@ -145,41 +164,6 @@
     color: #0f1c3f;
 }
 
-/* ========== BOTON EDITAR ========== */
-.btn-secondary {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    padding: 11px 16px;
-    background: white;
-    color: #0f1c3f;
-    border: 1px solid #cdddfc;
-    border-radius: 7px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s ease;
-}
-
-.btn-secondary:hover {
-    background: #f1f5f9;
-}
-
-.btn-secondary-sm {
-    padding: 7px 11px;
-    background: white;
-    border: 1px solid #d7e2f7;
-    border-radius: 7px;
-    color: #2563eb;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s ease;
-}
-
-.btn-secondary-sm:hover {
-    background: #f1f5f9;
-}
-
 .btn-edit-profile {
     position: absolute;
     top: 2px;
@@ -201,7 +185,7 @@
     background: #1a2b5c;
 }
 
-/* ========== CONTACTOS DEL PERFIL ========== */
+/* ===== CONTACTOS DEL PERFIL ===== */
 .profile-contact-row {
     display: grid;
     grid-template-columns: 1.2fr 1fr .7fr 1.2fr;
@@ -250,48 +234,13 @@
     font-weight: 600;
 }
 
-/* ========== CARDS INFERIORES ========== */
-.profile-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    width: 100%;
-}
-
-.info-card,
-.medidas-card,
-.contactos-card {
-    flex: 1;
-    min-width: 280px;
-    min-height: 400px;
-    padding: 20px;
-    box-sizing: border-box;
-}
-
+/* ============================================
+   INFORMACION PERSONAL
+   ============================================ */
 .info-card {
-    flex: 1;
+    padding: 20px;
 }
 
-.medidas-card {
-    flex: 1;
-}
-
-.contactos-card {
-    flex: 1;
-}
-
-.link-action {
-    color: #2563eb;
-    text-decoration: none;
-    font-size: 12px;
-    font-weight: 600;
-}
-
-.link-action:hover {
-    text-decoration: underline;
-}
-
-/* ========== INFORMACION PERSONAL ========== */
 .info-list {
     display: flex;
     flex-direction: column;
@@ -323,7 +272,6 @@
     word-break: break-word;
 }
 
-/* ========== OBJETIVO ========== */
 .goal-banner {
     background: #f1f6ff;
     border: 1px solid #dce8ff;
@@ -366,7 +314,24 @@
     font-size: 11px;
 }
 
-/* ========== ESTADISTICAS ========== */
+/* ============================================
+   ESTADISTICAS CORPORALES
+   ============================================ */
+.medidas-card {
+    padding: 20px;
+}
+
+.link-action {
+    color: #2563eb;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.link-action:hover {
+    text-decoration: underline;
+}
+
 .stats-list {
     display: flex;
     flex-direction: column;
@@ -421,7 +386,6 @@
     font-weight: 600;
 }
 
-/* ========== BANNER MEDIDAS ========== */
 .medidas-banner {
     background: #f1f6ff;
     border: 1px solid #dce8ff;
@@ -460,30 +424,24 @@
     font-size: 11px;
 }
 
-.btn-primary-full {
-    width: 100%;
-    padding: 10px;
-    background: #0f1c3f;
-    color: #ffffff;
-    border: none;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s ease;
+/* ============================================
+   CONTACTOS DE EMERGENCIA
+   ============================================ */
+.contactos-card {
+    padding: 20px;
 }
 
-.btn-primary-full:hover {
-    background: #1a2b5c;
+.contactos-list {
+    display: flex;
+    flex-direction: column;
 }
 
-/* ========== CONTACTOS EMERGENCIA ========== */
 .contacto-item {
     display: flex;
     align-items: center;
-    min-height: 70px;
+    min-height: 50px;
     border-bottom: 1px solid #edf0f4;
-    padding: 8px 0;
+    padding: 6px 0;
 }
 
 .contacto-item:last-child {
@@ -491,12 +449,12 @@
 }
 
 .contacto-icon {
-    width: 46px;
-    height: 46px;
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-right: 14px;
+    margin-right: 12px;
     border-radius: 50%;
     background: #eef4ff;
     flex-shrink: 0;
@@ -509,7 +467,7 @@
 .contacto-details {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 2px;
 }
 
 .contacto-head {
@@ -526,7 +484,7 @@
 }
 
 .tag-parentesco {
-    padding: 3px 10px;
+    padding: 2px 10px;
     border-radius: 12px;
     background: #edf3ff;
     color: #2563eb;
@@ -545,44 +503,137 @@
     padding: 20px 0;
 }
 
-/* ========== SEGURIDAD ========== */
 .security-banner {
     background: #f1f6ff;
     border: 1px solid #dce8ff;
     border-radius: 12px;
     display: flex;
     align-items: center;
-    margin-top: auto;
-    padding: 16px;
+    margin-top: 12px;
+    padding: 12px 14px;
 }
 
-.security-banner .shield-icon {
-    width: 42px;
-    height: 42px;
+.shield-icon {
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-right: 13px;
+    margin-right: 12px;
     border-radius: 50%;
     background: #dce9ff;
     flex-shrink: 0;
 }
 
-.security-banner .security-text strong {
+.security-text strong {
     display: block;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
     font-size: 12px;
     color: #0f172a;
 }
 
-.security-banner .security-text p {
+.security-text p {
     margin: 0;
     color: #64748b;
     font-size: 11px;
-    line-height: 1.5;
+    line-height: 1.4;
 }
 
-/* ========== EDICION ========== */
+/* ============================================
+   PERFIL MÉDICO (NUEVO)
+   ============================================ */
+.perfil-medico-card {
+    padding: 20px;
+}
+
+.perfil-medico-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.medico-row {
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #e9edf2;
+    gap: 10px;
+}
+
+.medico-row:last-child {
+    border-bottom: none;
+}
+
+.medico-left {
+    display: flex;
+    align-items: center;
+    color: #64748b;
+    font-size: 13px;
+    gap: 8px;
+}
+
+.medico-left svg {
+    width: 18px;
+    color: #94a3b8;
+    flex-shrink: 0;
+}
+
+.medico-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.medico-value {
+    font-size: 13px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.medico-banner {
+    background: #f1f6ff;
+    border: 1px solid #dce8ff;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    margin-top: 12px;
+    padding: 12px 14px;
+}
+
+.medico-icon {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    border-radius: 50%;
+    background: #dce9ff;
+    flex-shrink: 0;
+}
+
+.medico-text .update-label {
+    color: #64748b;
+    font-size: 11px;
+}
+
+.medico-text .update-date {
+    margin: 2px 0;
+    font-size: 13px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.medico-text .update-sub {
+    margin: 0;
+    color: #64748b;
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+/* ============================================
+   EDICION
+   ============================================ */
 .page-header {
     margin-bottom: 24px;
 }
@@ -616,7 +667,6 @@
     gap: 24px;
 }
 
-/* ===== FOTO CENTRADA ===== */
 .form-avatar-section {
     display: flex;
     justify-content: center;
@@ -694,7 +744,6 @@
     display: block;
 }
 
-/* ===== CAMPO DESHABILITADO ===== */
 .form-control:disabled,
 .form-control[readonly] {
     background-color: #f1f5f9;
@@ -703,7 +752,6 @@
     opacity: 0.7;
 }
 
-/* ===== SECCION CONTACTO EMERGENCIA ===== */
 .form-section {
     background: #f8fafc;
     border-radius: 12px;
@@ -718,7 +766,6 @@
     color: #0f172a;
 }
 
-/* ===== FORMULARIOS ===== */
 .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -759,7 +806,6 @@
     color: #94a3b8;
 }
 
-/* ===== BOTONES ===== */
 .form-actions {
     display: flex;
     justify-content: flex-end;
@@ -807,7 +853,9 @@
     cursor: not-allowed;
 }
 
-/* ========== ALERTA DE EXITO ========== */
+/* ============================================
+   ALERTA DE EXITO
+   ============================================ */
 .alert-success {
     background: #dcfce7;
     color: #166534;
@@ -823,7 +871,6 @@
     animation: fadeIn 0.3s ease;
 }
 
-/* ===== AVATAR CON IMAGEN ===== */
 .avatar-image {
     width: 100%;
     height: 100%;
@@ -831,7 +878,9 @@
     object-fit: cover;
 }
 
-/* ===== MODAL DE ERROR ===== */
+/* ============================================
+   MODAL DE ERROR
+   ============================================ */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -875,24 +924,6 @@
 
 .modal-icon.error-icon svg {
     stroke: #dc2626;
-}
-
-.modal-icon.success-icon {
-    background: #ecfdf5;
-    color: #16a34a;
-}
-
-.modal-icon.success-icon svg {
-    stroke: #16a34a;
-}
-
-.modal-icon.warning-icon {
-    background: #fffbeb;
-    color: #d97706;
-}
-
-.modal-icon.warning-icon svg {
-    stroke: #d97706;
 }
 
 .modal-title {
@@ -992,6 +1023,17 @@
         padding: 1.5rem;
     }
 
+    .profile-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    
+    .columna-derecha {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
     .profile-card {
         padding: 24px;
     }
@@ -1025,23 +1067,21 @@
     .contact-col:not(:last-child)::after {
         display: none;
     }
-
-    .profile-grid {
-        flex-direction: column;
-    }
-
-    .info-card,
-    .medidas-card,
-    .contactos-card {
-        min-width: 100%;
-        min-height: auto;
-    }
 }
 
 /* Móviles (768px) */
 @media (max-width: 768px) {
     .profile-wrapper {
         padding: 1rem;
+    }
+
+    .profile-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .columna-derecha {
+        grid-template-columns: 1fr;
+        gap: 20px;
     }
 
     .profile-card {
@@ -1151,6 +1191,16 @@
         margin-right: 0;
         margin-bottom: 8px;
     }
+
+    .medico-banner {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .medico-banner .medico-icon {
+        margin-right: 0;
+        margin-bottom: 8px;
+    }
 }
 
 /* Móviles pequeños (480px) */
@@ -1245,5 +1295,17 @@
     .modal-btn {
         padding: 8px 16px;
         font-size: 12px;
+    }
+    
+    .medico-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+        min-height: 36px;
+    }
+    
+    .medico-right {
+        width: 100%;
+        justify-content: flex-start;
     }
 }
