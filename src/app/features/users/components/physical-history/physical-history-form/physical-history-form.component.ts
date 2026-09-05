@@ -51,7 +51,7 @@ export class PhysicalHistoryFormComponent implements OnInit {
     private router: Router,
     private physicalHistoryService: PhysicalHistoryService,
     private userService: UserService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.initForm();
@@ -91,7 +91,16 @@ export class PhysicalHistoryFormComponent implements OnInit {
     });
   }
 
-  // --- OBTENCIÓN DINÁMICA DE USUARIOS PARA MODAL (SOCIOS) ---
+  private normalizarTexto(texto: string): string {
+    if (!texto) return '';
+    return texto
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, ' ');
+  }
+
   cargarSociosModal(): void {
     this.loadingSocioUsers = true;
     const busquedaTerm = this.searchSocio.trim();
@@ -105,39 +114,16 @@ export class PhysicalHistoryFormComponent implements OnInit {
 
     this.userService.listarPerfilesPaginados(filtros).subscribe({
       next: (response: any) => {
-        let arrayCompleto: any[] = [];
-
         if (Array.isArray(response)) {
-          arrayCompleto = response;
+          this.socios = response;
+          this.totalElementosSocioModal = response.length;
+          this.totalPaginasSocioModal = 1;
         } else {
-          const listData = response.data || response.contenido || response.content || [];
-          arrayCompleto = Array.isArray(listData) ? listData : [];
-        }
-
-        let listaFiltrada = arrayCompleto;
-
-        if (busquedaTerm) {
-          const query = busquedaTerm.toLowerCase();
-          listaFiltrada = listaFiltrada.filter(u =>
-            (u.nombre && u.nombre.toLowerCase().includes(query)) ||
-            (u.apellido && u.apellido.toLowerCase().includes(query)) ||
-            (u.email && u.email.toLowerCase().includes(query)) ||
-            (u.telefono && u.telefono.includes(query))
-          );
-        }
-
-        if (Array.isArray(response) || listaFiltrada.length !== arrayCompleto.length) {
-          this.totalElementosSocioModal = listaFiltrada.length;
-          this.totalPaginasSocioModal = Math.ceil(this.totalElementosSocioModal / this.itemsPorPaginaSocioModal) || 1;
-          const inicioSlice = this.paginaSocioModalActual * this.itemsPorPaginaSocioModal;
-          this.socios = listaFiltrada.slice(inicioSlice, inicioSlice + this.itemsPorPaginaSocioModal);
-        } else {
-          this.socios = listaFiltrada;
-          this.totalElementosSocioModal = response.totalElementos ?? response.totalElements ?? listaFiltrada.length;
-          this.totalPaginasSocioModal = response.totalPaginas ?? response.totalPages ?? 1;
+          this.socios = response.data || response.contenido || response.content || [];
+          this.totalElementosSocioModal = response.totalElementos ?? response.totalElements ?? 0;
+          this.totalPaginasSocioModal = response.totalPaginas ?? response.totalPages ?? 0;
           this.paginaSocioModalActual = response.numeroPagina ?? response.currentPage ?? response.number ?? 0;
         }
-
         this.loadingSocioUsers = false;
       },
       error: () => {
@@ -153,12 +139,18 @@ export class PhysicalHistoryFormComponent implements OnInit {
   cargarRecepcionistasModal(): void {
     this.loadingRecepcionistaUsers = true;
     const busquedaTerm = this.searchRecepcionista.trim();
+    let busquedaCompleta = '';
+
+    if (busquedaTerm) {
+      busquedaCompleta = busquedaTerm;
+    }
 
     const filtros: FiltrosPerfiles = {
       pagina: this.paginaRecepcionistaModalActual,
       tamanio: this.itemsPorPaginaRecepcionistaModal,
-      busqueda: busquedaTerm || undefined,
-      estado: 'ACTIVO'
+      busqueda: busquedaCompleta || undefined,
+      estado: 'ACTIVO',
+      roles: ['ADMINISTRADOR', 'RECEPCIONISTA', 'ENTRENADOR']
     };
 
     this.userService.listarPerfilesPaginados(filtros).subscribe({
@@ -173,28 +165,27 @@ export class PhysicalHistoryFormComponent implements OnInit {
         }
 
         let listaFiltrada = arrayCompleto.filter(u => {
-          const rol = this.getRolNombre(u).toUpperCase();
-          return rol.includes('RECEPCIONISTA') || rol.includes('ENTRENADOR') || rol.includes('ADMIN');
+          const estado = (u.estado || u.status || 'ACTIVO').toString().toUpperCase();
+          const activo = estado === 'ACTIVO' && !u.eliminado && !u.deletedAt;
+
+          const rolTexto = (this.getRolNombre(u) || u.rol || '').toString().toUpperCase();
+
+          const esAdmin = rolTexto.includes('ADMINISTRADOR') || rolTexto.includes('ADMIN');
+          const esRecepcionista = rolTexto.includes('RECEPCIONISTA') || rolTexto.includes('RECEPCION');
+          const esEntrenador = rolTexto.includes('ENTRENADOR') || rolTexto.includes('COACH');
+
+          return activo && (esAdmin || esRecepcionista || esEntrenador);
         });
 
-        if (busquedaTerm) {
-          const query = busquedaTerm.toLowerCase();
-          listaFiltrada = listaFiltrada.filter(u =>
-            (u.nombre && u.nombre.toLowerCase().includes(query)) ||
-            (u.apellido && u.apellido.toLowerCase().includes(query)) ||
-            (u.email && u.email.toLowerCase().includes(query)) ||
-            (u.telefono && u.telefono.includes(query))
-          );
-        }
-
-        this.totalElementosRecepcionistaModal = listaFiltrada.length;
-        this.totalPaginasRecepcionistaModal = Math.ceil(this.totalElementosRecepcionistaModal / this.itemsPorPaginaRecepcionistaModal) || 1;
-        const inicioSlice = this.paginaRecepcionistaModalActual * this.itemsPorPaginaRecepcionistaModal;
-        this.recepcionistas = listaFiltrada.slice(inicioSlice, inicioSlice + this.itemsPorPaginaRecepcionistaModal);
+        this.recepcionistas = listaFiltrada;
+        this.totalElementosRecepcionistaModal = response.totalElementos ?? response.totalElements ?? listaFiltrada.length;
+        this.totalPaginasRecepcionistaModal = (response.totalPaginas ?? response.totalPages) || Math.ceil(this.totalElementosRecepcionistaModal / this.itemsPorPaginaRecepcionistaModal) || 1;
+        this.paginaRecepcionistaModalActual = response.numeroPagina ?? response.currentPage ?? response.number ?? 0;
 
         this.loadingRecepcionistaUsers = false;
       },
-      error: () => {
+      error: (err) => {
+        console.error('Error al cargar encargados:', err);
         this.recepcionistas = [];
         this.totalElementosRecepcionistaModal = 0;
         this.totalPaginasRecepcionistaModal = 0;
@@ -203,108 +194,103 @@ export class PhysicalHistoryFormComponent implements OnInit {
     });
   }
 
-private loadRecordData(id: number): void {
-  this.loading = true;
-  this.physicalHistoryService.getAll().subscribe({
-    next: (response) => {
-      // Extraemos el arreglo dependiendo de la estructura de la respuesta
-      let records: PhysicalHistory[] = [];
-      if (Array.isArray(response)) {
-        records = response;
-      } else {
-        records = response.data || response.contenido || response.content || [];
-      }
 
-      const item = records.find((r: PhysicalHistory) => r.idHistorialFisico === id);
-      if (item) {
-        this.form.patchValue({
-          idSocio: item.idSocio,
-          idRecepcionista: item.idRecepcionista || null,
-          fechaMedicion: item.fechaMedicion ? this.formatDateForInput(new Date(item.fechaMedicion)) : '',
-          pesoKg: item.pesoKg,
-          alturaCm: item.alturaCm || null,
-          porcentajeGrasa: item.porcentajeGrasa,
-          porcentajeMusculo: item.porcentajeMusculo,
-          cuelloCm: item.cuelloCm || null,
-          cinturaEscapularCm: item.cinturaEscapularCm || null,
-          cinturaCm: item.cinturaCm,
-          caderaCm: item.caderaCm || null,
-          toraxCm: item.toraxCm || null,
-          pechoCm: item.pechoCm,
-          brazoIzqCm: item.brazoIzqCm,
-          brazoDerCm: item.brazoDerCm,
-          piernaIzqCm: item.piernaIzqCm,
-          piernaDerCm: item.piernaDerCm,
-          pantorrillaIzqCm: item.pantorrillaIzqCm || null,
-          pantorrillaDerCm: item.pantorrillaDerCm || null
-        });
+ private loadRecordData(id: number): void {
+    this.loading = true;
+    this.physicalHistoryService.getAll().subscribe({
+      next: (response) => {
+        const records: PhysicalHistory[] = response || [];
 
-        if (item.idSocio) {
-          this.userService.obtenerPerfilPorId(item.idSocio).subscribe({
-            next: (perfil) => {
-              this.selectedSocio = perfil || {
-                idUsuario: item.idSocio,
-                nombre: item.nombreSocio || 'Usuario',
-                apellido: '',
-                email: ''
-              };
-            },
-            error: () => {
-              this.selectedSocio = {
-                idUsuario: item.idSocio,
-                nombre: item.nombreSocio || 'Usuario',
-                apellido: '',
-                email: ''
-              };
-            }
+        const item = records.find((r: PhysicalHistory) => r.idHistorialFisico === id);
+        if (item) {
+          this.form.patchValue({
+            idSocio: item.idSocio,
+            idRecepcionista: item.idRecepcionista || null,
+            fechaMedicion: item.fechaMedicion ? this.formatDateForInput(new Date(item.fechaMedicion)) : '',
+            pesoKg: item.pesoKg,
+            alturaCm: item.alturaCm || null,
+            porcentajeGrasa: item.porcentajeGrasa,
+            porcentajeMusculo: item.porcentajeMusculo,
+            cuelloCm: item.cuelloCm || null,
+            cinturaEscapularCm: item.cinturaEscapularCm || null,
+            cinturaCm: item.cinturaCm,
+            caderaCm: item.caderaCm || null,
+            toraxCm: item.toraxCm || null,
+            pechoCm: item.pechoCm,
+            brazoIzqCm: item.brazoIzqCm,
+            brazoDerCm: item.brazoDerCm,
+            piernaIzqCm: item.piernaIzqCm,
+            piernaDerCm: item.piernaDerCm,
+            pantorrillaIzqCm: item.pantorrillaIzqCm || null,
+            pantorrillaDerCm: item.pantorrillaDerCm || null
           });
-        }
 
-        if (item.idRecepcionista) {
-          this.userService.obtenerPerfilPorId(item.idRecepcionista).subscribe({
-            next: (perfil) => {
-              this.selectedRecepcionista = perfil || {
-                idUsuario: item.idRecepcionista,
-                nombre: item.nombreRecepcionista || 'Recepcionista',
-                apellido: '',
-                email: ''
-              };
-            },
-            error: () => {
-              this.selectedRecepcionista = {
-                idUsuario: item.idRecepcionista,
-                nombre: item.nombreRecepcionista || 'Recepcionista',
-                apellido: '',
-                email: ''
-              };
-            }
-          });
-        }
+          if (item.idSocio) {
+            this.userService.obtenerPerfilPorId(item.idSocio).subscribe({
+              next: (perfil) => {
+                this.selectedSocio = perfil || {
+                  idUsuario: item.idSocio,
+                  nombre: item.nombreSocio || 'Usuario',
+                  apellido: '',
+                  email: ''
+                };
+              },
+              error: () => {
+                this.selectedSocio = {
+                  idUsuario: item.idSocio,
+                  nombre: item.nombreSocio || 'Usuario',
+                  apellido: '',
+                  email: ''
+                };
+              }
+            });
+          }
 
-        this.editMetaInfo = {
-          fechaFormatted: item.fechaMedicion ? new Date(item.fechaMedicion).toLocaleString('es-ES', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '',
-          registradoPor: item.nombreRecepcionista || 'Sistema'
-        };
+          if (item.idRecepcionista) {
+            this.userService.obtenerPerfilPorId(item.idRecepcionista).subscribe({
+              next: (perfil) => {
+                this.selectedRecepcionista = perfil || {
+                  idUsuario: item.idRecepcionista,
+                  nombre: item.nombreRecepcionista || 'Recepcionista',
+                  apellido: '',
+                  email: ''
+                };
+              },
+              error: () => {
+                this.selectedRecepcionista = {
+                  idUsuario: item.idRecepcionista,
+                  nombre: item.nombreRecepcionista || 'Recepcionista',
+                  apellido: '',
+                  email: ''
+                };
+              }
+            });
+          }
+
+          this.editMetaInfo = {
+            fechaFormatted: item.fechaMedicion ? new Date(item.fechaMedicion).toLocaleString('es-ES', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '',
+            registradoPor: item.nombreRecepcionista || 'Sistema'
+          };
+        }
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Error al cargar medición:', err);
+        this.loading = false;
       }
-      this.loading = false;
-    },
-    error: (err) => {
-      console.error('Error al cargar medición:', err);
-      this.loading = false;
-    }
-  });
-}
-
+    });
+  }
+  
   // --- AUXILIARES Y FOTOS ---
 
   getUserFoto(user: any): string | null {
     if (!user) return null;
 
-    let rawUrl = 
+    let rawUrl =
       user.fotoUrl ||
-      user.fotoPerfil || 
-      user.foto || 
-      user.avatar || 
+      user.fotoPerfil ||
+      user.foto ||
+      user.avatar ||
       null;
 
     if (!rawUrl || typeof rawUrl !== 'string') return null;

@@ -3,10 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MembershipService } from '../../../../core/services/membership.service';
 import Swal from 'sweetalert2';
-import { forkJoin } from 'rxjs';
-import { catchError, of } from 'rxjs';
 
-// INTERFACES & DTOs
 export interface Plan {
   id?: number;
   nombre: string;
@@ -18,10 +15,6 @@ export interface Plan {
   incluyeIA: boolean;
   esFlexible: boolean;
   activo: boolean;
-  miembrosActivos?: string;
-  revenueEstimado?: string;
-  badge?: string;
-  badgeClass?: string;
 }
 
 export interface MembresiaResponseDTO {
@@ -35,7 +28,6 @@ export interface MembresiaResponseDTO {
   incluyeIA?: boolean;
   esFlexible?: boolean;
   activo?: boolean;
-  sociosAsignados?: unknown[];
 }
 
 export interface MembresiaRequestDTO {
@@ -50,7 +42,6 @@ export interface MembresiaRequestDTO {
   activo: boolean;
 }
 
-// Mapeos constantes
 const TIPO_DURACION_MAP: Record<string, string> = {
   DIA: 'día(s)',
   SEMANA: 'semana(s)',
@@ -80,7 +71,6 @@ export class MembershipFormComponent implements OnInit {
   private membershipService = inject(MembershipService);
   private destroyRef = inject(DestroyRef);
 
-  // ESTADO
   plan: Plan = this.crearPlanInicial();
   nuevoBeneficio: string = '';
   esEdicion: boolean = false;
@@ -114,15 +104,12 @@ export class MembershipFormComponent implements OnInit {
       incluyeIA: false,
       esFlexible: false,
       activo: true,
-      miembrosActivos: '0',
-      revenueEstimado: '0',
     };
   }
 
   cargarPlan(id: number): void {
     this.loading = true;
     
-    // ✅ PRIMERO: Obtener la membresía por ID (siempre disponible)
     this.membershipService.getMembresiaById(id).subscribe({
       next: (data: MembresiaResponseDTO) => {
         const beneficiosArray = data.beneficios
@@ -140,30 +127,18 @@ export class MembershipFormComponent implements OnInit {
           incluyeIA: data.incluyeIA ?? false,
           esFlexible: data.esFlexible ?? false,
           activo: data.activo ?? true,
-          miembrosActivos: '0',
-          revenueEstimado: '0',
         };
 
-        // ✅ SEGUNDO: Intentar cargar socios (si no hay, solo es 0)
+        // Cargar socios (opcional)
         this.membershipService.getMembresiaConSociosActivos(id).subscribe({
           next: (sociosData: any) => {
             const socios = sociosData?.sociosAsignados || sociosData?.data || [];
             this.totalSocios = socios.length;
-            this.plan.miembrosActivos = this.totalSocios.toString();
             this.loading = false;
           },
-          error: (error: any) => {
-            // ✅ Si es 404 o 400, simplemente no hay socios
-            if (error.status === 404 || error.status === 400) {
-              this.totalSocios = 0;
-              this.plan.miembrosActivos = '0';
-              this.loading = false;
-            } else {
-              console.warn('Error al cargar socios:', error);
-              this.totalSocios = 0;
-              this.plan.miembrosActivos = '0';
-              this.loading = false;
-            }
+          error: () => {
+            this.totalSocios = 0;
+            this.loading = false;
           }
         });
       },
@@ -175,11 +150,9 @@ export class MembershipFormComponent implements OnInit {
     });
   }
 
-  // CÁLCULOS DINÁMICOS
   get precioTotalCalculado(): number {
     const diasPorUnidad = DIAS_POR_UNIDAD[this.plan.tipoDuracion] || 30;
-    const totalDias = diasPorUnidad * this.plan.cantidad;
-    return this.plan.precioPorDia * totalDias;
+    return this.plan.precioPorDia * diasPorUnidad * this.plan.cantidad;
   }
 
   get formularioValido(): boolean {
@@ -191,7 +164,6 @@ export class MembershipFormComponent implements OnInit {
     );
   }
 
-  // ELIMINAR MEMBRESÍA
   eliminarMembresia(): void {
     if (!this.planId) return;
 
@@ -200,7 +172,6 @@ export class MembershipFormComponent implements OnInit {
       html: `
         <p style="color: #64748b; font-size: 14px;">
           Esta acción es irreversible y afectará a todos los socios vinculados a este plan.
-          No se podrán procesar nuevos pagos bajo este esquema.
         </p>
         <div style="background: #f8fafc; border-radius: 12px; padding: 16px; margin: 16px 0;">
           <table style="width: 100%; text-align: left; font-size: 14px;">
@@ -217,8 +188,8 @@ export class MembershipFormComponent implements OnInit {
           </table>
         </div>
         <div style="text-align: left; font-size: 13px; color: #64748b; padding: 8px 0;">
-          <p>1. Al eliminar esta membresía, los <strong>${this.totalSocios} socios activos</strong> pasarán a no tener membresías asignadas y se les deberá reasignar una.</p>
-          <p>2. Entiendo que los datos históricos de facturación se conservarán, pero el plan "<strong>${this.escapeHtml(this.plan.nombre)}</strong>" dejará de estar disponible de forma permanente.</p>
+          <p>1. Al eliminar esta membresía, los <strong>${this.totalSocios} socios activos</strong> pasarán a no tener membresías asignadas.</p>
+          <p>2. El plan "<strong>${this.escapeHtml(this.plan.nombre)}</strong>" dejará de estar disponible de forma permanente.</p>
         </div>
       `,
       icon: 'warning',
@@ -254,7 +225,6 @@ export class MembershipFormComponent implements OnInit {
     });
   }
 
-  // BENEFICIOS
   agregarBeneficio(): void {
     const beneficio = this.nuevoBeneficio.trim();
     if (beneficio) {
@@ -267,7 +237,6 @@ export class MembershipFormComponent implements OnInit {
     this.plan.beneficios.splice(index, 1);
   }
 
-  // ACCIONES
   guardar(): void {
     if (!this.formularioValido) return;
 
@@ -314,7 +283,6 @@ export class MembershipFormComponent implements OnInit {
     });
   }
 
-  // HELPERS Y FORMATOS
   getNombreDuracion(tipo: string): string {
     return TIPO_DURACION_MAP[tipo] || 'mes(es)';
   }

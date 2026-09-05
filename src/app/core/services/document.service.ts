@@ -61,7 +61,18 @@ export class DocumentService {
   }
 
   obtenerDocumentos(filtros?: any): Observable<Document[]> {
-    return this.http.get<Document[]>(this.apiUrl);
+    let params = new HttpParams()
+      .set('page', '0')
+      .set('size', '1000');
+
+    return this.http.get<any>(this.apiUrl, { params }).pipe(
+      map(res => {
+        if (Array.isArray(res)) {
+          return res;
+        }
+        return res.content || res.contenido || res.data || [];
+      })
+    );
   }
 
   obtenerDocumentosPorSocio(idUsuario: number): Observable<Document[]> {
@@ -100,6 +111,7 @@ export class DocumentService {
           const metricas: DocumentMetric = {
             activos: list.filter(d => d.estado === 'VIGENTE').length,
             nuevosEsteMes: list.filter(d => {
+              if (!d.fechaFirma) return false;
               const fecha = new Date(d.fechaFirma);
               const ahora = new Date();
               return fecha.getMonth() === ahora.getMonth() &&

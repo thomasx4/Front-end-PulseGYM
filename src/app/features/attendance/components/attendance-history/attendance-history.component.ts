@@ -51,6 +51,23 @@ export class AttendanceHistoryComponent implements OnInit {
       next: (response: HistorialAccesoResponse) => {
         let datos: HistorialAccesoItem[] = response.content || [];
 
+        console.log('Búsqueda ingresada:', this.filtrosActivos.nombreUsuario);
+        console.log('Primer registro recibido del backend:', datos[0]);
+
+        if (this.filtrosActivos.nombreUsuario && this.filtrosActivos.nombreUsuario.trim() !== '') {
+          const busqueda = this.filtrosActivos.nombreUsuario.trim().toLowerCase();
+
+          datos = datos.filter((item: HistorialAccesoItem) => {
+            // Evalúa la propiedad oficial y respaldos por si la API envía otra clave
+            const itemAny = item as any;
+            const nombreDirecto = item.nombreUsuario || itemAny.nombre || itemAny.usuario || itemAny.usuarioNombre || '';
+            const nombreAnidado = itemAny.usuario?.nombre || itemAny.usuario?.nombreCompleto || '';
+            const textoCompleto = `${nombreDirecto} ${nombreAnidado}`.toLowerCase();
+
+            return textoCompleto.includes(busqueda);
+          })
+        }
+
         if (this.filtrosActivos.fechaDesde) {
           const desde = new Date(`${this.filtrosActivos.fechaDesde}T00:00:00`);
           datos = datos.filter(item => new Date(item.fechaHora) >= desde);
@@ -74,8 +91,16 @@ export class AttendanceHistoryComponent implements OnInit {
         }
 
         this.logs = datos;
-        this.totalElements = response.totalElements || datos.length;
 
+        const seAplicoFiltroLocal = !!(
+          this.filtrosActivos.nombreUsuario ||
+          this.filtrosActivos.fechaDesde ||
+          this.filtrosActivos.fechaHasta ||
+          this.filtrosActivos.tipoAcceso ||
+          this.filtrosActivos.resultado
+        );
+
+        this.totalElements = seAplicoFiltroLocal ? datos.length : (response.totalElements || datos.length);
         this.totalPages = Math.ceil(this.totalElements / this.pageSize) || 1;
 
         if (this.currentPage >= this.totalPages) {
@@ -159,11 +184,14 @@ export class AttendanceHistoryComponent implements OnInit {
     }
   }
 
-  onFiltrar(event: FiltrosHistorial | any): void {
-    const filtros: FiltrosHistorial = (event && typeof event === 'object' && !('target' in event)) ? event : {};
+  onFiltrar(filtrosEmitidos: FiltrosHistorial): void {
+    this.filtrosActivos = {
+      ...filtrosEmitidos
+    };
 
     this.currentPage = 0;
-    this.cargarHistorial(filtros);
+
+    this.cargarHistorial(this.filtrosActivos);
   }
 
   cambiarPagina(nuevaPagina: number): void {

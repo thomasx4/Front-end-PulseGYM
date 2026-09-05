@@ -9,8 +9,9 @@ import Swal from 'sweetalert2';
   templateUrl: './certificates-list.component.html',
   styleUrls: ['./certificates-list.component.scss']
 })
-export class CertificatesListComponent implements OnInit {
-  certificaciones: Certificate[] = [];
+class CertificatesListComponent implements OnInit {
+  certificacionesOriginales: Certificate[] = []; 
+  certificaciones: Certificate[] = [];         
   metricas: CertificateMetric | null = null;
   loading: boolean = false;
 
@@ -43,15 +44,8 @@ export class CertificatesListComponent implements OnInit {
 
   cargarDatos(): void {
     this.loading = true;
-    const searchVal = this.filtros.search?.trim();
-
-    const params: CertificateFilter = {
-      pagina: this.paginaActual,
-      tamanio: this.itemsPorPagina,
-      search: searchVal || undefined
-    };
-
-    this.certificateService.obtenerCertificacionesPaginadas(params).subscribe({
+    
+    this.certificateService.obtenerCertificacionesPaginadas({ pagina: 0, tamanio: 1000 }).subscribe({
       next: (response: any) => {
         let arrayCompleto: Certificate[] = [];
 
@@ -62,31 +56,12 @@ export class CertificatesListComponent implements OnInit {
           arrayCompleto = Array.isArray(listData) ? listData : [];
         }
 
-        let listaFiltrada = arrayCompleto;
-
-        if (searchVal) {
-          const query = searchVal.toLowerCase();
-          listaFiltrada = listaFiltrada.filter(c =>
-            c.nombreCertificacion?.toLowerCase().includes(query) ||
-            c.nombreEntrenador?.toLowerCase().includes(query)
-          );
-        }
-
-        if (Array.isArray(response) || listaFiltrada.length !== arrayCompleto.length) {
-          this.totalElementos = listaFiltrada.length;
-          this.totalPaginas = Math.ceil(this.totalElementos / this.itemsPorPagina) || 1;
-          const inicioSlice = this.paginaActual * this.itemsPorPagina;
-          this.certificaciones = listaFiltrada.slice(inicioSlice, inicioSlice + this.itemsPorPagina);
-        } else {
-          this.certificaciones = listaFiltrada;
-          this.totalElementos = response.totalElementos ?? response.totalElements ?? listaFiltrada.length;
-          this.totalPaginas = response.totalPaginas ?? response.totalPages ?? 1;
-          this.paginaActual = response.numeroPagina ?? response.currentPage ?? response.number ?? 0;
-        }
-
+        this.certificacionesOriginales = arrayCompleto;
+        this.aplicarFiltrosYPaginacion();
         this.loading = false;
       },
       error: () => {
+        this.certificacionesOriginales = [];
         this.certificaciones = [];
         this.totalElementos = 0;
         this.totalPaginas = 0;
@@ -95,9 +70,30 @@ export class CertificatesListComponent implements OnInit {
     });
   }
 
+  aplicarFiltrosYPaginacion(): void {
+    const searchVal = this.filtros.search?.trim().toLowerCase() || '';
+
+    let listaFiltrada = this.certificacionesOriginales.filter(c => {
+      const matchSearch = !searchVal || 
+        c.nombreCertificacion?.toLowerCase().includes(searchVal) ||
+        c.nombreEntrenador?.toLowerCase().includes(searchVal);
+      return matchSearch;
+    });
+
+    this.totalElementos = listaFiltrada.length;
+    this.totalPaginas = Math.ceil(this.totalElementos / this.itemsPorPagina) || 1;
+
+    if (this.paginaActual >= this.totalPaginas) {
+      this.paginaActual = Math.max(0, this.totalPaginas - 1);
+    }
+
+    const inicioSlice = this.paginaActual * this.itemsPorPagina;
+    this.certificaciones = listaFiltrada.slice(inicioSlice, inicioSlice + this.itemsPorPagina);
+  }
+
   aplicarFiltros(): void {
     this.paginaActual = 0;
-    this.cargarDatos();
+    this.aplicarFiltrosYPaginacion();
   }
 
   get inicio(): number {
@@ -129,7 +125,7 @@ export class CertificatesListComponent implements OnInit {
   irPagina(pZeroBased: number): void {
     if (pZeroBased !== this.paginaActual && pZeroBased >= 0 && pZeroBased < this.totalPaginas) {
       this.paginaActual = pZeroBased;
-      this.cargarDatos();
+      this.aplicarFiltrosYPaginacion();
     }
   }
 
@@ -147,7 +143,8 @@ export class CertificatesListComponent implements OnInit {
 
   limpiarFiltros(): void {
     this.filtros = { search: '', certificacion: 'todos' };
-    this.aplicarFiltros();
+    this.paginaActual = 0;
+    this.aplicarFiltrosYPaginacion();
   }
 
   nuevaCertificacion(): void {
@@ -206,3 +203,5 @@ export class CertificatesListComponent implements OnInit {
     return date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
   }
 }
+
+export { CertificatesListComponent };

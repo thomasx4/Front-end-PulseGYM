@@ -1,0 +1,249 @@
+<div class="form-container">
+    <!-- ENCABEZADO DE NAVEGACIÓN -->
+    <div class="form-header-nav">
+        <div class="breadcrumb">
+            <span>Perfiles Médicos</span> &gt; <span class="current">{{ isEditMode ? 'Editar Perfil' : 'Registrar
+                Perfil' }}</span>
+        </div>
+        <button type="button" class="btn-back" (click)="volverALista()">
+            ← Volver a la lista
+        </button>
+    </div>
+
+    <div class="form-header">
+        <h1 class="form-title">{{ isEditMode ? 'Editar Perfil Médico' : 'Registrar Perfil Médico' }}</h1>
+    </div>
+
+    <!-- FORMULARIO REACTIVO -->
+    <form [formGroup]="profileForm" (ngSubmit)="guardarPerfil()" class="form-card">
+        <div class="form-grid">
+
+            <!-- COLUMNA IZQUIERDA: INFORMACIÓN FÍSICA Y ASIGNACIÓN DE USUARIO -->
+            <div class="form-column">
+                <h3 class="column-title">Información Física</h3>
+
+                <!-- ASIGNACIÓN DE USUARIO (ESTILO DOCUMENTOS LEGALES) -->
+                <div class="form-group" *ngIf="!isEditMode">
+                    <label class="form-label">Usuario Asignado <span class="required">*</span></label>
+
+                    <!-- Estado 1: Sin usuario seleccionado -->
+                    <div *ngIf="!selectedUsuario" class="assign-partner-placeholder">
+                        <div class="placeholder-text">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                            <span>No se ha seleccionado ningún usuario</span>
+                        </div>
+                        <button type="button" class="btn-open-modal-partner" (click)="abrirModalSeleccionSocio()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <line x1="19" y1="8" x2="19" y2="14"></line>
+                                <line x1="16" y1="11" x2="22" y2="11"></line>
+                            </svg>
+                            Asignar Usuario
+                        </button>
+                    </div>
+
+                    <!-- Estado 2: Usuario seleccionado (Card elegante) -->
+                    <div *ngIf="selectedUsuario" class="partner-selected-card">
+                        <div class="partner-info">
+                            <div class="partner-avatar">
+                                <img *ngIf="getUsuarioFoto(selectedUsuario) && !hasAvatarError()"
+                                    [src]="getUsuarioFoto(selectedUsuario)" [alt]="selectedUsuario.nombre"
+                                    class="partner-avatar__img" crossOrigin="anonymous" (error)="onAvatarError()" />
+                                <span *ngIf="!getUsuarioFoto(selectedUsuario) || hasAvatarError()">
+                                    {{ getInitials(selectedUsuario.nombre, selectedUsuario.apellido) }}
+                                </span>
+                            </div>
+                            <div class="partner-details">
+                                <div class="name-rol-row">
+                                    <span class="partner-name">{{ selectedUsuario.nombre }} {{ selectedUsuario.apellido
+                                        }}</span>
+                                    <span class="role-badge" [ngClass]="getRolClass(selectedUsuario.rol)">
+                                        {{ getRolLabel(selectedUsuario.rol) }}
+                                    </span>
+                                </div>
+                                <span class="partner-email">{{ selectedUsuario.email }}</span>
+                            </div>
+                        </div>
+                        <div class="partner-card-actions">
+                            <button type="button" class="btn-change-partner" (click)="abrirModalSeleccionSocio()">
+                                Cambiar
+                            </button>
+                            <button type="button" class="btn-remove-partner" (click)="limpiarSeleccion()">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-error"
+                        *ngIf="profileForm.get('idUsuario')?.invalid && profileForm.get('idUsuario')?.touched">
+                        <span>Debes asignar un usuario para continuar.</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Peso (kg)</label>
+                    <input type="number" step="0.01" class="form-control" formControlName="pesoKg"
+                        placeholder="Ej. 75.50" />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Estatura (cm)</label>
+                    <input type="number" class="form-control" formControlName="estaturaCm" placeholder="Ej. 175" />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Porcentaje de Grasa (%)</label>
+                    <input type="number" step="0.1" class="form-control" formControlName="porcentajeGrasa"
+                        placeholder="Ej. 18.5" />
+                </div>
+            </div>
+
+            <!-- COLUMNA DERECHA: INFORMACIÓN MÉDICA -->
+            <div class="form-column">
+                <h3 class="column-title">Información Médica</h3>
+
+                <div class="form-group">
+                    <label class="form-label">Alergias</label>
+                    <input type="text" class="form-control" formControlName="alergias"
+                        placeholder="Ej. Polen, Penicilina..." />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Condiciones Crónicas</label>
+                    <input type="text" class="form-control" formControlName="condicionesCronicas"
+                        placeholder="Ej. Asma, Hipertensión..." />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Lesiones Previas</label>
+                    <textarea class="form-control textarea-control" formControlName="lesionesPrevias"
+                        placeholder="Describa lesiones previas o escriba 'No registradas'..." rows="4"></textarea>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- BOTONES DE ACCIÓN -->
+        <div class="form-actions">
+            <button type="button" class="btn-cancel" (click)="volverALista()">Cancelar</button>
+            <button type="submit" class="btn-submit" [disabled]="loading">
+                {{ isEditMode ? 'Guardar Cambios' : 'Registrar Perfil' }}
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- MODAL DE SELECCIÓN Y ASIGNACIÓN DE USUARIOS -->
+<div class="modal-overlay" *ngIf="showPartnerModal" (click)="cerrarModalSeleccionSocio()">
+    <div class="modal-partner-container" (click)="$event.stopPropagation()">
+
+        <!-- HEADER MODAL -->
+        <div class="modal-partner-header">
+            <h2>Asignar usuario al perfil médico</h2>
+            <button type="button" class="modal-close-btn" (click)="cerrarModalSeleccionSocio()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- BUSCADOR -->
+        <div class="modal-partner-search">
+            <div class="search-input-wrapper">
+                <input type="text" placeholder="Buscar por nombre, teléfono o rol..." [(ngModel)]="searchUsuario"
+                    (keyup.enter)="filtrarSociosModal()" />
+                <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+            </div>
+        </div>
+
+        <!-- TABLA DE USUARIOS -->
+ <div class="modal-partner-table-wrapper">
+            <table class="partner-table">
+                <thead>
+                    <tr>
+                        <th>USUARIO</th>
+                        <th>ROL</th>
+                        <th>CONTACTO</th>
+                        <th class="text-right">ACCIÓN</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Fila de Carga -->
+                    <tr *ngIf="loadingModalUsers">
+                        <td colspan="4" class="empty-table-msg">
+                            Cargando usuarios...
+                        </td>
+                    </tr>
+
+                    <!-- Datos de Usuarios -->
+                    <ng-container *ngIf="!loadingModalUsers">
+                        <tr *ngFor="let usuario of usuarios">
+                            <td>
+                                <div class="partner-cell">
+                                    <div class="partner-table-avatar">
+                                        <img *ngIf="getUsuarioFoto(usuario) && !hasModalAvatarError(usuario.idUsuario)"
+                                            [src]="getUsuarioFoto(usuario)" [alt]="usuario.nombre"
+                                            class="partner-table-avatar__img" crossOrigin="anonymous"
+                                            (error)="onModalAvatarError(usuario.idUsuario)" />
+                                        <span *ngIf="!getUsuarioFoto(usuario) || hasModalAvatarError(usuario.idUsuario)">
+                                            {{ getInitials(usuario.nombre, usuario.apellido) }}
+                                        </span>
+                                    </div>
+                                    <span class="partner-table-name">{{ usuario.nombre }} {{ usuario.apellido }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="role-badge" [ngClass]="getRolClass(usuario.rol)">
+                                    {{ getRolLabel(usuario.rol) }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="partner-table-contact">{{ usuario.telefono || usuario.email || 'Sin contacto' }}</span>
+                            </td>
+                            <td class="text-right">
+                                <button type="button" class="btn-assign-row" (click)="seleccionarSocioDesdeModal(usuario)">
+                                    Asignar
+                                </button>
+                            </td>
+                        </tr>
+                        <tr *ngIf="usuarios.length === 0">
+                            <td colspan="4" class="empty-table-msg">
+                                No se encontraron usuarios que coincidan con la búsqueda.
+                            </td>
+                        </tr>
+                    </ng-container>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- PAGINACIÓN MODAL -->
+        <div class="modal-partner-footer" *ngIf="totalPaginasModal > 0">
+            <div class="pagination-controls">
+                <button type="button" class="btn-page-arrow" [disabled]="paginaModalActual === 0"
+                    (click)="paginaAnteriorModal()">‹</button>
+                <button type="button" *ngFor="let p of paginasVisiblesModal" class="btn-page-num"
+                    [class.active]="p === paginaModalActual" (click)="irPaginaModal(p)">
+                    {{ p + 1 }}
+                </button>
+                <button type="button" class="btn-page-arrow" [disabled]="paginaModalActual >= totalPaginasModal - 1"
+                    (click)="paginaSiguienteModal()">›</button>
+            </div>
+        </div>
+
+    </div>
+</div>

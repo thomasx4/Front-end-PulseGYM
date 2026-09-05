@@ -1,0 +1,119 @@
+<header class="page-header">
+    <div class="header-titles">
+        <h1 class="page-title">Gestión de Sedes</h1>
+    </div>
+
+    <button type="button" class="btn-primary" (click)="abrirModalCrear()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        <span>Nueva Sede</span>
+    </button>
+</header>
+
+<section class="filter-card">
+    <div class="filter-form">
+        <div class="filter-group">
+            <label for="buscarNombre">Buscar por Nombre</label>
+            <input type="text" id="buscarNombre" [(ngModel)]="filtroNombre" placeholder="Ingrese el Nombre de la Sede"
+                class="filter-input" (keyup.enter)="aplicarFiltros()" />
+        </div>
+
+        <div class="filter-group">
+            <label for="buscarCiudad">Filtrar por Ciudad</label>
+            <input type="text" id="buscarCiudad" [(ngModel)]="filtroCiudad" placeholder="Ingrese la Ciudad en la que se encuentra la Sede"
+                class="filter-input" (keyup.enter)="aplicarFiltros()" />
+        </div>
+
+        <div class="filter-actions">
+            <button type="button" class="btn-filter btn-filter--primary" (click)="aplicarFiltros()">
+                Buscar
+            </button>
+            <button type="button" class="btn-filter btn-filter--secondary" (click)="limpiarFiltros()">
+                Limpiar
+            </button>
+        </div>
+    </div>
+</section>
+
+<div *ngIf="errorMensaje" class="alert-error">
+    {{ errorMensaje }}
+</div>
+
+<div *ngIf="cargando" class="loading-state">
+    <div class="spinner"></div>
+    <p>Cargando sedes...</p>
+</div>
+
+<section class="sedes-grid" *ngIf="!cargando && sedes.length > 0">
+    <article class="sede-card" *ngFor="let sede of sedes">
+
+        <div class="card-header-badge">
+            <span class="badge-tag badge-tag--purple">{{ sede.ciudad | uppercase }}</span>
+            <span class="badge-tag badge-tag--equipos">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+                    <path d="M2 8h16v8H2z"></path>
+                    <line x1="6" y1="1" x2="6" y2="23"></line>
+                    <line x1="14" y1="1" x2="14" y2="23"></line>
+                </svg>
+                {{ sede.cantidadEquipos ?? 0 }} equipos
+            </span>
+        </div>
+
+        <h2 class="sede-title">{{ sede.nombreSede }}</h2>
+
+        <div class="sede-details">
+            <div class="detail-row">
+                <svg class="detail-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                    <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+                <span class="detail-text">{{ sede.direccion }}</span>
+            </div>
+
+            <div class="detail-row">
+                <svg class="detail-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path
+                        d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
+                    </path>
+                </svg>
+                <span class="detail-text">{{ sede.telefono || 'Sin teléfono' }}</span>
+            </div>
+        </div>
+
+        <div class="card-footer-actions">
+            <button type="button" class="btn-card btn-card--primary" (click)="abrirModalEditar(sede)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path fill-rule="evenodd" clip-rule="evenodd" d="M20.8477 1.87868C19.6761 0.707109 17.7766 0.707105 16.605 1.87868L2.44744 16.0363C2.02864 16.4551 1.74317 16.9885 1.62702 17.5692L1.03995 20.5046C0.760062 21.904 1.9939 23.1379 3.39334 22.858L6.32868 22.2709C6.90945 22.1548 7.44285 21.8693 7.86165 21.4505L22.0192 7.29289C23.1908 6.12132 23.1908 4.22183 22.0192 3.05025L20.8477 1.87868ZM18.0192 3.29289C18.4098 2.90237 19.0429 2.90237 19.4335 3.29289L20.605 4.46447C20.9956 4.85499 20.9956 5.48815 20.605 5.87868L17.9334 8.55027L15.3477 5.96448L18.0192 3.29289ZM13.9334 7.3787L3.86165 17.4505C3.72205 17.5901 3.6269 17.7679 3.58818 17.9615L3.00111 20.8968L5.93645 20.3097C6.13004 20.271 6.30784 20.1759 6.44744 20.0363L16.5192 9.96448L13.9334 7.3787Z" fill="currentColor"></path> </g></svg>
+                <span>Editar Sede</span>
+            </button>
+            <button type="button" class="btn-card btn-card--danger" (click)="confirmarEliminacion(sede)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracurrentColorerCarrier" stroke-linecurrentcap="round" stroke-linejoin="round"></g><g id="SVGRepo_icurrentColoronCarrier"> <path d="M10 11V17" stroke="currentColor" stroke-width="2" stroke-linecurrentcap="round" stroke-linejoin="round"></path> <path d="M14 11V17" stroke="currentColor" stroke-width="2" stroke-linecurrentcap="round" stroke-linejoin="round"></path> <path d="M4 7H20" stroke="currentColor" stroke-width="2" stroke-linecurrentcap="round" stroke-linejoin="round"></path> <path d="M6 7H12H18V18C18 19.6569 16.6569 21 15 21H9C7.34315 21 6 19.6569 6 18V7Z" stroke="currentColor" stroke-width="2" stroke-linecurrentcap="round" stroke-linejoin="round"></path> <path d="M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5V7H9V5Z" stroke="currentColor" stroke-width="2" stroke-linecurrentcap="round" stroke-linejoin="round"></path> </g></svg>
+                <span>Eliminar Sede</span>
+            </button>
+        </div>
+
+    </article>
+</section>
+
+<div class="empty-state" *ngIf="!cargando && sedes.length === 0 && !errorMensaje">
+    <div class="empty-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M3 21h18"></path>
+            <path d="M9 8h1"></path>
+            <path d="M9 12h1"></path>
+            <path d="M9 16h1"></path>
+            <path d="M14 8h1"></path>
+            <path d="M14 12h1"></path>
+            <path d="M14 16h1"></path>
+            <path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"></path>
+        </svg>
+    </div>
+    <h3>No hay sedes registradas</h3>
+    <p>No se encontraron sedes que coincidan con la búsqueda actual.</p>
+</div>
+
+<app-register-headquarters *ngIf="mostrarModal" [sedeAEditar]="sedeSeleccionada" (cerrarModal)="cerrarModal()"
+    (sedeGuardada)="onSedeGuardada()">
+</app-register-headquarters>

@@ -28,7 +28,7 @@ export class DocumentsListComponent implements OnInit {
   constructor(
     private documentService: DocumentService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.cargarTiposDocumento();
@@ -62,97 +62,53 @@ export class DocumentsListComponent implements OnInit {
     this.loading = true;
     this.errorMensaje = '';
 
-    const tipoFiltro = this.filtroTipo !== 'todos' ? this.filtroTipo : undefined;
-    const estadoFiltro = this.filtroEstado !== 'todos' ? this.filtroEstado.toUpperCase() : undefined;
-    const busquedaFiltro = this.searchTerm.trim();
-
     const filtros: FiltrosDocumentos = {
       pagina: this.numeroPagina,
       tamanio: this.tamanioPagina,
-      search: busquedaFiltro || undefined,
-      tipoDocumento: tipoFiltro,
-      estado: estadoFiltro
+      search: this.searchTerm.trim() || undefined,
+      tipoDocumento: this.filtroTipo !== 'todos' ? this.filtroTipo : undefined,
+      estado: this.filtroEstado !== 'todos' ? this.filtroEstado.toUpperCase() : undefined
     };
 
     this.documentService.obtenerDocumentosPaginados(filtros).subscribe({
-      next: (response: any) => {
-        let arrayCompleto: Document[] = [];
+      next: (response) => {
+        let items = response.content || response.contenido || response.data || [];
 
-        if (Array.isArray(response)) {
-          arrayCompleto = response;
-        } else {
-          const listData = response.data || response.contenido || response.content || [];
-          arrayCompleto = Array.isArray(listData) ? listData : [];
+        if (this.searchTerm && this.searchTerm.trim() !== '') {
+          const queryNormalizada = this.normalizarTexto(this.searchTerm);
+          items = items.filter((doc: Document) => {
+            const nombreUsuarioNorm = this.normalizarTexto(doc.nombreUsuario || '');
+            const tipoDocNorm = this.normalizarTexto(doc.tipoDocumento || '');
+            const labelTipoNorm = this.normalizarTexto(getTipoDocumentoLabel(doc.tipoDocumento) || '');
+            return nombreUsuarioNorm.includes(queryNormalizada) ||
+              tipoDocNorm.includes(queryNormalizada) ||
+              labelTipoNorm.includes(queryNormalizada);
+          });
         }
 
-        // Filtrado fallback local
-        let listaFiltrada = arrayCompleto;
-
-        if (busquedaFiltro) {
-          const query = busquedaFiltro.toLowerCase();
-          listaFiltrada = listaFiltrada.filter(d =>
-            (d.nombreUsuario && d.nombreUsuario.toLowerCase().includes(query)) ||
-            (d.tipoDocumento && getTipoDocumentoLabel(d.tipoDocumento).toLowerCase().includes(query))
-          );
-        }
-
-        if (tipoFiltro) {
-          listaFiltrada = listaFiltrada.filter(d => d.tipoDocumento === tipoFiltro);
-        }
-
-        if (estadoFiltro) {
-          listaFiltrada = listaFiltrada.filter(d => d.estado && d.estado.toUpperCase() === estadoFiltro);
-        }
-
-        this.totalElementos = response.totalElementos ?? response.totalElements ?? listaFiltrada.length;
-
-        if (Array.isArray(response) || listaFiltrada.length !== arrayCompleto.length) {
-          this.totalElementos = listaFiltrada.length;
-          this.totalPaginas = Math.ceil(this.totalElementos / this.tamanioPagina) || 1;
-          const inicioSlice = this.numeroPagina * this.tamanioPagina;
-          const finSlice = inicioSlice + this.tamanioPagina;
-          this.documentos = listaFiltrada.slice(inicioSlice, finSlice);
-        } else {
-          this.documentos = listaFiltrada;
-          this.totalPaginas = response.totalPaginas ?? response.totalPages ?? 1;
-          this.numeroPagina = response.numeroPagina ?? response.currentPage ?? response.number ?? 0;
-          this.tamanioPagina = response.tamanioPagina ?? response.size ?? 5;
-        }
-
+        this.documentos = items;
+        this.totalElementos = response.totalElements || items.length;
+        this.totalPaginas = response.totalPages || Math.ceil(this.totalElementos / this.tamanioPagina) || 0;
+        this.numeroPagina = response.number || response.currentPage || 0;
+        this.tamanioPagina = response.size || 5;
         this.loading = false;
       },
-      error: (error: any) => {
-        console.error('Error al cargar documentos:', error);
-        // Fallback a datos de ejemplo si falla la API
-        let listaEjemplo = this.getDocumentosEjemplo();
-        if (busquedaFiltro) {
-          const q = busquedaFiltro.toLowerCase();
-          listaEjemplo = listaEjemplo.filter(d => d.nombreUsuario.toLowerCase().includes(q));
-        }
-        if (tipoFiltro) {
-          listaEjemplo = listaEjemplo.filter(d => d.tipoDocumento === tipoFiltro);
-        }
-        if (estadoFiltro) {
-          listaEjemplo = listaEjemplo.filter(d => d.estado === estadoFiltro);
-        }
-
-        this.totalElementos = listaEjemplo.length;
-        this.totalPaginas = Math.ceil(this.totalElementos / this.tamanioPagina) || 1;
-        const inicioSlice = this.numeroPagina * this.tamanioPagina;
-        this.documentos = listaEjemplo.slice(inicioSlice, inicioSlice + this.tamanioPagina);
+      error: (error) => {
+        console.error('Error al cargar documentos paginados:', error);
+        this.errorMensaje = 'No se pudieron cargar los documentos del servidor.';
+        this.documentos = [];
+        this.totalElementos = 0;
+        this.totalPaginas = 0;
         this.loading = false;
       }
     });
   }
 
-  private getDocumentosEjemplo(): Document[] {
-    return [
-      { idDocumento: 1, idUsuario: 1, nombreUsuario: 'Juan Pérez', tipoDocumento: 'CONTRATO', fechaFirma: '2024-05-12T10:00:00', urlArchivoFirmado: '', estado: 'VIGENTE' },
-      { idDocumento: 2, idUsuario: 2, nombreUsuario: 'María Gómez', tipoDocumento: 'CONSENTIEMIENTO_INFORMADO', fechaFirma: '2024-05-05T10:00:00', urlArchivoFirmado: '', estado: 'VIGENTE' },
-      { idDocumento: 3, idUsuario: 3, nombreUsuario: 'Carlos López', tipoDocumento: 'EXONERACION', fechaFirma: '2024-04-20T10:00:00', urlArchivoFirmado: '', estado: 'VIGENTE' },
-      { idDocumento: 4, idUsuario: 4, nombreUsuario: 'Ana Martínez', tipoDocumento: 'CONTRATO', fechaFirma: '2024-03-15T10:00:00', urlArchivoFirmado: '', estado: 'VIGENTE' },
-      { idDocumento: 5, idUsuario: 5, nombreUsuario: 'Pedro Ramírez', tipoDocumento: 'CONSENTIEMIENTO_INFORMADO', fechaFirma: '2024-02-10T10:00:00', urlArchivoFirmado: '', estado: 'VENCIDO' }
-    ];
+  private normalizarTexto(texto: string): string {
+    return texto
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
   }
 
   aplicarFiltros(): void {

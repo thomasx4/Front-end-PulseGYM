@@ -1,4 +1,3 @@
-
 export interface AsistenciaResponseDTO {
   idAsistencia: number;
   idUsuario: number;
@@ -40,7 +39,7 @@ export interface HistorialAccesoResponse {
 }
 
 export interface FiltrosHistorial {
-  usuarioId?: number;
+  nombreUsuario?: string;
   fechaDesde?: string;
   fechaHasta?: string;
   tipoAcceso?: string;

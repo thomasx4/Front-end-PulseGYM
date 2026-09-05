@@ -42,7 +42,7 @@
                     <div class="avatar-container">
                         <img *ngIf="getUserFoto(item) && !hasAvatarError('pv_' + (item.idSocio || item.id))"
                             [src]="getUserFoto(item)" [alt]="item.nombreSocio || item.nombre" class="user-avatar"
-                            crossOrigin="anonymous" (error)="onAvatarError('pv_' + (item.idSocio || item.id))" />
+                            (error)="onAvatarError('pv_' + (item.idSocio || item.id))" />
                         <div *ngIf="!getUserFoto(item) || hasAvatarError('pv_' + (item.idSocio || item.id))"
                             class="user-avatar-initials">
                             {{ getInitials(item.nombreSocio || item.nombre) }}
@@ -255,8 +255,7 @@
                                 <div class="user-profile">
                                     <div class="avatar-container">
                                         <img *ngIf="getUserFoto(socio) && !hasAvatarError('tabla_' + socio.id)"
-                                            [src]="getUserFoto(socio)" [alt]="socio.nombre"
-                                            class="user-profile__avatar" crossOrigin="anonymous"
+                                            [src]="getUserFoto(socio)" [alt]="socio.nombre" class="user-profile__avatar"
                                             (error)="onAvatarError('tabla_' + socio.id)" />
                                         <div *ngIf="!getUserFoto(socio) || hasAvatarError('tabla_' + socio.id)"
                                             class="user-avatar-initials">
@@ -308,7 +307,6 @@
                     </tbody>
                 </table>
 
-                <!-- FOOTER DE PAGINACIÓN INTEGRO PARA LA TABLA DE SOCIOS ASIGNADOS -->
                 <div class="table-footer" *ngIf="sociosAsignados.length > 0">
                     <span class="table-footer__info">
                         Mostrando {{ sociosAsignados.length }} de {{ totalSociosAsignadosBackend }} socios
@@ -375,7 +373,7 @@
                                     <div class="avatar-container">
                                         <img *ngIf="getUserFoto(socio) && !hasAvatarError('modal_' + socio.id)"
                                             [src]="getUserFoto(socio)" [alt]="socio.nombre" class="socio-cell__avatar"
-                                            crossOrigin="anonymous" (error)="onAvatarError('modal_' + socio.id)" />
+                                            (error)="onAvatarError('modal_' + socio.id)" />
                                         <div *ngIf="!getUserFoto(socio) || hasAvatarError('modal_' + socio.id)"
                                             class="user-avatar-initials modal-avatar-initials">
                                             {{ getInitials(socio.nombre) }}
@@ -472,7 +470,7 @@
                                     <div class="avatar-container">
                                         <img *ngIf="getUserFoto(socio) && !hasAvatarError('modal_flex_' + socio.id)"
                                             [src]="getUserFoto(socio)" [alt]="socio.nombre" class="socio-cell__avatar"
-                                            crossOrigin="anonymous" (error)="onAvatarError('modal_flex_' + socio.id)" />
+                                            (error)="onAvatarError('modal_flex_' + socio.id)" />
                                         <div *ngIf="!getUserFoto(socio) || hasAvatarError('modal_flex_' + socio.id)"
                                             class="user-avatar-initials modal-avatar-initials">
                                             {{ getInitials(socio.nombre) }}

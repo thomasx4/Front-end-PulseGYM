@@ -70,7 +70,6 @@ export class SidebarComponent implements OnInit {
       </svg>
     `);
 
-    // ITEMS DEL SUBMENÚ DE MEMBRESÍAS (SOLO ASIGNAR)
     const profileIcon = this.sanitizer.bypassSecurityTrustHtml(`
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -103,6 +102,14 @@ export class SidebarComponent implements OnInit {
       </svg>
     `);
 
+    const medicalProfileIcon = this.sanitizer.bypassSecurityTrustHtml(`
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"></path>
+        <line x1="12" y1="8" x2="12" y2="16"></line>
+        <line x1="8" y1="12" x2="16" y2="12"></line>
+      </svg>
+    `);
+
     this.membershipChildren = [
       {
         label: 'Asignar Membresía',
@@ -119,7 +126,6 @@ export class SidebarComponent implements OnInit {
       }
     ];
 
-    // MENÚ PRINCIPAL
     this.usersChildren = [
       {
         label: 'Credenciales de Usuarios',
@@ -153,12 +159,17 @@ export class SidebarComponent implements OnInit {
         label: 'Historial Físico',
         route: '/dashboard-admin/users/physical-history',
         iconHtml: physicalHistoryIcon,
+      },
+      {
+        label: 'Perfiles Médicos',
+        route: '/dashboard-admin/users/medical-profile',
+        iconHtml: medicalProfileIcon,
       }
     ];
 
     this.menuItems = [
       {
-        label: 'Dashboard',
+        label: 'Tablero', // Traducido de Dashboard
         route: '/dashboard-admin',
         exact: true,
         iconHtml: this.sanitizer.bypassSecurityTrustHtml(`
@@ -171,7 +182,7 @@ export class SidebarComponent implements OnInit {
         `),
       },
       {
-        label: 'Payments',
+        label: 'Pagos', // Traducido de Payments y apuntando a su ruta correspondiente
         route: '/dashboard-admin/payments',
         iconHtml: this.sanitizer.bypassSecurityTrustHtml(`
           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="sidebar__nav-icon">
@@ -180,7 +191,23 @@ export class SidebarComponent implements OnInit {
         `),
       },
       {
-        label: 'Equipment',
+        label: 'Sedes',
+        route: '/dashboard-admin/headquarters',
+        iconHtml: this.sanitizer.bypassSecurityTrustHtml(`
+          <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 21h18"></path>
+            <path d="M9 8h1"></path>
+            <path d="M9 12h1"></path>
+            <path d="M9 16h1"></path>
+            <path d="M14 8h1"></path>
+            <path d="M14 12h1"></path>
+            <path d="M14 16h1"></path>
+            <path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"></path>
+          </svg>
+         `)
+      },
+      {
+        label: 'Equipos', // Traducido de Equipment
         route: '/dashboard-admin/equipment',
         iconHtml: this.sanitizer.bypassSecurityTrustHtml(`
           <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="sidebar__nav-icon">
@@ -200,7 +227,7 @@ export class SidebarComponent implements OnInit {
         `),
       },
       {
-        label: 'Reports',
+        label: 'Reportes', // Traducido de Reports
         route: '/dashboard-admin/reports',
         iconHtml: this.sanitizer.bypassSecurityTrustHtml(`
           <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="sidebar__nav-icon">
@@ -241,7 +268,6 @@ export class SidebarComponent implements OnInit {
     `)
   }
 
-  // VERIFICAR SI ALGUNA RUTA DE MEMBRESÍAS ESTÁ ACTIVA
   isMembershipActive(): boolean {
     const url = this.router.url;
     return url.includes('/dashboard-admin/memberships');

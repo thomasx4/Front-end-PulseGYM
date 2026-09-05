@@ -1,16 +1,16 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
-import { 
-  RespuestaPaginadaCredenciales, 
-  RegisterRequestDTO, 
-  MessageGlobalDTO, 
-  HttpGlobalResponse, 
-  Credencial, 
+import {
+  RespuestaPaginadaCredenciales,
+  RegisterRequestDTO,
+  MessageGlobalDTO,
+  HttpGlobalResponse,
+  Credencial,
   ChangePasswordDTO,
-  AuthCredentials, 
-  User, 
+  AuthCredentials,
+  User,
   RolUsuario,
-  FiltrosUsuarios 
+  FiltrosUsuarios
 } from '../../features/auth/models/auth/auth.model';
 import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Observable, throwError, BehaviorSubject } from 'rxjs';
@@ -74,15 +74,17 @@ export class AuthService {
   listarCredenciales(filtros: FiltrosUsuarios = {}): Observable<RespuestaPaginadaCredenciales> {
     let params = new HttpParams();
 
-    if (filtros.username) {
-      params = params.set('username', filtros.username);
-    }
-    if (filtros.email) {
-      params = params.set('email', filtros.email);
-    }
     if (filtros.busqueda) {
       params = params.set('busqueda', filtros.busqueda);
+    } else {
+      if (filtros.username) {
+        params = params.set('username', filtros.username);
+      }
+      if (filtros.email) {
+        params = params.set('email', filtros.email);
+      }
     }
+
     if (filtros.rol) {
       params = params.set('rol', filtros.rol);
     }

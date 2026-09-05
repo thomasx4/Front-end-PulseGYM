@@ -351,43 +351,53 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let socio of socios">
-            <td>
-              <div class="partner-cell">
-                <div class="partner-table-avatar">
-                  <img 
-                    *ngIf="getUserFoto(socio) && !socio._avatarError" 
-                    [src]="getUserFoto(socio)" 
-                    [alt]="socio.nombre" 
-                    class="avatar-img" 
-                    crossOrigin="anonymous" 
-                    loading="lazy"
-                    (error)="onImageError(socio)"
-                  />
-                  <span *ngIf="!getUserFoto(socio) || socio._avatarError">
-                    {{ (socio.nombre?.charAt(0) || '?') }}{{ (socio.apellido?.charAt(0) || '?') }}
-                  </span>
-                </div>
-                <span class="partner-table-name">{{ socio.nombre }} {{ socio.apellido }}</span>
-              </div>
-            </td>
-            <td>
-              <span class="role-badge" [ngClass]="getBadgeClass(socio)">{{ getRolNombre(socio) }}</span>
-            </td>
-            <td>
-              <span class="partner-table-contact">{{ socio.telefono || socio.email || 'Sin contacto' }}</span>
-            </td>
-            <td class="text-right">
-              <button type="button" class="btn-assign-row" (click)="seleccionarSocioModal(socio)">
-                Asignar
-              </button>
-            </td>
-          </tr>
-          <tr *ngIf="socios.length === 0 && !loadingSocioUsers">
+          <!-- Fila de carga (Se muestra únicamente mientras carga) -->
+          <tr *ngIf="loadingSocioUsers">
             <td colspan="4" class="empty-table-msg">
-              No se encontraron usuarios que coincidan con la búsqueda.
+              Cargando usuario...
             </td>
           </tr>
+
+          <!-- Filas de datos (Solo se muestran cuando TERMINA de cargar) -->
+          <ng-container *ngIf="!loadingSocioUsers">
+            <tr *ngFor="let socio of socios">
+              <td>
+                <div class="partner-cell">
+                  <div class="partner-table-avatar">
+                    <img 
+                      *ngIf="getUserFoto(socio) && !socio._avatarError" 
+                      [src]="getUserFoto(socio)" 
+                      [alt]="socio.nombre" 
+                      class="avatar-img" 
+                      crossOrigin="anonymous" 
+                      loading="lazy"
+                      (error)="onImageError(socio)"
+                    />
+                    <span *ngIf="!getUserFoto(socio) || socio._avatarError">
+                      {{ (socio.nombre?.charAt(0) || '?') }}{{ (socio.apellido?.charAt(0) || '?') }}
+                    </span>
+                  </div>
+                  <span class="partner-table-name">{{ socio.nombre }} {{ socio.apellido }}</span>
+                </div>
+              </td>
+              <td>
+                <span class="role-badge" [ngClass]="getBadgeClass(socio)">{{ getRolNombre(socio) }}</span>
+              </td>
+              <td>
+                <span class="partner-table-contact">{{ socio.telefono || socio.email || 'Sin contacto' }}</span>
+              </td>
+              <td class="text-right">
+                <button type="button" class="btn-assign-row" (click)="seleccionarSocioModal(socio)">
+                  Asignar
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="socios.length === 0">
+              <td colspan="4" class="empty-table-msg">
+                No se encontraron usuarios que coincidan con la búsqueda.
+              </td>
+            </tr>
+          </ng-container>
         </tbody>
       </table>
     </div>
@@ -440,43 +450,53 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let rec of recepcionistas">
-            <td>
-              <div class="partner-cell">
-                <div class="partner-table-avatar partner-table-avatar--reception">
-                  <img 
-                    *ngIf="getUserFoto(rec) && !rec._avatarError" 
-                    [src]="getUserFoto(rec)" 
-                    [alt]="rec.nombre" 
-                    class="avatar-img" 
-                    crossOrigin="anonymous" 
-                    loading="lazy"
-                    (error)="onImageError(rec)"
-                  />
-                  <span *ngIf="!getUserFoto(rec) || rec._avatarError">
-                    {{ (rec.nombre?.charAt(0) || '?') }}{{ (rec.apellido?.charAt(0) || '?') }}
-                  </span>
-                </div>
-                <span class="partner-table-name">{{ rec.nombre }} {{ rec.apellido }}</span>
-              </div>
-            </td>
-            <td>
-              <span class="role-badge" [ngClass]="getBadgeClass(rec)">{{ getRolNombre(rec) }}</span>
-            </td>
-            <td>
-              <span class="partner-table-contact">{{ rec.telefono || rec.email || 'Sin contacto' }}</span>
-            </td>
-            <td class="text-right">
-              <button type="button" class="btn-assign-row" (click)="seleccionarRecepcionistaModal(rec)">
-                Asignar
-              </button>
-            </td>
-          </tr>
-          <tr *ngIf="recepcionistas.length === 0 && !loadingRecepcionistaUsers">
+          <!-- Fila de carga (Se muestra únicamente mientras carga) -->
+          <tr *ngIf="loadingRecepcionistaUsers">
             <td colspan="4" class="empty-table-msg">
-              No se encontraron recepcionistas ni entrenadores.
+              Cargando usuario...
             </td>
           </tr>
+
+          <!-- Filas de datos (Solo se muestran cuando TERMINA de cargar) -->
+          <ng-container *ngIf="!loadingRecepcionistaUsers">
+            <tr *ngFor="let rec of recepcionistas">
+              <td>
+                <div class="partner-cell">
+                  <div class="partner-table-avatar partner-table-avatar--reception">
+                    <img 
+                      *ngIf="getUserFoto(rec) && !rec._avatarError" 
+                      [src]="getUserFoto(rec)" 
+                      [alt]="rec.nombre" 
+                      class="avatar-img" 
+                      crossOrigin="anonymous" 
+                      loading="lazy"
+                      (error)="onImageError(rec)"
+                    />
+                    <span *ngIf="!getUserFoto(rec) || rec._avatarError">
+                      {{ (rec.nombre?.charAt(0) || '?') }}{{ (rec.apellido?.charAt(0) || '?') }}
+                    </span>
+                  </div>
+                  <span class="partner-table-name">{{ rec.nombre }} {{ rec.apellido }}</span>
+                </div>
+              </td>
+              <td>
+                <span class="role-badge" [ngClass]="getBadgeClass(rec)">{{ getRolNombre(rec) }}</span>
+              </td>
+              <td>
+                <span class="partner-table-contact">{{ rec.telefono || rec.email || 'Sin contacto' }}</span>
+              </td>
+              <td class="text-right">
+                <button type="button" class="btn-assign-row" (click)="seleccionarRecepcionistaModal(rec)">
+                  Asignar
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="recepcionistas.length === 0">
+              <td colspan="4" class="empty-table-msg">
+                No se encontraron recepcionistas ni entrenadores.
+              </td>
+            </tr>
+          </ng-container>
         </tbody>
       </table>
     </div>
