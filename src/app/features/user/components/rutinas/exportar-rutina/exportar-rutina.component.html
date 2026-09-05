@@ -1,0 +1,123 @@
+<div class="exportar-rutina-layout">
+    <app-navbar></app-navbar>
+
+    <div class="exportar-rutina-main">
+        <app-header></app-header>
+
+        <div class="exportar-rutina-wrapper">
+            <!-- Header -->
+            <header class="page-header">
+                <div class="page-header__left">
+                    <button class="btn-back" (click)="volver()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 12H5"/>
+                            <path d="m12 19-7-7 7-7"/>
+                        </svg>
+                        Volver
+                    </button>
+                    <div>
+                        <h1>Exportar rutina</h1>
+                        <p class="subtitle">Exporta tus rutinas en formato PDF para compartir o imprimir</p>
+                    </div>
+                </div>
+                <div class="page-header__right">
+                    <button class="btn btn--export" (click)="exportarUltimaRutina()" [disabled]="isLoading || rutinas.length === 0">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="7 10 12 15 17 10"/>
+                            <line x1="12" y1="15" x2="12" y2="3"/>
+                        </svg>
+                        Exportar última
+                    </button>
+                </div>
+            </header>
+
+
+            <!-- Contenido -->
+            <ng-container *ngIf="!isLoading && !errorMessage">
+                <!-- Grid de rutinas -->
+                <div class="rutinas-grid">
+                    <div class="rutina-card" *ngFor="let rutina of rutinas">
+                        <div class="rutina-card__header">
+                            <div class="rutina-card__info">
+                                <h4>{{ rutina.nombre }}</h4>
+                                <span class="rutina-card__badge">{{ getDiasPorSemana(rutina.detalles) }} dias/sem</span>
+                            </div>
+                            <span class="rutina-card__date">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                    <line x1="16" y1="2" x2="16" y2="6"/>
+                                    <line x1="8" y1="2" x2="8" y2="6"/>
+                                    <line x1="3" y1="10" x2="21" y2="10"/>
+                                </svg>
+                                {{ formatearFecha(rutina.fechaGeneracion) }}
+                            </span>
+                        </div>
+                        <div class="rutina-card__body">
+                            <div class="rutina-card__meta">
+                                <span>
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <polyline points="12 6 12 12 16 14"/>
+                                    </svg>
+                                    {{ rutina.detalles?.length || 0 }} ejercicios
+                                </span>
+                                <span *ngIf="rutina.generadaPorIA" class="badge-ia">IA</span>
+                            </div>
+                        </div>
+                        <div class="rutina-card__footer">
+                            <button class="btn btn--outline" (click)="exportarUnaRutina(rutina.idRutina)">
+                                Exportar PDF
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                    <polyline points="7 10 12 15 17 10"/>
+                                    <line x1="12" y1="15" x2="12" y2="3"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div *ngIf="rutinas.length === 0" class="empty-state">
+                    <div class="empty-state__icon">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                            <line x1="16" y1="2" x2="16" y2="6"/>
+                            <line x1="8" y1="2" x2="8" y2="6"/>
+                            <line x1="3" y1="10" x2="21" y2="10"/>
+                        </svg>
+                    </div>
+                    <h3>No tienes rutinas guardadas</h3>
+                    <p>Genera una rutina con IA primero para poder exportarla</p>
+                    <button class="btn btn--primary" (click)="volver()">
+                        Ir a rutinas
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14"/>
+                            <path d="m12 5 7 7-7 7"/>
+                        </svg>
+                    </button>
+                </div>
+            </ng-container>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Error -->
+<div class="modal-overlay" *ngIf="showErrorModal" (click)="onCloseModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-icon error-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+        </div>
+        <h3 class="modal-title">{{ errorModalTitle || 'Error' }}</h3>
+        <p class="modal-message">{{ errorModalMessage || 'Ocurrió un error. Por favor, intenta de nuevo.' }}</p>
+        <div class="modal-actions">
+            <button class="modal-btn modal-btn-secondary" (click)="onCloseModal()">Cancelar</button>
+            <button class="modal-btn modal-btn-primary" (click)="onRetry()">Reintentar</button>
+        </div>
+    </div>
+</div>
