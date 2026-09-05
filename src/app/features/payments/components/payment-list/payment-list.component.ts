@@ -27,6 +27,7 @@ export class PaymentListComponent implements OnInit {
 
   resumen: PaymentSummaryDTO = {
     ingresosMes: 0,
+    ingresosMesAnterior: 0,
     pagosEsteMes: 0,
     pendientesCount: 0,
     vencidosCount: 0,
@@ -82,7 +83,6 @@ export class PaymentListComponent implements OnInit {
     this.selectedPayment = item;
   }
 
-  // ANULAR PAGO CON SWEETALERT2
   async onAnularPago(item: Payment, event: Event): Promise<void> {
     event.stopPropagation();
     

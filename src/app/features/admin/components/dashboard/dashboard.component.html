@@ -125,7 +125,7 @@
             <div class="chart-card__donut-container">
                 <div class="donut-chart" [style.background]="getDonutGradient()">
                     <div class="donut-chart__center">
-                        <span class="donut-chart__value">${{ (totalRevenue / 1000) | number:'1.1-1' }}k</span>
+                        <span class="donut-chart__value">{{ mesActualTotalRevenue | currency:'COP':'symbol':'1.0-0' }}</span>
                         <span class="donut-chart__label">INGRESOS TOTALES</span>
                     </div>
                 </div>

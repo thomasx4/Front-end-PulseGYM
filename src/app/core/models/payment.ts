@@ -20,6 +20,7 @@ export interface Payment {
 
 export interface PaymentSummaryDTO {
     ingresosMes: number;
+    ingresosMesAnterior: number;
     pagosEsteMes: number;
     pendientesCount: number;
     vencidosCount: number;
@@ -32,7 +33,6 @@ export interface RegistrarPagoRequestDTO {
     metodoPago: 'EFECTIVO' | 'TRANSFERENCIA_BANCOLOMBIA' | 'TARJETA_CREDITO' | 'TARJETA_DEBITO' | 'OTRO';
     numeroComprobante?: string;
     observaciones?: string;
-
 }
 
 export interface AnularPagoRequestDTO {

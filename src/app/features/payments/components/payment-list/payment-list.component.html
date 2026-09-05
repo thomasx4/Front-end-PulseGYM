@@ -41,9 +41,21 @@
             </div>
         </div>
         <div class="kpi-card">
-            <div class="kpi-card__icon kpi-card__icon--blue">
+            <div class="kpi-card__icon kpi-card__icon--cyan">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                </svg>
+            </div>
+            <div class="kpi-card__content">
+                <span class="kpi-card__label">Mes Anterior</span>
+                <span class="kpi-card__value">${{ resumen.ingresosMesAnterior | number:'1.2-2' }}</span>
+            </div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-card__icon kpi-card__icon--blue">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                     <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                    <line x1="2" y1="10" x2="22" y2="10"></line>
                 </svg>
             </div>
             <div class="kpi-card__content">
@@ -64,7 +76,7 @@
             </div>
         </div>
         <div class="kpi-card">
-            <div class="kpi-card__icon kpi-card__icon--cyan">
+            <div class="kpi-card__icon kpi-card__icon--green">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                     <polyline points="22 4 12 14.01 9 11.01"></polyline>
@@ -125,12 +137,15 @@
                         <th>MEMBRESÍA</th>
                         <th>MONTO</th>
                         <th>MÉTODO DE PAGO</th>
+                        <th class="text-center">ESTADO</th>
                         <th class="text-center">ACCIONES</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr *ngFor="let item of paginatedRecords"
-                        [class.selected]="selectedPayment?.idPago === item.idPago">
+                        [class.selected]="selectedPayment?.idPago === item.idPago"
+                        [class.row-anulado]="item.anulado"
+                        (click)="onSelectPayment(item)">
                         <td>
                             <div class="date-cell">
                                 <span class="date-cell__date">{{ item.fechaPago | date:'dd MMM yyyy' }}</span>
@@ -139,6 +154,9 @@
                         </td>
                         <td>
                             <div class="user-cell">
+                                <div class="avatar-mini">
+                                    {{ item.nombreSocio ? item.nombreSocio.charAt(0).toUpperCase() : 'S' }}
+                                </div>
                                 <div class="info">
                                     <span class="name">{{ item.nombreSocio }}</span>
                                     <span class="id">ID: {{ item.idSocio }}</span>
@@ -147,21 +165,29 @@
                         </td>
                         <td>
                             <div class="plan-cell">
-                                <span class="plan-name">{{ item.nombreMembresia }}</span>
+                                <span class="plan-badge">{{ item.nombreMembresia }}</span>
                             </div>
                         </td>
-                        <td><span class="amount">${{ item.monto | number:'1.2-2' }}</span></td>
+                        <td>
+                            <span class="amount" [class.text-through]="item.anulado">
+                                ${{ item.monto | number:'1.2-2' }}
+                            </span>
+                        </td>
                         <td>
                             <div class="method-cell">
-                                <span class="method-badge">{{ item.metodoPago }}</span>
-                                <span class="method-sub" *ngIf="item.numeroComprobante">{{ item.numeroComprobante
-                                    }}</span>
+                                <span class="method-tag">{{ item.metodoPago }}</span>
+                                <span class="method-sub" *ngIf="item.numeroComprobante">Ref: {{ item.numeroComprobante }}</span>
                             </div>
                         </td>
+                        <td class="text-center">
+                            <span class="status-pill" [class.danger]="item.anulado" [class.success]="!item.anulado">
+                                {{ item.anulado ? 'ANULADO' : 'APROBADO' }}
+                            </span>
+                        </td>
                         <td>
-                            <div class="actions-cell">
+                            <div class="actions-cell" (click)="$event.stopPropagation()">
                                 <button class="action-btn" title="Ver Detalle" (click)="onSelectPayment(item, $event)">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                         stroke-width="2">
                                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                                         <circle cx="12" cy="12" r="3"></circle>
@@ -170,8 +196,8 @@
 
                                 <button class="action-btn action-btn--danger" *ngIf="!item.anulado" title="Anular Pago"
                                     (click)="onAnularPago(item, $event)">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                        stoke-width="2">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
                                         <polyline points="3 6 5 6 21 6"></polyline>
                                         <path
                                             d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
@@ -182,11 +208,18 @@
                                 </button>
                             </div>
                         </td>
-
-
                     </tr>
                     <tr *ngIf="paginatedRecords.length === 0 && !loading">
-                        <td colspan="6" class="empty-row">No se encontraron pagos registrados.</td>
+                        <td colspan="7" class="empty-row">
+                            <div class="empty-state-content">
+                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                                </svg>
+                                <p>No se encontraron pagos registrados.</p>
+                            </div>
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -214,7 +247,7 @@
             </div>
 
             <div class="detail-body">
-                <div class="status-pill" [class.success]="!selectedPayment.anulado"
+                <div class="status-pill lg" [class.success]="!selectedPayment.anulado"
                     [class.danger]="selectedPayment.anulado">
                     {{ selectedPayment.anulado ? 'ANULADO' : (selectedPayment.estado || 'APROBADO') }}
                 </div>

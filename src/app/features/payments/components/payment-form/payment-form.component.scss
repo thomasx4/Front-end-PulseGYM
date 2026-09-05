@@ -154,9 +154,7 @@
     }
 }
 
-// ... (Mantén tus estilos anteriores y añade los siguientes al final)
-
-/* COMPONENTE: PLACEHOLDER DE USUARIO */
+/* PLACEHOLDER DE USUARIO */
 .assign-partner-placeholder {
     display: flex;
     align-items: center;
@@ -200,67 +198,102 @@
     }
 }
 
-/* COMPONENTE: TARJETA DE USUARIO SELECCIONADO */
+/* TARJETA DE USUARIO SELECCIONADO (CON SECCIÓN DE MONTO INDEPENDIENTE) */
 .partner-selected-card {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 14px 18px;
-    background: #f0f9ff;
-    border: 1.5px solid #bae6fd;
+    flex-direction: column;
+    gap: 14px;
+    padding: 16px 20px;
+    background: #f8fafc;
+    border: 1.5px solid #cbd5e1;
     border-radius: 12px;
 
-    .partner-info {
+    .partner-info-wrapper {
         display: flex;
         align-items: center;
-        gap: 14px;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 16px;
 
-        .partner-avatar {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background: #0e3b72;
-            color: #ffffff;
+        .partner-info {
             display: flex;
             align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 0.95rem;
-            overflow: hidden;
-            flex-shrink: 0;
+            gap: 14px;
 
-            &__img {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
+            .partner-avatar {
+                width: 46px;
+                height: 46px;
+                border-radius: 50%;
+                background: #0e3b72;
+                color: #ffffff;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: 700;
+                font-size: 0.95rem;
+                overflow: hidden;
+                flex-shrink: 0;
+
+                &__img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                }
+            }
+
+            .partner-details {
+                display: flex;
+                flex-direction: column;
+                gap: 2px;
+
+                .name-rol-row {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    flex-wrap: wrap;
+                }
+
+                .partner-name {
+                    font-weight: 700;
+                    color: #0f172a;
+                    font-size: 0.95rem;
+                }
+
+                .partner-email {
+                    font-size: 0.8rem;
+                    color: #64748b;
+                }
+
+                .partner-phone {
+                    font-size: 0.75rem;
+                    color: #0284c7;
+                    font-weight: 500;
+                }
             }
         }
 
-        .partner-details {
+        /* CAJA INDEPENDIENTE PARA EL VALOR TOTAL */
+        .amount-display-box {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            padding: 8px 16px;
+            border-radius: 10px;
             display: flex;
             flex-direction: column;
+            align-items: flex-end;
 
-            .name-rol-row {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-            }
-
-            .partner-name {
+            .amount-label {
+                font-size: 0.7rem;
                 font-weight: 700;
-                color: #0b1a30;
-                font-size: 0.95rem;
+                color: #166534;
+                text-transform: uppercase;
+                letter-spacing: 0.03em;
             }
 
-            .partner-email {
-                font-size: 0.8rem;
-                color: #64748b;
-            }
-
-            .partner-phone {
-                font-size: 0.75rem;
-                color: #0284c7;
-                font-weight: 500;
+            .amount-value {
+                font-size: 1.15rem;
+                font-weight: 800;
+                color: #15803d;
             }
         }
     }
@@ -268,7 +301,10 @@
     .partner-card-actions {
         display: flex;
         align-items: center;
+        justify-content: flex-end;
         gap: 8px;
+        border-top: 1px solid #e2e8f0;
+        padding-top: 10px;
 
         .btn-change-partner {
             padding: 6px 14px;
@@ -299,28 +335,30 @@
     }
 }
 
-/* ESTILOS DE LA VENTANA MODAL */
+/* VENTANA MODAL AMPLIADA Y RESPONSIVA */
 .modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(15, 23, 42, 0.45);
+    background: rgba(15, 23, 42, 0.5);
     backdrop-filter: blur(4px);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 9999;
+    padding: 1rem;
 }
 
 .modal-partner-container {
     background: #ffffff;
     border-radius: 16px;
-    width: 640px;
-    max-width: 92%;
+    width: 820px;       /* Ampliado para mayor comodidad y ocupar más espacio */
+    max-width: 95vw;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
     padding: 24px;
     display: flex;
     flex-direction: column;
     gap: 18px;
+    max-height: 90vh;
 }
 
 .modal-partner-header {
@@ -377,8 +415,10 @@
 }
 
 .modal-partner-table-wrapper {
-    max-height: 280px;
+    max-height: 380px;
     overflow-y: auto;
+    border: 1px solid #f1f5f9;
+    border-radius: 10px;
 }
 
 .partner-table {
@@ -386,27 +426,29 @@
     border-collapse: collapse;
 
     thead tr {
-        border-bottom: 1px solid #f1f5f9;
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
 
         th {
-            font-size: 0.7rem;
+            font-size: 0.72rem;
             font-weight: 700;
-            color: #94a3b8;
+            color: #64748b;
             text-transform: uppercase;
-            padding: 8px 12px;
+            padding: 12px 16px;
             text-align: left;
+            letter-spacing: 0.03em;
         }
     }
 
     tbody tr {
-        border-bottom: 1px solid #f8fafc;
+        border-bottom: 1px solid #f1f5f9;
 
         &:hover {
-            background: #fafbfc;
+            background: #f8fafc;
         }
 
         td {
-            padding: 10px 12px;
+            padding: 12px 16px;
             vertical-align: middle;
         }
     }
@@ -415,18 +457,18 @@
 .partner-cell {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
 
     .partner-table-avatar {
-        width: 34px;
-        height: 34px;
+        width: 38px;
+        height: 38px;
         border-radius: 50%;
         background: #0e3b72;
         color: #ffffff;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 0.75rem;
+        font-size: 0.8rem;
         font-weight: 700;
         overflow: hidden;
         flex-shrink: 0;
@@ -447,9 +489,21 @@
 }
 
 .partner-table-contact {
-    font-size: 0.78rem;
+    font-size: 0.8rem;
     color: #64748b;
     display: block;
+}
+
+/* BADGE DEL MONTO EN LA TABLA */
+.amount-badge-table {
+    background: #f0fdf4;
+    color: #15803d;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    border: 1px solid #dcfce7;
+    display: inline-block;
 }
 
 /* ROLES BADGES */
@@ -469,7 +523,7 @@
 .btn-assign-row {
     padding: 6px 16px;
     background: #ffffff;
-    border: 1px solid #e2e8f0;
+    border: 1px solid #cbd5e1;
     border-radius: 8px;
     font-size: 0.8rem;
     font-weight: 600;
@@ -486,7 +540,7 @@
 .empty-table-msg {
     text-align: center;
     color: #64748b;
-    padding: 24px;
+    padding: 32px;
     font-size: 0.85rem;
 }
 
@@ -502,12 +556,12 @@
 
         .btn-page-arrow,
         .btn-page-num {
-            min-width: 28px;
-            height: 28px;
+            min-width: 32px;
+            height: 32px;
             border: none;
             background: transparent;
             border-radius: 6px;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             font-weight: 600;
             color: #64748b;
             cursor: pointer;
