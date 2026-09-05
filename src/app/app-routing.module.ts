@@ -6,6 +6,7 @@ import { LoginComponent } from './features/auth/components/login/login.component
 import { ForgotComponent } from '../app/features/auth/components/forgot/forgot.component';
 import { DashboardComponent } from './features/user/components/dashboard/dashboard.component';
 import { AuthGuard } from '../app/core/guards/auth.guard';
+import { PaymentDetailComponent } from './features/payments/components/payment-detail/payment-detail.component';
 
 const routes: Routes = [
     {
@@ -58,6 +59,11 @@ const routes: Routes = [
                 loadChildren: () =>
                     import('./features/attendance/attendance.module').then((m) => m.AttendanceModule),
             },
+            {
+                path: 'payments',
+                loadChildren: () =>
+                    import('./features/payments/payments/payments.module').then((m) => m.PaymentsModule),
+            },
         ],
     },
     {
@@ -69,6 +75,9 @@ const routes: Routes = [
     { path: 'auth/login', component: LoginComponent },
     { path: 'forgot-password', component: ForgotComponent },
     { path: 'user', component: DashboardComponent },
+    
+    { path: 'comprobante/:idPago', component: PaymentDetailComponent },
+
     { path: '', redirectTo: '/auth/login', pathMatch: 'full' },
 ];
 
