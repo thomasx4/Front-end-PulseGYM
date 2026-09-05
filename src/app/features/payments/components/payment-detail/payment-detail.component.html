@@ -1,1 +1,43 @@
-<p>payment-detail works!</p>
+<div class="payment-validation-container">
+    <div class="card-receipt">
+        <div class="header-brand">
+            <h2>PULSE GYM</h2>
+            <p>Sistema Oficial de Validación de Comprobantes</p>
+        </div>
+
+        <!-- Estado de Carga -->
+        <div *ngIf="isLoading" class="loader-section">
+            <div class="spinner"></div>
+            <p>Verificando registro en el sistema...</p>
+        </div>
+
+        <!-- Mensaje de Error -->
+        <div *ngIf="errorMessage" class="alert error">
+            <span class="error-title">Aviso de Validación</span>
+            <p>{{ errorMessage }}</p>
+        </div>
+
+        <!-- Detalle del Pago Exitoso -->
+        <div *ngIf="pagoDetalle && !isLoading" class="receipt-details">
+            <div class="status-badge" [ngClass]="{'aprobado': !pagoDetalle.anulado, 'anulado': pagoDetalle.anulado}">
+                {{ pagoDetalle.anulado ? 'ESTADO: PAGO ANULADO' : 'ESTADO: PAGO VERIFICADO Y APROBADO' }}
+            </div>
+
+            <ul class="detail-list">
+                <li><span>ID de Pago</span> <strong>#{{ pagoDetalle.idPago }}</strong></li>
+                <li><span>Socio</span> <strong>{{ pagoDetalle.nombreSocio }}</strong></li>
+                <li><span>Correo Electrónico</span> <strong>{{ pagoDetalle.emailSocio }}</strong></li>
+                <li><span>Membresía</span> <strong>{{ pagoDetalle.nombreMembresia }}</strong></li>
+                <li><span>Monto Pagado</span> <strong>$ {{ pagoDetalle.monto | number:'1.2-2' }}</strong></li>
+                <li><span>Método de Pago</span> <strong>{{ pagoDetalle.metodoPago }}</strong></li>
+                <li><span>Fecha y Hora</span> <strong>{{ pagoDetalle.fechaPago | date:'dd/MM/yyyy HH:mm:ss' }}</strong>
+                </li>
+                <li><span>N° Comprobante</span> <strong>{{ pagoDetalle.numeroComprobante }}</strong></li>
+            </ul>
+
+            <div class="actions">
+                <a routerLink="/auth/login" class="btn-primary">Acceder al Sistema</a>
+            </div>
+        </div>
+    </div>
+</div>

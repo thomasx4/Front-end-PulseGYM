@@ -635,3 +635,81 @@
         padding: 0.6rem;
     }
 }
+
+// Ajuste para el botón de limpiar filtros
+.btn-filters-icon {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 0.5rem 0.85rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #475569;
+    cursor: pointer;
+    margin-top: 1rem;
+    transition: background 0.2s;
+
+    &:hover {
+        background: #f1f5f9;
+        color: #0f172a;
+    }
+}
+
+// Estilizado limpio para la tabla principal
+.custom-table {
+    th {
+        letter-spacing: 0.03em;
+    }
+    td {
+        color: #334155;
+    }
+}
+
+.swal2-popup {
+    border-radius: 12px !important;
+    font-family: inherit !important;
+}
+
+.swal2-input {
+    border-radius: 8px !important;
+    border: 1px solid #e2e8f0 !important;
+    background: #f8fafc !important;
+    font-size: 0.85rem !important;
+
+    &:focus {
+        border-color: #0e3b72 !important;
+        box-shadow: none !important;
+    }
+}
+
+.action-btn {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #2563eb;
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background: #dbeafe;
+    }
+
+    &--danger {
+        background: #fee2e2;
+        border: 1px solid #fecaca;
+        color: #dc2626;
+
+        &:hover {
+            background: #fecaca;
+            color: #b91c1c;
+        }
+    }
+}

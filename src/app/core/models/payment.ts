@@ -1,32 +1,41 @@
 export interface Payment {
     idPago: number;
-    id?: number;
     idSocio: number;
     nombreSocio: string;
-    fotoSocio?: string;
-    planConcepto?: string;
+    emailSocio: string;
+    idSocioMembresia: number;
+    nombreMembresia: string;
     monto: number;
     fechaPago: string;
-    metodoPago: 'EFECTIVO' | 'TARJETA' | 'TRANSFERENCIA' | 'NEQUI' | 'PSE';
-    estado: 'COMPLETADO' | 'PENDIENTE' | 'VENCIDO' | 'ANULADO';
-    proximoPago?: string;
-    referencia?: string;
-    ultimosDigitos?: string;
-    tipoPago?: string;
-    periodo?: string;
-    registradoPor?: string;
-    notas?: string;
+    metodoPago: string;
+    numeroComprobante: string;
+    idAdminRegistro?: number;
+    nombreAdminRegistro?: string;
+    observaciones?: string;
+    anulado: boolean;
+    motivoAnulacion?: string;
+    fechaAnulacion?: string;
+    estado?: string;
 }
 
 export interface PaymentSummaryDTO {
     ingresosMes: number;
-    porcentajeIngresosCambio?: string;
     pagosEsteMes: number;
-    porcentajePagosCambio?: string;
     pendientesCount: number;
-    pendientesMonto?: number;
     vencidosCount: number;
-    vencidosMonto?: number;
     completadosCount: number;
-    completadosMonto?: number;
+}
+
+export interface RegistrarPagoRequestDTO {
+    idSocioMembresia: number;
+    monto?: number;
+    metodoPago: 'EFECTIVO' | 'TRANSFERENCIA_BANCOLOMBIA' | 'TARJETA_CREDITO' | 'TARJETA_DEBITO' | 'OTRO';
+    numeroComprobante?: string;
+    observaciones?: string;
+
+}
+
+export interface AnularPagoRequestDTO {
+    idPago: number;
+    motivo: string;
 }

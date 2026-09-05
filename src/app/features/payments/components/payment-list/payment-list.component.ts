@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import Swal from 'sweetalert2';
 import { PaymentService } from '../../../../core/services/payment.service';
-import { Payment, PaymentSummaryDTO } from '../../../../core/models/payment';
+import { Payment, PaymentSummaryDTO, AnularPagoRequestDTO } from '../../../../core/models/payment';
 
 @Component({
   selector: 'app-payment-list',
@@ -16,7 +17,6 @@ export class PaymentListComponent implements OnInit {
 
   selectedEstado: string = 'TODOS';
   selectedMetodo: string = 'TODOS';
-  selectedTipo: string = 'TODOS';
   startDate: string = '';
   endDate: string = '';
 
@@ -26,11 +26,11 @@ export class PaymentListComponent implements OnInit {
   totalElements: number = 0;
 
   resumen: PaymentSummaryDTO = {
-    ingresosMes: 8450000,
-    pagosEsteMes: 128,
-    pendientesCount: 15,
-    vencidosCount: 7,
-    completadosCount: 106
+    ingresosMes: 0,
+    pagosEsteMes: 0,
+    pendientesCount: 0,
+    vencidosCount: 0,
+    completadosCount: 0
   };
 
   constructor(private paymentService: PaymentService, private router: Router) {}
@@ -42,46 +42,113 @@ export class PaymentListComponent implements OnInit {
   loadResumen(): void {
     this.paymentService.getResumen().subscribe({
       next: (res) => { if (res) this.resumen = res; },
-      error: () => {}
+      error: (err) => console.error('Error al cargar resumen', err)
     });
     this.fetchData();
   }
 
   fetchData(): void {
     this.loading = true;
-    this.paymentService.getPaginados(
-      this.currentPage,
-      this.pageSize,
-      this.selectedEstado,
-      this.selectedMetodo,
-      this.selectedTipo,
-      this.startDate,
-      this.endDate,
-      this.searchQuery
-    ).subscribe({
+
+    const filtroPayload = {
+      page: this.currentPage,
+      size: this.pageSize,
+      search: this.searchQuery && this.searchQuery.trim() !== '' ? this.searchQuery.trim() : null,
+      estado: this.selectedEstado && this.selectedEstado !== 'TODOS' ? this.selectedEstado : null,
+      metodoPago: this.selectedMetodo && this.selectedMetodo !== 'TODOS' ? this.selectedMetodo : null,
+      fechaInicio: this.startDate ? `${this.startDate}T00:00:00` : null,
+      fechaFin: this.endDate ? `${this.endDate}T23:59:59` : null
+    };
+
+    this.paymentService.filtrarPagosPaginados(filtroPayload).subscribe({
       next: (res) => {
         this.paginatedRecords = res.content || [];
         this.totalElements = res.totalElements || 0;
         this.totalPages = res.totalPages || 1;
         this.loading = false;
-        
-        // Seleccionar por defecto el primer elemento si hay datos y ninguno está seleccionado
-        if (this.paginatedRecords.length > 0 && !this.selectedPayment) {
-          this.selectedPayment = this.paginatedRecords[0];
-        }
       },
-      error: () => {
+      error: (err) => {
+        console.error('Error al filtrar pagos', err);
         this.paginatedRecords = [];
         this.loading = false;
       }
     });
   }
 
-  onSelectPayment(item: Payment): void {
+  onSelectPayment(item: Payment, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
     this.selectedPayment = item;
   }
 
+  // ANULAR PAGO CON SWEETALERT2
+  async onAnularPago(item: Payment, event: Event): Promise<void> {
+    event.stopPropagation();
+    
+    const { value: motivoInput } = await Swal.fire({
+      title: '¿Estás seguro de anular este pago?',
+      text: `ID del Pago: #${item.idPago}`,
+      input: 'text',
+      inputLabel: 'Motivo de anulación',
+      inputValue: 'Pago duplicado - Se registró dos veces',
+      inputPlaceholder: 'Escribe el motivo aquí...',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, anular',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#dc2626',
+      cancelButtonColor: '#64748b',
+      inputValidator: (value) => {
+        if (!value || value.trim() === '') {
+          return '¡Debes escribir un motivo de anulación!';
+        }
+        return null;
+      }
+    });
+
+    if (motivoInput) {
+      const payload: AnularPagoRequestDTO = {
+        idPago: item.idPago,
+        motivo: motivoInput.trim()
+      };
+
+      this.paymentService.anularPago(payload).subscribe({
+        next: () => {
+          Swal.fire({
+            icon: 'success',
+            title: '¡Pago Anulado!',
+            text: 'El pago ha sido anulado correctamente.',
+            timer: 2000,
+            showConfirmButton: false
+          });
+          this.loadResumen();
+          if (this.selectedPayment?.idPago === item.idPago) {
+            this.selectedPayment = null;
+          }
+        },
+        error: (err) => {
+          console.error('Error al anular el pago', err);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo anular el pago: ' + (err.error?.message || err.message)
+          });
+        }
+      });
+    }
+  }
+
   applyFilters(): void {
+    this.currentPage = 0;
+    this.fetchData();
+  }
+
+  clearFilters(): void {
+    this.searchQuery = '';
+    this.selectedEstado = 'TODOS';
+    this.selectedMetodo = 'TODOS';
+    this.startDate = '';
+    this.endDate = '';
     this.currentPage = 0;
     this.fetchData();
   }
@@ -114,5 +181,19 @@ export class PaymentListComponent implements OnInit {
 
   onNewPayment(): void {
     this.router.navigate(['/dashboard-admin/payments/new']);
+  }
+
+  descargarPdf(idPago: number): void {
+    this.paymentService.descargarComprobantePDF(idPago).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `comprobante-pago-${idPago}.pdf`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: (err) => console.error('Error al descargar el PDF', err)
+    });
   }
 }
