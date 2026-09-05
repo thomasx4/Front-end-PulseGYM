@@ -14,6 +14,7 @@ import { DetalleRutinaComponent } from './components/rutinas/detalle-rutina/deta
 import { ExportarRutinaComponent } from './components/rutinas/exportar-rutina/exportar-rutina.component';
 import { RutinasService } from '../../core/services/rutinas.service';
 import { EditarRutinaComponent } from './components/rutinas/editar-rutina/editar-rutina.component';
+import { PerfilMedicoComponent } from './components/perfil-medico/perfil-medico.component';
 
 @NgModule({
   declarations: [
@@ -25,7 +26,8 @@ import { EditarRutinaComponent } from './components/rutinas/editar-rutina/editar
     CrearRutinaIaComponent,
     DetalleRutinaComponent,
     ExportarRutinaComponent,
-    EditarRutinaComponent
+    EditarRutinaComponent,
+    PerfilMedicoComponent
   ],
   imports: [
     CommonModule,

@@ -9,6 +9,8 @@ import { CrearRutinaIaComponent } from './components/rutinas/crear-rutina-ia/cre
 import { DetalleRutinaComponent } from './components/rutinas/detalle-rutina/detalle-rutina.component';
 import { ExportarRutinaComponent } from './components/rutinas/exportar-rutina/exportar-rutina.component';
 import { EditarRutinaComponent } from './components/rutinas/editar-rutina/editar-rutina.component';
+import { PerfilMedicoComponent } from './components/perfil-medico/perfil-medico.component';
+
 
 
 const routes: Routes = [
@@ -29,7 +31,8 @@ const routes: Routes = [
     { path: 'rutinas/detalle/:id', component: DetalleRutinaComponent },
 
     { path: 'rutinas/editar/:id', component: EditarRutinaComponent },
-    
+
+    { path: 'perfil-medico', component: PerfilMedicoComponent },
   ]
 
 @NgModule({
