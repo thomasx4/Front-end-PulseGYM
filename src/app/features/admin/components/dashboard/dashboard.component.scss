@@ -384,7 +384,7 @@
     letter-spacing: 0.5px;
 }
 
-/* DONUT CHART & LEYENDA */
+/* DONUT CHART & LEYENDA (Colores Pastel Ajustados) */
 .chart-card__donut-container {
     display: flex;
     justify-content: center;
@@ -409,19 +409,26 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
+        padding: 0 8px;
+        box-sizing: border-box;
     }
 
     &__value {
-        font-size: 26px;
-        font-weight: 900;
+        font-size: 16px; /* Ajustado dinámicamente para que no se desborde */
+        font-weight: 800;
         color: #0b192c;
+        text-align: center;
+        line-height: 1.2;
+        word-break: break-word;
     }
 
     &__label {
-        font-size: 10px;
+        font-size: 9px;
         font-weight: 700;
         color: #a0aec0;
         letter-spacing: 0.5px;
+        margin-top: 2px;
+        text-align: center;
     }
 }
 
@@ -549,7 +556,6 @@
 }
 
 /* POR VENCER (USUARIOS) */
-
 .expiring-user-item {
     display: flex;
     align-items: center;
@@ -594,49 +600,6 @@
             font-weight: 600;
         }
     }
-}
-
-.expiring-user-item {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-
-    &__avatar {
-        width: 46px;
-        height: 46px;
-        border-radius: 50%;
-        object-fit: cover;
-    }
-
-    &__info {
-        display: flex;
-        flex-direction: column;
-        flex: 1;
-    }
-
-    &__name {
-        font-size: 15px;
-        font-weight: 800;
-        color: #0b192c;
-    }
-
-    &__days {
-        font-size: 13px;
-        font-weight: 500;
-        color: #94a3b8;
-
-        &.vencido {
-            color: #c96666;
-            font-weight: 700;
-        }
-
-        &.critical {
-            color: #bb4646;
-            font-weight: 800;
-        }
-    }
-
-
 }
 
 .info-card__link {
@@ -867,7 +830,6 @@
 }
 
 /* ESTILOS DE AVATAR Y FALLBACK DE INICIALES */
-
 .avatar-container {
     width: 46px;
     height: 46px;
@@ -893,3 +855,4 @@
     font-size: 15px;
     text-transform: uppercase;
 }
+

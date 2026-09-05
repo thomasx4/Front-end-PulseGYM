@@ -49,7 +49,6 @@ export class PaymentFormComponent implements OnInit {
     });
   }
 
-
   abrirModalSeleccionSocio(): void {
     this.searchUsuario = '';
     this.paginaModalActual = 0;
@@ -162,7 +161,6 @@ export class PaymentFormComponent implements OnInit {
     );
   }
 
-
   onAvatarError(): void {
     this.avatarSelectedError = true;
   }
@@ -190,7 +188,6 @@ export class PaymentFormComponent implements OnInit {
     return partes[0].charAt(0).toUpperCase();
   }
 
-
   onSubmit(): void {
     if (this.paymentForm.invalid) {
       this.paymentForm.markAllAsTouched();
@@ -208,6 +205,7 @@ export class PaymentFormComponent implements OnInit {
 
     const requestDTO: RegistrarPagoRequestDTO & { cantidadDias?: number } = {
       idSocioMembresia: Number(formValue.idSocioMembresia),
+      monto: this.selectedSocioMembresia?.precioTotal ? Number(this.selectedSocioMembresia.precioTotal) : undefined,
       metodoPago: formValue.metodoPago,
       observaciones: formValue.observaciones ? formValue.observaciones.trim() : undefined,
       ...(this.esMembresiaFlexible && { cantidadDias: Number(formValue.cantidadDias) })
