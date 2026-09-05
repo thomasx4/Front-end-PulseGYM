@@ -50,6 +50,12 @@ export class DashboardComponent implements OnInit {
     return this.ingresosMensuales.reduce((sum, item) => sum + item.ingresos, 0);
   }
 
+  // Muestra estrictamente el total aprobado del mes actual
+  get mesActualTotalRevenue(): number {
+    if (this.ingresosMensuales.length === 0) return 0;
+    return this.ingresosMensuales[this.ingresosMensuales.length - 1].ingresos || 0;
+  }
+
   get maxIngreso(): number {
     if (this.ingresosMensuales.length === 0) return 0;
     return Math.max(...this.ingresosMensuales.map((item) => item.ingresos));
@@ -180,24 +186,38 @@ export class DashboardComponent implements OnInit {
     }
   }
 
+// Añade esta variable arriba en las propiedades de la clase junto a las demás:
+  hoveredDistribucion: any = null;
+
+  // Modifica el método procesarDistribucion para incluir la propiedad 'monto':
   private procesarDistribucion(mesActualData: any): void {
     if (mesActualData && Array.isArray(mesActualData.detalle) && mesActualData.detalle.length > 0) {
       const totalMes = mesActualData.totalGeneral || 0;
-      this.distribucionIngresos = mesActualData.detalle.map((item: any) => {
-        const porcentajeCalculado = totalMes > 0 ? Math.round((item.total / totalMes) * 100) : 0;
+      
+      let items = mesActualData.detalle.map((item: any) => {
+        const valorPreciso = totalMes > 0 ? (item.total / totalMes) * 100 : 0;
         return {
           fuente: item.tipoMembresia || 'Otros',
-          porcentaje: porcentajeCalculado,
+          monto: item.total || 0, // <--- Guardamos el monto exacto aquí
+          valorPreciso: valorPreciso,
+          porcentaje: Math.round(valorPreciso),
           color: this.getColorPorTipo(item.tipoMembresia)
         };
       });
+
+      const sumaPorcentajes = items.reduce((acc: number, curr: any) => acc + curr.porcentaje, 0);
+      if (items.length > 0 && sumaPorcentajes !== 100) {
+        const diff = 100 - sumaPorcentajes;
+        items.reduce((maxObj: any, currObj: any) => currObj.valorPreciso > maxObj.valorPreciso ? currObj : maxObj).porcentaje += diff;
+      }
+
+      this.distribucionIngresos = items;
     } else {
       this.distribucionIngresos = [
-        { fuente: 'Sin pagos este mes', porcentaje: 100, color: '#94a3b8' }
+        { fuente: 'Sin pagos este mes', monto: 0, porcentaje: 100, color: '#94a3b8' }
       ];
     }
   }
-
   private procesarPorVencer(data: any[]): void {
     if (!Array.isArray(data) || data.length === 0) {
       this.porVencer = [];
@@ -249,14 +269,15 @@ export class DashboardComponent implements OnInit {
   private getColorPorTipo(tipo: string): string {
     const colores: { [key: string]: string } = {
       '1 mes': '#0a2a4a',
-      '3 meses': '#1e4a75',
-      '6 meses': '#4f5e93',
-      '1 año': '#22c55e',
-      'Membresía': '#0a2a4a',
-      'Entrenamiento': '#2563eb',
-      'Producto': '#f59e0b',
+      '2 mes': '#3b82f6',
+      '3 meses': '#8b5cf6',
+      '6 meses': '#ec4899',
+      '1 año': '#10b981',
+      'Membresía': '#f59e0b',
+      'Entrenamiento': '#06b6d4',
+      'Producto': '#ef4444',
     };
-    return colores[tipo] || '#0a2a4a';
+    return colores[tipo] || '#64748b';
   }
 
   async exportarReporte(): Promise<void> {
