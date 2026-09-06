@@ -50,6 +50,16 @@ const routes: Routes = [
                 ]
             },
             {
+                path: 'suppliers',
+                children: [
+                    {
+                        path: '',
+                        loadChildren: () =>
+                            import('./features/suppliers/suppliers.module').then((m) => m.SuppliersModule),
+                    }
+                ]
+            },
+            {
                 path: 'memberships',
                 loadChildren: () =>
                     import('./features/membership/membership.module').then((m) => m.MembershipModule),
