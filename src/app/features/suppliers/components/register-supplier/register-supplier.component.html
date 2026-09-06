@@ -1,0 +1,94 @@
+<div class="modal-backdrop" (click)="cerrar()">
+    <div class="modal-dialog" (click)="$event.stopPropagation()">
+
+        <header class="modal-header">
+            <h2 class="modal-title">Registrar Nuevo Proveedor</h2>
+            <button type="button" class="close-btn" (click)="cerrar()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </header>
+
+
+        <form [formGroup]="proveedorForm" (ngSubmit)="guardarProveedor()" class="modal-body">
+
+            <div *ngIf="errorMensaje" class="alert-error">
+                {{ errorMensaje }}
+            </div>
+
+            <div class="form-group">
+                <label for="nombreEmpresa">Nombre de la Empresa <span class="required">*</span></label>
+                <input type="text" id="nombreEmpresa" formControlName="nombreEmpresa"
+                    placeholder="Ingrese el Nombre de la Empresa" class="form-input"
+                    [class.input-error]="esCampoInvalido('nombreEmpresa')" />
+
+                <span class="field-error" *ngIf="esCampoInvalido('nombreEmpresa')">
+                    <ng-container *ngIf="proveedorForm.get('nombreEmpresa')?.errors?.['required']">
+                        El nombre de la empresa es obligatorio.
+                    </ng-container>
+                    <ng-container *ngIf="proveedorForm.get('nombreEmpresa')?.errors?.['minlength']">
+                        Debe tener al menos 3 caracteres.
+                    </ng-container>
+                </span>
+            </div>
+
+            <div class="form-group">
+                <label for="contactoNombre">Nombre de Contacto <span class="required">*</span></label>
+                <input type="text" id="contactoNombre" formControlName="contactoNombre" placeholder="Ingrese el Nombre del Proveedor"
+                    class="form-input" [class.input-error]="esCampoInvalido('contactoNombre')" />
+
+                <span class="field-error" *ngIf="esCampoInvalido('contactoNombre')">
+                    <ng-container *ngIf="proveedorForm.get('contactoNombre')?.errors?.['required']">
+                        El nombre del contacto es obligatorio.
+                    </ng-container>
+                    <ng-container *ngIf="proveedorForm.get('contactoNombre')?.errors?.['minlength']">
+                        Debe tener al menos 3 caracteres.
+                    </ng-container>
+                </span>
+            </div>
+
+            <div class="form-group">
+                <label for="telefono">Teléfono de Contacto <span class="required">*</span></label>
+                <input type="text" id="telefono" formControlName="telefono" placeholder="Ingrese el Teléfono del Proveedor"
+                    class="form-input" [class.input-error]="esCampoInvalido('telefono')" />
+
+                <span class="field-error" *ngIf="esCampoInvalido('telefono')">
+                    <ng-container *ngIf="proveedorForm.get('telefono')?.errors?.['required']">
+                        El teléfono de contacto es obligatorio.
+                    </ng-container>
+                    <ng-container *ngIf="proveedorForm.get('telefono')?.errors?.['pattern']">
+                        Ingresa un número de teléfono válido (Ej: +57 300 123 4567).
+                    </ng-container>
+                </span>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Correo Electrónico <span class="required">*</span></label>
+                <input type="email" id="email" formControlName="email" placeholder="Ingrese el Correo del Proveedor"
+                    class="form-input" [class.input-error]="esCampoInvalido('email')" />
+
+                <span class="field-error" *ngIf="esCampoInvalido('email')">
+                    <ng-container *ngIf="proveedorForm.get('email')?.errors?.['required']">
+                        El correo electrónico es obligatorio.
+                    </ng-container>
+                    <ng-container *ngIf="proveedorForm.get('email')?.errors?.['email']">
+                        Por favor ingresa una dirección de correo válida (Ej: nombre&#64;dominio.com).
+                    </ng-container>
+                </span>
+            </div>
+
+            <footer class="modal-footer">
+                <button type="button" class="btn-outline" (click)="cerrar()" [disabled]="cargando">
+                    Cancelar
+                </button>
+                <button type="submit" class="btn-primary" [disabled]="cargando">
+                    {{ cargando ? 'Guardando...' : 'Guardar Proveedor' }}
+                </button>
+            </footer>
+
+        </form>
+
+    </div>
+</div>
