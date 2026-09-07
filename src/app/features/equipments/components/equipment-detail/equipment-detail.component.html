@@ -1,7 +1,6 @@
 <div class="modal-backdrop" (click)="cerrar()">
   <div class="modal-dialog" (click)="$event.stopPropagation()" *ngIf="equipo">
     
-    <!-- ENCABEZADO -->
     <header class="modal-header">
       <div class="modal-header__title-group">
         <span class="equipment-id">ACTIVO #{{ equipo.idEquipo || equipo.id || 'N/A' }}</span>
@@ -15,10 +14,9 @@
       </button>
     </header>
 
-    <!-- CUERPO DE LA FICHA TÉCNICA -->
+
     <div class="modal-body">
       
-      <!-- BANNER DE ESTADO Y UBICACIÓN -->
       <div class="status-banner" [ngClass]="{
         'status-banner--operativo': equipo.estado === 'OPERATIVO',
         'status-banner--mantenimiento': equipo.estado === 'MANTENIMIENTO',
@@ -37,10 +35,9 @@
         </div>
       </div>
 
-      <!-- DETALLES TÉCNICOS EN GRILLA -->
+      
       <div class="details-grid">
         
-        <!-- MARCA Y MODELO -->
         <div class="detail-card">
           <span class="detail-card__label">MARCA</span>
           <p class="detail-card__value">{{ equipo.marca || 'No registrada' }}</p>
@@ -51,7 +48,6 @@
           <p class="detail-card__value">{{ equipo.modelo || 'No registrado' }}</p>
         </div>
 
-        <!-- NÚMERO DE SERIE -->
         <div class="detail-card detail-card--full">
           <span class="detail-card__label">NÚMERO DE SERIE / SERIAL</span>
           <p class="detail-card__value detail-card__value--serial">
@@ -59,7 +55,6 @@
           </p>
         </div>
 
-        <!-- FECHAS CLAVE -->
         <div class="detail-card">
           <span class="detail-card__label">FECHA ADQUISICIÓN</span>
           <p class="detail-card__value">
@@ -74,7 +69,6 @@
           </p>
         </div>
 
-        <!-- REFERENCIAS DE SEDE Y PROVEEDOR -->
         <div class="detail-card">
           <span class="detail-card__label">SEDE ASIGNADA</span>
           <p class="detail-card__value">{{ nombreSede }}</p>
@@ -85,7 +79,6 @@
           <p class="detail-card__value">{{ nombreProveedor }}</p>
         </div>
 
-        <!-- REPORTE DE FALLAS (SI APLICA) -->
         <div class="detail-card detail-card--full detail-card--falla" *ngIf="equipo.urgenciaFalla">
           <span class="detail-card__label">REPORTES / FALLAS ACTIVAS</span>
           <p class="detail-card__value">
@@ -100,7 +93,6 @@
 
     </div>
 
-    <!-- PIE DEL MODAL -->
     <footer class="modal-footer">
       <button type="button" class="btn-primary" (click)="cerrar()">
         Cerrar Ficha Técnica
