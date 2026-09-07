@@ -1,0 +1,212 @@
+<div class="equipments-page">
+
+
+    <header class="page-header">
+        <div class="page-header__info">
+            <h1 class="page-header__title">Inventario de Equipos</h1>
+            <p class="page-header__subtitle">Gestión y disponibilidad operativa de la maquinaria de gimnasio</p>
+        </div>
+        <button type="button" class="btn-primary" (click)="abrirModalRegistro()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            <span>Nuevo Equipo</span>
+        </button>
+    </header>
+
+
+    <section class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-card__icon kpi-card__icon--blue">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="7" width="20" height="14" rx="2"></rect>
+                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                </svg>
+            </div>
+            <div class="kpi-card__content">
+                <span class="kpi-card__label">TOTAL ACTIVOS</span>
+                <h3 class="kpi-card__value">{{ totalEquipos }}</h3>
+            </div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-card__icon kpi-card__icon--green">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+            </div>
+            <div class="kpi-card__content">
+                <span class="kpi-card__label">OPERATIVOS</span>
+                <h3 class="kpi-card__value">{{ totalOperativos }}</h3>
+            </div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-card__icon kpi-card__icon--amber">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path
+                        d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z">
+                    </path>
+                </svg>
+            </div>
+            <div class="kpi-card__content">
+                <span class="kpi-card__label">MANTENIMIENTO</span>
+                <h3 class="kpi-card__value">{{ totalMantenimiento }}</h3>
+            </div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-card__icon kpi-card__icon--rose">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z">
+                    </path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                </svg>
+            </div>
+            <div class="kpi-card__content">
+                <span class="kpi-card__label">FUERA DE SERVICIO</span>
+                <h3 class="kpi-card__value">{{ totalFueraServicio }}</h3>
+            </div>
+        </div>
+    </section>
+
+
+    <section class="filters-card">
+        <div class="filters-wrapper">
+
+            <div class="filter-item filter-item--search">
+                <label for="filtroNombre">Buscar Equipo</label>
+                <input type="text" id="filtroNombre" [(ngModel)]="filtroTexto" (input)="consultarEquipos()"
+                    placeholder="Ej: Banco Plano, Prensa..." class="filter-input" />
+            </div>
+
+            <div class="filter-item">
+                <label for="filtroEstado">Estado</label>
+                <select id="filtroEstado" [(ngModel)]="filtroEstado" (change)="consultarEquipos()"
+                    class="filter-select">
+                    <option value="">Todos los Estados</option>
+                    <option value="OPERATIVO">OPERATIVO</option>
+                    <option value="MANTENIMIENTO">MANTENIMIENTO</option>
+                    <option value="FUERA_DE_SERVICIO">FUERA DE SERVICIO</option>
+                    <option value="RETIRADO">RETIRADO</option>
+                </select>
+            </div>
+
+            <div class="filter-item">
+                <label for="filtroSede">Sede</label>
+                <select id="filtroSede" [(ngModel)]="filtroSedeId" (change)="consultarEquipos()" class="filter-select">
+                    <option [value]="0">Todas las Sedes</option>
+                    <option *ngFor="let s of sedes" [value]="s.idSede || s.id">
+                        {{ s.nombreSede || s.nombre }}
+                    </option>
+                </select>
+            </div>
+
+            <div class="filter-actions">
+                <button type="button" class="btn-clear" (click)="limpiarFiltros()">Limpiar Filtros</button>
+            </div>
+
+        </div>
+    </section>
+
+
+    <section class="content-section">
+
+        <div *ngIf="cargando" class="loading-state">
+            <div class="spinner"></div>
+            <p>Cargando catálogo...</p>
+        </div>
+
+        <div *ngIf="!cargando && equiposPaginados.length === 0" class="empty-state">
+            <p>No se encontraron equipos registrados.</p>
+        </div>
+
+        <div *ngIf="!cargando && equiposPaginados.length > 0" class="equipments-grid">
+
+            <article *ngFor="let eq of equiposPaginados" class="equipment-card">
+
+                <header class="equipment-card__header">
+                    <div class="equipment-card__badge-code">
+                        ID: #{{ eq.idEquipo || eq.id }}
+                    </div>
+                    <span class="status-badge" [ngClass]="{
+      'status-badge--operativo': eq.estado === 'OPERATIVO',
+      'status-badge--mantenimiento': eq.estado === 'MANTENIMIENTO',
+      'status-badge--fuera': eq.estado === 'FUERA_DE_SERVICIO'
+    }">
+                        {{ formatearEstado(eq.estado) }}
+                    </span>
+                </header>
+
+                <div class="equipment-card__body">
+                    <div class="equipment-card__icon-box">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="2" y="7" width="20" height="14" rx="2"></rect>
+                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                        </svg>
+                    </div>
+                    <div class="equipment-card__details">
+                        <h3 class="equipment-card__title">{{ eq.nombre }}</h3>
+                        <span class="equipment-card__brand">
+                            {{ eq.marca || 'Sin marca' }} <ng-container *ngIf="eq.modelo">- {{ eq.modelo
+                                }}</ng-container>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="quick-status">
+                    <span class="quick-status__label">Estado actual:</span>
+                    <select [ngModel]="eq.estado" (ngModelChange)="cambiarEstadoRapido(eq, $event)"
+                        class="quick-status__select">
+                        <option value="OPERATIVO">OPERATIVO</option>
+                        <option value="MANTENIMIENTO">MANTENIMIENTO</option>
+                        <option value="FUERA_DE_SERVICIO">FUERA DE SERVICIO</option>
+                    </select>
+                </div>
+
+                <footer class="equipment-card__footer">
+                    <button type="button" class="btn-card btn-card--primary" (click)="abrirModalDetalle(eq)">
+                        Ver Detalle
+                    </button>
+                    <button type="button" class="btn-card btn-card--secondary" (click)="abrirModalEditar(eq)">
+                        Editar Equipo
+                    </button>
+                </footer>
+
+            </article>
+
+        </div>
+
+
+        <div *ngIf="!cargando && totalPages > 1" class="pagination-container">
+            <button type="button" class="pagination-btn" [disabled]="currentPage === 1"
+                (click)="cambiarPagina(currentPage - 1)">
+                ‹
+            </button>
+
+            <button *ngFor="let page of pagesArray" type="button" class="pagination-btn"
+                [class.active]="page === currentPage" (click)="cambiarPagina(page)">
+                {{ page }}
+            </button>
+
+            <button type="button" class="pagination-btn" [disabled]="currentPage === totalPages"
+                (click)="cambiarPagina(currentPage + 1)">
+                ›
+            </button>
+        </div>
+
+    </section>
+
+    <app-register-equipment *ngIf="mostrarModalRegistro" [equipoAEditar]="equipoSeleccionado"
+        (cerrarModal)="mostrarModalRegistro = false"
+        (equipoGuardado)="mostrarModalRegistro = false; consultarEquipos()">
+    </app-register-equipment>
+
+    <app-equipment-detail *ngIf="mostrarModalDetalle" [equipo]="equipoSeleccionado"
+        (cerrarModal)="mostrarModalDetalle = false">
+    </app-equipment-detail>
+
+</div>

@@ -1,0 +1,111 @@
+<div class="modal-backdrop" (click)="cerrar()">
+  <div class="modal-dialog" (click)="$event.stopPropagation()" *ngIf="equipo">
+    
+    <!-- ENCABEZADO -->
+    <header class="modal-header">
+      <div class="modal-header__title-group">
+        <span class="equipment-id">ACTIVO #{{ equipo.idEquipo || equipo.id || 'N/A' }}</span>
+        <h2 class="modal-title">{{ equipo.nombre || 'Ficha Técnica de Equipo' }}</h2>
+      </div>
+      <button type="button" class="close-btn" (click)="cerrar()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </header>
+
+    <!-- CUERPO DE LA FICHA TÉCNICA -->
+    <div class="modal-body">
+      
+      <!-- BANNER DE ESTADO Y UBICACIÓN -->
+      <div class="status-banner" [ngClass]="{
+        'status-banner--operativo': equipo.estado === 'OPERATIVO',
+        'status-banner--mantenimiento': equipo.estado === 'MANTENIMIENTO',
+        'status-banner--fuera': equipo.estado === 'FUERA_DE_SERVICIO'
+      }">
+        <div class="status-banner__info">
+          <span class="status-banner__label">ESTADO DE OPERACIÓN</span>
+          <strong class="status-banner__value">{{ formatearEstado(equipo.estado) }}</strong>
+        </div>
+        <div class="status-banner__location" *ngIf="equipo.ubicacion">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+            <circle cx="12" cy="10" r="3"></circle>
+          </svg>
+          <span>Ubicación: <strong>{{ equipo.ubicacion }}</strong></span>
+        </div>
+      </div>
+
+      <!-- DETALLES TÉCNICOS EN GRILLA -->
+      <div class="details-grid">
+        
+        <!-- MARCA Y MODELO -->
+        <div class="detail-card">
+          <span class="detail-card__label">MARCA</span>
+          <p class="detail-card__value">{{ equipo.marca || 'No registrada' }}</p>
+        </div>
+
+        <div class="detail-card">
+          <span class="detail-card__label">MODELO</span>
+          <p class="detail-card__value">{{ equipo.modelo || 'No registrado' }}</p>
+        </div>
+
+        <!-- NÚMERO DE SERIE -->
+        <div class="detail-card detail-card--full">
+          <span class="detail-card__label">NÚMERO DE SERIE / SERIAL</span>
+          <p class="detail-card__value detail-card__value--serial">
+            {{ equipo.numeroSerie || 'SN-NO-REGISTRADO' }}
+          </p>
+        </div>
+
+        <!-- FECHAS CLAVE -->
+        <div class="detail-card">
+          <span class="detail-card__label">FECHA ADQUISICIÓN</span>
+          <p class="detail-card__value">
+            {{ equipo.fechaAdquisicion ? (equipo.fechaAdquisicion | date:'dd/MM/yyyy') : 'No registrada' }}
+          </p>
+        </div>
+
+        <div class="detail-card">
+          <span class="detail-card__label">VENCIMIENTO GARANTÍA</span>
+          <p class="detail-card__value">
+            {{ equipo.fechaGarantia ? (equipo.fechaGarantia | date:'dd/MM/yyyy') : 'No registrada' }}
+          </p>
+        </div>
+
+        <!-- REFERENCIAS DE SEDE Y PROVEEDOR -->
+        <div class="detail-card">
+          <span class="detail-card__label">SEDE ASIGNADA</span>
+          <p class="detail-card__value">{{ nombreSede }}</p>
+        </div>
+
+        <div class="detail-card">
+          <span class="detail-card__label">PROVEEDOR / ALIADO</span>
+          <p class="detail-card__value">{{ nombreProveedor }}</p>
+        </div>
+
+        <!-- REPORTE DE FALLAS (SI APLICA) -->
+        <div class="detail-card detail-card--full detail-card--falla" *ngIf="equipo.urgenciaFalla">
+          <span class="detail-card__label">REPORTES / FALLAS ACTIVAS</span>
+          <p class="detail-card__value">
+            Urgencia: <strong>{{ equipo.urgenciaFalla }}</strong>
+          </p>
+          <p class="detail-card__subtext" *ngIf="equipo.descripcionFalla">
+            {{ equipo.descripcionFalla }}
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- PIE DEL MODAL -->
+    <footer class="modal-footer">
+      <button type="button" class="btn-primary" (click)="cerrar()">
+        Cerrar Ficha Técnica
+      </button>
+    </footer>
+
+  </div>
+</div>

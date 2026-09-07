@@ -1,0 +1,162 @@
+<div class="modal-backdrop" (click)="cerrar()">
+  <div class="modal-dialog" (click)="$event.stopPropagation()">
+    
+
+    <header class="modal-header">
+      <h2 class="modal-title">
+        {{ equipoAEditar ? 'Editar Equipo' : 'Registrar Nuevo Equipo' }}
+      </h2>
+      <button type="button" class="close-btn" (click)="cerrar()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </header>
+
+
+    <form [formGroup]="equipoForm" (ngSubmit)="guardarEquipo()" class="modal-body">
+      
+      <div *ngIf="errorMensaje" class="alert-error">
+        {{ errorMensaje }}
+      </div>
+
+      <div class="form-grid">
+        
+        <div class="form-group form-group--full">
+          <label for="nombre">Nombre del Equipo <span class="required">*</span></label>
+          <input 
+            type="text" 
+            id="nombre" 
+            formControlName="nombre" 
+            placeholder="Ingrese Nombre del Equipo" 
+            class="form-input" 
+            [class.input-error]="esCampoInvalido('nombre')" />
+          <span class="field-error" *ngIf="esCampoInvalido('nombre')">El nombre es obligatorio.</span>
+        </div>
+
+        <div class="form-group">
+          <label for="idSede">Sede Asignada <span class="required">*</span></label>
+          <select 
+            id="idSede" 
+            formControlName="idSede" 
+            class="form-select" 
+            [class.input-error]="esCampoInvalido('idSede')">
+            <option value="" disabled selected>Seleccione Sede</option>
+            <option *ngFor="let s of sedes" [value]="s.idSede || s.id">
+              {{ s.nombreSede || s.nombre }}
+            </option>
+          </select>
+          <span class="field-error" *ngIf="esCampoInvalido('idSede')">Selecciona una sede.</span>
+        </div>
+
+        <div class="form-group">
+          <label for="idProveedor">Proveedor / Aliado <span class="required">*</span></label>
+          <select 
+            id="idProveedor" 
+            formControlName="idProveedor" 
+            class="form-select" 
+            [class.input-error]="esCampoInvalido('idProveedor')">
+            <option value="" disabled selected>Seleccione Proveedor</option>
+            <option *ngFor="let p of proveedores" [value]="p.idProveedor">
+              {{ p.nombreEmpresa }}
+            </option>
+          </select>
+          <span class="field-error" *ngIf="esCampoInvalido('idProveedor')">Selecciona un proveedor.</span>
+        </div>
+
+        <div class="form-group">
+          <label for="marca">Marca <span class="required">*</span></label>
+          <input 
+            type="text" 
+            id="marca" 
+            formControlName="marca" 
+            placeholder="Ingrese la Marca" 
+            class="form-input" 
+            [class.input-error]="esCampoInvalido('marca')" />
+          <span class="field-error" *ngIf="esCampoInvalido('marca')">La marca es requerida.</span>
+        </div>
+
+        <div class="form-group">
+          <label for="modelo">Modelo <span class="required">*</span></label>
+          <input 
+            type="text" 
+            id="modelo" 
+            formControlName="modelo" 
+            placeholder="Ingrese el Modelo del Equipo" 
+            class="form-input" 
+            [class.input-error]="esCampoInvalido('modelo')" />
+          <span class="field-error" *ngIf="esCampoInvalido('modelo')">El modelo es requerido.</span>
+        </div>
+
+        <div class="form-group">
+          <label for="numeroSerie">Número de Serie <span class="required">*</span></label>
+          <input 
+            type="text" 
+            id="numeroSerie" 
+            formControlName="numeroSerie" 
+            placeholder="Ingrese el Número de Serie" 
+            class="form-input" 
+            [class.input-error]="esCampoInvalido('numeroSerie')" />
+          <span class="field-error" *ngIf="esCampoInvalido('numeroSerie')">El serial es requerido.</span>
+        </div>
+
+        <div class="form-group">
+          <label for="ubicacion">Ubicación en Sede <span class="required">*</span></label>
+          <input 
+            type="text" 
+            id="ubicacion" 
+            formControlName="ubicacion" 
+            placeholder="Ingrese la Zona" 
+            class="form-input" 
+            [class.input-error]="esCampoInvalido('ubicacion')" />
+          <span class="field-error" *ngIf="esCampoInvalido('ubicacion')">Ingresa la ubicación física.</span>
+        </div>
+
+        <div class="form-group">
+          <label for="fechaAdquisicion">Fecha de Adquisición <span class="required">*</span></label>
+          <input 
+            type="date" 
+            id="fechaAdquisicion" 
+            formControlName="fechaAdquisicion" 
+            class="form-input" 
+            [class.input-error]="esCampoInvalido('fechaAdquisicion')" />
+          <span class="field-error" *ngIf="esCampoInvalido('fechaAdquisicion')">Fecha requerida.</span>
+        </div>
+
+        <div class="form-group">
+          <label for="fechaGarantia">Vencimiento Garantía <span class="required">*</span></label>
+          <input 
+            type="date" 
+            id="fechaGarantia" 
+            formControlName="fechaGarantia" 
+            class="form-input" 
+            [class.input-error]="esCampoInvalido('fechaGarantia')" />
+          <span class="field-error" *ngIf="esCampoInvalido('fechaGarantia')">Fecha requerida.</span>
+        </div>
+
+        <div class="form-group form-group--full">
+          <label for="estado">Estado Operativo <span class="required">*</span></label>
+          <select id="estado" formControlName="estado" class="form-select">
+            <option value="OPERATIVO">OPERATIVO</option>
+            <option value="MANTENIMIENTO">MANTENIMIENTO</option>
+            <option value="FUERA_DE_SERVICIO">FUERA DE SERVICIO</option>
+            <option value="RETIRADO">RETIRADO</option>
+          </select>
+        </div>
+
+      </div>
+
+      <footer class="modal-footer">
+        <button type="button" class="btn-outline" (click)="cerrar()" [disabled]="cargando">
+          Cancelar
+        </button>
+        <button type="submit" class="btn-primary" [disabled]="cargando">
+          {{ cargando ? 'Guardando...' : (equipoAEditar ? 'Guardar Cambios' : 'Registrar Equipo') }}
+        </button>
+      </footer>
+
+    </form>
+
+  </div>
+</div>

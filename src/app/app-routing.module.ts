@@ -59,6 +59,16 @@ const routes: Routes = [
                     }
                 ]
             },
+            { 
+                path: 'equipments',
+                children: [
+                    {
+                        path: '',
+                        loadChildren: () =>
+                            import('./features/equipments/equipments.module').then((m) => m.EquipmentsModule),
+                    }
+                ]
+            },
             {
                 path: 'memberships',
                 loadChildren: () =>
