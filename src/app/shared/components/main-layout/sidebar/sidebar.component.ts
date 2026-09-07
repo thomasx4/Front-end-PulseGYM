@@ -220,8 +220,9 @@ export class SidebarComponent implements OnInit {
          `)
       },
       {
-        label: 'Equipos', // Traducido de Equipment
-        route: '/dashboard-admin/equipment',
+        label: 'Equipos',
+        route: '/dashboard-admin/equipments',
+        exact: true,
         iconHtml: this.sanitizer.bypassSecurityTrustHtml(`
           <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="sidebar__nav-icon">
             <circle cx="6.27" cy="13.91" r="4.77" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
