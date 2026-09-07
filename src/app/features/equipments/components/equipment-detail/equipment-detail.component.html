@@ -32,7 +32,7 @@
                         <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                         <circle cx="12" cy="10" r="3"></circle>
                     </svg>
-                    <span>Ubicación: <strong>{{ equipo?.ubicacion }}</strong></span>
+                    <span>Ubicación: <strong>{{ equipo.ubicacion }}</strong></span>
                 </div>
             </div>
 
@@ -58,7 +58,7 @@
                 <div class="detail-card">
                     <span class="detail-card__label">FECHA ADQUISICIÓN</span>
                     <p class="detail-card__value">
-                        {{ equipo?.fechaAdquisicion ? (equipo?.fechaAdquisicion | date:'dd/MM/yyyy') : 'No registrada'
+                        {{ equipo?.fechaAdquisicion ? (equipo.fechaAdquisicion | date:'dd/MM/yyyy') : 'No registrada'
                         }}
                     </p>
                 </div>
@@ -66,7 +66,7 @@
                 <div class="detail-card">
                     <span class="detail-card__label">VENCIMIENTO GARANTÍA</span>
                     <p class="detail-card__value">
-                        {{ equipo?.fechaGarantia ? (equipo?.fechaGarantia | date:'dd/MM/yyyy') : 'No registrada' }}
+                        {{ equipo?.fechaGarantia ? (equipo.fechaGarantia | date:'dd/MM/yyyy') : 'No registrada' }}
                     </p>
                 </div>
 
@@ -83,10 +83,10 @@
                 <div class="detail-card detail-card--full detail-card--falla" *ngIf="equipo?.urgenciaFalla">
                     <span class="detail-card__label">REPORTES / FALLAS ACTIVAS</span>
                     <p class="detail-card__value">
-                        Urgencia: <strong>{{ equipo?.urgenciaFalla }}</strong>
+                        Urgencia: <strong>{{ equipo.urgenciaFalla }}</strong>
                     </p>
-                    <p class="detail-card__subtext" *ngIf="equipo?.descripcionFalla">
-                        {{ equipo?.descripcionFalla }}
+                    <p class="detail-card__subtext" *ngIf="equipo.descripcionFalla">
+                        {{ equipo.descripcionFalla }}
                     </p>
                 </div>
 
