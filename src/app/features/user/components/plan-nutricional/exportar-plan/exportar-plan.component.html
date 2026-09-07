@@ -1,0 +1,140 @@
+<div class="exportar-plan-layout">
+    <app-navbar></app-navbar>
+
+    <div class="exportar-plan-main">
+        <app-header></app-header>
+
+        <div class="exportar-plan-wrapper">
+            <!-- Header -->
+            <header class="page-header">
+                <div class="page-header__left">
+                    <button class="btn-back" (click)="volver()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 12H5"/>
+                            <path d="m12 19-7-7 7-7"/>
+                        </svg>
+                        Volver
+                    </button>
+                    <div>
+                        <h1>Exportar plan nutricional</h1>
+                        <p class="subtitle">Exporta tus planes nutricionales en formato PDF para compartir o imprimir</p>
+                    </div>
+                </div>
+                <div class="page-header__right">
+                    <button class="btn btn--export" (click)="exportarUltimoPlan()" [disabled]="isLoading || planes.length === 0">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="7 10 12 15 17 10"/>
+                            <line x1="12" y1="15" x2="12" y2="3"/>
+                        </svg>
+                        Exportar último
+                    </button>
+                </div>
+            </header>
+
+            <!-- Contenido -->
+            <ng-container *ngIf="!isLoading && !errorMessage">
+                <!-- Grid de planes -->
+                <div class="planes-grid">
+                    <div class="plan-card" *ngFor="let plan of planes">
+                        <div class="plan-card__header">
+                            <div class="plan-card__info">
+                                <h4>{{ plan.generadoPorIA ? 'Plan IA' : 'Plan #' + plan.idPlanNutricional }}</h4>
+                                <span class="plan-card__badge">{{ plan.calorias_diarias }} kcal</span>
+                            </div>
+                            <span class="plan-card__date">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                    <line x1="16" y1="2" x2="16" y2="6"/>
+                                    <line x1="8" y1="2" x2="8" y2="6"/>
+                                    <line x1="3" y1="10" x2="21" y2="10"/>
+                                </svg>
+                                {{ formatearFecha(plan.fechaGeneracion) }}
+                            </span>
+                        </div>
+                        <div class="plan-card__body">
+                            <div class="plan-card__meta">
+                                <span>
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="9 11 12 14 22 4"/>
+                                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                                    </svg>
+                                    {{ plan.proteinas_g }}g proteínas
+                                </span>
+                                <span>
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <polyline points="12 6 12 12 16 14"/>
+                                    </svg>
+                                    {{ plan.carbohidratos_g }}g carbohidratos
+                                </span>
+                                <span>
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                                    </svg>
+                                    {{ plan.grasas_g }}g grasas
+                                </span>
+                                <span *ngIf="plan.generadoPorIA" class="badge-ia">IA</span>
+                            </div>
+                            <div class="plan-card__restricciones" *ngIf="plan.restricciones_dieteticas && plan.restricciones_dieteticas.length > 0">
+                                <span class="restriccion-tag" *ngFor="let r of plan.restricciones_dieteticas">
+                                    {{ r }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="plan-card__footer">
+                            <button class="btn btn--outline" (click)="exportarPlanEspecifico(plan.idPlanNutricional)">
+                                Exportar PDF
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                    <polyline points="7 10 12 15 17 10"/>
+                                    <line x1="12" y1="15" x2="12" y2="3"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div *ngIf="planes.length === 0" class="empty-state">
+                    <div class="empty-state__icon">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                            <line x1="16" y1="2" x2="16" y2="6"/>
+                            <line x1="8" y1="2" x2="8" y2="6"/>
+                            <line x1="3" y1="10" x2="21" y2="10"/>
+                        </svg>
+                    </div>
+                    <h3>No tienes planes nutricionales</h3>
+                    <p>Genera un plan nutricional primero para poder exportarlo</p>
+                    <button class="btn btn--primary" (click)="volver()">
+                        Ir a planes
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14"/>
+                            <path d="m12 5 7 7-7 7"/>
+                        </svg>
+                    </button>
+                </div>
+            </ng-container>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Error -->
+<div class="modal-overlay" *ngIf="showErrorModal" (click)="onCloseModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-icon error-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+        </div>
+        <h3 class="modal-title">{{ errorModalTitle || 'Error' }}</h3>
+        <p class="modal-message">{{ errorModalMessage || 'Ocurrió un error. Por favor, intenta de nuevo.' }}</p>
+        <div class="modal-actions">
+            <button class="modal-btn modal-btn-secondary" (click)="onCloseModal()">Cancelar</button>
+            <button class="modal-btn modal-btn-primary" (click)="onRetry()">Reintentar</button>
+        </div>
+    </div>
+</div>
