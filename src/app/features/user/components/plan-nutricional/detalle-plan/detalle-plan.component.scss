@@ -1,0 +1,808 @@
+$primary-color: #0f1c3f;
+$primary-hover: #1a2b5c;
+$primary-light: #dbeafe;
+$bg-main: #f8fafc;
+$bg-card: #ffffff;
+$text-main: #0f172a;
+$text-secondary: #475569;
+$text-muted: #94a3b8;
+$border-color: #e2e8f0;
+$radius: 16px;
+$radius-sm: 10px;
+$transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+$shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+$shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+$shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+$success: #10b981;
+$warning: #f59e0b;
+$danger: #ef4444;
+
+// ==========================================
+// Layout
+// ==========================================
+.detalle-plan-layout {
+    display: flex;
+    min-height: 100vh;
+    background-color: $bg-main;
+}
+
+.detalle-plan-main {
+    flex: 1;
+    margin-left: 260px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    width: calc(100% - 260px);
+    max-width: calc(100% - 260px);
+    overflow-x: hidden;
+    background-color: $bg-main;
+}
+
+.detalle-plan-content {
+    flex: 1;
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: center;
+}
+
+// ==========================================
+// Loading
+// ==========================================
+.loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 0;
+    color: $text-secondary;
+
+    .spinner-container {
+        margin-bottom: 1rem;
+    }
+
+    .spinner-border {
+        display: inline-block;
+        width: 2.5rem;
+        height: 2.5rem;
+        border: 0.25rem solid $border-color;
+        border-top-color: $primary-color;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    p {
+        margin: 0;
+        font-size: 0.95rem;
+    }
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+// ==========================================
+// Contenedor
+// ==========================================
+.detalle-plan-container {
+    max-width: 1100px;
+    width: 100%;
+    animation: fadeInUp 0.5s ease;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+// ==========================================
+// Page Header
+// ==========================================
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+
+    .btn-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: none;
+        border: none;
+        color: $text-secondary;
+        font-weight: 500;
+        font-size: 0.9rem;
+        cursor: pointer;
+        padding: 0.5rem 0.75rem;
+        border-radius: 8px;
+        transition: $transition;
+
+        &:hover {
+            background-color: #f1f5f9;
+            color: $text-main;
+        }
+
+        svg {
+            stroke: currentColor;
+        }
+    }
+
+    .plan-id {
+        font-size: 0.85rem;
+        color: $text-muted;
+        background: #f1f5f9;
+        padding: 0.3rem 0.8rem;
+        border-radius: 12px;
+    }
+}
+
+// ==========================================
+// Hero Plan
+// ==========================================
+.plan-hero {
+    background: #f5f6fa;
+    border-radius: $radius;
+    // border: 1px solid #0f1c3f;
+    padding: 2.5rem 3rem;
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-between;
+    gap: 2rem;
+    flex-wrap: wrap;
+
+    &__content {
+        flex: 1;
+        min-width: 280px;
+
+        .plan-hero__badge {
+            margin-bottom: 0.75rem;
+
+            .badge-ia {
+                display: inline-block;
+                background: #dbeafe;
+                color: #000000;
+                font-size: 0.7rem;
+                font-weight: 700;
+                padding: 0.3rem 0.8rem;
+                border-radius: 20px;
+                letter-spacing: 0.5px;
+            }
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #000000;
+            margin: 0 0 0.75rem 0;
+        }
+
+        .plan-hero__description {
+            font-size: 0.95rem;
+            color: rgba(0, 0, 0, 0.7);
+            line-height: 1.6;
+            margin: 0 0 1rem 0;
+        }
+
+        .plan-hero__meta {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+
+            .meta-item {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                font-size: 0.85rem;
+                color: rgba(0, 0, 0, 0.6);
+
+                svg {
+                    stroke: rgba(0, 0, 0, 0.5);
+                }
+            }
+        }
+    }
+
+    &__stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        min-width: 200px;
+
+        .stat-item {
+            background: rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: $radius-sm;
+            padding: 1rem 1.25rem;
+            text-align: center;
+            backdrop-filter: blur(8px);
+
+            .stat-value {
+                display: block;
+                font-size: 1.5rem;
+                font-weight: 700;
+                color: #000000;
+                line-height: 1.2;
+            }
+
+            .stat-label {
+                font-size: 0.7rem;
+                font-weight: 600;
+                color: rgba(0, 0, 0, 0.5);
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+        }
+    }
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+
+    &__left {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    &__right {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .btn-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: none;
+        border: none;
+        color: $text-secondary;
+        font-weight: 500;
+        font-size: 0.9rem;
+        cursor: pointer;
+        padding: 0.5rem 0.75rem;
+        border-radius: 8px;
+        transition: $transition;
+
+        &:hover {
+            background-color: #f1f5f9;
+            color: $text-main;
+        }
+
+        svg {
+            stroke: currentColor;
+        }
+    }
+
+    .btn-editar {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: $primary-color;
+        color: #ffffff;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: $transition;
+
+        &:hover {
+            background: $primary-hover;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        svg {
+            stroke: currentColor;
+        }
+    }
+
+    .plan-id {
+        font-size: 0.85rem;
+        color: $text-muted;
+        background: #f1f5f9;
+        padding: 0.3rem 0.8rem;
+        border-radius: 12px;
+    }
+}
+
+// ==========================================
+// Comidas Section
+// ==========================================
+.comidas-section {
+    margin-bottom: 2rem;
+
+    h2 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: $text-main;
+        margin: 0 0 0.25rem 0;
+    }
+
+    .section-subtitle {
+        font-size: 0.9rem;
+        color: $text-secondary;
+        margin: 0 0 1.5rem 0;
+    }
+}
+
+.comidas-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+}
+
+.comida-card {
+    background: $bg-card;
+    border: 1px solid $border-color;
+    border-radius: $radius;
+    overflow: hidden;
+    transition: $transition;
+    box-shadow: $shadow-sm;
+
+    &:hover {
+        box-shadow: $shadow-md;
+        transform: translateY(-2px);
+    }
+
+    &__header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem 1.25rem;
+        background: #fafbfc;
+        border-bottom: 1px solid $border-color;
+
+        .comida-card__icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+
+            &.desayuno {
+                background: #fef3c7;
+                color: #d97706;
+            }
+            &.almuerzo {
+                background: #dbeafe;
+                color: #2563eb;
+            }
+            &.cena {
+                background: #d1fae5;
+                color: #059669;
+            }
+            &.colacion {
+                background: #fce7f3;
+                color: #db2777;
+            }
+        }
+
+        h3 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: $text-main;
+            margin: 0;
+        }
+
+        .comida-tipo {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: $text-muted;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .comida-calorias {
+            margin-left: auto;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: $text-main;
+            background: #f1f5f9;
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+        }
+    }
+
+    &__body {
+        padding: 1rem 1.25rem;
+
+        .comida-descripcion {
+            font-size: 0.85rem;
+            color: $text-secondary;
+            line-height: 1.5;
+            margin: 0 0 0.75rem 0;
+        }
+
+        .comida-macros {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.8rem;
+            color: $text-secondary;
+            margin-bottom: 0.75rem;
+
+            strong {
+                color: $text-main;
+            }
+        }
+
+        .comida-detalles {
+            summary {
+                font-size: 0.8rem;
+                font-weight: 600;
+                color: $primary-color;
+                cursor: pointer;
+                padding: 0.3rem 0;
+                user-select: none;
+
+                &:hover {
+                    color: $primary-hover;
+                }
+            }
+
+            &[open] summary {
+                margin-bottom: 0.5rem;
+            }
+
+            .comida-ingredientes,
+            .comida-preparacion {
+                margin-bottom: 0.75rem;
+                padding: 0.75rem;
+                background: #f8fafc;
+                border-radius: 8px;
+
+                h4 {
+                    font-size: 0.75rem;
+                    font-weight: 700;
+                    color: $text-muted;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                    margin: 0 0 0.25rem 0;
+                }
+
+                p {
+                    font-size: 0.85rem;
+                    color: $text-secondary;
+                    margin: 0;
+                    line-height: 1.5;
+                }
+            }
+
+            .comida-preparacion {
+                margin-bottom: 0;
+            }
+        }
+    }
+}
+
+// ==========================================
+// Total Calorías
+// ==========================================
+.total-calorias {
+    background: $bg-card;
+    border: 1px solid $border-color;
+    border-radius: $radius;
+    padding: 1.5rem 2rem;
+    box-shadow: $shadow-sm;
+
+    &__content {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        margin-bottom: 1.25rem;
+
+        .total-calorias__icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: $primary-light;
+            color: $primary-color;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .total-calorias__info {
+            flex: 1;
+
+            h3 {
+                font-size: 1rem;
+                font-weight: 700;
+                color: $text-main;
+                margin: 0 0 0.15rem 0;
+            }
+
+            p {
+                font-size: 0.85rem;
+                color: $text-secondary;
+                margin: 0;
+            }
+        }
+
+        .total-calorias__value {
+            text-align: right;
+
+            .value-number {
+                display: block;
+                font-size: 2rem;
+                font-weight: 700;
+                color: $primary-color;
+                line-height: 1;
+            }
+
+            .value-label {
+                font-size: 0.75rem;
+                font-weight: 600;
+                color: $text-muted;
+                text-transform: uppercase;
+            }
+        }
+    }
+
+    &__macros {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+
+        .macro-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+
+            &__label {
+                font-size: 0.8rem;
+                font-weight: 600;
+                color: $text-secondary;
+                width: 100px;
+                flex-shrink: 0;
+            }
+
+            &__track {
+                flex: 1;
+                height: 6px;
+                background: #f1f5f9;
+                border-radius: 4px;
+                overflow: hidden;
+            }
+
+            &__fill {
+                height: 100%;
+                border-radius: 4px;
+                background: $primary-color;
+                transition: width 0.6s ease;
+
+                &.carb {
+                    background: #f59e0b;
+                }
+                &.fat {
+                    background: #ef4444;
+                }
+            }
+
+            &__value {
+                font-size: 0.8rem;
+                font-weight: 600;
+                color: $text-main;
+                width: 50px;
+                text-align: right;
+                flex-shrink: 0;
+            }
+        }
+    }
+}
+
+// ==========================================
+// Modal
+// ==========================================
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 40px 48px 32px;
+    max-width: 420px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.3s ease;
+}
+
+.modal-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+
+    &.error-icon {
+        background: #fef2f2;
+        color: #dc2626;
+        svg { stroke: #dc2626; }
+    }
+}
+
+.modal-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 8px;
+}
+
+.modal-message {
+    font-size: 14px;
+    color: #64748b;
+    margin: 0 0 24px;
+    line-height: 1.6;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.modal-btn {
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: $transition;
+
+    &-secondary {
+        background: #f1f5f9;
+        color: #0f172a;
+        &:hover { background: #e2e8f0; }
+    }
+
+    &-primary {
+        background: $primary-color;
+        color: #ffffff;
+        &:hover {
+            background: $primary-hover;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+            transform: translateY(-2px);
+        }
+    }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+// ==========================================
+// Responsive
+// ==========================================
+@media (max-width: 992px) {
+    .detalle-plan-main {
+        margin-left: 0;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .detalle-plan-content {
+        padding: 1rem 1.5rem;
+    }
+
+    .comidas-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .detalle-plan-content {
+        padding: 1rem;
+    }
+
+    .plan-hero {
+        padding: 1.5rem;
+        flex-direction: column;
+
+        &__stats {
+            grid-template-columns: 1fr 1fr;
+            width: 100%;
+        }
+    }
+
+    .plan-hero__content h1 {
+        font-size: 1.5rem;
+    }
+
+    .total-calorias__content {
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .modal-content {
+        padding: 30px 24px 24px;
+    }
+}
+
+@media (max-width: 480px) {
+    .detalle-plan-content {
+        padding: 0.5rem;
+    }
+
+    .plan-hero {
+        padding: 1rem;
+        border-radius: $radius-sm;
+
+        &__stats {
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+
+            .stat-item {
+                padding: 0.75rem;
+
+                .stat-value {
+                    font-size: 1.2rem;
+                }
+            }
+        }
+    }
+
+    .plan-hero__content h1 {
+        font-size: 1.25rem;
+    }
+
+    .comida-card__header {
+        flex-wrap: wrap;
+
+        .comida-calorias {
+            margin-left: 0;
+        }
+    }
+
+    .total-calorias {
+        padding: 1rem;
+    }
+
+    .total-calorias__content .total-calorias__value .value-number {
+        font-size: 1.5rem;
+    }
+
+    .modal-content {
+        padding: 24px 16px 16px;
+    }
+}
