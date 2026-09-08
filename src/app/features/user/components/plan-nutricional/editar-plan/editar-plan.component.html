@@ -1,0 +1,210 @@
+<div class="editar-plan-layout">
+    <app-navbar></app-navbar>
+
+    <div class="editar-plan-main">
+        <app-header></app-header>
+
+        <div class="editar-plan-content">
+            <div class="editar-plan-container">
+
+                <!-- Formulario -->
+                <ng-container *ngIf="!isLoading">
+                    <!-- Header -->
+                    <div class="page-header">
+                        <button class="btn-back" (click)="volver()">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <path d="M19 12H5"/>
+                                <path d="m12 19-7-7 7-7"/>
+                            </svg>
+                            Volver
+                        </button>
+                        <h1>Editar plan nutricional</h1>
+                    </div>
+
+                    <!-- Hero -->
+                    <div class="editar-hero">
+                        <div class="editar-hero__content">
+                            <div class="hero-icon">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M12 2a10 10 0 1 0 10 10 10 10 0 0 0-10-10z"/>
+                                    <path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12z"/>
+                                    <path d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h2>Editar plan</h2>
+                                <p>Actualiza los valores nutricionales y explica el motivo de la modificación.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Formulario -->
+                    <form [formGroup]="planForm" (ngSubmit)="onSubmit()" class="editar-plan-form">
+                        <!-- Macronutrientes -->
+                        <div class="form-section">
+                            <div class="section-header">
+                                <span class="step-number">1</span>
+                                <h3>Macronutrientes</h3>
+                            </div>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="calorias">Calorías diarias <span class="required">*</span></label>
+                                    <input type="number" id="calorias" formControlName="caloriasDiarias" placeholder="Ej: 2200"
+                                           [class.error]="planForm.get('caloriasDiarias')?.invalid && planForm.get('caloriasDiarias')?.touched">
+                                    <span class="error-message" *ngIf="planForm.get('caloriasDiarias')?.invalid && planForm.get('caloriasDiarias')?.touched">
+                                        <span *ngIf="planForm.get('caloriasDiarias')?.errors?.['required']">Campo obligatorio</span>
+                                        <span *ngIf="planForm.get('caloriasDiarias')?.errors?.['min']">Mínimo 500 kcal</span>
+                                        <span *ngIf="planForm.get('caloriasDiarias')?.errors?.['max']">Máximo 5000 kcal</span>
+                                    </span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="proteinas">Proteínas (g) <span class="required">*</span></label>
+                                    <input type="number" id="proteinas" formControlName="proteinasG" placeholder="Ej: 150"
+                                           [class.error]="planForm.get('proteinasG')?.invalid && planForm.get('proteinasG')?.touched">
+                                    <span class="error-message" *ngIf="planForm.get('proteinasG')?.invalid && planForm.get('proteinasG')?.touched">
+                                        <span *ngIf="planForm.get('proteinasG')?.errors?.['required']">Campo obligatorio</span>
+                                    </span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="carbohidratos">Carbohidratos (g) <span class="required">*</span></label>
+                                    <input type="number" id="carbohidratos" formControlName="carbohidratosG" placeholder="Ej: 250"
+                                           [class.error]="planForm.get('carbohidratosG')?.invalid && planForm.get('carbohidratosG')?.touched">
+                                    <span class="error-message" *ngIf="planForm.get('carbohidratosG')?.invalid && planForm.get('carbohidratosG')?.touched">
+                                        <span *ngIf="planForm.get('carbohidratosG')?.errors?.['required']">Campo obligatorio</span>
+                                    </span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="grasas">Grasas (g) <span class="required">*</span></label>
+                                    <input type="number" id="grasas" formControlName="grasasG" placeholder="Ej: 70"
+                                           [class.error]="planForm.get('grasasG')?.invalid && planForm.get('grasasG')?.touched">
+                                    <span class="error-message" *ngIf="planForm.get('grasasG')?.invalid && planForm.get('grasasG')?.touched">
+                                        <span *ngIf="planForm.get('grasasG')?.errors?.['required']">Campo obligatorio</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Restricciones -->
+                        <div class="form-section">
+                            <div class="section-header">
+                                <span class="step-number">2</span>
+                                <h3>Restricciones dietéticas</h3>
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="restricciones">Restricciones dietéticas</label>
+                                <input type="text" id="restricciones" formControlName="restriccionesDieteticas"
+                                       placeholder="Ej: Vegetariano, Sin gluten, Bajo en carbohidratos"
+                                       class="input-tag">
+                                <span class="hint-text">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <line x1="12" y1="12" x2="12" y2="16"/>
+                                        <line x1="12" y1="8" x2="12.01" y2="8"/>
+                                    </svg>
+                                    Separa cada restricción con una coma.
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Motivo -->
+                        <div class="form-section">
+                            <div class="section-header">
+                                <span class="step-number">3</span>
+                                <h3>Motivo de la modificación</h3>
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="motivo">Motivo <span class="required">*</span></label>
+                                <textarea id="motivo" formControlName="motivo"
+                                          placeholder="Ej: Ajuste por nuevo objetivo de pérdida de peso, Cambio en el nivel de actividad física..."
+                                          rows="4"
+                                          [class.error]="planForm.get('motivo')?.invalid && planForm.get('motivo')?.touched">
+                                </textarea>
+                                <span class="error-message" *ngIf="planForm.get('motivo')?.invalid && planForm.get('motivo')?.touched">
+                                    <span *ngIf="planForm.get('motivo')?.errors?.['required']">El motivo es obligatorio</span>
+                                    <span *ngIf="planForm.get('motivo')?.errors?.['minlength']">Mínimo 10 caracteres</span>
+                                </span>
+                                <span class="hint-text">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <line x1="12" y1="12" x2="12" y2="16"/>
+                                        <line x1="12" y1="8" x2="12.01" y2="8"/>
+                                    </svg>
+                                    Explica brevemente por qué estás modificando este plan.
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Acciones -->
+                        <div class="form-actions">
+                            <button type="button" class="btn-cancelar" (click)="cancelar()">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"/>
+                                    <line x1="6" y1="6" x2="18" y2="18"/>
+                                </svg>
+                                Cancelar
+                            </button>
+                            <button type="submit" class="btn-guardar" [disabled]="isLoading">
+                                <ng-container *ngIf="!isLoading">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                                        <polyline points="17 21 17 13 7 13 7 21"/>
+                                        <polyline points="7 3 7 8 15 8"/>
+                                    </svg>
+                                    Guardar cambios
+                                </ng-container>
+                                <ng-container *ngIf="isLoading">
+                                    <span class="spinner-border spinner-border-sm" role="status"></span>
+                                    Guardando...
+                                </ng-container>
+                            </button>
+                        </div>
+                    </form>
+                </ng-container>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Éxito -->
+<div class="modal-overlay" *ngIf="showSuccessModal">
+    <div class="modal-content success-modal">
+        <div class="modal-icon success-icon">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+        </div>
+        <h3>¡Plan actualizado con éxito!</h3>
+        <p>Los cambios han sido guardados correctamente.</p>
+        <div class="modal-actions">
+            <button class="modal-btn modal-btn-primary" (click)="cerrarSuccessModal()">
+                Ver mis planes
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M5 12h14"/>
+                    <path d="m12 5 7 7-7 7"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Error -->
+<div class="modal-overlay" *ngIf="showErrorModal" (click)="cerrarErrorModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-icon error-icon">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+        </div>
+        <h3>¡Ups! Algo salió mal</h3>
+        <p>{{ errorMessage }}</p>
+        <div class="modal-actions">
+            <button class="modal-btn modal-btn-primary" (click)="cerrarErrorModal()">Entendido</button>
+        </div>
+    </div>
+</div>

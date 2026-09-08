@@ -1,0 +1,255 @@
+<div class="crear-plan-layout">
+    <app-navbar></app-navbar>
+
+    <div class="crear-plan-main">
+        <app-header></app-header>
+
+        <div class="crear-plan-content">
+            <div class="crear-plan-container">
+                <!-- Hero -->
+                <div class="crear-plan-hero">
+                    <div class="crear-plan-hero__content">
+                        <button class="btn-back" (click)="cancelarCreacion()">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <path d="M19 12H5"/>
+                                <path d="m12 19-7-7 7-7"/>
+                            </svg>
+                            Volver
+                        </button>
+                        <div class="hero-text">
+                            <h1>Crear plan nutricional</h1>
+                            <p>Completa los siguientes datos y nuestra inteligencia artificial generará un plan personalizado para ti.</p>
+                        </div>
+                    </div>
+                    <div class="hero-illustration">
+                        <div class="floating-icon icon-1">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M12 2a10 10 0 1 0 10 10 10 10 0 0 0-10-10z"/>
+                                <path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12z"/>
+                                <path d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/>
+                            </svg>
+                        </div>
+                        <div class="floating-icon icon-2">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <polyline points="9 11 12 14 22 4"/>
+                                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                            </svg>
+                        </div>
+                        <div class="floating-icon icon-3">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                <circle cx="12" cy="7" r="4"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Formulario -->
+                <form [formGroup]="planForm" (ngSubmit)="onSubmit()" class="crear-plan-form">
+                    <!-- Objetivo -->
+                    <div class="form-card">
+                        <div class="form-card__header">
+                            <div class="form-card__icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <polyline points="12 6 12 12 16 14"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3>Objetivo</h3>
+                                <p>Describe el objetivo principal de tu plan nutricional.</p>
+                            </div>
+                            <span class="required-badge">Obligatorio</span>
+                        </div>
+                        <div class="form-card__body">
+                            <div class="form-group">
+                                <label for="objetivo">¿Cuál es tu objetivo?</label>
+                                <textarea id="objetivo" 
+                                          formControlName="objetivo_especifico" 
+                                          placeholder="Ejemplo: Perder 5 kg en 2 meses, Ganar masa muscular, Mejorar rendimiento deportivo, Mantener peso saludable..."
+                                          rows="3"
+                                          [class.error]="planForm.get('objetivo_especifico')?.invalid && planForm.get('objetivo_especifico')?.touched">
+                                </textarea>
+                                <span class="error-message" *ngIf="planForm.get('objetivo_especifico')?.invalid && planForm.get('objetivo_especifico')?.touched">
+                                    El objetivo es obligatorio
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Restricciones Dietéticas -->
+                    <div class="form-card">
+                        <div class="form-card__header">
+                            <div class="form-card__icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z"/>
+                                    <path d="m3 9 2.45-4.9A2 2 0 0 1 7.24 3h9.52a2 2 0 0 1 1.8 1.1L21 9"/>
+                                    <path d="M12 3v6"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3>Restricciones dietéticas</h3>
+                                <p>Escribe las restricciones alimenticias que deseas aplicar.</p>
+                            </div>
+                            <span class="optional-badge">Opcional</span>
+                        </div>
+                        <div class="form-card__body">
+                            <div class="form-group">
+                                <label for="restricciones">Restricciones dietéticas</label>
+                                <input type="text" 
+                                       id="restricciones"
+                                       formControlName="restricciones_dieteticas"
+                                       placeholder="Ejemplo: Vegetariano, Sin gluten, Bajo en carbohidratos, Sin azúcar"
+                                       class="input-tag">
+                                <span class="hint-text">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <line x1="12" y1="12" x2="12" y2="16"/>
+                                        <line x1="12" y1="8" x2="12.01" y2="8"/>
+                                    </svg>
+                                    Separa cada restricción con una coma. Deja en blanco si no tienes ninguna.
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Alergias -->
+                    <div class="form-card">
+                        <div class="form-card__header">
+                            <div class="form-card__icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                                    <path d="M12 8v4"/>
+                                    <path d="M12 16h.01"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3>Alergias</h3>
+                                <p>Escribe las alergias que tienes.</p>
+                            </div>
+                            <span class="optional-badge">Opcional</span>
+                        </div>
+                        <div class="form-card__body">
+                            <div class="form-group">
+                                <label for="alergias">Alergias</label>
+                                <input type="text" 
+                                       id="alergias"
+                                       formControlName="alergias"
+                                       placeholder="Ejemplo: Frutos secos, Mariscos, Huevo, Lácteos"
+                                       class="input-tag">
+                                <span class="hint-text">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <line x1="12" y1="12" x2="12" y2="16"/>
+                                        <line x1="12" y1="8" x2="12.01" y2="8"/>
+                                    </svg>
+                                    Separa cada alergia con una coma. Deja en blanco si no tienes ninguna.
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Intolerancias -->
+                    <div class="form-card">
+                        <div class="form-card__header">
+                            <div class="form-card__icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                                    <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3>Intolerancias</h3>
+                                <p>Escribe las intolerancias que tienes.</p>
+                            </div>
+                            <span class="optional-badge">Opcional</span>
+                        </div>
+                        <div class="form-card__body">
+                            <div class="form-group">
+                                <label for="intolerancias">Intolerancias</label>
+                                <input type="text" 
+                                       id="intolerancias"
+                                       formControlName="intolerancias"
+                                       placeholder="Ejemplo: Lactosa, Gluten, Fructosa, Cafeína"
+                                       class="input-tag">
+                                <span class="hint-text">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <line x1="12" y1="12" x2="12" y2="16"/>
+                                        <line x1="12" y1="8" x2="12.01" y2="8"/>
+                                    </svg>
+                                    Separa cada intolerancia con una coma. Deja en blanco si no tienes ninguna.
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Acciones -->
+                    <div class="form-actions">
+                        <button type="button" class="btn-cancelar" (click)="cancelarCreacion()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="18" y1="6" x2="6" y2="18"/>
+                                <line x1="6" y1="6" x2="18" y2="18"/>
+                            </svg>
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn-generar" [disabled]="isLoading">
+                            <ng-container *ngIf="!isLoading">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="23 4 23 10 17 10"/>
+                                    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+                                </svg>
+                                Generar plan
+                            </ng-container>
+                            <ng-container *ngIf="isLoading">
+                                <span class="spinner-border spinner-border-sm" role="status"></span>
+                                Generando...
+                            </ng-container>
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Modal de Éxito -->
+                <div class="modal-overlay" *ngIf="showSuccessModal">
+                    <div class="modal-content success-modal">
+                        <div class="modal-icon success-icon">
+                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                <polyline points="22 4 12 14.01 9 11.01"/>
+                            </svg>
+                        </div>
+                        <h3>¡Plan generado con éxito!</h3>
+                        <p>Tu plan nutricional personalizado ha sido creado. Puedes verlo en la lista de planes.</p>
+                        <div class="modal-actions">
+                            <button class="modal-btn modal-btn-primary" (click)="cerrarSuccessModal()">
+                                Ver mis planes
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M5 12h14"/>
+                                    <path d="m12 5 7 7-7 7"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal de Error -->
+                <div class="modal-overlay" *ngIf="showErrorModal" (click)="cerrarErrorModal()">
+                    <div class="modal-content" (click)="$event.stopPropagation()">
+                        <div class="modal-icon error-icon">
+                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="12" y1="8" x2="12" y2="12"/>
+                                <line x1="12" y1="16" x2="12.01" y2="16"/>
+                            </svg>
+                        </div>
+                        <h3>¡Ups! Algo salió mal</h3>
+                        <p>{{ errorMessage }}</p>
+                        <div class="modal-actions">
+                            <button class="modal-btn modal-btn-primary" (click)="cerrarErrorModal()">Entendido</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

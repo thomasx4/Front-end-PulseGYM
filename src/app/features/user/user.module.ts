@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { UserRoutingModule } from './user-routing.module';
+import { ReactiveFormsModule } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { ProfileComponent } from './components/profile/profile.component';
@@ -15,6 +16,12 @@ import { ExportarRutinaComponent } from './components/rutinas/exportar-rutina/ex
 import { RutinasService } from '../../core/services/rutinas.service';
 import { EditarRutinaComponent } from './components/rutinas/editar-rutina/editar-rutina.component';
 import { PerfilMedicoComponent } from './components/perfil-medico/perfil-medico.component';
+import { PlanNutricionalComponent } from './components/plan-nutricional/plan-nutricional.component';
+import { CrearPlanComponent } from './components/plan-nutricional/crear-plan/crear-plan.component';
+import { DetallePlanComponent } from './components/plan-nutricional/detalle-plan/detalle-plan.component';
+import { EditarPlanComponent } from './components/plan-nutricional/editar-plan/editar-plan.component';
+import { ExportarPlanComponent } from './components/plan-nutricional/exportar-plan/exportar-plan.component';
+import { AjustesComponent } from './components/ajustes/ajustes.component';
 
 @NgModule({
   declarations: [
@@ -27,11 +34,18 @@ import { PerfilMedicoComponent } from './components/perfil-medico/perfil-medico.
     DetalleRutinaComponent,
     ExportarRutinaComponent,
     EditarRutinaComponent,
-    PerfilMedicoComponent
+    PerfilMedicoComponent,
+    PlanNutricionalComponent,
+    CrearPlanComponent,
+    DetallePlanComponent,
+    EditarPlanComponent,
+    ExportarPlanComponent,
+    AjustesComponent
   ],
   imports: [
     CommonModule,
     HttpClientModule,
+    ReactiveFormsModule,
     FormsModule,
     UserRoutingModule,
     SharedModule

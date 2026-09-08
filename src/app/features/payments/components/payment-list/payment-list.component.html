@@ -180,8 +180,11 @@
                             </div>
                         </td>
                         <td class="text-center">
-                            <span class="status-pill" [class.danger]="item.anulado" [class.success]="!item.anulado">
-                                {{ item.anulado ? 'ANULADO' : 'APROBADO' }}
+                            <span class="status-pill" 
+                                  [class.danger]="item.anulado || item.estado === 'RECHAZADO' || item.estado === 'ANULADO'" 
+                                  [class.warning]="item.estado === 'PENDIENTE'"
+                                  [class.success]="!item.anulado && item.estado === 'APROBADO'">
+                                {{ item.anulado ? 'ANULADO' : (item.estado || 'APROBADO') }}
                             </span>
                         </td>
                         <td>
@@ -247,8 +250,10 @@
             </div>
 
             <div class="detail-body">
-                <div class="status-pill lg" [class.success]="!selectedPayment.anulado"
-                    [class.danger]="selectedPayment.anulado">
+                <div class="status-pill lg" 
+                     [class.success]="!selectedPayment.anulado && selectedPayment.estado === 'APROBADO'"
+                     [class.warning]="selectedPayment.estado === 'PENDIENTE'"
+                     [class.danger]="selectedPayment.anulado || selectedPayment.estado === 'RECHAZADO' || selectedPayment.estado === 'ANULADO'">
                     {{ selectedPayment.anulado ? 'ANULADO' : (selectedPayment.estado || 'APROBADO') }}
                 </div>
                 <div class="main-amount">${{ selectedPayment.monto | number:'1.2-2' }}</div>

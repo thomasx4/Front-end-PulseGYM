@@ -10,7 +10,12 @@ import { DetalleRutinaComponent } from './components/rutinas/detalle-rutina/deta
 import { ExportarRutinaComponent } from './components/rutinas/exportar-rutina/exportar-rutina.component';
 import { EditarRutinaComponent } from './components/rutinas/editar-rutina/editar-rutina.component';
 import { PerfilMedicoComponent } from './components/perfil-medico/perfil-medico.component';
-
+import { PlanNutricionalComponent } from './components/plan-nutricional/plan-nutricional.component';
+import { CrearPlanComponent } from './components/plan-nutricional/crear-plan/crear-plan.component';
+import { DetallePlanComponent } from './components/plan-nutricional/detalle-plan/detalle-plan.component';
+import { EditarPlanComponent } from './components/plan-nutricional/editar-plan/editar-plan.component';
+import { ExportarPlanComponent } from './components/plan-nutricional/exportar-plan/exportar-plan.component';
+import { AjustesComponent } from './components/ajustes/ajustes.component';
 
 
 const routes: Routes = [
@@ -33,6 +38,18 @@ const routes: Routes = [
     { path: 'rutinas/editar/:id', component: EditarRutinaComponent },
 
     { path: 'perfil-medico', component: PerfilMedicoComponent },
+
+    { path: 'plan-nutricional', component: PlanNutricionalComponent },
+
+    { path: 'plan-nutricional/crear-plan', component: CrearPlanComponent },
+
+    { path: 'plan-nutricional/detalle/:id', component: DetallePlanComponent },
+
+    { path: 'plan-nutricional/editar/:id', component: EditarPlanComponent },
+
+    { path: 'plan-nutricional/exportar', component: ExportarPlanComponent },
+
+    { path: 'ajustes', component: AjustesComponent },
   ]
 
 @NgModule({

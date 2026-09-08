@@ -18,6 +18,7 @@ import { tap, catchError, map, distinctUntilChanged } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import * as CryptoJS from 'crypto-js';
 import { jwtDecode } from 'jwt-decode';
+import { ThemeService } from './theme.service';
 
 export { FiltrosUsuarios };
 
@@ -47,7 +48,8 @@ export class AuthService {
 
   constructor(
     private http: HttpClient,
-    private router: Router
+    private router: Router,
+    private themeService: ThemeService //  Inyectar ThemeService
   ) { }
 
   registerCredentials(datos: RegisterRequestDTO): Observable<MessageGlobalDTO> {
@@ -149,10 +151,12 @@ export class AuthService {
           let username: string = '';
           let userFullName: string = 'Usuario';
           let requiereCambio = false;
+          let userId: string = '';
 
           if (response && response.data) {
             token = response.data.jwt || response.data.token;
             requiereCambio = !!response.data.requiereCambioContrasena;
+            userId = response.data.idUsuario || response.data.id || response.data.userId || '';
           } else if (response && response.token) {
             token = response.token;
           }
@@ -162,6 +166,11 @@ export class AuthService {
 
             try {
               const decoded: any = jwtDecode(token);
+
+              // Obtener userId del token si no vino en la respuesta
+              if (!userId) {
+                userId = decoded.id || decoded.userId || decoded.sub || decoded.idUsuario || '';
+              }
 
               username = decoded.username || decoded.user || decoded.sub || credentials.email.split('@')[0];
               userEmail = decoded.email || decoded.sub || credentials.email;
@@ -182,8 +191,14 @@ export class AuthService {
               username = credentials.email.split('@')[0];
             }
 
+            // GUARDAR userId EN LOCALSTORAGE
+            if (userId) {
+              localStorage.setItem('userId', userId.toString());
+              console.log('UserId guardado:', userId);
+            }
+
             const user: User = {
-              id: '0',
+              id: userId || '0',
               username: username,
               name: userFullName,
               email: userEmail,
@@ -198,6 +213,11 @@ export class AuthService {
             this.currentUserSubject.next(user);
             this.authStatus.next(true);
             this.requiereCambioSubject.next(requiereCambio);
+
+            // INICIALIZAR EL TEMA DEL USUARIO DESPUÉS DEL LOGIN
+            if (userId) {
+              this.themeService.initializeThemeForUser(userId.toString());
+            }
           }
         })
       );
@@ -251,6 +271,7 @@ export class AuthService {
     localStorage.removeItem(this.userKey);
     localStorage.removeItem(this.roleKey);
     localStorage.removeItem(this.REQUIRE_CHANGE_PASS_KEY);
+    localStorage.removeItem('userId');
     this.clearGlobalLock();
     this.authStatus.next(false);
     this.currentUserSubject.next(null);
@@ -327,8 +348,14 @@ export class AuthService {
         map(response => {
           const data = response.data || response;
 
+          // Guardar userId del perfil también
+          const userId = data.idUsuario?.toString() || data.id?.toString() || '0';
+          if (userId && userId !== '0') {
+            localStorage.setItem('userId', userId);
+          }
+
           const user: User = {
-            id: data.idUsuario?.toString() || '0',
+            id: userId || '0',
             username: data.username || data.email?.split('@')[0] || 'usuario',
             name: data.nombre || data.username || 'Usuario',
             email: data.email || '',

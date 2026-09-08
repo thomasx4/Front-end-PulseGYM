@@ -84,6 +84,70 @@ export class UserService {
     );
   }
 
+  // 👈 Obtiene la ultima rutina generada
+  getLastRoutine(): Observable<Routine> {
+    const url = `${this.apiUrl}/pg-ms-users/api/v1/rutinas/mis-rutinas`;
+    return this.http.get<any>(url, { headers: this.getHeaders() }).pipe(
+      map((response) => {
+        if (Array.isArray(response) && response.length > 0) {
+          // Tomar la primera rutina (la mas reciente)
+          const rutina = response[0];
+          const nombreRutina = rutina.nombre || 'Rutina sin nombre';
+          const detalles = rutina.detalles || [];
+
+          // Mapear ejercicios
+          const ejercicios: Exercise[] = detalles.map((detalle: any) => ({
+            nombre: detalle.nombreEjercicio || 'Ejercicio',
+            sets: (detalle.series || 0) + ' x ' + (detalle.repeticionesMin || 0) + '-' + (detalle.repeticionesMax || 0),
+            imageUrl: detalle.urlImagen || '',
+            grupoMuscular: detalle.grupoMuscular,
+            diaSemana: detalle.diaSemana
+          }));
+
+          // Obtener dia actual (1=Lunes, 7=Domingo)
+          const today = new Date().getDay();
+          const diaActual = today === 0 ? 7 : today;
+
+          // Filtrar ejercicios del dia actual
+          const ejerciciosHoy = ejercicios.filter(e => e.diaSemana === diaActual);
+
+          // Si hay ejercicios para hoy, mostrarlos; si no, mostrar todos
+          const ejerciciosMostrar = ejerciciosHoy.length > 0 ? ejerciciosHoy : ejercicios;
+
+          return {
+            nombre: nombreRutina,
+            duracion: '60 - 75 min',
+            dateStr: this.getTodayDateStr(),
+            ejercicios: ejerciciosMostrar
+          };
+        }
+
+        return {
+          nombre: 'Sin rutina generada',
+          duracion: '--',
+          dateStr: this.getTodayDateStr(),
+          ejercicios: []
+        };
+      }),
+      catchError((error) => {
+        console.error('Error en getLastRoutine:', error);
+        return of({
+          nombre: 'Error al cargar rutina',
+          duracion: '--',
+          dateStr: this.getTodayDateStr(),
+          ejercicios: []
+        });
+      })
+    );
+  }
+
+  private getTodayDateStr(): string {
+    const today = new Date();
+    const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'];
+    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    return `${diasSemana[today.getDay()]} ${today.getDate()} de ${meses[today.getMonth()]}`;
+  }
+
   getTodayRoutine(): Observable<Routine> {
     const today = new Date().getDay();
     const diaSemana = today === 0 ? 7 : today;
@@ -122,9 +186,7 @@ export class UserService {
           sets: (detalle.series || 0) + ' series x ' + (detalle.repeticionesMin || 0) + ' - ' + (detalle.repeticionesMax || 0) + ' repeticiones',
           imageUrl: detalle.urlImagen || '',
           grupoMuscular: detalle.grupoMuscular,
-          peso: detalle.pesoSugerido,
-          descanso: detalle.descansoSegundos,
-          notas: detalle.notas
+          diaSemana: detalle.diaSemana
         }));
 
         return {
