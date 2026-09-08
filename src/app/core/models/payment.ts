@@ -15,7 +15,7 @@ export interface Payment {
     anulado: boolean;
     motivoAnulacion?: string;
     fechaAnulacion?: string;
-    estado?: string;
+    estado?: 'PENDIENTE' | 'APROBADO' | 'RECHAZADO' | 'ANULADO' | string;
 }
 
 export interface PaymentSummaryDTO {

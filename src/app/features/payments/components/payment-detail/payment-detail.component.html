@@ -5,12 +5,6 @@
             <p>Sistema Oficial de Validación de Comprobantes</p>
         </div>
 
-        <!-- Estado de Carga -->
-        <div *ngIf="isLoading" class="loader-section">
-            <div class="spinner"></div>
-            <p>Verificando registro en el sistema...</p>
-        </div>
-
         <!-- Mensaje de Error -->
         <div *ngIf="errorMessage" class="alert error">
             <span class="error-title">Aviso de Validación</span>
@@ -19,8 +13,12 @@
 
         <!-- Detalle del Pago Exitoso -->
         <div *ngIf="pagoDetalle && !isLoading" class="receipt-details">
-            <div class="status-badge" [ngClass]="{'aprobado': !pagoDetalle.anulado, 'anulado': pagoDetalle.anulado}">
-                {{ pagoDetalle.anulado ? 'ESTADO: PAGO ANULADO' : 'ESTADO: PAGO VERIFICADO Y APROBADO' }}
+            <div class="status-badge" [ngClass]="{
+                'aprobado': !pagoDetalle.anulado && pagoDetalle.estado === 'APROBADO', 
+                'pendiente': pagoDetalle.estado === 'PENDIENTE',
+                'anulado': pagoDetalle.anulado || pagoDetalle.estado === 'RECHAZADO' || pagoDetalle.estado === 'ANULADO'
+            }">
+                {{ pagoDetalle.anulado ? 'ESTADO: PAGO ANULADO' : ('ESTADO: PAGO ' + (pagoDetalle.estado || 'APROBADO')) }}
             </div>
 
             <ul class="detail-list">
