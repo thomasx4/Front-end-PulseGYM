@@ -116,6 +116,11 @@ export class ProfileComponent implements OnInit {
     this.router.navigate(['/user/detalle-medico']);
   }
 
+  // 👈 Navegar a ajustes
+  irAjustes(): void {
+    this.router.navigate(['/user/ajustes']);
+  }
+
   loadUserInfo(): void {
     this.authService.getCurrentUser().subscribe({
       next: (user: any) => {

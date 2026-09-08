@@ -15,6 +15,7 @@ import { CrearPlanComponent } from './components/plan-nutricional/crear-plan/cre
 import { DetallePlanComponent } from './components/plan-nutricional/detalle-plan/detalle-plan.component';
 import { EditarPlanComponent } from './components/plan-nutricional/editar-plan/editar-plan.component';
 import { ExportarPlanComponent } from './components/plan-nutricional/exportar-plan/exportar-plan.component';
+import { AjustesComponent } from './components/ajustes/ajustes.component';
 
 
 const routes: Routes = [
@@ -47,6 +48,8 @@ const routes: Routes = [
     { path: 'plan-nutricional/editar/:id', component: EditarPlanComponent },
 
     { path: 'plan-nutricional/exportar', component: ExportarPlanComponent },
+
+    { path: 'ajustes', component: AjustesComponent },
   ]
 
 @NgModule({

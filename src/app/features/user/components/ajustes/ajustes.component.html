@@ -1,0 +1,277 @@
+<div class="ajustes-layout">
+    <app-navbar></app-navbar>
+
+    <div class="ajustes-main">
+        <app-header></app-header>
+
+        <div class="ajustes-content">
+            <div class="ajustes-container">
+                <header class="page-header">
+                    <button class="btn-back" (click)="volver()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path d="M19 12H5"/>
+                            <path d="m12 19-7-7 7-7"/>
+                        </svg>
+                        Volver
+                    </button>
+                    <div>
+                        <h1>Ajustes</h1>
+                        <p class="subtitle">Configura tu experiencia en Pulse Gym</p>
+                    </div>
+                </header>
+
+                <form [formGroup]="ajustesForm" (ngSubmit)="guardarAjustes()" class="ajustes-form">
+
+                    <!-- Preferencias -->
+                    <div class="form-section">
+                        <div class="section-header">
+                            <div class="section-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="3"/>
+                                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h2>Preferencias</h2>
+                                <p>Personaliza tu experiencia en la aplicación</p>
+                            </div>
+                        </div>
+
+                        <div class="preferencias-grid">
+                            <!-- Modo Oscuro -->
+                            <div class="preferencia-item">
+                                <div class="preferencia-info">
+                                    <div class="preferencia-icon dark-mode">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h4>Modo oscuro</h4>
+                                        <p>Cambia la apariencia de la aplicación</p>
+                                    </div>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" formControlName="modoOscuro">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notificaciones - Diseño con tarjetas visuales -->
+                    <div class="form-section">
+                        <div class="section-header">
+                            <div class="section-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                                    <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                                    <circle cx="12" cy="12" r="2"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h2>Notificaciones</h2>
+                                <p>Elige cómo quieres recibir tus notificaciones</p>
+                            </div>
+                        </div>
+
+                        <!-- Tarjetas de selección de canal -->
+                        <div class="canales-grid">
+                            <div class="canal-card" 
+                                 [class.active]="ajustesForm.get('canalNotificacion')?.value === 'AMBOS'"
+                                 (click)="seleccionarCanal('AMBOS')">
+                                <div class="canal-card__icon ambos">
+                                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                                        <polyline points="22,6 12,13 2,6"/>
+                                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                                        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                                    </svg>
+                                </div>
+                                <div class="canal-card__info">
+                                    <h4>Email y Push</h4>
+                                    <p>Recibe notificaciones por ambos canales</p>
+                                </div>
+                                <div class="canal-card__check">
+                                    <svg *ngIf="ajustesForm.get('canalNotificacion')?.value === 'AMBOS'" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                        <polyline points="20 6 9 17 4 12"/>
+                                    </svg>
+                                </div>
+                            </div>
+
+                            <div class="canal-card" 
+                                 [class.active]="ajustesForm.get('canalNotificacion')?.value === 'EMAIL'"
+                                 (click)="seleccionarCanal('EMAIL')">
+                                <div class="canal-card__icon email">
+                                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                                        <polyline points="22,6 12,13 2,6"/>
+                                    </svg>
+                                </div>
+                                <div class="canal-card__info">
+                                    <h4>Solo Email</h4>
+                                    <p>Recibe notificaciones solo por correo</p>
+                                </div>
+                                <div class="canal-card__check">
+                                    <svg *ngIf="ajustesForm.get('canalNotificacion')?.value === 'EMAIL'" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                        <polyline points="20 6 9 17 4 12"/>
+                                    </svg>
+                                </div>
+                            </div>
+
+                            <div class="canal-card" 
+                                 [class.active]="ajustesForm.get('canalNotificacion')?.value === 'PUSH'"
+                                 (click)="seleccionarCanal('PUSH')">
+                                <div class="canal-card__icon push">
+                                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                                        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                                        <circle cx="12" cy="12" r="2"/>
+                                    </svg>
+                                </div>
+                                <div class="canal-card__info">
+                                    <h4>Solo Push</h4>
+                                    <p>Recibe notificaciones en tiempo real</p>
+                                </div>
+                                <div class="canal-card__check">
+                                    <svg *ngIf="ajustesForm.get('canalNotificacion')?.value === 'PUSH'" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                        <polyline points="20 6 9 17 4 12"/>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Soporte y Ayuda -->
+                    <div class="form-section">
+                        <div class="section-header">
+                            <div class="section-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                                    <path d="M12 17h.01"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h2>Soporte y Ayuda</h2>
+                                <p>Encuentra ayuda y contacto con soporte</p>
+                            </div>
+                        </div>
+
+                        <div class="soporte-grid">
+                            <div class="soporte-card" (click)="contactarSoporte()">
+                                <div class="soporte-card__icon">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                                    </svg>
+                                </div>
+                                <div class="soporte-card__content">
+                                    <h4>Contactar soporte</h4>
+                                    <p>Envíanos un correo y te ayudaremos</p>
+                                    <span class="soporte-card__action">soportepulsegym&#64;gmail.com →</span>
+                                </div>
+                            </div>
+
+                            <div class="soporte-card" (click)="verFAQ()">
+                                <div class="soporte-card__icon">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                                        <path d="M12 17h.01"/>
+                                    </svg>
+                                </div>
+                                <div class="soporte-card__content">
+                                    <h4>Preguntas frecuentes</h4>
+                                    <p>Encuentra respuestas rápidas</p>
+                                    <span class="soporte-card__action">Ver FAQ →</span>
+                                </div>
+                            </div>
+
+                            <div class="soporte-card" (click)="verTerminos()">
+                                <div class="soporte-card__icon">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M12 2a10 10 0 1 0 10 10 10 10 0 0 0-10-10z"/>
+                                        <path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12z"/>
+                                        <path d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/>
+                                    </svg>
+                                </div>
+                                <div class="soporte-card__content">
+                                    <h4>Términos y condiciones</h4>
+                                    <p>Conoce nuestras políticas</p>
+                                    <span class="soporte-card__action">Ver términos →</span>
+                                </div>
+                            </div>
+
+                            <div class="soporte-card" (click)="verPrivacidad()">
+                                <div class="soporte-card__icon">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                                    </svg>
+                                </div>
+                                <div class="soporte-card__content">
+                                    <h4>Política de privacidad</h4>
+                                    <p>Protegemos tus datos</p>
+                                    <span class="soporte-card__action">Ver política →</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botón Guardar -->
+                    <div class="form-actions">
+                        <button type="submit" class="btn-guardar" [disabled]="isLoading">
+                            <ng-container *ngIf="!isLoading">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                                    <polyline points="17 21 17 13 7 13 7 21"/>
+                                    <polyline points="7 3 7 8 15 8"/>
+                                </svg>
+                                Guardar ajustes
+                            </ng-container>
+                            <ng-container *ngIf="isLoading">
+                                <span class="spinner-border spinner-border-sm" role="status"></span>
+                                Guardando...
+                            </ng-container>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Éxito -->
+<div class="modal-overlay" *ngIf="showSuccessModal">
+    <div class="modal-content success-modal">
+        <div class="modal-icon success-icon">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+        </div>
+        <h3>¡Ajustes guardados!</h3>
+        <p>Tus preferencias han sido actualizadas correctamente.</p>
+        <div class="modal-actions">
+            <button class="modal-btn modal-btn-primary" (click)="cerrarSuccessModal()">Entendido</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Error -->
+<div class="modal-overlay" *ngIf="showErrorModal" (click)="cerrarErrorModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-icon error-icon">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+        </div>
+        <h3>¡Ups! Algo salió mal</h3>
+        <p>{{ errorMessage }}</p>
+        <div class="modal-actions">
+            <button class="modal-btn modal-btn-primary" (click)="cerrarErrorModal()">Entendido</button>
+        </div>
+    </div>
+</div>

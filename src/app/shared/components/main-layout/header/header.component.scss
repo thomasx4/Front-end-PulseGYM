@@ -4,8 +4,9 @@
   justify-content: flex-end;
   width: 100%;
   padding: 0.85rem 2rem;
-  background-color: #ffffff;
+  background-color: var(--color-bg-card, #ffffff);
   box-sizing: border-box;
+  transition: background-color 0.3s ease;
 
   // ACCIONES DEL HEADER
   &__actions {
@@ -29,14 +30,14 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #4a5568;
+    color: var(--color-text-secondary, #4a5568);
     position: relative;
     border-radius: 50%;
     transition: background-color 0.2s ease, transform 0.2s ease;
 
     &:hover {
-      background-color: #f1f5f9;
-      color: #0f1c3f;
+      background-color: var(--color-bg-hover, #f1f5f9);
+      color: var(--color-text-primary, #0f1c3f);
     }
 
     svg {
@@ -54,7 +55,7 @@
     height: 9px;
     background-color: #e53e3e;
     border-radius: 50%;
-    border: 2px solid #ffffff;
+    border: 2px solid var(--color-bg-card, #ffffff);
   }
 }
 
@@ -62,7 +63,7 @@
 .divider {
   width: 1px;
   height: 30px;
-  background-color: #e2e8f0;
+  background-color: var(--color-border, #e2e8f0);
 }
 
 // PERFIL DE USUARIO
@@ -83,7 +84,7 @@
   &__name {
     font-weight: 700;
     font-size: 0.925rem;
-    color: #0b192c;
+    color: var(--color-text-primary, #0b192c);
     line-height: 1.2;
     letter-spacing: -0.2px;
   }
@@ -92,11 +93,11 @@
   &__role {
     font-size: 0.775rem;
     font-weight: 500;
-    color: #64748b;
+    color: var(--color-text-secondary, #64748b);
     margin-top: 2px;
   }
 
-  // CONTENEDOR DEL AVATAR (Controlador de bordes antipixelado)
+  // CONTENEDOR DEL AVATAR
   &__avatar-badge {
     position: relative;
     display: flex;
@@ -110,25 +111,23 @@
     height: 42px;
     border-radius: 50%;
     overflow: hidden;
-    background: linear-gradient(135deg, #0a2a4a 0%, #1e4a75 100%);
+    background: linear-gradient(135deg, var(--color-primary, #0a2a4a) 0%, var(--color-primary-hover, #1e4a75) 100%);
     display: flex;
     align-items: center;
     justify-content: center;
     color: #ffffff;
     flex-shrink: 0;
 
-    /* Aceleración por Hardware para evitar bordes aserrados */
     transform: translateZ(0);
     -webkit-mask-image: -webkit-radial-gradient(white, black);
     will-change: transform;
 
-    /* Anillo antipixelado y sombra sutil */
     box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05),
                 0 2px 6px rgba(10, 42, 74, 0.15);
     transition: box-shadow 0.2s ease, transform 0.2s ease;
 
     &:hover {
-      box-shadow: 0 0 0 2px #1e4a75,
+      box-shadow: 0 0 0 2px var(--color-primary, #1e4a75),
                   0 4px 12px rgba(10, 42, 74, 0.25);
     }
 

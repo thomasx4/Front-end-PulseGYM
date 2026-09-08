@@ -21,6 +21,7 @@ import { CrearPlanComponent } from './components/plan-nutricional/crear-plan/cre
 import { DetallePlanComponent } from './components/plan-nutricional/detalle-plan/detalle-plan.component';
 import { EditarPlanComponent } from './components/plan-nutricional/editar-plan/editar-plan.component';
 import { ExportarPlanComponent } from './components/plan-nutricional/exportar-plan/exportar-plan.component';
+import { AjustesComponent } from './components/ajustes/ajustes.component';
 
 @NgModule({
   declarations: [
@@ -38,7 +39,8 @@ import { ExportarPlanComponent } from './components/plan-nutricional/exportar-pl
     CrearPlanComponent,
     DetallePlanComponent,
     EditarPlanComponent,
-    ExportarPlanComponent
+    ExportarPlanComponent,
+    AjustesComponent
   ],
   imports: [
     CommonModule,

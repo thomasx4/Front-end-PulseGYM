@@ -19,10 +19,12 @@ export class NavbarComponent {
     this.isMobileOpen = !this.isMobileOpen;
   }
 
+  closeMobileMenu(): void {
+    this.isMobileOpen = false;
+  }
+
   logout(): void {
-    // 1. Limpiar todo
     this.authService.logout();
-    // 2. Redirigir al login (reemplazar historial para evitar volver atrás)
     this.router.navigate(['/auth/login'], { replaceUrl: true });
   }
 }
