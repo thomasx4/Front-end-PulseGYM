@@ -43,6 +43,8 @@ export class AttendanceListComponent implements OnInit {
   nuevaMetaTemp: number = 0;
   errorModal: string = '';
 
+  cargandoExport: boolean = false;
+
   filtrosActivos: FiltrosAsistencia = { ordenFecha: 'desc' };
 
   constructor(private attendnceService: AttendanceService) { }
@@ -290,51 +292,46 @@ export class AttendanceListComponent implements OnInit {
     return fecha.toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' });
   }
 
-  exportarReportePDF(): void {
-    const doc = new jsPDF('p', 'mm', 'a4');
-    const pageWidth = doc.internal.pageSize.getWidth();
+  exportarAfluenciaHoyPdf(): void {
+    const fechaHoy = new Date().toISOString().slice(0, 10);
+    this.cargandoExport = true;
 
-    doc.setFontSize(18);
-    doc.setTextColor('#0b192c');
-    doc.setFont('helvetica');
-    doc.text('Pulse GYM - Reporte de Asistencias', pageWidth / 2, 20, { align: 'center' });
-
-    doc.setFontSize(10);
-    doc.setTextColor('#64748b');
-    doc.setFont('helvetica', 'normal');
-    const fechaGeneracion = new Date().toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-
-    doc.text(`Generado: ${fechaGeneracion}`, pageWidth / 2, 27, { align: 'center' });
-
-    const filas = this.asistenciasFiltradas.map(a => [
-      `#${a.idUsuario}`,
-      a.email,
-      a.horaEntrada,
-      a.fechaEntrada,
-      a.tipoAcceso,
-      a.estadoAcceso
-    ]);
-
-    autoTable(doc, {
-      startY: 35,
-      head: [['ID Socio', 'Email / Socio', 'Hora', 'Fecha', 'Tipo Acceso', 'Estado']],
-      body: filas,
-      theme: 'striped',
-      headStyles: {
-        fillColor: '#1e1b4b',
-        textColor: '#ffffff',
-        fontStyle: 'bold'
+    this.attendnceService.exportarPdfAfluencia(fechaHoy).subscribe({
+      next: (blob) => {
+        this.descargarArchivo(blob, `Afluencia_Accesos_${fechaHoy}.pdf`);
+        this.cargandoExport = false;
+      },
+      error: (err) => {
+        console.error('Error al exportar PDF de afluencia:', err);
+        this.cargandoExport = false;
       }
     });
+  }
 
-    doc.save(`PulseGym_Asistencias_${new Date().toISOString().slice(0, 10)}.pdf`);
-  }  
+  exportarAfluenciaHoyExcel(): void {
+    const fechaHoy = new Date().toISOString().slice(0, 10);
+    this.cargandoExport = true;
+
+    this.attendnceService.exportarExcelAfluencia(fechaHoy).subscribe({
+      next: (blob) => {
+        this.descargarArchivo(blob, `Afluencia_Accesos_${fechaHoy}.xlsx`);
+        this.cargandoExport = false;
+      },
+      error: (err) => {
+        console.error('Error al exportar Excel de afluencia:', err);
+        this.cargandoExport = false;
+      }
+    });
+  }
+
+  private descargarArchivo(blob: Blob, nombreArchivo: string): void {
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = nombreArchivo;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  }
 }
 
 
