@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { UserService } from '../../../../core/services/users.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import {
@@ -46,17 +47,32 @@ export class DashboardComponent implements OnInit {
   userRole: string = 'Socio';
   avatarUrl: string = '';
 
-  // Modal de error
   mostrarModalError: boolean = false;
   modalErrorMessage: string = '';
 
   constructor(
     private userService: UserService,
-    private authService: AuthService
+    private authService: AuthService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
     this.loadUserInfo();
+    this.initWeekDays();
+  }
+
+  initWeekDays(): void {
+    const days = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'];
+    const todayIndex = new Date().getDay() === 0 ? 6 : new Date().getDay() - 1;
+    
+    this.weekDays = days.map((name, index) => {
+      const isActive = index <= todayIndex && index >= todayIndex - 4;
+      return {
+        name: name,
+        active: isActive,
+        dayNumber: index + 1
+      };
+    });
   }
 
   loadUserInfo(): void {
@@ -91,52 +107,65 @@ export class DashboardComponent implements OnInit {
         }
 
         this.bestStreak = data.rachaDiasEntrenando || 0;
-        this.updateWeekDays(data.rachaDiasEntrenando);
+        this.updateWeekDays(this.bestStreak);
         this.updateWeeklySummary(data);
 
         this.isLoading = false;
-        this.loadOtherData();
+        this.loadTodayRoutine();
       },
       error: (err) => {
         console.error('Error al cargar dashboard:', err);
         this.isLoading = false;
-        this.mostrarErrorModal('Ocurrió un error al cargar tu panel. Por favor, intenta de nuevo.');
+        this.bestStreak = 0;
+        this.updateWeekDays(0);
+        this.mostrarErrorModal('Ocurrio un error al cargar tu panel. Por favor, intenta de nuevo.');
+        this.loadTodayRoutineFallback();
       }
     });
   }
 
-  loadOtherData(): void {
-    this.userService.getWeekDays().subscribe({
-      next: (days) => {
-        if (this.weekDays.length === 0) {
-          this.weekDays = days;
-        }
-      },
-      error: (err) => console.error('Error getWeekDays:', err)
-    });
-
-    this.userService.getTodayRoutine().subscribe({
+  loadTodayRoutine(): void {
+    this.userService.getLastRoutine().subscribe({
       next: (routine) => {
-        console.log('Rutina recibida:', routine);
-        if (routine && routine.ejercicios) {
+        console.log('Ultima rutina recibida:', routine);
+        if (routine && routine.ejercicios && routine.ejercicios.length > 0) {
           this.todayRoutine = routine;
+        } else {
+          this.todayRoutine = {
+            nombre: 'Sin rutina generada',
+            duracion: '--',
+            dateStr: this.getTodayDateStr(),
+            ejercicios: []
+          };
         }
       },
       error: (err) => {
         console.error('Error al cargar rutina:', err);
+        this.loadTodayRoutineFallback();
       }
     });
+  }
 
-    this.userService.getCaloriasDiarias().subscribe({
-      next: (calorias) => {
-        this.caloriasDiarias = calorias;
-        console.log('Calorias diarias:', calorias);
-      },
-      error: (err) => {
-        console.error('Error al cargar calorias:', err);
-        this.caloriasDiarias = 0;
-      }
-    });
+  getTodayDateStr(): string {
+    const today = new Date();
+    const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'];
+    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    return `${diasSemana[today.getDay()]} ${today.getDate()} de ${meses[today.getMonth()]}`;
+  }
+
+  loadTodayRoutineFallback(): void {
+    // Datos quemados solo para mostrar el diseño
+    this.todayRoutine = {
+      nombre: 'Rutina de Fuerza',
+      duracion: '45 - 60 min',
+      dateStr: this.getTodayDateStr(),
+      ejercicios: [
+        { nombre: 'Press de Banca', sets: '4 x 8-12', grupoMuscular: 'Pecho' },
+        { nombre: 'Dominadas', sets: '3 x 6-10', grupoMuscular: 'Espalda' },
+        { nombre: 'Sentadilla', sets: '4 x 10-15', grupoMuscular: 'Piernas' },
+        { nombre: 'Press Militar', sets: '3 x 8-12', grupoMuscular: 'Hombros' }
+      ]
+    };
   }
 
   updateWeekDays(racha: number): void {
@@ -145,7 +174,7 @@ export class DashboardComponent implements OnInit {
     const days = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'];
 
     this.weekDays = days.map((name, index) => {
-      const isActive = index <= todayIndex && index >= todayIndex - racha + 1 && racha > 0;
+      const isActive = racha > 0 && index <= todayIndex && index >= todayIndex - racha + 1;
       return {
         name: name,
         active: isActive,
@@ -187,21 +216,24 @@ export class DashboardComponent implements OnInit {
     };
   }
 
-  refreshData(): void {
-    this.loadDashboardData();
-  }
-
   getActiveDaysCount(): number {
     return this.weekDays ? this.weekDays.filter((day) => day.active).length : 0;
   }
 
-  onSearch(query: string): void {
-    console.log('Busqueda:', query);
+  verRutinaCompleta(): void {
+    if (this.todayRoutine.ejercicios && this.todayRoutine.ejercicios.length > 0) {
+      this.router.navigate(['/user/rutinas']);
+    }
   }
 
-  // ============================================
-  // MODAL DE ERROR
-  // ============================================
+  irACrearRutina(): void {
+    this.router.navigate(['/user/rutinas/crear-ia']);
+  }
+
+  refreshData(): void {
+    this.loadDashboardData();
+  }
+
   mostrarErrorModal(mensaje: string): void {
     this.modalErrorMessage = mensaje;
     this.mostrarModalError = true;

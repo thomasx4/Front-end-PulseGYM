@@ -37,7 +37,7 @@
 
   .btn-retry {
     padding: 8px 16px;
-    background: #3182ce;
+    background: #0f1c3f;
     color: white;
     border: none;
     border-radius: 6px;
@@ -143,7 +143,7 @@
   }
 }
 
-/* 2. RACHA DE DÍAS */
+/* RACHA DE DIAS */
 .streak-card {
   grid-column: 1 / 3;
 
@@ -176,8 +176,8 @@
       }
 
       &.active {
-        .circle { background: #3182ce; border-color: #3182ce; color: white; font-weight: 700; }
-        .day-label { color: #2b6cb0; font-weight: 600; }
+        .circle { background: #0f1c3f; border-color: #3182ce; color: white; font-weight: 700; }
+        .day-label { color: #0f1c3f; font-weight: 600; }
       }
     }
   }
@@ -209,7 +209,7 @@
         font-size: 13px; 
         font-weight: 700; 
         margin: 0; 
-        color: #2b6cb0; 
+        color: #0f1c3f; 
       }
       .banner-sub { 
         font-size: 11px; 
@@ -239,7 +239,7 @@
   }
 }
 
-/* 3. RUTINA DE HOY */
+/* RUTINA DE HOY */
 .routine-card {
   grid-column: 3 / 4;
 
@@ -259,7 +259,7 @@
       .routine-icon { 
         width: 32px; 
         height: 32px; 
-        background: #3182ce; 
+        background: #0f1c3f; 
         color: white; 
         border-radius: 6px; 
         display: flex; 
@@ -271,7 +271,7 @@
     }
 
     .btn-primary {
-      background: #3182ce;
+      background: #0f1c3f;
       color: white;
       border: none;
       padding: 6px 12px;
@@ -293,13 +293,18 @@
       padding: 8px 0;
       border-bottom: 1px solid var(--color-border, #edf2f7);
 
-      .ex-thumb {
-        width: 32px;
-        height: 32px;
-        background: var(--color-bg-hover, #edf2f7);
+      .ex-number {
+        width: 24px;
+        height: 24px;
         border-radius: 50%;
-        overflow: hidden;
-        img { width: 100%; height: 100%; object-fit: cover; }
+        background: var(--color-bg-hover, #edf2f7);
+        color: var(--color-text-secondary, #718096);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 700;
+        flex-shrink: 0;
       }
 
       .ex-details {
@@ -311,8 +316,22 @@
           color: var(--color-text-primary, #2d3748);
         }
         .ex-sets { 
+          display: flex;
+          align-items: center;
+          gap: 6px;
           font-size: 11px; 
-          color: var(--color-text-muted, #a0aec0); 
+          color: var(--color-text-muted, #a0aec0);
+          flex-wrap: wrap;
+
+          .ex-muscle { 
+            font-size: 9px;
+            color: #0f1c3f; 
+            background: #ebf8ff; 
+            padding: 1px 8px; 
+            border-radius: 10px; 
+            display: inline-block;
+            font-weight: 600;
+          }
         }
       }
 
@@ -331,13 +350,52 @@
   }
 }
 
-/* 4. RESUMEN DE LA SEMANA */
+/* EMPTY ROUTINE */
+.empty-routine {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 20px;
+  text-align: center;
+
+  &__icon {
+    color: var(--color-text-muted, #a0aec0);
+    margin-bottom: 12px;
+  }
+
+  &__text {
+    font-size: 14px;
+    color: var(--color-text-secondary, #718096);
+    margin: 0 0 16px 0;
+  }
+
+  .btn-primary {
+    background: #0f1c3f;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: #1a2b5c;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(49, 130, 206, 0.3);
+    }
+  }
+}
+
+/* RESUMEN DE LA SEMANA */
 .summary-card {
   grid-column: 1 / 4;
 
   .summary-metrics-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 20px;
 
     .metric-box {
@@ -416,54 +474,7 @@
   flex-direction: column;
 }
 
-.exercise-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 0;
-  border-bottom: 1px solid var(--color-border, #edf2f7);
-
-  .ex-thumb {
-    width: 32px;
-    height: 32px;
-    background: var(--color-bg-hover, #edf2f7);
-    border-radius: 50%;
-    overflow: hidden;
-    img { width: 100%; height: 100%; object-fit: cover; }
-  }
-
-  .ex-details {
-    flex: 1;
-    .ex-name { 
-      display: block; 
-      font-size: 12px; 
-      font-weight: 600; 
-      color: var(--color-text-primary, #2d3748);
-    }
-    .ex-sets { 
-      font-size: 11px; 
-      color: var(--color-text-muted, #a0aec0); 
-    }
-    .ex-muscle { 
-      font-size: 10px; 
-      color: #3182ce; 
-      background: #ebf8ff; 
-      padding: 1px 8px; 
-      border-radius: 10px; 
-      display: inline-block;
-      margin-top: 2px;
-    }
-  }
-
-  .arrow { 
-    color: var(--color-text-muted, #cbd5e0); 
-    font-size: 16px; 
-  }
-}
-
-// ============================================
-// MODAL DE ERROR
-// ============================================
+/* MODAL DE ERROR */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -578,7 +589,9 @@
     }
 }
 
-/* RESPONSIVE */
+/* ============================================
+   RESPONSIVE - TABLET (≤ 992px)
+   ============================================ */
 @media (max-width: 992px) {
   .dashboard-main {
     margin-left: 0;
@@ -598,12 +611,14 @@
 
   .streak-card,
   .routine-card,
-  .summary-card,
-  .tip-card {
+  .summary-card {
     grid-column: 1 / 4;
   }
 }
 
+/* ============================================
+   RESPONSIVE - MOVIL (≤ 768px)
+   ============================================ */
 @media (max-width: 768px) {
   .dashboard-wrapper {
     padding: 12px;
@@ -629,143 +644,24 @@
     grid-column: 1 / 4;
   }
 
-  .tip-card {
-    grid-column: 1 / 4;
+  .exercise-item {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .exercise-item .ex-details {
+    flex: 1;
+    min-width: 120px;
+  }
+
+  .exercise-item .ex-sets {
+    flex-wrap: wrap;
   }
 }
 
 /* ============================================
-   MONITORES GRANDES (> 1400px)
+   RESPONSIVE - MOVIL PEQUEÑO (≤ 480px)
    ============================================ */
-@media (min-width: 1401px) {
-  .dashboard-wrapper {
-    padding: 40px 60px;
-  }
-
-  .dashboard-grid {
-    max-width: 1600px;
-    gap: 30px;
-  }
-
-  .dashboard-grid .card {
-    padding: 28px 32px;
-  }
-
-  .top-kpis .kpi-card {
-    padding: 24px 28px;
-  }
-
-  .top-kpis .kpi-card .kpi-value {
-    font-size: 28px;
-  }
-
-  .streak-card .days-container .day-circle-item .circle {
-    width: 42px;
-    height: 42px;
-    font-size: 15px;
-  }
-
-  .summary-card .summary-metrics-grid .metric-box .metric-header .val {
-    font-size: 20px;
-  }
-
-  .tip-card {
-    padding: 24px 32px;
-  }
-
-  .tip-card .tip-content .tip-star {
-    font-size: 28px;
-  }
-}
-
-/* ============================================
-   MONITORES FULL HD (1920px+)
-   ============================================ */
-@media (min-width: 1921px) {
-  .dashboard-wrapper {
-    padding: 48px 80px;
-  }
-
-  .dashboard-grid {
-    max-width: 1800px;
-    gap: 36px;
-  }
-
-  .dashboard-grid .card {
-    padding: 32px 40px;
-    border-radius: 18px;
-  }
-
-  .top-kpis {
-    gap: 28px;
-  }
-
-  .top-kpis .kpi-card {
-    padding: 28px 32px;
-    border-radius: 18px;
-  }
-
-  .top-kpis .kpi-card .kpi-value {
-    font-size: 32px;
-  }
-
-  .streak-card .days-container .day-circle-item .circle {
-    width: 48px;
-    height: 48px;
-    font-size: 17px;
-  }
-
-  .streak-card .days-container {
-    gap: 12px;
-  }
-
-  .summary-card .summary-metrics-grid {
-    gap: 28px;
-  }
-
-  .summary-card .summary-metrics-grid .metric-box {
-    padding: 20px;
-  }
-
-  .summary-card .summary-metrics-grid .metric-box .metric-header .val {
-    font-size: 24px;
-  }
-
-  .routine-card .exercise-list .exercise-item {
-    padding: 12px 0;
-  }
-
-  .routine-card .exercise-list .exercise-item .ex-details .ex-name {
-    font-size: 14px;
-  }
-
-  .tip-card {
-    padding: 28px 40px;
-  }
-
-  .tip-card .tip-content .tip-star {
-    font-size: 32px;
-  }
-
-  .tip-card .tip-content h4 {
-    font-size: 16px;
-  }
-
-  .tip-card .tip-content p {
-    font-size: 15px;
-  }
-}
-
-/* ============================================
-   TABLETS GRANDES (1200px - 1400px)
-   ============================================ */
-@media (max-width: 1400px) and (min-width: 1201px) {
-  .dashboard-grid {
-    max-width: 1200px;
-  }
-}
-
-/* MÓVILES PEQUEÑOS (hasta 480px) */
 @media (max-width: 480px) {
   .dashboard-wrapper {
     padding: 8px;
@@ -826,6 +722,10 @@
     font-size: 11px;
   }
 
+  .routine-card .exercise-list .exercise-item .ex-sets {
+    font-size: 10px;
+  }
+
   .summary-card .summary-metrics-grid {
     grid-template-columns: 1fr 1fr;
     gap: 12px;
@@ -833,6 +733,10 @@
 
   .summary-card .summary-metrics-grid .metric-box .metric-header .val {
     font-size: 15px;
+  }
+
+  .summary-card .summary-metrics-grid .metric-box .metric-header .lbl {
+    font-size: 10px;
   }
 
   .modal-content {
@@ -850,5 +754,50 @@
   .modal-btn {
     padding: 8px 16px;
     font-size: 12px;
+  }
+}
+
+/* ============================================
+   RESPONSIVE - MONITORES GRANDES (> 1400px)
+   ============================================ */
+@media (min-width: 1401px) {
+  .dashboard-wrapper {
+    padding: 40px 60px;
+  }
+
+  .dashboard-grid {
+    max-width: 1600px;
+    gap: 30px;
+  }
+
+  .dashboard-grid .card {
+    padding: 28px 32px;
+  }
+
+  .top-kpis .kpi-card {
+    padding: 24px 28px;
+  }
+
+  .top-kpis .kpi-card .kpi-value {
+    font-size: 28px;
+  }
+
+  .streak-card .days-container .day-circle-item .circle {
+    width: 42px;
+    height: 42px;
+    font-size: 15px;
+  }
+
+  .summary-card .summary-metrics-grid .metric-box .metric-header .val {
+    font-size: 20px;
+  }
+}
+
+/* ============================================
+   RESPONSIVE - TABLET GRANDE (1200px - 1400px)
+   ============================================ */
+@media (max-width: 1400px) and (min-width: 1201px) {
+  .dashboard-grid {
+    max-width: 1200px;
   }
 }
