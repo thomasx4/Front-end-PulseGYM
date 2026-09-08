@@ -19,7 +19,7 @@ $success-color: #10b981;
 .crear-plan-layout {
     display: flex;
     min-height: 100vh;
-    background-color: $bg-main;
+    background-color: var(--color-bg-main, $bg-main);
 }
 
 .crear-plan-main {
@@ -31,7 +31,7 @@ $success-color: #10b981;
     width: calc(100% - 260px);
     max-width: calc(100% - 260px);
     overflow-x: hidden;
-    background-color: $bg-main;
+    background-color: var(--color-bg-main, $bg-main);
 }
 
 // ==========================================
@@ -197,16 +197,16 @@ $success-color: #10b981;
 // Form Card
 // ==========================================
 .form-card {
-    background: $bg-card;
-    border: 1px solid $border-color;
+    background: var(--color-bg-card, $bg-card);
+    border: 1px solid var(--color-border, $border-color);
     border-radius: $radius;
     overflow: hidden;
     transition: $transition;
-    box-shadow: $shadow-card;
+    box-shadow: var(--shadow-card, $shadow-card);
 
     &:hover {
-        box-shadow: $shadow-hover;
-        border-color: #cbd5e1;
+        box-shadow: var(--shadow-hover, $shadow-hover);
+        border-color: var(--color-border, #cbd5e1);
     }
 
     &__header {
@@ -214,8 +214,8 @@ $success-color: #10b981;
         align-items: flex-start;
         gap: 1rem;
         padding: 1.25rem 1.5rem;
-        background: #fafbfc;
-        border-bottom: 1px solid $border-color;
+        background: var(--color-bg-hover, #fafbfc);
+        border-bottom: 1px solid var(--color-border, $border-color);
 
         .form-card__icon {
             width: 40px;
@@ -235,13 +235,13 @@ $success-color: #10b981;
             h3 {
                 font-size: 1rem;
                 font-weight: 600;
-                color: $text-main;
+                color: var(--color-text-primary, $text-main);
                 margin: 0 0 0.15rem 0;
             }
 
             p {
                 font-size: 0.85rem;
-                color: $text-secondary;
+                color: var(--color-text-secondary, $text-secondary);
                 margin: 0;
             }
         }
@@ -260,7 +260,7 @@ $success-color: #10b981;
 
         .optional-badge {
             background: #f1f5f9;
-            color: $text-secondary;
+            color: var(--color-text-secondary, $text-secondary);
             font-size: 0.65rem;
             font-weight: 600;
             text-transform: uppercase;
@@ -284,7 +284,7 @@ $success-color: #10b981;
         display: block;
         font-size: 0.85rem;
         font-weight: 600;
-        color: $text-main;
+        color: var(--color-text-primary, $text-main);
         margin-bottom: 0.5rem;
     }
 
@@ -292,16 +292,16 @@ $success-color: #10b981;
     .input-tag {
         width: 100%;
         padding: 0.75rem 1rem;
-        border: 1.5px solid $border-color;
+        border: 1.5px solid var(--color-border, $border-color);
         border-radius: 10px;
         font-size: 0.95rem;
-        color: $text-main;
-        background-color: #ffffff;
+        color: var(--color-text-primary, $text-main);
+        background-color: var(--color-bg-input, #ffffff);
         transition: $transition;
         font-family: inherit;
 
         &::placeholder {
-            color: #94a3b8;
+            color: var(--color-text-muted, #94a3b8);
         }
 
         &:focus {
@@ -339,7 +339,7 @@ $success-color: #10b981;
         align-items: center;
         gap: 0.4rem;
         font-size: 0.8rem;
-        color: #94a3b8;
+        color: var(--color-text-muted, #94a3b8);
         margin-top: 0.5rem;
 
         svg {
@@ -362,21 +362,21 @@ $success-color: #10b981;
         align-items: center;
         gap: 0.5rem;
         padding: 0.75rem 1.75rem;
-        background: #ffffff;
-        border: 1.5px solid $border-color;
+        background: var(--color-bg-card, #ffffff);
+        border: 1.5px solid var(--color-border, $border-color);
         border-radius: 10px;
         font-weight: 600;
         font-size: 0.9rem;
-        color: $text-secondary;
+        color: var(--color-text-secondary, $text-secondary);
         cursor: pointer;
         transition: $transition;
 
         &:hover {
-            background: #f1f5f9;
-            color: $text-main;
-            border-color: #cbd5e1;
+            background: var(--color-bg-hover, #f1f5f9);
+            color: var(--color-text-primary, $text-main);
+            border-color: var(--color-border, #cbd5e1);
             transform: translateY(-2px);
-            box-shadow: $shadow-hover;
+            box-shadow: var(--shadow-hover, $shadow-hover);
         }
     }
 
@@ -393,11 +393,11 @@ $success-color: #10b981;
         font-size: 0.9rem;
         cursor: pointer;
         transition: $transition;
-        box-shadow: #1a2b5c;
+        box-shadow: 0 4px 12px rgba(15, 28, 63, 0.3);
 
         &:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: #1a2b5c;
+            box-shadow: 0 8px 24px rgba(15, 28, 63, 0.4);
         }
 
         &:active:not(:disabled) {
@@ -449,7 +449,7 @@ $success-color: #10b981;
 }
 
 .modal-content {
-    background: #ffffff;
+    background: var(--color-bg-card, #ffffff);
     border-radius: 20px;
     padding: 48px 56px 40px;
     max-width: 440px;
@@ -499,13 +499,13 @@ $success-color: #10b981;
 .modal-content h3 {
     font-size: 1.4rem;
     font-weight: 700;
-    color: $text-main;
+    color: var(--color-text-primary, $text-main);
     margin: 0 0 8px;
 }
 
 .modal-content p {
     font-size: 0.95rem;
-    color: $text-secondary;
+    color: var(--color-text-secondary, $text-secondary);
     margin: 0 0 28px;
     line-height: 1.6;
 }

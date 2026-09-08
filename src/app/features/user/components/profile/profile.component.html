@@ -172,7 +172,7 @@
 
             <!-- ========== MODO VISUALIZACIÓN ========== -->
             <div *ngIf="!editando && !isLoading && !error">
-                <!-- Tarjeta de Perfil Principal (SIN CAMBIOS) -->
+                <!-- Tarjeta de Perfil Principal -->
                 <div class="card profile-card">
                     <div class="profile-top">
                         <div class="profile-avatar-container">
@@ -190,14 +190,22 @@
                             </div>
                         </div>
 
-                        <button class="btn-edit-profile" (click)="activarEdicion()">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
-                                <path d="M12 20h9" />
-                                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
-                            </svg>
-                            Editar
-                        </button>
+                        <!-- Botones de acción: Editar y Ajustes -->
+                        <div class="profile-actions">
+                            <button class="btn-edit-profile" (click)="activarEdicion()">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 20h9" />
+                                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                                </svg>
+                                Editar
+                            </button>
+                            <button class="btn-settings" (click)="irAjustes()" title="Ajustes">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="3"/>
+                                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l-.06.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
 
                     <div class="profile-contact-row">
@@ -529,26 +537,28 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-                        <!-- ========== MODAL DE ERROR ========== -->
-                        <div class="modal-overlay" *ngIf="mostrarModalError" (click)="cerrarModalError()">
-                            <div class="modal-content" (click)="$event.stopPropagation()">
-                                <div class="modal-icon error-icon">
-                                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                        stroke-width="2">
-                                        <circle cx="12" cy="12" r="10" />
-                                        <line x1="12" y1="8" x2="12" y2="12" />
-                                        <line x1="12" y1="16" x2="12.01" y2="16" />
-                                    </svg>
-                                </div>
-                                <h3 class="modal-title">Error al actualizar</h3>
-                                <p class="modal-message">{{ modalErrorMessage || 'Ocurrió un error al actualizar la foto
-                                    de perfil' }}</p>
-                                <div class="modal-actions">
-                                    <button class="modal-btn modal-btn-secondary"
-                                        (click)="cerrarModalError()">Cancelar</button>
-                                    <button class="modal-btn modal-btn-primary"
-                                        (click)="reintentarSubida()">Reintentar</button>
-                                </div>
-                            </div>
-                        </div>
+<!-- ========== MODAL DE ERROR ========== -->
+<div class="modal-overlay" *ngIf="mostrarModalError" (click)="cerrarModalError()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-icon error-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+        </div>
+        <h3 class="modal-title">Error al actualizar</h3>
+        <p class="modal-message">{{ modalErrorMessage || 'Ocurrió un error al actualizar la foto de perfil' }}</p>
+        <div class="modal-actions">
+            <button class="modal-btn modal-btn-secondary" (click)="cerrarModalError()">Cancelar</button>
+            <button class="modal-btn modal-btn-primary" (click)="reintentarSubida()">Reintentar</button>
+        </div>
+    </div>
+</div>

@@ -23,7 +23,7 @@ $danger: #ef4444;
 .detalle-plan-layout {
     display: flex;
     min-height: 100vh;
-    background-color: $bg-main;
+    background-color: var(--color-bg-main, $bg-main);
 }
 
 .detalle-plan-main {
@@ -35,7 +35,7 @@ $danger: #ef4444;
     width: calc(100% - 260px);
     max-width: calc(100% - 260px);
     overflow-x: hidden;
-    background-color: $bg-main;
+    background-color: var(--color-bg-main, $bg-main);
 }
 
 .detalle-plan-content {
@@ -54,7 +54,7 @@ $danger: #ef4444;
     align-items: center;
     justify-content: center;
     padding: 4rem 0;
-    color: $text-secondary;
+    color: var(--color-text-secondary, $text-secondary);
 
     .spinner-container {
         margin-bottom: 1rem;
@@ -64,7 +64,7 @@ $danger: #ef4444;
         display: inline-block;
         width: 2.5rem;
         height: 2.5rem;
-        border: 0.25rem solid $border-color;
+        border: 0.25rem solid var(--color-border, $border-color);
         border-top-color: $primary-color;
         border-radius: 50%;
         animation: spin 0.8s linear infinite;
@@ -109,144 +109,6 @@ $danger: #ef4444;
     align-items: center;
     margin-bottom: 1.5rem;
 
-    .btn-back {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        background: none;
-        border: none;
-        color: $text-secondary;
-        font-weight: 500;
-        font-size: 0.9rem;
-        cursor: pointer;
-        padding: 0.5rem 0.75rem;
-        border-radius: 8px;
-        transition: $transition;
-
-        &:hover {
-            background-color: #f1f5f9;
-            color: $text-main;
-        }
-
-        svg {
-            stroke: currentColor;
-        }
-    }
-
-    .plan-id {
-        font-size: 0.85rem;
-        color: $text-muted;
-        background: #f1f5f9;
-        padding: 0.3rem 0.8rem;
-        border-radius: 12px;
-    }
-}
-
-// ==========================================
-// Hero Plan
-// ==========================================
-.plan-hero {
-    background: #f5f6fa;
-    border-radius: $radius;
-    // border: 1px solid #0f1c3f;
-    padding: 2.5rem 3rem;
-    margin-bottom: 2rem;
-    display: flex;
-    justify-content: space-between;
-    gap: 2rem;
-    flex-wrap: wrap;
-
-    &__content {
-        flex: 1;
-        min-width: 280px;
-
-        .plan-hero__badge {
-            margin-bottom: 0.75rem;
-
-            .badge-ia {
-                display: inline-block;
-                background: #dbeafe;
-                color: #000000;
-                font-size: 0.7rem;
-                font-weight: 700;
-                padding: 0.3rem 0.8rem;
-                border-radius: 20px;
-                letter-spacing: 0.5px;
-            }
-        }
-
-        h1 {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #000000;
-            margin: 0 0 0.75rem 0;
-        }
-
-        .plan-hero__description {
-            font-size: 0.95rem;
-            color: rgba(0, 0, 0, 0.7);
-            line-height: 1.6;
-            margin: 0 0 1rem 0;
-        }
-
-        .plan-hero__meta {
-            display: flex;
-            gap: 1.5rem;
-            flex-wrap: wrap;
-
-            .meta-item {
-                display: flex;
-                align-items: center;
-                gap: 0.5rem;
-                font-size: 0.85rem;
-                color: rgba(0, 0, 0, 0.6);
-
-                svg {
-                    stroke: rgba(0, 0, 0, 0.5);
-                }
-            }
-        }
-    }
-
-    &__stats {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-        min-width: 200px;
-
-        .stat-item {
-            background: rgba(0, 0, 0, 0.06);
-            border: 1px solid rgba(0, 0, 0, 0.08);
-            border-radius: $radius-sm;
-            padding: 1rem 1.25rem;
-            text-align: center;
-            backdrop-filter: blur(8px);
-
-            .stat-value {
-                display: block;
-                font-size: 1.5rem;
-                font-weight: 700;
-                color: #000000;
-                line-height: 1.2;
-            }
-
-            .stat-label {
-                font-size: 0.7rem;
-                font-weight: 600;
-                color: rgba(0, 0, 0, 0.5);
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-            }
-        }
-    }
-}
-
-.page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-
     &__left {
         display: flex;
         align-items: center;
@@ -264,7 +126,7 @@ $danger: #ef4444;
         gap: 0.5rem;
         background: none;
         border: none;
-        color: $text-secondary;
+        color: var(--color-text-secondary, $text-secondary);
         font-weight: 500;
         font-size: 0.9rem;
         cursor: pointer;
@@ -273,8 +135,8 @@ $danger: #ef4444;
         transition: $transition;
 
         &:hover {
-            background-color: #f1f5f9;
-            color: $text-main;
+            background-color: var(--color-bg-hover, #f1f5f9);
+            color: var(--color-text-primary, $text-main);
         }
 
         svg {
@@ -309,10 +171,108 @@ $danger: #ef4444;
 
     .plan-id {
         font-size: 0.85rem;
-        color: $text-muted;
-        background: #f1f5f9;
+        color: var(--color-text-muted, $text-muted);
+        background: var(--color-bg-hover, #f1f5f9);
         padding: 0.3rem 0.8rem;
         border-radius: 12px;
+    }
+}
+
+// ==========================================
+// Hero Plan
+// ==========================================
+.plan-hero {
+    background: var(--color-bg-hover, #f5f6fa);
+    border-radius: $radius;
+    padding: 2.5rem 3rem;
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-between;
+    gap: 2rem;
+    flex-wrap: wrap;
+
+    &__content {
+        flex: 1;
+        min-width: 280px;
+
+        .plan-hero__badge {
+            margin-bottom: 0.75rem;
+
+            .badge-ia {
+                display: inline-block;
+                background: #dbeafe;
+                color: var(--color-text-primary, #000000);
+                font-size: 0.7rem;
+                font-weight: 700;
+                padding: 0.3rem 0.8rem;
+                border-radius: 20px;
+                letter-spacing: 0.5px;
+            }
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--color-text-primary, #000000);
+            margin: 0 0 0.75rem 0;
+        }
+
+        .plan-hero__description {
+            font-size: 0.95rem;
+            color: var(--color-text-secondary, rgba(0, 0, 0, 0.7));
+            line-height: 1.6;
+            margin: 0 0 1rem 0;
+        }
+
+        .plan-hero__meta {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+
+            .meta-item {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                font-size: 0.85rem;
+                color: var(--color-text-secondary, rgba(0, 0, 0, 0.6));
+
+                svg {
+                    stroke: var(--color-text-secondary, rgba(0, 0, 0, 0.5));
+                }
+            }
+        }
+    }
+
+    &__stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        min-width: 200px;
+
+        .stat-item {
+            background: var(--color-bg-hover, rgba(0, 0, 0, 0.06));
+            border: 1px solid var(--color-border, rgba(0, 0, 0, 0.08));
+            border-radius: $radius-sm;
+            padding: 1rem 1.25rem;
+            text-align: center;
+            backdrop-filter: blur(8px);
+
+            .stat-value {
+                display: block;
+                font-size: 1.5rem;
+                font-weight: 700;
+                color: var(--color-text-primary, #000000);
+                line-height: 1.2;
+            }
+
+            .stat-label {
+                font-size: 0.7rem;
+                font-weight: 600;
+                color: var(--color-text-secondary, rgba(0, 0, 0, 0.5));
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+        }
     }
 }
 
@@ -325,13 +285,13 @@ $danger: #ef4444;
     h2 {
         font-size: 1.5rem;
         font-weight: 700;
-        color: $text-main;
+        color: var(--color-text-primary, $text-main);
         margin: 0 0 0.25rem 0;
     }
 
     .section-subtitle {
         font-size: 0.9rem;
-        color: $text-secondary;
+        color: var(--color-text-secondary, $text-secondary);
         margin: 0 0 1.5rem 0;
     }
 }
@@ -343,15 +303,15 @@ $danger: #ef4444;
 }
 
 .comida-card {
-    background: $bg-card;
-    border: 1px solid $border-color;
+    background: var(--color-bg-card, $bg-card);
+    border: 1px solid var(--color-border, $border-color);
     border-radius: $radius;
     overflow: hidden;
     transition: $transition;
-    box-shadow: $shadow-sm;
+    box-shadow: var(--shadow-sm, $shadow-sm);
 
     &:hover {
-        box-shadow: $shadow-md;
+        box-shadow: var(--shadow-md, $shadow-md);
         transform: translateY(-2px);
     }
 
@@ -360,8 +320,8 @@ $danger: #ef4444;
         align-items: center;
         gap: 0.75rem;
         padding: 1rem 1.25rem;
-        background: #fafbfc;
-        border-bottom: 1px solid $border-color;
+        background: var(--color-bg-hover, #fafbfc);
+        border-bottom: 1px solid var(--color-border, $border-color);
 
         .comida-card__icon {
             width: 40px;
@@ -393,14 +353,14 @@ $danger: #ef4444;
         h3 {
             font-size: 0.95rem;
             font-weight: 600;
-            color: $text-main;
+            color: var(--color-text-primary, $text-main);
             margin: 0;
         }
 
         .comida-tipo {
             font-size: 0.7rem;
             font-weight: 600;
-            color: $text-muted;
+            color: var(--color-text-muted, $text-muted);
             text-transform: uppercase;
             letter-spacing: 0.3px;
         }
@@ -409,8 +369,8 @@ $danger: #ef4444;
             margin-left: auto;
             font-size: 0.85rem;
             font-weight: 700;
-            color: $text-main;
-            background: #f1f5f9;
+            color: var(--color-text-primary, $text-main);
+            background: var(--color-bg-hover, #f1f5f9);
             padding: 0.2rem 0.6rem;
             border-radius: 12px;
         }
@@ -421,7 +381,7 @@ $danger: #ef4444;
 
         .comida-descripcion {
             font-size: 0.85rem;
-            color: $text-secondary;
+            color: var(--color-text-secondary, $text-secondary);
             line-height: 1.5;
             margin: 0 0 0.75rem 0;
         }
@@ -430,11 +390,11 @@ $danger: #ef4444;
             display: flex;
             gap: 1rem;
             font-size: 0.8rem;
-            color: $text-secondary;
+            color: var(--color-text-secondary, $text-secondary);
             margin-bottom: 0.75rem;
 
             strong {
-                color: $text-main;
+                color: var(--color-text-primary, $text-main);
             }
         }
 
@@ -460,13 +420,13 @@ $danger: #ef4444;
             .comida-preparacion {
                 margin-bottom: 0.75rem;
                 padding: 0.75rem;
-                background: #f8fafc;
+                background: var(--color-bg-hover, #f8fafc);
                 border-radius: 8px;
 
                 h4 {
                     font-size: 0.75rem;
                     font-weight: 700;
-                    color: $text-muted;
+                    color: var(--color-text-muted, $text-muted);
                     text-transform: uppercase;
                     letter-spacing: 0.5px;
                     margin: 0 0 0.25rem 0;
@@ -474,7 +434,7 @@ $danger: #ef4444;
 
                 p {
                     font-size: 0.85rem;
-                    color: $text-secondary;
+                    color: var(--color-text-secondary, $text-secondary);
                     margin: 0;
                     line-height: 1.5;
                 }
@@ -491,11 +451,11 @@ $danger: #ef4444;
 // Total Calorías
 // ==========================================
 .total-calorias {
-    background: $bg-card;
-    border: 1px solid $border-color;
+    background: var(--color-bg-card, $bg-card);
+    border: 1px solid var(--color-border, $border-color);
     border-radius: $radius;
     padding: 1.5rem 2rem;
-    box-shadow: $shadow-sm;
+    box-shadow: var(--shadow-sm, $shadow-sm);
 
     &__content {
         display: flex;
@@ -521,13 +481,13 @@ $danger: #ef4444;
             h3 {
                 font-size: 1rem;
                 font-weight: 700;
-                color: $text-main;
+                color: var(--color-text-primary, $text-main);
                 margin: 0 0 0.15rem 0;
             }
 
             p {
                 font-size: 0.85rem;
-                color: $text-secondary;
+                color: var(--color-text-secondary, $text-secondary);
                 margin: 0;
             }
         }
@@ -546,7 +506,7 @@ $danger: #ef4444;
             .value-label {
                 font-size: 0.75rem;
                 font-weight: 600;
-                color: $text-muted;
+                color: var(--color-text-muted, $text-muted);
                 text-transform: uppercase;
             }
         }
@@ -565,7 +525,7 @@ $danger: #ef4444;
             &__label {
                 font-size: 0.8rem;
                 font-weight: 600;
-                color: $text-secondary;
+                color: var(--color-text-secondary, $text-secondary);
                 width: 100px;
                 flex-shrink: 0;
             }
@@ -573,7 +533,7 @@ $danger: #ef4444;
             &__track {
                 flex: 1;
                 height: 6px;
-                background: #f1f5f9;
+                background: var(--color-bg-hover, #f1f5f9);
                 border-radius: 4px;
                 overflow: hidden;
             }
@@ -595,7 +555,7 @@ $danger: #ef4444;
             &__value {
                 font-size: 0.8rem;
                 font-weight: 600;
-                color: $text-main;
+                color: var(--color-text-primary, $text-main);
                 width: 50px;
                 text-align: right;
                 flex-shrink: 0;
@@ -623,7 +583,7 @@ $danger: #ef4444;
 }
 
 .modal-content {
-    background: #ffffff;
+    background: var(--color-bg-card, #ffffff);
     border-radius: 16px;
     padding: 40px 48px 32px;
     max-width: 420px;
@@ -652,13 +612,13 @@ $danger: #ef4444;
 .modal-title {
     font-size: 18px;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--color-text-primary, #0f172a);
     margin: 0 0 8px;
 }
 
 .modal-message {
     font-size: 14px;
-    color: #64748b;
+    color: var(--color-text-secondary, #64748b);
     margin: 0 0 24px;
     line-height: 1.6;
 }

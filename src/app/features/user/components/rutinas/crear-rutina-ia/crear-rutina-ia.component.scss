@@ -16,14 +16,14 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
 :host {
     display: block;
-    background-color: $bg-main;
+    background-color: var(--color-bg-main, $bg-main);
     min-height: 100vh;
 }
 
 .crear-rutina-ia-layout {
     display: flex;
     min-height: 100vh;
-    background-color: $bg-main;
+    background-color: var(--color-bg-main, $bg-main);
 }
 
 .crear-rutina-ia-main {
@@ -35,7 +35,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     width: calc(100% - 260px);
     max-width: calc(100% - 260px);
     overflow-x: hidden;
-    background-color: $bg-main;
+    background-color: var(--color-bg-main, $bg-main);
 }
 
 .crear-rutina-ia-wrapper {
@@ -79,11 +79,11 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         h1 {
             font-size: 1.75rem;
             font-weight: 700;
-            color: $text-primary;
+            color: var(--color-text-primary, $text-primary);
             margin: 0;
         }
         .subtitle {
-            color: $text-secondary;
+            color: var(--color-text-secondary, $text-secondary);
             margin: 0.25rem 0 0 0;
             font-size: 0.9rem;
         }
@@ -102,12 +102,12 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
     padding: 0.5rem;
     border-radius: 8px;
-    color: $text-secondary;
+    color: var(--color-text-secondary, $text-secondary);
     transition: $transition;
 
     &:hover {
         background: $primary-light;
-        color: $text-primary;
+        color: var(--color-text-primary, $text-primary);
     }
 }
 
@@ -139,8 +139,8 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     &--outline {
         background: transparent;
-        border: 1px solid $border-color;
-        color: $text-primary;
+        border: 1px solid var(--color-border, $border-color);
+        color: var(--color-text-primary, $text-primary);
         &:hover {
             background: $primary-light;
             border-color: $primary-color;
@@ -152,6 +152,75 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         color: $primary-color;
         padding: 0.4rem 0.8rem;
         &:hover { color: $primary-hover; text-decoration: underline; }
+    }
+}
+
+// Agrega esto dentro del archivo, en la sección de .page-header
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+
+    &__left {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+
+        .header-left-content {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--color-text-primary, $text-primary);
+            margin: 0;
+        }
+        .subtitle {
+            color: var(--color-text-secondary, $text-secondary);
+            margin: 0.25rem 0 0 0;
+            font-size: 0.9rem;
+        }
+    }
+
+    &__right {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+}
+
+.btn-back {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    color: var(--color-text-secondary, $text-secondary);
+    transition: $transition;
+    white-space: nowrap;
+
+    span {
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    &:hover {
+        background: $primary-light;
+        color: var(--color-text-primary, $text-primary);
+    }
+
+    svg {
+        flex-shrink: 0;
     }
 }
 
@@ -183,11 +252,11 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .form-section {
-    background: $card-bg;
+    background: var(--color-bg-card, $card-bg);
     border-radius: $radius;
-    border: 1px solid $border-color;
+    border: 1px solid var(--color-border, $border-color);
     padding: 1.5rem;
-    box-shadow: $shadow-sm;
+    box-shadow: var(--shadow-sm, $shadow-sm);
 }
 
 .section-header {
@@ -212,11 +281,11 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     h2 {
         font-size: 1.1rem;
         font-weight: 700;
-        color: $text-primary;
+        color: var(--color-text-primary, $text-primary);
         margin: 0;
         .optional {
             font-weight: 400;
-            color: $text-muted;
+            color: var(--color-text-muted, $text-muted);
             font-size: 0.85rem;
         }
     }
@@ -237,17 +306,17 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     label {
         font-size: 0.8rem;
         font-weight: 600;
-        color: $text-primary;
+        color: var(--color-text-primary, $text-primary);
         .required { color: $danger; margin-left: 2px; }
     }
 
     select {
         padding: 0.6rem 0.8rem;
         border-radius: 8px;
-        border: 1px solid $border-color;
+        border: 1px solid var(--color-border, $border-color);
         font-size: 0.9rem;
-        color: $text-primary;
-        background: $card-bg;
+        color: var(--color-text-primary, $text-primary);
+        background: var(--color-bg-card, $card-bg);
         transition: $transition;
         &:focus {
             outline: none;
@@ -265,7 +334,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     .opcion-btn {
         padding: 0.4rem 1rem;
         border-radius: 6px;
-        border: 1px solid $border-color;
+        border: 1px solid var(--color-border, $border-color);
         background: transparent;
         cursor: pointer;
         font-size: 0.8rem;
@@ -287,7 +356,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     .tag-btn {
         padding: 0.3rem 0.8rem;
         border-radius: 12px;
-        border: 1px solid $border-color;
+        border: 1px solid var(--color-border, $border-color);
         background: transparent;
         cursor: pointer;
         font-size: 0.8rem;
@@ -315,7 +384,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         width: 40px;
         height: 40px;
         border-radius: 50%;
-        background: $card-bg;
+        background: var(--color-bg-card, $card-bg);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -326,8 +395,8 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     &__text {
         flex: 1;
-        h4 { font-size: 0.9rem; font-weight: 700; color: $text-primary; margin: 0; }
-        p { font-size: 0.85rem; color: $text-secondary; margin: 0.2rem 0 0 0; }
+        h4 { font-size: 0.9rem; font-weight: 700; color: var(--color-text-primary, $text-primary); margin: 0; }
+        p { font-size: 0.85rem; color: var(--color-text-secondary, $text-secondary); margin: 0.2rem 0 0 0; }
     }
 }
 
@@ -348,7 +417,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .modal-content {
-    background: #ffffff;
+    background: var(--color-bg-card, #ffffff);
     border-radius: 16px;
     padding: 40px 48px 32px;
     max-width: 420px;
@@ -372,13 +441,13 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 .modal-title {
     font-size: 18px;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--color-text-primary, #0f172a);
     margin: 0 0 8px;
 }
 
 .modal-message {
     font-size: 14px;
-    color: #64748b;
+    color: var(--color-text-secondary, #64748b);
     margin: 0 0 24px;
     line-height: 1.6;
 }
@@ -419,7 +488,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     gap: 0.5rem;
     border-radius: 8px;
-    background: #f1f5f9;
+    background: var(--color-bg-hover, #f1f5f9);
     padding: 0.25rem;
 
     .toggle-btn {
@@ -431,17 +500,17 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         font-weight: 600;
         cursor: pointer;
         background: transparent;
-        color: #64748b;
+        color: var(--color-text-secondary, #64748b);
         transition: all 0.2s ease;
 
         &.active {
-            background: #ffffff;
-            color: #0f172a;
+            background: var(--color-bg-card, #ffffff);
+            color: var(--color-text-primary, #0f172a);
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
         &:hover:not(.active) {
-            color: #0f172a;
+            color: var(--color-text-primary, #0f172a);
         }
     }
 }
@@ -451,7 +520,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     .modal-thinking {
         max-width: 420px;
         padding: 40px 32px;
-        background: #ffffff;
+        background: var(--color-bg-card, #ffffff);
         border-radius: 20px;
         box-shadow: 0 24px 64px rgba(0, 0, 0, 0.2);
         border: none;
@@ -494,7 +563,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         h3 {
             font-size: 1.2rem;
             font-weight: 700;
-            color: #0f172a;
+            color: var(--color-text-primary, #0f172a);
             margin: 0 0 8px 0;
         }
 
@@ -520,7 +589,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
         .thinking-subtext {
             font-size: 0.9rem;
-            color: #64748b;
+            color: var(--color-text-secondary, #64748b);
             margin: 0;
             animation: fadeInOut 2s ease-in-out infinite;
         }

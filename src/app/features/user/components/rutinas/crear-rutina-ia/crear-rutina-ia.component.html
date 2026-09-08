@@ -7,16 +7,18 @@
         <div class="crear-rutina-ia-wrapper">
             <header class="page-header">
                 <div class="page-header__left">
-                    <button class="btn-back" (click)="cancelar()">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M19 12H5"/>
-                            <path d="m12 19-7-7 7-7"/>
-                        </svg>
-                        Cancelar
-                    </button>
-                    <div>
-                        <h1>Crear rutina IA</h1>
-                        <p class="subtitle">Nuestra IA diseñara la rutina perfecta para ti</p>
+                    <div class="header-left-content">
+                        <button class="btn-back" (click)="cancelar()">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M19 12H5"/>
+                                <path d="m12 19-7-7 7-7"/>
+                            </svg>
+                            <span>Cancelar</span>
+                        </button>
+                        <div>
+                            <h1>Crear rutina IA</h1>
+                            <p class="subtitle">Nuestra IA diseñara la rutina perfecta para ti</p>
+                        </div>
                     </div>
                 </div>
                 <div class="page-header__right">
@@ -96,7 +98,6 @@
 <div class="modal-overlay ia-thinking-modal" *ngIf="isLoading">
     <div class="modal-content modal-thinking" (click)="$event.stopPropagation()">
         <div class="thinking-container">
-            <!-- Icono de IA -->
             <div class="ia-icon">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                     <path d="M12 2a10 10 0 1 0 10 10 10 10 0 0 0-10-10z"/>
@@ -108,15 +109,11 @@
                     <path d="M15 15l-2-2"/>
                 </svg>
             </div>
-
-            <!-- Animación de pensamiento -->
             <div class="thinking-animation">
                 <div class="brain-wave"></div>
                 <div class="brain-wave delay-1"></div>
                 <div class="brain-wave delay-2"></div>
             </div>
-
-            <!-- Texto -->
             <h3>La IA está diseñando tu rutina</h3>
             <p class="thinking-text">
                 <span class="dot">.</span>
