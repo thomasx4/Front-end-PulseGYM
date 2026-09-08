@@ -742,3 +742,33 @@
         box-shadow: none !important;
     }
 }
+
+.status-pill {
+    padding: 0.3rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    display: inline-block;
+    text-transform: uppercase;
+
+    &.success {
+        background: #dcfce7;
+        color: #16a34a;
+    }
+
+    &.warning {
+        background: #fef9c3;
+        color: #ca8a04;
+    }
+
+    &.danger {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    &.lg {
+        padding: 0.35rem 0.85rem;
+        font-size: 0.72rem;
+    }
+}
