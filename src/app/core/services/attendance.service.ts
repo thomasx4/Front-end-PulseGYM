@@ -73,4 +73,27 @@ export class AttendanceService {
       responseType: 'blob'
     });
   }
+
+
+  exportarTendenciaPdf(tipoReporte: 'SEMANAL' | 'MENSUAL', fechaReferencia: string): Observable<Blob> {
+    const params = new HttpParams()
+      .set('tipoReporte', tipoReporte)
+      .set('fechaReferencia', fechaReferencia);
+
+    return this.http.get(`${this.reportsApiUrl}/tendencia/exportar/pdf`, {
+      params,
+      responseType: 'blob'
+    });
+  }
+
+  exportarTendenciaExcel(tipoReporte: 'SEMANAL' | 'MENSUAL', fechaReferencia: string): Observable<Blob> {
+    const params = new HttpParams()
+      .set('tipoReporte', tipoReporte)
+      .set('fechaReferencia', fechaReferencia);
+
+    return this.http.get(`${this.reportsApiUrl}/tendencia/exportar/excel`, {
+      params,
+      responseType: 'blob'
+    });
+  }
 }

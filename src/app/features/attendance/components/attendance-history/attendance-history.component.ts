@@ -1,8 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AttendanceService } from '../../../../core/services/attendance.service';
 import { HistorialAccesoItem, HistorialAccesoResponse, FiltrosHistorial } from '../../models/attendance.model';
-import { jsPDF } from 'jspdf';
-import { autoTable } from 'jspdf-autotable';
 
 @Component({
   selector: 'app-attendance-history',
@@ -30,6 +28,11 @@ export class AttendanceHistoryComponent implements OnInit {
     size: 10
   };
 
+  // --- ESTADOS PARA EL MODAL DE EXPORTACIÓN ---
+  mostrarModalExport: boolean = false;
+  tipoReporteExport: 'SEMANAL' | 'MENSUAL' = 'SEMANAL';
+  fechaReferenciaExport: string = new Date().toISOString().slice(0, 10);
+
   constructor(private attendanceService: AttendanceService) { }
 
   ngOnInit(): void {
@@ -51,21 +54,17 @@ export class AttendanceHistoryComponent implements OnInit {
       next: (response: HistorialAccesoResponse) => {
         let datos: HistorialAccesoItem[] = response.content || [];
 
-        console.log('Búsqueda ingresada:', this.filtrosActivos.nombreUsuario);
-        console.log('Primer registro recibido del backend:', datos[0]);
-
         if (this.filtrosActivos.nombreUsuario && this.filtrosActivos.nombreUsuario.trim() !== '') {
           const busqueda = this.filtrosActivos.nombreUsuario.trim().toLowerCase();
 
           datos = datos.filter((item: HistorialAccesoItem) => {
-            // Evalúa la propiedad oficial y respaldos por si la API envía otra clave
             const itemAny = item as any;
             const nombreDirecto = item.nombreUsuario || itemAny.nombre || itemAny.usuario || itemAny.usuarioNombre || '';
             const nombreAnidado = itemAny.usuario?.nombre || itemAny.usuario?.nombreCompleto || '';
             const textoCompleto = `${nombreDirecto} ${nombreAnidado}`.toLowerCase();
 
             return textoCompleto.includes(busqueda);
-          })
+          });
         }
 
         if (this.filtrosActivos.fechaDesde) {
@@ -119,7 +118,6 @@ export class AttendanceHistoryComponent implements OnInit {
   }
 
   get paginasVisibles(): number[] {
-
     const maxVisibles = 4;
     let inicio = Math.max(0, this.currentPage - 1);
     let fin = inicio + maxVisibles;
@@ -190,7 +188,6 @@ export class AttendanceHistoryComponent implements OnInit {
     };
 
     this.currentPage = 0;
-
     this.cargarHistorial(this.filtrosActivos);
   }
 
@@ -201,75 +198,47 @@ export class AttendanceHistoryComponent implements OnInit {
     }
   }
 
-  exportarReporte(): void {
-    if (!this.logs || this.logs.length === 0) {
-      return;
+  // --- MÉTODOS DEL MODAL DE EXPORTACIÓN ---
+
+  abrirModalExportar(): void {
+    this.fechaReferenciaExport = this.filtrosActivos.fechaDesde || new Date().toISOString().slice(0, 10);
+    this.mostrarModalExport = true;
+  }
+
+  cerrarModalExportar(): void {
+    if (!this.isExporting) {
+      this.mostrarModalExport = false;
     }
+  }
 
-    const doc = new jsPDF('p', 'mm', 'a4');
-    const pageWidth = doc.internal.pageSize.getWidth()
+  exportarTendencia(formato: 'pdf' | 'excel'): void {
+    if (!this.fechaReferenciaExport) return;
 
-    doc.setFontSize(18);
-    doc.setTextColor('#0b192c');
-    doc.setFont('helvetica');
-    doc.text('Pulse GYM - Historial de Accesos', pageWidth / 2, 20, { align: 'center' });
+    this.isExporting = true;
 
-    doc.setFontSize(10);
-    doc.setTextColor('#64748b');
-    doc.setFont('helvetica', 'normal');
-    const fechaGeneracion = new Date().toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    const peticion = formato === 'pdf'
+      ? this.attendanceService.exportarTendenciaPdf(this.tipoReporteExport, this.fechaReferenciaExport)
+      : this.attendanceService.exportarTendenciaExcel(this.tipoReporteExport, this.fechaReferenciaExport);
 
-    doc.text(`Generado: ${fechaGeneracion}`, pageWidth / 2, 27, { align: 'center' });
+    peticion.subscribe({
+      next: (blob: Blob) => {
+        const ext = formato === 'pdf' ? 'pdf' : 'xlsx';
+        const nombreArchivo = `Reporte_Tendencia_${this.tipoReporteExport}_${this.fechaReferenciaExport}.${ext}`;
 
-    const registrosAExportar = this.logs;
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = nombreArchivo;
+        a.click();
+        window.URL.revokeObjectURL(url);
 
-    const rows = registrosAExportar.map(item => [
-      new Date(item.fechaHora).toLocaleString('es-CO', {
-        dateStyle: 'short',
-        timeStyle: 'medium'
-      }),
-      `${item.nombreUsuario} (#${item.usuarioId})`,
-      item.nombreSede,
-      item.tipoAcceso,
-      item.resultado,
-      item.motivo || '—'
-    ]);
-
-    autoTable(doc, {
-      startY: 28,
-      head: [['Fecha y Hora', 'Usuario', 'Sede', 'Tipo', 'Resultado', 'Motivo']],
-      body: rows,
-      headStyles: {
-        fillColor: [37, 56, 116], // Azul Pulse GYM (#253874)
-        textColor: [255, 255, 255],
-        fontStyle: 'bold'
+        this.isExporting = false;
+        this.mostrarModalExport = false;
       },
-      styles: {
-        fontSize: 8,
-        cellPadding: 3
-      },
-      alternateRowStyles: {
-        fillColor: [248, 250, 252]
-      },
-      didDrawPage: (data) => {
-        const pageCount = doc.getNumberOfPages();
-        doc.setFontSize(8);
-        doc.setTextColor(148, 163, 184);
-        doc.text(
-          `Página ${data.pageNumber} de ${pageCount}`,
-          data.settings.margin.left,
-          doc.internal.pageSize.height - 10
-        );
+      error: (err) => {
+        console.error(`Error al exportar reporte de tendencia (${formato}):`, err);
+        this.isExporting = false;
       }
     });
-
-    const fechaHoy = new Date().toISOString().slice(0, 10);
-    doc.save(`Historial_Accesos_Pagina_${this.currentPage + 1}_${fechaHoy}.pdf`);
   }
 }
