@@ -6,6 +6,7 @@ export const environment = {
         cloudName: '',
         uploadPreset: '',
         apiKey: '',
-        apiSecret: ''
+        apiSecret: '',
+        MERCADOPAGO_PUBLIC_KEY: ''
     }
 };
