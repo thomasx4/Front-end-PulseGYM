@@ -43,7 +43,6 @@
     }
 }
 
-// KPI GRID
 .kpi-grid {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
@@ -123,7 +122,6 @@
     }
 }
 
-// FILTERS
 .filters-card {
     background: #ffffff;
     border-radius: 12px;
@@ -172,6 +170,7 @@
         display: flex;
         align-items: center;
         gap: 0.75rem;
+        flex-wrap: wrap;
 
         .filter-group {
             display: flex;
@@ -258,7 +257,6 @@
     }
 }
 
-// LAYOUT CON DETALLE LATERAL (RESPONSIVO Y FLUIDO)
 .main-content-layout {
     display: grid;
     grid-template-columns: 1fr;
@@ -273,7 +271,6 @@
     }
 }
 
-// TABLA MODERNA Y ELEGANTE
 .table-container {
     background: #ffffff;
     border-radius: 16px;
@@ -339,7 +336,6 @@
     }
 }
 
-// CELDAS PERSONALIZADAS
 .user-cell {
     display: flex;
     align-items: center;
@@ -455,6 +451,11 @@
         color: #16a34a;
     }
 
+    &.warning {
+        background: #fef9c3;
+        color: #ca8a04;
+    }
+
     &.danger {
         background: #fee2e2;
         color: #dc2626;
@@ -519,7 +520,6 @@
     }
 }
 
-// PANEL LATERAL DE DETALLE SUAVE Y PROFESIONAL
 .detail-sidebar {
     background: #ffffff;
     border-radius: 16px;
@@ -639,7 +639,6 @@
     }
 }
 
-// PAGINACIÓN ESTILIZADA
 .pagination-footer {
     display: flex;
     justify-content: space-between;
@@ -726,49 +725,28 @@
     }
 }
 
-.swal2-popup {
-    border-radius: 12px !important;
-    font-family: inherit !important;
-}
+@media (max-width: 1024px) {
+    .filters-card {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
 
-.swal2-input {
-    border-radius: 8px !important;
-    border: 1px solid #e2e8f0 !important;
-    background: #f8fafc !important;
-    font-size: 0.85rem !important;
+        &__search {
+            max-width: 100% !important;
+        }
 
-    &:focus {
-        border-color: #0e3b72 !important;
-        box-shadow: none !important;
-    }
-}
+        &__selects {
+            flex-direction: column;
+            align-items: stretch;
+            width: 100%;
 
-.status-pill {
-    padding: 0.3rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.68rem;
-    font-weight: 800;
-    letter-spacing: 0.03em;
-    display: inline-block;
-    text-transform: uppercase;
-
-    &.success {
-        background: #dcfce7;
-        color: #16a34a;
-    }
-
-    &.warning {
-        background: #fef9c3;
-        color: #ca8a04;
-    }
-
-    &.danger {
-        background: #fee2e2;
-        color: #dc2626;
-    }
-
-    &.lg {
-        padding: 0.35rem 0.85rem;
-        font-size: 0.72rem;
+            .filter-group {
+                width: 100%;
+                
+                select, input {
+                    width: 100%;
+                }
+            }
+        }
     }
 }
