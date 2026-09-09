@@ -479,20 +479,22 @@
     transition: all 0.2s;
 
     &--pdf {
-      background: #253874;
-      color: #f1f6f3;
+      background: #fef2f2;
+      color: #991b1b;
+      border-color: #fecaca;
 
       &:hover:not(:disabled) {
-        background: #1e293b;
+        background: #fee2e2;
       }
     }
 
     &--excel {
-      background: #253874;
-      color: #f1f6f3;
+      background: #f0fdf4;
+      color: #166534;
+      border-color: #bbf7d0;
 
       &:hover:not(:disabled) {
-        background: #1e293b;
+        background: #dcfce7;
       }
     }
 

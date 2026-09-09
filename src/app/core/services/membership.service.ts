@@ -336,11 +336,25 @@ export class MembershipService {
         return this.http.get<MoraResponseDTO>(`${this.reportsApiUrl}/mora`, { params });
     }
 
-    exportarMoraExcel(): Observable<Blob> {
-        return this.http.get(`${this.reportsApiUrl}/mora/excel`, { responseType: 'blob' });
+    exportarMoraExcel(fechaInicio?: string, fechaFin?: string): Observable<Blob> {
+        let params = new HttpParams();
+        if (fechaInicio) params = params.set('fechaInicio', fechaInicio);
+        if (fechaFin) params = params.set('fechaFin', fechaFin);
+
+        return this.http.get(`${this.reportsApiUrl}/mora/excel`, {
+            params,
+            responseType: 'blob'
+        });
     }
 
-    exportarMoraPdf(): Observable<Blob> {
-        return this.http.get(`${this.reportsApiUrl}/mora/pdf`, { responseType: 'blob' });
+    exportarMoraPdf(fechaInicio?: string, fechaFin?: string): Observable<Blob> {
+        let params = new HttpParams();
+        if (fechaInicio) params = params.set('fechaInicio', fechaInicio);
+        if (fechaFin) params = params.set('fechaFin', fechaFin);
+
+        return this.http.get(`${this.reportsApiUrl}/mora/pdf`, {
+            params,
+            responseType: 'blob'
+        });
     }
 }

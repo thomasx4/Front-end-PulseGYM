@@ -1,13 +1,11 @@
 <div class="overdue-page">
 
-  <!-- CABECERA DE LA PÁGINA -->
   <header class="page-header">
     <div class="page-title-box">
       <h1 class="page-title">Socios en Mora</h1>
       <p class="page-subtitle">Gestión y auditoría de cartera con membresías vencidas o suspendidas</p>
     </div>
 
-    <!-- BOTONES PRINCIPALES DE EXPORTACIÓN (FINANCIERA) -->
     <div class="header-actions">
       <button type="button" class="btn-action btn-action--pdf" (click)="exportarPdf()" [disabled]="exportando">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -24,45 +22,40 @@
         </svg>
         <span>Exportar Excel</span>
       </button>
+
+      <div class="filter-popover-wrapper">
+        <button type="button" class="btn-filter-trigger" [class.active]="mostrarFiltros" (click)="toggleFiltros()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="4" y1="6" x2="20" y2="6"></line>
+            <line x1="7" y1="12" x2="17" y2="12"></line>
+            <line x1="10" y1="18" x2="14" y2="18"></line>
+          </svg>
+          <span>Filtrar</span>
+        </button>
+
+        <div class="filter-popover" *ngIf="mostrarFiltros">
+          <div class="filter-field">
+            <label>Fecha Inicio Vencimiento</label>
+            <input type="date" [(ngModel)]="fechaInicio" class="popover-input" />
+          </div>
+
+          <div class="filter-field">
+            <label>Fecha Fin Vencimiento</label>
+            <input type="date" [(ngModel)]="fechaFin" class="popover-input" />
+          </div>
+
+          <div class="popover-actions">
+            <button type="button" class="btn-popover-clear" (click)="limpiarFiltros()">Limpiar</button>
+            <button type="button" class="btn-popover-apply" (click)="filtrarPorRango()">Aplicar</button>
+          </div>
+        </div>
+      </div>
+
     </div>
   </header>
 
-  <!-- BARRA DE HERRAMIENTAS: BÚSQUEDA Y POPOVER DE FILTRADO -->
-  <div class="toolbar-section">
-    
-    <div class="filter-popover-wrapper">
-      <button type="button" class="btn-filter-trigger" [class.active]="mostrarFiltros" (click)="toggleFiltros()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="4" y1="6" x2="20" y2="6"></line>
-          <line x1="7" y1="12" x2="17" y2="12"></line>
-          <line x1="10" y1="18" x2="14" y2="18"></line>
-        </svg>
-        <span>Filtrar</span>
-      </button>
-
-      <!-- MENU DESPLEGABLE TIPO POPOVER (IGUAL A USUARIOS) -->
-      <div class="filter-popover" *ngIf="mostrarFiltros">
-        <div class="filter-field">
-          <label>Fecha Inicio Vencimiento</label>
-          <input type="date" [(ngModel)]="fechaInicio" class="popover-input" />
-        </div>
-
-        <div class="filter-field">
-          <label>Fecha Fin Vencimiento</label>
-          <input type="date" [(ngModel)]="fechaFin" class="popover-input" />
-        </div>
-
-        <div class="popover-actions">
-          <button type="button" class="btn-popover-clear" (click)="limpiarFiltros()">Limpiar</button>
-          <button type="button" class="btn-popover-apply" (click)="filtrarPorRango()">Aplicar</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- TARJETA CONTENEDORA DE LA TABLA ESTILO PULSE GYM -->
   <div class="table-card">
-    
+
     <div *ngIf="cargando" class="state-container">
       <div class="spinner"></div>
       <p>Cargando cartera en mora...</p>
@@ -82,8 +75,7 @@
         </thead>
         <tbody>
           <tr *ngFor="let item of sociosPaginados">
-            
-            <!-- SOCIO CON AVATAR -->
+
             <td>
               <div class="user-cell">
                 <div class="avatar">
@@ -96,32 +88,29 @@
               </div>
             </td>
 
-            <!-- IDENTIFICACIÓN -->
             <td>
               <span class="id-text">{{ item.identificacion }}</span>
             </td>
 
-            <!-- TELÉFONO -->
             <td>
               <div class="phone-cell">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                  <path
+                    d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
+                  </path>
                 </svg>
                 <span>{{ item.telefono }}</span>
               </div>
             </td>
 
-            <!-- MEMBRESÍA -->
             <td>
               <span class="plan-tag">{{ item.tipoMembresia }}</span>
             </td>
 
-            <!-- FECHA VENCIMIENTO -->
             <td>
               <span class="date-text">{{ item.fechaVencimiento | date:'dd MMM yyyy' }}</span>
             </td>
 
-            <!-- BADGE DE ESTADO -->
             <td>
               <span class="badge-status" [ngClass]="{
                 'badge-status--suspended': item.estadoMembresia === 'SUSPENDIDA',
@@ -137,15 +126,14 @@
       </table>
     </div>
 
-    <!-- ESTADO VACÍO -->
     <div *ngIf="!cargando && sociosPaginados.length === 0" class="empty-state">
       <p>No se encontraron socios en mora con los criterios seleccionados.</p>
     </div>
 
-    <!-- PIE DE PAGINACIÓN -->
     <footer *ngIf="!cargando && totalElementos > 0" class="table-footer">
       <span class="showing-text">
-        Mostrando <strong>{{ inicio + 1 }}</strong> a <strong>{{ fin }}</strong> de <strong>{{ totalElementos }}</strong> socios
+        Mostrando <strong>{{ inicio + 1 }}</strong> a <strong>{{ fin }}</strong> de <strong>{{ totalElementos
+          }}</strong> socios
       </span>
 
       <div class="pagination">

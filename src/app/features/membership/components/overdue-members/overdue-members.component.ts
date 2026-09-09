@@ -13,13 +13,11 @@ export class OverdueMembersComponent implements OnInit {
   cargando: boolean = false;
   exportando: boolean = false;
 
-  // Filtros
   busquedaTexto: string = '';
   fechaInicio: string = '';
   fechaFin: string = '';
   mostrarFiltros: boolean = false;
 
-  // Paginación
   paginaActual: number = 1;
   itemsPorPagina: number = 7;
 
@@ -86,7 +84,6 @@ export class OverdueMembersComponent implements OnInit {
     return nombre.substring(0, 2).toUpperCase();
   }
 
-  // PAGINACIÓN
   get totalElementos(): number {
     return this.sociosFiltrados.length;
   }
@@ -125,26 +122,31 @@ export class OverdueMembersComponent implements OnInit {
     if (this.paginaActual < this.totalPaginas) this.paginaActual++;
   }
 
-  // EXPORTACIÓN
   exportarPdf(): void {
     this.exportando = true;
-    this.membershipService.exportarMoraPdf().subscribe({
+    this.membershipService.exportarMoraPdf(this.fechaInicio, this.fechaFin).subscribe({
       next: (blob) => {
         this.descargarArchivo(blob, `Socios_En_Mora_${new Date().toISOString().slice(0, 10)}.pdf`);
         this.exportando = false;
       },
-      error: () => this.exportando = false
+      error: (err) => {
+        console.error('Error al exportar PDF:', err);
+        this.exportando = false;
+      }
     });
   }
 
   exportarExcel(): void {
     this.exportando = true;
-    this.membershipService.exportarMoraExcel().subscribe({
+    this.membershipService.exportarMoraExcel(this.fechaInicio, this.fechaFin).subscribe({
       next: (blob) => {
         this.descargarArchivo(blob, `Socios_En_Mora_${new Date().toISOString().slice(0, 10)}.xlsx`);
         this.exportando = false;
       },
-      error: () => this.exportando = false
+      error: (err) => {
+        console.error('Error al exportar Excel:', err);
+        this.exportando = false;
+      }
     });
   }
 

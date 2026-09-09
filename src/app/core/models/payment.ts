@@ -39,3 +39,18 @@ export interface AnularPagoRequestDTO {
     idPago: number;
     motivo: string;
 }
+
+export interface IngresosDiariosDTO {
+    fecha: string;
+    totalIngresos: number;
+    cantidadPagos: number;
+    mensaje: string | null;
+}
+
+export interface IngresosMensualesDTO {
+    mes: number;
+    anio: number;
+    totalIngresos: number;
+    totalPagos: number;
+    mensaje: string | null;
+}
