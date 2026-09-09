@@ -110,11 +110,23 @@ export class SidebarComponent implements OnInit {
       </svg>
     `);
 
+    const overdueIcon = this.sanitizer.bypassSecurityTrustHtml(`
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <polyline points="12 6 12 12 16 14"></polyline>
+      </svg>
+    `);
+
     this.membershipChildren = [
       {
         label: 'Asignar Membresía',
         route: '/dashboard-admin/memberships/assign',
         iconHtml: assignIcon,
+      },
+      {
+        label: 'Socios en Mora',
+        route: '/dashboard-admin/memberships/overdue',
+        iconHtml: overdueIcon,
       }
     ];
 
