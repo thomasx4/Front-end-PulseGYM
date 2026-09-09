@@ -28,7 +28,6 @@ export class AttendanceHistoryComponent implements OnInit {
     size: 10
   };
 
-  // --- ESTADOS PARA EL MODAL DE EXPORTACIÓN ---
   mostrarModalExport: boolean = false;
   tipoReporteExport: 'SEMANAL' | 'MENSUAL' = 'SEMANAL';
   fechaReferenciaExport: string = new Date().toISOString().slice(0, 10);
@@ -198,7 +197,6 @@ export class AttendanceHistoryComponent implements OnInit {
     }
   }
 
-  // --- MÉTODOS DEL MODAL DE EXPORTACIÓN ---
 
   abrirModalExportar(): void {
     this.fechaReferenciaExport = this.filtrosActivos.fechaDesde || new Date().toISOString().slice(0, 10);

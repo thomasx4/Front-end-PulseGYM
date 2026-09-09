@@ -345,7 +345,6 @@
   }
 }
 
-// MODAL DE EXPORTACIÓN
 .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -434,7 +433,6 @@
   }
 }
 
-// TOGGLE SEMANAL / MENSUAL
 .lapso-toggle {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -462,7 +460,6 @@
   }
 }
 
-// BOTONES DE EXPORTACIÓN
 .download-actions {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -506,7 +503,7 @@
   }
 }
 
-// FOOTER Y BOTÓN CANCELAR
+
 .modal-footer {
   margin-top: 20px;
   display: flex;

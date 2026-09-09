@@ -6,7 +6,6 @@
       <p class="attendance-history__subtitle">Registro de auditoría e intentos de ingreso a las sedes de Pulse GYM.</p>
     </div>
 
-    <!-- BOTÓN PRINCIPAL PARA ABRIR MODAL DE REPORTES DE TENDENCIA -->
     <button type="button" class="btn-export-main" (click)="abrirModalExportar()">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
@@ -74,7 +73,6 @@
       <button type="button" class="btn btn--secondary" (click)="cargarHistorial()">Reintentar</button>
     </div>
 
-    <!-- TABLA PRINCIPAL -->
     <div *ngIf="!isLoading && !errorMessage" class="table-wrapper">
       <table class="table">
         <thead>
@@ -160,7 +158,6 @@
 <div class="modal-backdrop" *ngIf="mostrarModalExport" (click)="cerrarModalExportar()">
   <div class="modal-card" (click)="$event.stopPropagation()">
 
-    <!-- HEADER -->
     <header class="modal-header">
       <div>
         <h3 class="modal-title">Exportar Reporte de Tendencias</h3>
@@ -169,10 +166,8 @@
       <button type="button" class="btn-close" (click)="cerrarModalExportar()">&times;</button>
     </header>
 
-    <!-- BODY -->
     <div class="modal-body">
 
-      <!-- TIPO DE LAPSO -->
       <div class="form-group">
         <label class="form-label">Tipo de Lapso</label>
         <div class="lapso-toggle">
@@ -188,7 +183,6 @@
       </div>
       <br>
 
-      <!-- FECHA DE REFERENCIA -->
       <div class="form-group mt-4">
         <label for="fechaRef" class="form-label">Fecha de Referencia</label>
         <input id="fechaRef" type="date" class="form-input" [(ngModel)]="fechaReferenciaExport" />
@@ -200,7 +194,7 @@
         </span>
       </div>
       <br>
-      <!-- FORMATO DE DESCARGA -->
+
       <div class="form-group mt-5">
         <label class="form-label">Formato de Descarga</label>
         <div class="download-actions">
@@ -228,7 +222,6 @@
 
     </div>
 
-    <!-- FOOTER -->
     <footer class="modal-footer">
       <button type="button" class="btn-cancel" (click)="cerrarModalExportar()" [disabled]="isExporting">
         Cancelar
