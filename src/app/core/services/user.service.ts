@@ -77,6 +77,8 @@ export class UserService {
 
         if (filtros.roles && filtros.roles.length > 0) {
             params = params.set('roles', filtros.roles.join(','));
+        } else if ((filtros as any).rol) {
+            params = params.set('roles', (filtros as any).rol);
         }
 
         return this.http.get<PageResponse<UsuarioPerfilResponseDTO>>(
