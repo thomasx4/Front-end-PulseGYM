@@ -1,0 +1,65 @@
+<div class="dashboard-layout">
+    <app-navbar></app-navbar>
+
+    <div class="dashboard-main">
+        <app-header></app-header>
+
+        <div class="dashboard-wrapper">
+            <div class="detalle-pago-container" *ngIf="pago">
+                <div class="detalle-actions-top">
+                    <a routerLink="/user/pagos" class="back-link">← Volver al historial</a>
+                </div>
+
+                <div class="receipt-card">
+                    <!-- Cabecera del Comprobante -->
+                    <div class="receipt-header">
+                        <div class="receipt-brand">
+                            <span class="brand-title">PULSE GYM</span>
+                            <span class="receipt-subtitle">Comprobante de Transacción Oficial</span>
+                        </div>
+                        <div class="status-badge" [class.success]="!pago.anulado" [class.danger]="pago.anulado">
+                            {{ pago.anulado ? 'ANULADO' : 'APROBADO' }}
+                        </div>
+                    </div>
+
+                    <div class="receipt-body">
+                        <div class="amount-display-box">
+                            <span class="amount-label">Monto Total Pagado</span>
+                            <h1 class="amount-value">${{ pago.monto | number:'1.2-2' }}</h1>
+                            <p class="plan-name-tag">{{ pago.nombreMembresia }}</p>
+                        </div>
+
+                        <div class="receipt-divider"></div>
+
+                        <div class="receipt-details-list">
+                            <div class="receipt-row">
+                                <span class="label">Fecha y Hora</span>
+                                <span class="value">{{ pago.fechaPago | date:'dd MMM yyyy, hh:mm a' }}</span>
+                            </div>
+                            <div class="receipt-row">
+                                <span class="label">Método de Pago</span>
+                                <span class="value method-highlight">{{ pago.metodoPago }}</span>
+                            </div>
+                            <div class="receipt-row">
+                                <span class="label">Nro. Comprobante / Ref</span>
+                                <span class="value">{{ pago.numeroComprobante || 'N/A' }}</span>
+                            </div>
+                            <div class="receipt-row">
+                                <span class="label">Socio Titular</span>
+                                <span class="value">{{ pago.nombreSocio }}</span>
+                            </div>
+                            <div class="receipt-row" *ngIf="pago.anulado">
+                                <span class="label text-red">Motivo de Anulación</span>
+                                <span class="value text-red">{{ pago.motivoAnulacion }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="receipt-footer">
+                        <p class="receipt-legal">Este documento es un comprobante digital generado para el socio dentro de la plataforma Pulse Gym.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

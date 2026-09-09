@@ -101,6 +101,18 @@
         </div>
 
         <div class="filters-card__selects">
+            <!-- FILTRO POR ESTADO -->
+            <div class="filter-group">
+                <label>Estado</label>
+                <select [(ngModel)]="selectedEstado" (change)="applyFilters()">
+                    <option value="TODOS">Todos</option>
+                    <option value="APROBADO">Aprobado</option>
+                    <option value="PENDIENTE">Pendiente</option>
+                    <option value="RECHAZADO">Rechazado</option>
+                    <option value="ANULADO">Anulado</option>
+                </select>
+            </div>
+
             <div class="filter-group">
                 <label>Método de Pago</label>
                 <select [(ngModel)]="selectedMetodo" (change)="applyFilters()">

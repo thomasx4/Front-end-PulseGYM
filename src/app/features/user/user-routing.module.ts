@@ -16,41 +16,31 @@ import { DetallePlanComponent } from './components/plan-nutricional/detalle-plan
 import { EditarPlanComponent } from './components/plan-nutricional/editar-plan/editar-plan.component';
 import { ExportarPlanComponent } from './components/plan-nutricional/exportar-plan/exportar-plan.component';
 import { AjustesComponent } from './components/ajustes/ajustes.component';
-
+import { PagosListComponent } from './components/pagos-list/pagos-list.component';
+import { PagosFormComponent } from './components/pagos-form/pagos-form.component';
+import { PagosDetailComponent } from './components/pagos-detail/pagos-detail.component';
 
 const routes: Routes = [
   { path: '', component: DashboardComponent },
-
-    { path: 'profile', component: ProfileComponent },
-  
-    { path: 'historial-fisico', component: HistorialFisicoComponent },
-
-    { path: 'membresias', component: MembresiasComponent },
-
-    { path: 'rutinas', component: RutinasComponent },
-
-    { path: 'rutinas/exportar', component: ExportarRutinaComponent },
-      
-    { path: 'rutinas/crear-ia', component: CrearRutinaIaComponent },
-
-    { path: 'rutinas/detalle/:id', component: DetalleRutinaComponent },
-
-    { path: 'rutinas/editar/:id', component: EditarRutinaComponent },
-
-    { path: 'perfil-medico', component: PerfilMedicoComponent },
-
-    { path: 'plan-nutricional', component: PlanNutricionalComponent },
-
-    { path: 'plan-nutricional/crear-plan', component: CrearPlanComponent },
-
-    { path: 'plan-nutricional/detalle/:id', component: DetallePlanComponent },
-
-    { path: 'plan-nutricional/editar/:id', component: EditarPlanComponent },
-
-    { path: 'plan-nutricional/exportar', component: ExportarPlanComponent },
-
-    { path: 'ajustes', component: AjustesComponent },
-  ]
+  { path: 'profile', component: ProfileComponent },
+  { path: 'historial-fisico', component: HistorialFisicoComponent },
+  { path: 'membresias', component: MembresiasComponent },
+  { path: 'rutinas', component: RutinasComponent },
+  { path: 'rutinas/exportar', component: ExportarRutinaComponent },
+  { path: 'rutinas/crear-ia', component: CrearRutinaIaComponent },
+  { path: 'rutinas/detalle/:id', component: DetalleRutinaComponent },
+  { path: 'rutinas/editar/:id', component: EditarRutinaComponent },
+  { path: 'perfil-medico', component: PerfilMedicoComponent },
+  { path: 'plan-nutricional', component: PlanNutricionalComponent },
+  { path: 'plan-nutricional/crear-plan', component: CrearPlanComponent },
+  { path: 'plan-nutricional/detalle/:id', component: DetallePlanComponent },
+  { path: 'plan-nutricional/editar/:id', component: EditarPlanComponent },
+  { path: 'plan-nutricional/exportar', component: ExportarPlanComponent },
+  { path: 'ajustes', component: AjustesComponent },
+  { path: 'pagos', component: PagosListComponent },
+  { path: 'pagos/form', component: PagosFormComponent },
+  { path: 'pagos/detail/:id', component: PagosDetailComponent }
+];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],

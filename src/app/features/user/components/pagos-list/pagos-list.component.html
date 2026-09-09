@@ -1,0 +1,269 @@
+<div class="dashboard-layout">
+    <app-navbar></app-navbar>
+
+    <div class="dashboard-main">
+        <app-header></app-header>
+
+        <div class="dashboard-wrapper">
+            <div class="payments-page">
+                <div class="page-header">
+                    <div class="page-header__left">
+                        <div class="page-header__title-group">
+                            <div class="page-header__icon-wrapper">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2.5">
+                                    <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                                    <line x1="2" y1="10" x2="22" y2="10"></line>
+                                </svg>
+                            </div>
+                            <div>
+                                <h1 class="page-header__title">Mi Historial de Pagos</h1>
+                                <p class="page-header__subtitle">Visualiza el estado de tus transacciones y pagos de
+                                    membresía.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="page-header__actions">
+                        <button type="button" class="btn btn--primary" routerLink="/user/pagos/form">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                            Pagar Membresía
+                        </button>
+                    </div>
+                </div>
+
+                <!-- TARJETA DE MEMBRESÍA ACTUAL -->
+                <div class="membresia-status-banner" *ngIf="membresiaActiva">
+                    <div class="banner-info">
+                        <span class="badge-activo">{{ membresiaActiva.estado || 'ACTIVA' }}</span>
+                        <h3>{{ membresiaActiva.nombreMembresia }}</h3>
+                        <p>Vence el: <strong>{{ membresiaActiva.fechaVencimiento | date:'dd MMM yyyy' }}</strong></p>
+                    </div>
+                    <div class="banner-action">
+                        <span class="price-label">Valor plan:</span>
+                        <span class="price-value">${{ membresiaActiva.precioReal | number:'1.2-2' }}</span>
+                    </div>
+                </div>
+
+                <!-- BARRA DE FILTROS IDÉNTICA A ADMIN -->
+                <div class="filters-card">
+                    <div class="filters-card__search">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <input type="text" placeholder="Buscar plan o referencia..." [(ngModel)]="filtroActual.search"
+                            (keyup.enter)="applyFilters()" />
+                    </div>
+
+                    <div class="filters-card__selects">
+                        <div class="filter-group">
+                            <label>Estado</label>
+                            <select [(ngModel)]="filtroActual.estado" (change)="applyFilters()">
+                                <option value="TODOS">Todos</option>
+                                <option value="APROBADO">Aprobado</option>
+                                <option value="PENDIENTE">Pendiente</option>
+                                <option value="RECHAZADO">Rechazado</option>
+                                <option value="ANULADO">Anulado</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <label>Método de Pago</label>
+                            <select [(ngModel)]="filtroActual.metodoPago" (change)="applyFilters()">
+                                <option value="TODOS">Todos</option>
+                                <option value="EFECTIVO">Efectivo</option>
+                                <option value="TRANSFERENCIA_BANCOLOMBIA">Transferencia Bancolombia</option>
+                                <option value="TARJETA_CREDITO">Tarjeta Crédito</option>
+                                <option value="TARJETA_DEBITO">Tarjeta Débito</option>
+                                <option value="OTRO">Otro</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-group date-group">
+                            <label>Rango de Fechas</label>
+                            <div class="date-inputs">
+                                <input type="date" [(ngModel)]="startDateStr" (change)="applyFilters()" />
+                                <span>-</span>
+                                <input type="date" [(ngModel)]="endDateStr" (change)="applyFilters()" />
+                            </div>
+                        </div>
+
+                        <button class="btn-filters-icon" title="Limpiar filtros"
+                            (click)="clearFilters()">Limpiar</button>
+                    </div>
+                </div>
+
+                <!-- TABLA + PANEL LATERAL -->
+                <div class="main-content-layout" [class.with-detail]="selectedPayment">
+                    <div class="table-card-wrapper">
+                        <div class="table-container">
+                            <table class="custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>FECHA</th>
+                                        <th>MEMBRESÍA</th>
+                                        <th>MONTO</th>
+                                        <th>MÉTODO DE PAGO</th>
+                                        <th class="text-center">ESTADO</th>
+                                        <th class="text-center">ACCIONES</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let item of pagosList"
+                                        [class.selected]="selectedPayment?.idPago === item.idPago"
+                                        [class.row-anulado]="item.anulado" (click)="onSelectPayment(item)">
+                                        <td>
+                                            <div class="date-cell">
+                                                <span class="date-cell__date">{{ item.fechaPago | date:'dd MMM yyyy'
+                                                    }}</span>
+                                                <span class="date-cell__time">{{ item.fechaPago | date:'hh:mm a'
+                                                    }}</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="plan-cell">
+                                                <span class="plan-badge">{{ item.nombreMembresia }}</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="amount" [class.text-through]="item.anulado">
+                                                ${{ item.monto | number:'1.2-2' }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="method-cell">
+                                                <span class="method-tag">{{ item.metodoPago }}</span>
+                                                <span class="method-sub" *ngIf="item.numeroComprobante">Ref: {{
+                                                    item.numeroComprobante }}</span>
+                                            </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="status-pill"
+                                                [class.danger]="item.anulado || item.estado === 'RECHAZADO' || item.estado === 'ANULADO'"
+                                                [class.warning]="item.estado === 'PENDIENTE' || item.estado === 'in_process'"
+                                                [class.success]="!item.anulado && (item.estado === 'APROBADO' || !item.estado)">
+                                                {{ item.anulado ? 'ANULADO' : (item.estado || 'APROBADO') }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="actions-cell" (click)="$event.stopPropagation()">
+                                                <button class="action-btn" title="Ver Detalle"
+                                                    (click)="onSelectPayment(item, $event)">
+                                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                                                        stroke="currentColor" stroke-width="2">
+                                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                                        <circle cx="12" cy="12" r="3"></circle>
+                                                    </svg>
+                                                </button>
+                                                <button class="action-btn" title="Descargar PDF"
+                                                    (click)="descargarPdf(item.idPago, $event)">
+                                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                                                        stroke="currentColor" stroke-width="2">
+                                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                                        <polyline points="7 10 12 15 17 10"></polyline>
+                                                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr *ngIf="pagosList.length === 0 && !loading">
+                                        <td colspan="6" class="empty-row">
+                                            <div class="empty-state-content">
+                                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none"
+                                                    stroke="#94a3b8" stroke-width="1.5">
+                                                    <circle cx="12" cy="12" r="10"></circle>
+                                                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                                                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                                                </svg>
+                                                <p>No tienes pagos registrados en tu historial.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- PAGINACIÓN NUMÉRICA IGUAL A ADMIN -->
+                        <div class="pagination-footer" *ngIf="totalPages > 0">
+                            <span class="pagination-footer__info">Mostrando {{ startIndex }} a {{ endIndex }} de {{
+                                totalElements }} pagos</span>
+                            <div class="pagination-controls">
+                                <button class="page-btn" [disabled]="currentPage === 0"
+                                    (click)="goToPage(currentPage - 1)">‹</button>
+                                <button *ngFor="let page of pagesArray" class="page-btn"
+                                    [class.active]="page === currentPage" (click)="goToPage(page)">
+                                    {{ page + 1 }}
+                                </button>
+                                <button class="page-btn" [disabled]="currentPage >= totalPages - 1"
+                                    (click)="goToPage(currentPage + 1)">›</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PANEL LATERAL DE DETALLE -->
+                    <div class="detail-sidebar" *ngIf="selectedPayment">
+                        <div class="detail-header">
+                            <h3>Detalle de Transacción</h3>
+                            <button class="close-btn" (click)="selectedPayment = null">✕</button>
+                        </div>
+
+                        <div class="detail-body">
+                            <div class="status-pill lg"
+                                [class.success]="!selectedPayment.anulado && (selectedPayment.estado === 'APROBADO' || !selectedPayment.estado)"
+                                [class.warning]="selectedPayment.estado === 'PENDIENTE' || selectedPayment.estado === 'in_process'"
+                                [class.danger]="selectedPayment.anulado || selectedPayment.estado === 'RECHAZADO' || selectedPayment.estado === 'ANULADO'">
+                                {{ selectedPayment.anulado ? 'ANULADO' : (selectedPayment.estado || 'APROBADO') }}
+                            </div>
+                            <div class="main-amount">${{ selectedPayment.monto | number:'1.2-2' }}</div>
+                            <div class="plan-title">{{ selectedPayment.nombreMembresia }}</div>
+
+                            <hr />
+
+                            <div class="section-title">Información General</div>
+                            <div class="info-grid">
+                                <div class="row"><span class="label">Fecha</span><span class="val">{{
+                                        selectedPayment.fechaPago | date:'dd MMM yyyy - hh:mm a' }}</span></div>
+                                <div class="row"><span class="label">Método</span><span class="val">{{
+                                        selectedPayment.metodoPago }}</span></div>
+                                <div class="row" *ngIf="selectedPayment.numeroComprobante"><span
+                                        class="label">Referencia</span><span class="val">{{
+                                        selectedPayment.numeroComprobante }}</span></div>
+                                <div class="row"><span class="label">Socio</span><span class="val font-bold">{{
+                                        selectedPayment.nombreSocio }}</span></div>
+                            </div>
+
+                            <div *ngIf="selectedPayment.anulado">
+                                <hr />
+                                <div class="section-title text-red">Anulación</div>
+                                <div class="info-grid">
+                                    <div class="row"><span class="label">Motivo</span><span class="val text-red">{{
+                                            selectedPayment.motivoAnulacion }}</span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="detail-footer">
+                            <button class="btn btn--outline-dark full-width"
+                                (click)="descargarPdf(selectedPayment.idPago)">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="7 10 12 15 17 10"></polyline>
+                                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                                </svg>
+                                Descargar Comprobante PDF
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

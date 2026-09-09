@@ -68,8 +68,8 @@
             <span>Rutinas</span>
         </a>
 
-        <!-- Pagos -->
-        <a routerLink="/user/payments" routerLinkActive="sidebar__nav-item--active" class="sidebar__nav-item">
+        <!-- Pagos (Actualizado a /user/pagos) -->
+        <a routerLink="/user/pagos" routerLinkActive="sidebar__nav-item--active" class="sidebar__nav-item">
             <span class="sidebar__icon-wrapper">
                 <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" stroke-width="2"/>
@@ -91,7 +91,7 @@
             <span>Plan Nutricional</span>
         </a>
 
-        <!-- Ajustes (lo dejamos en el sidebar para desktop) -->
+        <!-- Ajustes -->
         <a routerLink="/user/ajustes" routerLinkActive="sidebar__nav-item--active" class="sidebar__nav-item">
             <span class="sidebar__icon-wrapper">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -129,7 +129,6 @@
      MENÚ INFERIOR (solo móvil)
      ========================================== -->
 <nav class="bottom-nav">
-    <!-- 1. Dashboard -->
     <a routerLink="/user" routerLinkActive="bottom-nav__item--active" [routerLinkActiveOptions]="{ exact: true }" class="bottom-nav__item">
         <svg viewBox="0 -0.5 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path fill-rule="evenodd" clip-rule="evenodd" d="M9.918 10.0005H7.082C6.66587 9.99708 6.26541 10.1591 5.96873 10.4509C5.67204 10.7427 5.50343 11.1404 5.5 11.5565V17.4455C5.5077 18.3117 6.21584 19.0078 7.082 19.0005H9.918C10.3341 19.004 10.7346 18.842 11.0313 18.5502C11.328 18.2584 11.4966 17.8607 11.5 17.4445V11.5565C11.4966 11.1404 11.328 10.7427 11.0313 10.4509C10.7346 10.1591 10.3341 9.99708 9.918 10.0005Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -140,7 +139,6 @@
         <span>Inicio</span>
     </a>
 
-    <!-- 2. Perfil -->
     <a routerLink="/user/profile" routerLinkActive="bottom-nav__item--active" class="bottom-nav__item">
         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -149,7 +147,6 @@
         <span>Perfil</span>
     </a>
 
-    <!-- 3. Membresías -->
     <a routerLink="/user/membresias" routerLinkActive="bottom-nav__item--active" class="bottom-nav__item">
         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="2"/>
@@ -159,7 +156,6 @@
         <span>Membresías</span>
     </a>
 
-    <!-- 4. Rutinas -->
     <a routerLink="/user/rutinas" routerLinkActive="bottom-nav__item--active" class="bottom-nav__item">
         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M6 4v16" stroke="currentColor" stroke-width="2"/>
@@ -171,8 +167,8 @@
         <span>Rutinas</span>
     </a>
 
-    <!-- 5. Pagos -->
-    <a routerLink="/user/payments" routerLinkActive="bottom-nav__item--active" class="bottom-nav__item">
+    <!-- Pagos (Actualizado a /user/pagos) -->
+    <a routerLink="/user/pagos" routerLinkActive="bottom-nav__item--active" class="bottom-nav__item">
         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" stroke-width="2"/>
             <path d="M2 10h20" stroke="currentColor" stroke-width="2"/>
@@ -181,7 +177,6 @@
         <span>Pagos</span>
     </a>
 
-    <!-- 6. Plan Nutricional -->
     <a routerLink="/user/plan-nutricional" routerLinkActive="bottom-nav__item--active" class="bottom-nav__item">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M12 21s6-3 6-8V5l-6-2.5L6 5v8c0 5 6 8 6 8z"/>

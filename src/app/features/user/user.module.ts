@@ -22,6 +22,9 @@ import { DetallePlanComponent } from './components/plan-nutricional/detalle-plan
 import { EditarPlanComponent } from './components/plan-nutricional/editar-plan/editar-plan.component';
 import { ExportarPlanComponent } from './components/plan-nutricional/exportar-plan/exportar-plan.component';
 import { AjustesComponent } from './components/ajustes/ajustes.component';
+import { PagosListComponent } from './components/pagos-list/pagos-list.component';
+import { PagosFormComponent } from './components/pagos-form/pagos-form.component';
+import { PagosDetailComponent } from './components/pagos-detail/pagos-detail.component';
 
 @NgModule({
   declarations: [
@@ -40,7 +43,10 @@ import { AjustesComponent } from './components/ajustes/ajustes.component';
     DetallePlanComponent,
     EditarPlanComponent,
     ExportarPlanComponent,
-    AjustesComponent
+    AjustesComponent,
+    PagosListComponent,
+    PagosFormComponent,
+    PagosDetailComponent
   ],
   imports: [
     CommonModule,
