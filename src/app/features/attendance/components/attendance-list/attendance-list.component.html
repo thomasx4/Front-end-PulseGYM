@@ -67,19 +67,25 @@
         <h2 class="section-subtitle">Registro de Asistencia</h2>
 
         <div class="toolbar-actions flex flex-wrap gap-2 items-center">
-
           <app-attendance-filter (aplicar)="onAplicarFiltros($event)"></app-attendance-filter>
 
-          <button type="button" class="btn-export-pdf" (click)="exportarReportePDF()">
-            <span class="export-btn__icon">
-              <svg *ngIf="!cargando" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                stroke-width="2">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                <polyline points="7 10 12 15 17 10"></polyline>
-                <line x1="12" y1="15" x2="12" y2="3"></line>
-              </svg>
-            </span>
-            <span class="export-btn__label">Exportar</span>
+          <button type="button" class="btn-export btn-export--pdf" (click)="exportarAfluenciaHoyPdf()" [disabled]="cargandoExport">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span class="export-btn__label">PDF</span>
+          </button>
+
+          <button type="button" class="btn-export btn-export--excel" (click)="exportarAfluenciaHoyExcel()" [disabled]="cargandoExport">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span class="export-btn__label">Excel</span>
           </button>
         </div>
       </div>

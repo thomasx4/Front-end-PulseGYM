@@ -4,6 +4,7 @@ import { AssignMembershipComponent } from './components/assign-membership/assign
 import { MembershipListComponent } from './components/membership-list/membership-list.component';
 import { MembershipFormComponent } from './components/membership-form/membership-form.component';
 import { MembershipDetailComponent } from './components/membership-detail/membership-detail.component';
+import { OverdueMembersComponent } from './components/overdue-members/overdue-members.component';
 
 const routes: Routes = [
   { path: 'assign', component: AssignMembershipComponent },
@@ -11,6 +12,7 @@ const routes: Routes = [
   { path: 'detail/:id', component: MembershipDetailComponent },
   { path: 'edit/:id', component: MembershipFormComponent },
   { path: 'new', component: MembershipFormComponent },
+  { path: 'overdue', component: OverdueMembersComponent },
   { path: '', redirectTo: 'assign', pathMatch: 'full' },
 ];
 

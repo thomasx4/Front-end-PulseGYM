@@ -87,6 +87,27 @@
                 </a>
             </div>
         </div>
+        <div class="sidebar__nav-item--parent" [class.open]="isPaymentsOpen" (mouseenter)="isPaymentsOpen = true"
+            (mouseleave)="isPaymentsOpen = false">
+
+            <div class="sidebar__nav-item" [class.sidebar__nav-item--active]="isPaymentsActive()"
+                (click)="goToPaymentsList()">
+                <span [innerHTML]="menuItems[1]?.iconHtml || getMembershipIcon()" class="sidebar__icon-wrapper"></span>
+                <span>Pagos</span>
+                <svg class="sidebar__dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+            </div>
+
+            <div class="sidebar__submenu" *ngIf="isPaymentsOpen">
+                <a *ngFor="let child of paymentsChildren" [routerLink]="child.route"
+                    routerLinkActive="sidebar__submenu-item--active" class="sidebar__submenu-item">
+                    <span [innerHTML]="child.iconHtml" class="sidebar__icon-wrapper"></span>
+                    <span>{{ child.label }}</span>
+                </a>
+            </div>
+        </div>
     </nav>
 
     <button class="sidebar__logout" (click)="logout()">

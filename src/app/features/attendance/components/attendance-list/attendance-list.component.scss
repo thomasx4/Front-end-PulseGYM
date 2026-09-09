@@ -230,23 +230,35 @@
 }
 
 
-.export-btn {
+.btn-export {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  background: #ffffff;
-  border: 1px solid #e8e9ef;
+  gap: 6px;
+  padding: 8px 14px;
   border-radius: 8px;
-  padding: 0.6rem 1.2rem;
-  font-size: 0.9rem;
-  color: #333;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border: 1px solid transparent;
   cursor: pointer;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
-  transition: box-shadow 0.15s ease, background-color 0.15s ease;
+  transition: all 0.2s;
 
-  &:hover {
-    background-color: #f9fafb;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  &--pdf {
+    background: #fef2f2;
+    color: #991b1b;
+    border-color: #fecaca;
+    &:hover:not(:disabled) { background: #fee2e2; }
+  }
+
+  &--excel {
+    background: #f0fdf4;
+    color: #166534;
+    border-color: #bbf7d0;
+    &:hover:not(:disabled) { background: #dcfce7; }
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
   }
 
   &__icon {

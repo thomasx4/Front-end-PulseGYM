@@ -1,0 +1,143 @@
+<div class="payment-reports-page">
+
+    <header class="page-header">
+        <div class="page-title-box">
+            <h1 class="page-title">Reportes Financieros</h1>
+            <p class="page-subtitle">Cierre de caja diario y balances contables mensuales</p>
+        </div>
+    </header>
+
+    <div class="reports-grid">
+
+        <article class="report-card">
+            <div class="card-header">
+                <div class="header-info">
+                    <span class="badge-tag badge-tag--daily">JORNADA DIARIA</span>
+                    <h3>Ingresos por Día</h3>
+                </div>
+
+                <div class="date-picker-box">
+                    <label>Fecha de Consulta</label>
+                    <input type="date" [(ngModel)]="fechaDiaria" (change)="cargarIngresosDiarios()"
+                        class="control-input" />
+                </div>
+            </div>
+
+            <div class="card-body">
+                <div class="kpi-grid">
+                    <div class="kpi-box">
+                        <span class="kpi-label">TOTAL RECAUDADO</span>
+                        <h2 class="kpi-value text-emerald">
+                            {{ cargandoDiario ? '...' : (totalDiario | currency:'COP':'symbol':'1.0-0') }}
+                        </h2>
+                    </div>
+
+                    <div class="kpi-box">
+                        <span class="kpi-label">PAGOS REGISTRADOS</span>
+                        <h2 class="kpi-value">
+                            {{ cargandoDiario ? '...' : cantidadPagosDiarios }}
+                            <small>transacciones</small>
+                        </h2>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-footer">
+                <span class="footer-label">Exportar cierre de la jornada:</span>
+                <div class="action-buttons">
+                    <button type="button" class="btn-export btn-export--pdf" (click)="exportarDiarioPdf()"
+                        [disabled]="exportando || cargandoDiario">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                        </svg>
+                        <span>PDF Diario</span>
+                    </button>
+
+                    <button type="button" class="btn-export btn-export--excel" (click)="exportarDiarioExcel()"
+                        [disabled]="exportando || cargandoDiario">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                        </svg>
+                        <span>Excel Diario</span>
+                    </button>
+                </div>
+            </div>
+        </article>
+
+        <article class="report-card">
+            <div class="card-header">
+                <div class="header-info">
+                    <span class="badge-tag badge-tag--monthly">BALANCE CONTABLE</span>
+                    <h3>Consolidado Mensual</h3>
+                </div>
+
+                <div class="selectors-box">
+                    <div class="selector-field">
+                        <label>Mes</label>
+                        <select [(ngModel)]="mesMensual" (change)="cargarIngresosMensuales()" class="control-input">
+                            <option *ngFor="let m of meses" [ngValue]="m.valor">{{ m.nombre }}</option>
+                        </select>
+                    </div>
+
+                    <div class="selector-field">
+                        <label>Año</label>
+                        <select [(ngModel)]="anioMensual" (change)="cargarIngresosMensuales()" class="control-input">
+                            <option [ngValue]="2026">2026</option>
+                            <option [ngValue]="2025">2025</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <div class="kpi-grid">
+                    <div class="kpi-box">
+                        <span class="kpi-label">RECAUDACIÓN DEL MES</span>
+                        <h2 class="kpi-value text-indigo">
+                            {{ cargandoMensual ? '...' : ((totalMensual || 0) | currency:'COP':'symbol':'1.0-0') }}
+                        </h2>
+                    </div>
+
+                    <div class="kpi-box">
+                        <span class="kpi-label">TIPOS MEMBRESÍAS</span>
+                        <h2 class="kpi-value">
+                            {{ cargandoMensual ? '...' : (totalPagosMensuales || 0) }}
+                            <small>membresías</small>
+                        </h2>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-footer">
+                <span class="footer-label">Exportar balance del mes:</span>
+                <div class="action-buttons">
+                    <button type="button" class="btn-export btn-export--pdf" (click)="exportarMensualPdf()"
+                        [disabled]="exportando || cargandoMensual">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                        </svg>
+                        <span>PDF Mensual</span>
+                    </button>
+
+                    <button type="button" class="btn-export btn-export--excel" (click)="exportarMensualExcel()"
+                        [disabled]="exportando || cargandoMensual">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                        </svg>
+                        <span>Excel Mensual</span>
+                    </button>
+                </div>
+            </div>
+        </article>
+
+    </div>
+
+</div>

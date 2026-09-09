@@ -110,11 +110,28 @@ export interface SocioAsignado {
     };
 }
 
+export interface SocioEnMoraDTO {
+    idSocio: number;
+    nombreCompleto: string;
+    identificacion: string;
+    telefono: string;
+    email: string;
+    tipoMembresia: string;
+    estadoMembresia: string;
+    fechaVencimiento: string;
+    diasVencido: number | null;
+}
+
+export interface MoraResponseDTO {
+    sociosEnMora: SocioEnMoraDTO[];
+}
+
 @Injectable({
     providedIn: 'root',
 })
 export class MembershipService {
     private apiUrl = `${environment.apiUrl}/pg-ms-users/api/v1`;
+    private reportsApiUrl = `${environment.apiUrl}/pg-ms-reports/api/reportes`;
 
     constructor(private http: HttpClient) { }
 
@@ -309,5 +326,35 @@ export class MembershipService {
             `${this.apiUrl}/socios-membresias/socios-activos-paginados`,
             { params }
         );
+    }
+
+    obtenerSociosEnMora(fechaInicio?: string, fechaFin?: string): Observable<MoraResponseDTO> {
+        let params = new HttpParams();
+        if (fechaInicio) params = params.set('fechaInicio', fechaInicio);
+        if (fechaFin) params = params.set('fechaFin', fechaFin);
+
+        return this.http.get<MoraResponseDTO>(`${this.reportsApiUrl}/mora`, { params });
+    }
+
+    exportarMoraExcel(fechaInicio?: string, fechaFin?: string): Observable<Blob> {
+        let params = new HttpParams();
+        if (fechaInicio) params = params.set('fechaInicio', fechaInicio);
+        if (fechaFin) params = params.set('fechaFin', fechaFin);
+
+        return this.http.get(`${this.reportsApiUrl}/mora/excel`, {
+            params,
+            responseType: 'blob'
+        });
+    }
+
+    exportarMoraPdf(fechaInicio?: string, fechaFin?: string): Observable<Blob> {
+        let params = new HttpParams();
+        if (fechaInicio) params = params.set('fechaInicio', fechaInicio);
+        if (fechaFin) params = params.set('fechaFin', fechaFin);
+
+        return this.http.get(`${this.reportsApiUrl}/mora/pdf`, {
+            params,
+            responseType: 'blob'
+        });
     }
 }

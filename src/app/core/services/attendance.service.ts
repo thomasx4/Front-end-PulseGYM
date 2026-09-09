@@ -10,6 +10,7 @@ import { HistorialAccesoResponse, FiltrosHistorial } from '../../features/attend
 })
 export class AttendanceService {
   private baseUrl = `${environment.apiUrl}/pg-ms-operation/api`;
+  private reportsApiUrl = `${environment.apiUrl}/pg-ms-reports/api/reportes`;
   private apiUrl = `${this.baseUrl}/asistencias`;
 
   private historialApiUrl = `${this.baseUrl}/historial-accesos`;
@@ -55,5 +56,44 @@ export class AttendanceService {
     params = params.set('size', (filtros.size ?? 10).toString());
 
     return this.http.get<HistorialAccesoResponse>(this.historialApiUrl, { params });
+  }
+
+  exportarExcelAfluencia(fecha: string): Observable<Blob> {
+    const params = new HttpParams().set('fecha', fecha);
+    return this.http.get(`${this.reportsApiUrl}/afluencia/exportar/excel`, {
+      params,
+      responseType: 'blob'
+    });
+  }
+
+  exportarPdfAfluencia(fecha: string): Observable<Blob> {
+    const params = new HttpParams().set('fecha', fecha);
+    return this.http.get(`${this.reportsApiUrl}/afluencia/exportar/pdf`, {
+      params,
+      responseType: 'blob'
+    });
+  }
+
+
+  exportarTendenciaPdf(tipoReporte: 'SEMANAL' | 'MENSUAL', fechaReferencia: string): Observable<Blob> {
+    const params = new HttpParams()
+      .set('tipoReporte', tipoReporte)
+      .set('fechaReferencia', fechaReferencia);
+
+    return this.http.get(`${this.reportsApiUrl}/tendencia/exportar/pdf`, {
+      params,
+      responseType: 'blob'
+    });
+  }
+
+  exportarTendenciaExcel(tipoReporte: 'SEMANAL' | 'MENSUAL', fechaReferencia: string): Observable<Blob> {
+    const params = new HttpParams()
+      .set('tipoReporte', tipoReporte)
+      .set('fechaReferencia', fechaReferencia);
+
+    return this.http.get(`${this.reportsApiUrl}/tendencia/exportar/excel`, {
+      params,
+      responseType: 'blob'
+    });
   }
 }
