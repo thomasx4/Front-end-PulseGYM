@@ -17,8 +17,10 @@ export class LoginComponent implements OnInit, OnDestroy {
   loading = false;
   errorMessage = '';
   successMessage = '';
-  private subscription?: Subscription;
+  
+  showSuccessPopup = false;
 
+  private subscription?: Subscription;
   private idleService = inject(IdleService);
 
   lockRemainingSeconds: number = 0;
@@ -133,14 +135,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     return this.lockRemainingSeconds;
   }
 
-  private extractBlockTimeFromMessage(message: string): number | null {
-    const match = message.match(/bloqueada por (\d+) segundos/i);
-    if (match) {
-      return parseInt(match[1], 10);
-    }
-    return null;
-  }
-
   onSubmit() {
     if (this.isLoginLocked()) {
       const seconds = this.getRemainingSeconds();
@@ -160,16 +154,16 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     this.authService.login(this.loginForm.value).subscribe({
       next: (response: any) => {
-        this.loading = false;
-
         const message = response?.message || '';
 
         if (message.includes('no se encuentra registrado')) {
+          this.loading = false;
           this.errorMessage = message;
           return;
         }
 
         if (message.includes('bloqueada por')) {
+          this.loading = false;
           this.authService.setGlobalLock();
           this.startLockTimer();
           this.errorMessage = message;
@@ -177,8 +171,8 @@ export class LoginComponent implements OnInit, OnDestroy {
         }
 
         if (message.includes('incorrectas') || message.includes('quedan')) {
+          this.loading = false;
           this.errorMessage = message;
-
           if (message.includes('quedan 0 intentos')) {
             this.authService.setGlobalLock();
             this.startLockTimer();
@@ -193,32 +187,29 @@ export class LoginComponent implements OnInit, OnDestroy {
         }
         this.lockRemainingSeconds = 0;
 
-        this.successMessage =
-          message || '¡Inicio de sesión exitoso! Redirigiendo...';
+        this.loading = false;
+        this.showSuccessPopup = true;
+
         const role = this.authService.getCurrentRole();
 
         setTimeout(() => {
           this.redirectUserByRole(role);
-        }, 1500);
+        }, 500);
       },
       error: (error) => {
         this.loading = false;
 
         if (error.status === 401 || error.status === 400) {
           const message = error.error?.message || 'Credenciales incorrectas.';
-
           if (message.includes('bloqueada por')) {
             this.authService.setGlobalLock();
             this.startLockTimer();
           }
-
           this.errorMessage = message;
         } else if (error.status === 0) {
-          this.errorMessage =
-            'No se puede conectar al servidor. Verifica tu conexión.';
+          this.errorMessage = 'No se puede conectar al servidor. Verifica tu conexión.';
         } else {
-          this.errorMessage =
-            error.message || 'Error inesperado. Intenta nuevamente.';
+          this.errorMessage = error.message || 'Error inesperado. Intenta nuevamente.';
         }
       },
     });

@@ -21,9 +21,7 @@
                 <p class="form-subtitle">Inicia sesion para acceder a todas las funcionalidades.</p>
             </div>
 
-            <div *ngIf="successMessage" class="alert alert-success">
-                {{ successMessage }}
-            </div>
+            <!-- ADVERTENCIA O ERROR -->
             <div *ngIf="errorMessage" class="alert alert-danger">
                 {{ errorMessage }}
             </div>
@@ -121,5 +119,18 @@
                 <path d="M12 17h.01"></path>
             </svg>
         </button>
+    </div>
+</div>
+
+<!-- VENTANA EMERGENTE CON CHULO VERDE DE ÉXITO -->
+<div class="success-popup-overlay" *ngIf="showSuccessPopup">
+    <div class="success-popup-card">
+        <div class="success-icon-circle">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+        </div>
+        <h3>¡Inicio de sesión exitoso!</h3>
+        <p>Redirigiendo a tu panel...</p>
     </div>
 </div>
