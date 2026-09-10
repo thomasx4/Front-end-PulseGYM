@@ -49,7 +49,7 @@ export class AuthService {
   constructor(
     private http: HttpClient,
     private router: Router,
-    private themeService: ThemeService //  Inyectar ThemeService
+    private themeService: ThemeService
   ) { }
 
   registerCredentials(datos: RegisterRequestDTO): Observable<MessageGlobalDTO> {
@@ -167,7 +167,6 @@ export class AuthService {
             try {
               const decoded: any = jwtDecode(token);
 
-              // Obtener userId del token si no vino en la respuesta
               if (!userId) {
                 userId = decoded.id || decoded.userId || decoded.sub || decoded.idUsuario || '';
               }
@@ -191,10 +190,8 @@ export class AuthService {
               username = credentials.email.split('@')[0];
             }
 
-            // GUARDAR userId EN LOCALSTORAGE
             if (userId) {
               localStorage.setItem('userId', userId.toString());
-              console.log('UserId guardado:', userId);
             }
 
             const user: User = {
@@ -214,9 +211,11 @@ export class AuthService {
             this.authStatus.next(true);
             this.requiereCambioSubject.next(requiereCambio);
 
-            // INICIALIZAR EL TEMA DEL USUARIO DESPUÉS DEL LOGIN
             if (userId) {
-              this.themeService.initializeThemeForUser(userId.toString());
+              try {
+                this.themeService.initializeThemeForUser(userId.toString());
+              } catch (e) {
+              }
             }
           }
         })
@@ -348,7 +347,6 @@ export class AuthService {
         map(response => {
           const data = response.data || response;
 
-          // Guardar userId del perfil también
           const userId = data.idUsuario?.toString() || data.id?.toString() || '0';
           if (userId && userId !== '0') {
             localStorage.setItem('userId', userId);
