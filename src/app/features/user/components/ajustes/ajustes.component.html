@@ -33,12 +33,11 @@
                             </div>
                             <div>
                                 <h2>Preferencias</h2>
-                                <p>Personaliza tu experiencia en la aplicación</p>
+                                <p>Personaliza tu experiencia en la aplicacion</p>
                             </div>
                         </div>
 
                         <div class="preferencias-grid">
-                            <!-- Modo Oscuro -->
                             <div class="preferencia-item">
                                 <div class="preferencia-info">
                                     <div class="preferencia-icon dark-mode">
@@ -48,7 +47,7 @@
                                     </div>
                                     <div>
                                         <h4>Modo oscuro</h4>
-                                        <p>Cambia la apariencia de la aplicación</p>
+                                        <p>Cambia la apariencia de la aplicacion</p>
                                     </div>
                                 </div>
                                 <label class="toggle-switch">
@@ -59,7 +58,7 @@
                         </div>
                     </div>
 
-                    <!-- Notificaciones - Diseño con tarjetas visuales -->
+                    <!-- Notificaciones -->
                     <div class="form-section">
                         <div class="section-header">
                             <div class="section-icon">
@@ -71,25 +70,23 @@
                             </div>
                             <div>
                                 <h2>Notificaciones</h2>
-                                <p>Elige cómo quieres recibir tus notificaciones</p>
+                                <p>Elige como quieres recibir tus notificaciones</p>
                             </div>
                         </div>
 
-                        <!-- Tarjetas de selección de canal -->
                         <div class="canales-grid">
-                            <div class="canal-card" 
+                            <!-- Email + WhatsApp -->
+                            <div class="canal-card"
                                  [class.active]="ajustesForm.get('canalNotificacion')?.value === 'AMBOS'"
                                  (click)="seleccionarCanal('AMBOS')">
                                 <div class="canal-card__icon ambos">
                                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
                                         <polyline points="22,6 12,13 2,6"/>
-                                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-                                        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
                                     </svg>
                                 </div>
                                 <div class="canal-card__info">
-                                    <h4>Email y Push</h4>
+                                    <h4>Email y WhatsApp</h4>
                                     <p>Recibe notificaciones por ambos canales</p>
                                 </div>
                                 <div class="canal-card__check">
@@ -99,7 +96,8 @@
                                 </div>
                             </div>
 
-                            <div class="canal-card" 
+                            <!-- Solo Email -->
+                            <div class="canal-card"
                                  [class.active]="ajustesForm.get('canalNotificacion')?.value === 'EMAIL'"
                                  (click)="seleccionarCanal('EMAIL')">
                                 <div class="canal-card__icon email">
@@ -119,22 +117,21 @@
                                 </div>
                             </div>
 
-                            <div class="canal-card" 
-                                 [class.active]="ajustesForm.get('canalNotificacion')?.value === 'PUSH'"
-                                 (click)="seleccionarCanal('PUSH')">
-                                <div class="canal-card__icon push">
+                            <!-- Solo WhatsApp -->
+                            <div class="canal-card"
+                                 [class.active]="ajustesForm.get('canalNotificacion')?.value === 'WHATSAPP'"
+                                 (click)="seleccionarCanal('WHATSAPP')">
+                                <div class="canal-card__icon whatsapp">
                                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-                                        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-                                        <circle cx="12" cy="12" r="2"/>
+                                        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
                                     </svg>
                                 </div>
                                 <div class="canal-card__info">
-                                    <h4>Solo Push</h4>
-                                    <p>Recibe notificaciones en tiempo real</p>
+                                    <h4>Solo WhatsApp</h4>
+                                    <p>Recibe notificaciones por WhatsApp</p>
                                 </div>
                                 <div class="canal-card__check">
-                                    <svg *ngIf="ajustesForm.get('canalNotificacion')?.value === 'PUSH'" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                    <svg *ngIf="ajustesForm.get('canalNotificacion')?.value === 'WHATSAPP'" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                                         <polyline points="20 6 9 17 4 12"/>
                                     </svg>
                                 </div>
@@ -167,8 +164,8 @@
                                 </div>
                                 <div class="soporte-card__content">
                                     <h4>Contactar soporte</h4>
-                                    <p>Envíanos un correo y te ayudaremos</p>
-                                    <span class="soporte-card__action">soportepulsegym&#64;gmail.com →</span>
+                                    <p>Envianos un correo y te ayudaremos</p>
+                                    <span class="soporte-card__action">soportepulsegym&#64;gmail.com -&gt;</span>
                                 </div>
                             </div>
 
@@ -182,8 +179,8 @@
                                 </div>
                                 <div class="soporte-card__content">
                                     <h4>Preguntas frecuentes</h4>
-                                    <p>Encuentra respuestas rápidas</p>
-                                    <span class="soporte-card__action">Ver FAQ →</span>
+                                    <p>Encuentra respuestas rapidas</p>
+                                    <span class="soporte-card__action">Ver FAQ -&gt;</span>
                                 </div>
                             </div>
 
@@ -196,9 +193,9 @@
                                     </svg>
                                 </div>
                                 <div class="soporte-card__content">
-                                    <h4>Términos y condiciones</h4>
-                                    <p>Conoce nuestras políticas</p>
-                                    <span class="soporte-card__action">Ver términos →</span>
+                                    <h4>Terminos y condiciones</h4>
+                                    <p>Conoce nuestras politicas</p>
+                                    <span class="soporte-card__action">Ver terminos -&gt;</span>
                                 </div>
                             </div>
 
@@ -210,15 +207,15 @@
                                     </svg>
                                 </div>
                                 <div class="soporte-card__content">
-                                    <h4>Política de privacidad</h4>
+                                    <h4>Politica de privacidad</h4>
                                     <p>Protegemos tus datos</p>
-                                    <span class="soporte-card__action">Ver política →</span>
+                                    <span class="soporte-card__action">Ver politica -&gt;</span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Botón Guardar -->
+                    <!-- Boton Guardar -->
                     <div class="form-actions">
                         <button type="submit" class="btn-guardar" [disabled]="isLoading">
                             <ng-container *ngIf="!isLoading">
@@ -241,7 +238,7 @@
     </div>
 </div>
 
-<!-- Modal de Éxito -->
+<!-- Modal de Exito -->
 <div class="modal-overlay" *ngIf="showSuccessModal">
     <div class="modal-content success-modal">
         <div class="modal-icon success-icon">
@@ -250,7 +247,7 @@
                 <polyline points="22 4 12 14.01 9 11.01"/>
             </svg>
         </div>
-        <h3>¡Ajustes guardados!</h3>
+        <h3>Ajustes guardados!</h3>
         <p>Tus preferencias han sido actualizadas correctamente.</p>
         <div class="modal-actions">
             <button class="modal-btn modal-btn-primary" (click)="cerrarSuccessModal()">Entendido</button>
@@ -268,7 +265,7 @@
                 <line x1="12" y1="16" x2="12.01" y2="16"/>
             </svg>
         </div>
-        <h3>¡Ups! Algo salió mal</h3>
+        <h3>Algo salio mal</h3>
         <p>{{ errorMessage }}</p>
         <div class="modal-actions">
             <button class="modal-btn modal-btn-primary" (click)="cerrarErrorModal()">Entendido</button>

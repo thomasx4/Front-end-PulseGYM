@@ -19,16 +19,14 @@ export class AjustesComponent implements OnInit {
 
   private readonly soporteEmail = 'soportepulsegym@gmail.com';
 
-  // URLs de los PDFs en Google Drive
   private readonly urlPdfGeneral = 'https://drive.google.com/file/d/1LafUWZUpaYUWZKMCojw9MwXzEXv4qB2J/view?usp=sharing';
-  
-  // URL para FAQ
+
   private readonly urlFaq = 'https://drive.google.com/file/d/1LafUWZUpaYUWZKMCojw9MwXzEXv4qB2J/view?usp=sharing';
 
   public canalesNotificacion = [
-    { value: 'AMBOS', label: 'Email y Push' },
+    { value: 'AMBOS', label: 'Email y WhatsApp' },
     { value: 'EMAIL', label: 'Solo Email' },
-    { value: 'PUSH', label: 'Solo Push' }
+    { value: 'WHATSAPP', label: 'Solo WhatsApp' }
   ];
 
   constructor(
@@ -38,7 +36,7 @@ export class AjustesComponent implements OnInit {
     private ajustesService: AjustesService
   ) {
     this.isDarkMode = this.themeService.isDarkMode();
-    
+
     this.ajustesForm = this.fb.group({
       modoOscuro: [this.isDarkMode],
       canalNotificacion: ['AMBOS']
@@ -64,7 +62,7 @@ export class AjustesComponent implements OnInit {
       next: (response) => {
         const data = response.data || response;
         console.log('Preferencias cargadas:', data);
-        
+
         this.ajustesForm.patchValue({
           canalNotificacion: data.preferencia || 'AMBOS'
         });
@@ -124,11 +122,11 @@ export class AjustesComponent implements OnInit {
     const cuerpo = encodeURIComponent(
       'Hola, equipo de Pulse Gym.\n\n' +
       'Me comunico con ustedes para consultar sobre:\n\n' +
-      '[Describe aquí tu consulta]\n\n' +
+      '[Describe aqui tu consulta]\n\n' +
       'Quedo atento a su respuesta.\n\n' +
       'Saludos cordiales.'
     );
-    
+
     window.open(
       `https://mail.google.com/mail/?view=cm&fs=1&to=${email}&su=${asunto}&body=${cuerpo}`,
       '_blank'
