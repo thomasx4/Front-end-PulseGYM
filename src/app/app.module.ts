@@ -15,6 +15,12 @@ import { AttendanceModule } from './features/attendance/attendance.module';
 import { LoadingInterceptor } from './core/interceptors/loading.interceptor';
 import { ThemeInitializerService } from './core/services/theme-initializer.service';
 import { PaymentReportsComponent } from './features/payments/components/payment-reports/payment-reports.component';
+import { NotificationLayoutComponent } from './features/notifications/notification-layout/notification-layout.component';
+import { PreferenciasUsuarioComponent } from './features/notifications/components/preferencias-usuario/preferencias-usuario.component';
+import { AdminPlantillasComponent } from './features/notifications/components/admin-plantillas/admin-plantillas.component';
+import { AdminDisenosComponent } from './features/notifications/components/admin-disenos/admin-disenos.component';
+import { AdminConfiguracionComponent } from './features/notifications/components/admin-configuracion/admin-configuracion.component';
+import { AdminEnvioManualComponent } from './features/notifications/components/admin-envio-manual/admin-envio-manual.component';
 
 export function initializeTheme(themeInitializer: ThemeInitializerService) {
   return () => themeInitializer.initializeTheme();
@@ -23,6 +29,12 @@ export function initializeTheme(themeInitializer: ThemeInitializerService) {
 @NgModule({
   declarations: [
     AppComponent,
+    NotificationLayoutComponent,
+    PreferenciasUsuarioComponent,
+    AdminPlantillasComponent,
+    AdminDisenosComponent,
+    AdminConfiguracionComponent,
+    AdminEnvioManualComponent,
   ],
   imports: [
     BrowserModule,
