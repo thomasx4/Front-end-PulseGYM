@@ -8,7 +8,7 @@ RUN npm run build -- --configuration production
 
 # Etapa 2: Servir la aplicación con Nginx
 FROM nginx:alpine
-COPY --from=build /app/dist/front-end /usr/share/nginx/html
+COPY --from=build /app/dist/front-end/browser /usr/share/nginx/html/browser
 # Copiamos nuestro nginx.conf personalizado para que maneje las rutas de Angular
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
