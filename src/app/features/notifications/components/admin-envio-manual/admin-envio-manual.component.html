@@ -1,1 +1,44 @@
-<p>admin-envio-manual works!</p>
+<div class="p-6 max-w-3xl mx-auto">
+  <h2 class="text-2xl font-bold text-gray-800 mb-6">Envío Manual de Notificaciones</h2>
+
+  <div *ngIf="mensajeResultado" class="mb-4 p-4 rounded-lg" [ngClass]="esError ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'">
+    {{ mensajeResultado }}
+  </div>
+
+  <div class="bg-white shadow-md rounded-lg p-6 space-y-4">
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700">ID de Usuario Destino</label>
+        <input [(ngModel)]="envio.usuarioId" type="number" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Canal</label>
+        <select [(ngModel)]="envio.canal" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2">
+          <option value="EMAIL">EMAIL</option>
+          <option value="WHATSAPP">WHATSAPP</option>
+        </select>
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Destinatario (Email o Teléfono)</label>
+      <input [(ngModel)]="envio.destinatario" type="text" placeholder="ej: usuario@correo.com o +57300..." class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2">
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Asunto</label>
+      <input [(ngModel)]="envio.asunto" type="text" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2">
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Contenido del Mensaje</label>
+      <textarea [(ngModel)]="envio.contenido" rows="4" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2"></textarea>
+    </div>
+
+    <div class="flex justify-end">
+      <button (click)="enviar()" class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition">
+        Enviar Notificación
+      </button>
+    </div>
+  </div>
+</div>
