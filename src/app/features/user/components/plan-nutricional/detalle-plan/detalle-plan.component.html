@@ -33,6 +33,7 @@
                             </button>
                         </div>
                     </div>
+
                     <!-- Hero del plan -->
                     <div class="plan-hero">
                         <div class="plan-hero__content">
@@ -291,6 +292,144 @@
                                 <div class="macro-bar__value">{{ plan.grasas_g }}g</div>
                             </div>
                         </div>
+                    </div>
+
+                    <!-- Historial de versiones -->
+                    <section class="historial-section" *ngIf="!cargandoHistorial && historial.length > 0">
+                        <div class="historial-header">
+                            <div class="title-with-icon">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                                    <path d="M3 3v5h5"></path>
+                                    <path d="M12 7v5l4 2"></path>
+                                </svg>
+                                <h3>Historial de versiones</h3>
+                            </div>
+                            <span class="pill-tag">{{ historial.length }} {{ historial.length === 1 ? 'version' : 'versiones' }}</span>
+                        </div>
+
+                        <div class="historial-acordeon">
+                            <div class="version-item" *ngFor="let item of historial" [class.expandida]="isVersionExpandida(item.idHistorial)">
+                                <div class="version-header" (click)="toggleVersion(item.idHistorial)">
+                                    <div class="version-left">
+                                        <span class="version-badge">v{{ item.version }}</span>
+                                        <div class="version-title">
+                                            <h4>{{ item.datosJson?.idPlanNutricional ? ('Plan #' + item.datosJson.idPlanNutricional) : 'Plan' }}</h4>
+                                            <span class="version-meta">
+                                                {{ item.fechaModificacion | date:'dd MMM yyyy, HH:mm' }}
+                                                <span class="dot-sep">|</span>
+                                                {{ item.modificadoPor || 'Sistema' }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="version-right">
+                                        <span class="version-ejercicios">
+                                            {{ getTotalComidasVersion(item.datosJson) }} comidas
+                                        </span>
+                                        <div class="chevron-btn" [class.rotated]="isVersionExpandida(item.idHistorial)">
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <polyline points="6 9 12 15 18 9"></polyline>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="version-body" *ngIf="isVersionExpandida(item.idHistorial)">
+                                    <div class="version-info-grid">
+                                        <div class="info-block">
+                                            <span class="info-block-label">Modificado por</span>
+                                            <strong class="info-block-value">{{ item.modificadoPor || 'Sistema' }}</strong>
+                                        </div>
+                                        <div class="info-block">
+                                            <span class="info-block-label">Fecha</span>
+                                            <strong class="info-block-value">{{ item.fechaModificacion | date:'dd MMM yyyy, HH:mm' }}</strong>
+                                        </div>
+                                        <div class="info-block">
+                                            <span class="info-block-label">Motivo</span>
+                                            <strong class="info-block-value">{{ item.motivo || 'Sin motivo registrado' }}</strong>
+                                        </div>
+                                        <div class="info-block">
+                                            <span class="info-block-label">ID del plan</span>
+                                            <strong class="info-block-value">#{{ item.datosJson?.idPlanNutricional }}</strong>
+                                        </div>
+                                        <div class="info-block">
+                                            <span class="info-block-label">Version</span>
+                                            <strong class="info-block-value">v{{ item.version }}</strong>
+                                        </div>
+                                        <div class="info-block">
+                                            <span class="info-block-label">Calorias</span>
+                                            <strong class="info-block-value">{{ item.datosJson?.calorias_diarias }} kcal</strong>
+                                        </div>
+                                        <div class="info-block">
+                                            <span class="info-block-label">Proteinas</span>
+                                            <strong class="info-block-value">{{ item.datosJson?.proteinas_g }} g</strong>
+                                        </div>
+                                        <div class="info-block">
+                                            <span class="info-block-label">Carbohidratos</span>
+                                            <strong class="info-block-value">{{ item.datosJson?.carbohidratos_g }} g</strong>
+                                        </div>
+                                        <div class="info-block">
+                                            <span class="info-block-label">Grasas</span>
+                                            <strong class="info-block-value">{{ item.datosJson?.grasas_g }} g</strong>
+                                        </div>
+                                    </div>
+
+                                    <div class="version-descripcion" *ngIf="item.datosJson?.explicacion_ia">
+                                        <span class="info-block-label">Explicacion IA</span>
+                                        <p>{{ item.datosJson?.explicacion_ia }}</p>
+                                    </div>
+
+                                    <div class="version-restricciones" *ngIf="item.datosJson?.restricciones_dieteticas?.length">
+                                        <span class="info-block-label">Restricciones dieteticas</span>
+                                        <div class="restricciones-tags">
+                                            <span class="restriccion-tag" *ngFor="let r of item.datosJson.restricciones_dieteticas">{{ r }}</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="version-comidas-container">
+                                        <div class="version-comidas-header">
+                                            <span class="info-block-label">Comidas en esta version</span>
+                                        </div>
+
+                                        <div class="grupo-comida" *ngFor="let grupo of getComidasVersion(item.datosJson)">
+                                            <div class="grupo-comida-header">
+                                                <span class="grupo-tipo">{{ grupo.tipo }}</span>
+                                                <span class="grupo-count">{{ grupo.comidas.length }} comidas</span>
+                                            </div>
+
+                                            <div class="grupo-comidas-lista">
+                                                <div class="comida-mini" *ngFor="let comida of grupo.comidas">
+                                                    <div class="mini-info">
+                                                        <span class="mini-nombre">{{ comida.nombre }}</span>
+                                                        <span class="mini-desc">{{ comida.descripcion }}</span>
+                                                    </div>
+                                                    <div class="mini-detalles">
+                                                        <span>{{ comida.calorias }} kcal</span>
+                                                        <span>P: {{ comida.proteinas }}g</span>
+                                                        <span>C: {{ comida.carbohidratos }}g</span>
+                                                        <span>G: {{ comida.grasas }}g</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div *ngIf="!item.datosJson?.sugerencias_comidas" class="version-sin-ejercicios">
+                                            No hay comidas registradas en esta version.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Estado vacio del historial -->
+                    <div *ngIf="!cargandoHistorial && historial.length === 0" class="historial-empty">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                            <path d="M3 3v5h5"></path>
+                            <path d="M12 7v5l4 2"></path>
+                        </svg>
+                        <p>No hay historial de versiones registrado para este plan.</p>
                     </div>
                 </div>
             </ng-container>

@@ -45,7 +45,6 @@ export interface GenerarPlanPayload {
   objetivo_especifico: string;
 }
 
-// Nueva interfaz para camelCase
 export interface GenerarPlanPayloadCamel {
   restriccionesDieteticas: string[];
   alergias: string[];
@@ -60,6 +59,31 @@ export interface EditarPlanPayload {
   grasasG: number;
   restriccionesDieteticas: string[];
   motivo: string;
+}
+
+// Estructura real del endpoint de historial
+export interface HistorialPlanVersion {
+  idHistorial: number;
+  version: number;
+  datosJson: {
+    idPlanNutricional: number;
+    version: number;
+    generadoPorIA: boolean;
+    fechaGeneracion: string;
+    modificadoPor: string | null;
+    fechaModificacion: string | null;
+    motivoModificacion: string | null;
+    calorias_diarias: number;
+    proteinas_g: number;
+    carbohidratos_g: number;
+    grasas_g: number;
+    restricciones_dieteticas: string[];
+    sugerencias_comidas: ComidasSugeridas;
+    explicacion_ia: string;
+  };
+  modificadoPor: string;
+  motivo: string;
+  fechaModificacion: string;
 }
 
 @Injectable({
@@ -80,27 +104,28 @@ export class NutricionalService {
     return this.http.get<PlanNutricionalReal>(`${this.apiUrl}/${id}`);
   }
 
-  //  Generar plan (por token)
   generarPlan(payload: GenerarPlanPayload): Observable<any> {
     return this.http.post(`${this.apiUrl}/mi-plan/generar`, payload);
   }
 
-  //  Ajustar plan (por token)
   editarPlan(payload: EditarPlanPayload): Observable<any> {
     return this.http.put(`${this.apiUrl}/mi-plan/ajustar`, payload);
   }
 
-  //  Exportar un plan específico a PDF
   exportarPlanPDF(idPlan: number): Observable<Blob> {
     return this.http.get(`${this.exportUrl}/exportar-pdf/${idPlan}`, {
       responseType: 'blob'
     });
   }
 
-  //  Exportar el último plan a PDF
   exportarUltimoPlanPDF(): Observable<Blob> {
     return this.http.get(`${this.exportUrl}/exportar-pdf`, {
       responseType: 'blob'
     });
+  }
+
+  // Historial de versiones de un plan nutricional
+  getHistorialPlan(idPlan: number | string): Observable<HistorialPlanVersion[]> {
+    return this.http.get<HistorialPlanVersion[]>(`${this.apiUrl}/${idPlan}/historial`);
   }
 }
