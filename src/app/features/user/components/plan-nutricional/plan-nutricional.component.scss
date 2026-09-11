@@ -435,6 +435,15 @@ $transition: all 0.2s ease-in-out;
     }
 }
 
+.modal-icon.warning-icon {
+    background: #fffbeb;
+    color: #d97706;
+
+    svg {
+        stroke: #d97706;
+    }
+}
+
 @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }

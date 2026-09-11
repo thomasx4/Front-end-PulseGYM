@@ -6,9 +6,7 @@
 
         <div class="detalle-rutina-container">
 
-            <!-- Contenido -->
             <ng-container *ngIf="!isLoading && rutina">
-                <!-- Encabezado de la página -->
                 <header class="top-header">
                     <div class="header-left">
                         <a class="back-link" (click)="volver()">
@@ -32,7 +30,6 @@
                     </div>
                 </header>
 
-                <!-- Hero Card Banner -->
                 <section class="hero-card">
                     <div class="hero-content">
                         <div class="main-info">
@@ -96,11 +93,35 @@
                                     <strong class="meta-value">v{{ rutina.version }}</strong>
                                 </div>
                             </div>
+
+                            <div class="meta-item">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M4 7V4h16v3"></path>
+                                    <path d="M9 20h6"></path>
+                                    <path d="M12 4v16"></path>
+                                </svg>
+                                <div>
+                                    <span class="meta-label">ID de la rutina</span>
+                                    <strong class="meta-value">#{{ rutina.idRutina }}</strong>
+                                </div>
+                            </div>
+
+                            <div class="meta-item">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="12" cy="7" r="4"></circle>
+                                </svg>
+                                <div>
+                                    <span class="meta-label">Modificado por</span>
+                                    <strong class="meta-value">
+                                        {{ historial.length > 0 ? historial[0].modificadoPor : (rutina.generadaPorIA ? 'IA' : 'Sin modificaciones') }}
+                                    </strong>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </section>
 
-                <!-- Explicación IA -->
                 <div class="ia-section" *ngIf="rutina.generadaPorIA && rutina.explicacionIA">
                     <div class="ia-header">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2">
@@ -113,9 +134,7 @@
                     <p>{{ rutina.explicacionIA }}</p>
                 </div>
 
-                <!-- Layout Principal de 2 Columnas -->
                 <main class="main-grid">
-                    <!-- Columna Izquierda: Estructura de Días -->
                     <section class="content-card structure-section">
                         <div class="section-header">
                             <div class="title-with-icon">
@@ -132,18 +151,14 @@
                             <span class="pill-tag">{{ totalDiasConEjercicios }} dias</span>
                         </div>
 
-                        <!-- Iterar sobre las semanas -->
                         <div class="semanas-list" *ngFor="let semana of semanas">
-                            <!-- Header de la semana -->
                             <div class="semana-header">
                                 <span class="semana-tag">Semana {{ semana.numero }}</span>
                                 <span class="semana-dias-count">{{ semana.dias.length }} dias</span>
                             </div>
 
-                            <!-- Iterar sobre los días de la semana -->
                             <div class="days-list">
                                 <div class="day-item" *ngFor="let dia of semana.dias; let i = index">
-                                    <!-- Header del día (click para expandir) -->
                                     <div class="day-row" (click)="toggleDia(semana.numero, dia.diaNumero)">
                                         <div class="day-left">
                                             <div class="day-badge logo-badge">
@@ -177,7 +192,6 @@
                                         </div>
                                     </div>
 
-                                    <!-- Ejercicios del día (expandible) -->
                                     <div class="ejercicios-container" *ngIf="isDiaExpandido(semana.numero, dia.diaNumero)">
                                         <div class="ejercicio-item" *ngFor="let ejercicio of dia.ejercicios; let j = index">
                                             <div class="ejercicio-header">
@@ -225,7 +239,6 @@
                                                     </svg>
                                                     <span>{{ ejercicio.notas }}</span>
                                                 </div>
-                                                <!-- Equipos desde equipoRequerido -->
                                                 <div class="equipos-container" *ngIf="ejercicio.equipoRequerido && ejercicio.equipoRequerido !== 'Sin equipo'">
                                                     <span class="equipos-label">Equipos:</span>
                                                     <span class="equipo-tag">{{ ejercicio.equipoRequerido }}</span>
@@ -238,9 +251,7 @@
                         </div>
                     </section>
 
-                    <!-- Columna Derecha: Sidebar con Info Adicional y Equipamiento -->
                     <aside class="sidebar-column">
-                        <!-- Tarjeta: Información Adicional -->
                         <div class="content-card side-card">
                             <div class="side-card-title">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -304,7 +315,6 @@
                             </div>
                         </div>
 
-                        <!-- Tarjeta: Equipamiento Necesario -->
                         <div class="content-card side-card">
                             <div class="side-card-title">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -335,12 +345,131 @@
                         </div>
                     </aside>
                 </main>
+
+                <section class="historial-section" *ngIf="!cargandoHistorial && historial.length > 0">
+                    <div class="historial-header">
+                        <div class="title-with-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                                <path d="M3 3v5h5"></path>
+                                <path d="M12 7v5l4 2"></path>
+                            </svg>
+                            <h3>Historial de versiones</h3>
+                        </div>
+                        <span class="pill-tag">{{ historial.length }} {{ historial.length === 1 ? 'version' : 'versiones' }}</span>
+                    </div>
+
+                    <div class="historial-acordeon">
+                        <div class="version-item" *ngFor="let item of historial" [class.expandida]="isVersionExpandida(item.idHistorial)">
+                            <div class="version-header" (click)="toggleVersion(item.idHistorial)">
+                                <div class="version-left">
+                                    <span class="version-badge">v{{ item.version }}</span>
+                                    <div class="version-title">
+                                        <h4>{{ item.datosJson?.nombre || 'Rutina' }}</h4>
+                                        <span class="version-meta">
+                                            {{ item.fechaModificacion | date:'dd MMM yyyy, HH:mm' }}
+                                            <span class="dot-sep">|</span>
+                                            {{ item.modificadoPor || 'Sistema' }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="version-right">
+                                    <span class="version-ejercicios">
+                                        {{ getTotalEjerciciosVersion(item.datosJson?.detalles || []) }} ejercicios
+                                    </span>
+                                    <div class="chevron-btn" [class.rotated]="isVersionExpandida(item.idHistorial)">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="6 9 12 15 18 9"></polyline>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="version-body" *ngIf="isVersionExpandida(item.idHistorial)">
+                                <div class="version-info-grid">
+                                    <div class="info-block">
+                                        <span class="info-block-label">Modificado por</span>
+                                        <strong class="info-block-value">{{ item.modificadoPor || 'Sistema' }}</strong>
+                                    </div>
+                                    <div class="info-block">
+                                        <span class="info-block-label">Fecha</span>
+                                        <strong class="info-block-value">{{ item.fechaModificacion | date:'dd MMM yyyy, HH:mm' }}</strong>
+                                    </div>
+                                    <div class="info-block">
+                                        <span class="info-block-label">Motivo</span>
+                                        <strong class="info-block-value">{{ item.motivo || 'Sin motivo registrado' }}</strong>
+                                    </div>
+                                    <div class="info-block">
+                                        <span class="info-block-label">ID de la rutina</span>
+                                        <strong class="info-block-value">#{{ item.datosJson?.idRutina }}</strong>
+                                    </div>
+                                    <div class="info-block">
+                                        <span class="info-block-label">Version</span>
+                                        <strong class="info-block-value">v{{ item.version }}</strong>
+                                    </div>
+                                    <div class="info-block">
+                                        <span class="info-block-label">Generada por IA</span>
+                                        <strong class="info-block-value">{{ item.datosJson?.generadaPorIA ? 'Si' : 'No' }}</strong>
+                                    </div>
+                                </div>
+
+                                <div class="version-descripcion" *ngIf="item.datosJson?.descripcion">
+                                    <span class="info-block-label">Descripcion</span>
+                                    <p>{{ item.datosJson?.descripcion }}</p>
+                                </div>
+
+                                <div class="version-ejercicios-container">
+                                    <div class="version-ejercicios-header">
+                                        <span class="info-block-label">Ejercicios en esta version</span>
+                                    </div>
+
+                                    <div class="grupo-dia" *ngFor="let grupo of agruparDetallesVersion(item.datosJson?.detalles || [])">
+                                        <div class="grupo-dia-header">
+                                            <span class="grupo-semana">Semana {{ grupo.semana }}</span>
+                                            <span class="grupo-dia-nombre">{{ getNombreDia(grupo.dia) }}</span>
+                                            <span class="grupo-count">{{ grupo.ejercicios.length }} ejercicios</span>
+                                        </div>
+
+                                        <div class="grupo-ejercicios">
+                                            <div class="ejercicio-mini" *ngFor="let ej of grupo.ejercicios; let i = index">
+                                                <span class="mini-numero">{{ i + 1 }}</span>
+                                                <div class="mini-info">
+                                                    <span class="mini-nombre">{{ ej.nombreEjercicio }}</span>
+                                                    <span class="mini-grupo">{{ ej.grupoMuscular || 'Cardio' }}</span>
+                                                </div>
+                                                <div class="mini-detalles">
+                                                    <span *ngIf="ej.series">{{ ej.series }} series</span>
+                                                    <span *ngIf="ej.repeticionesMin || ej.repeticionesMax">
+                                                        {{ ej.repeticionesMin }}-{{ ej.repeticionesMax }} reps
+                                                    </span>
+                                                    <span *ngIf="ej.pesoSugerido">{{ ej.pesoSugerido }} kg</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div *ngIf="!item.datosJson?.detalles || item.datosJson.detalles.length === 0" class="version-sin-ejercicios">
+                                        No hay ejercicios registrados en esta version.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <div *ngIf="!cargandoHistorial && historial.length === 0" class="historial-empty">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                        <path d="M3 3v5h5"></path>
+                        <path d="M12 7v5l4 2"></path>
+                    </svg>
+                    <p>No hay historial de versiones registrado para esta rutina.</p>
+                </div>
             </ng-container>
         </div>
     </div>
 </div>
 
-<!-- Modal de Error -->
 <div class="modal-overlay" *ngIf="showErrorModal" (click)="onCloseModal()">
     <div class="modal-content" (click)="$event.stopPropagation()">
         <div class="modal-icon error-icon">

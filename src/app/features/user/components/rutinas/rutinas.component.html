@@ -5,7 +5,8 @@
         <app-header></app-header>
 
         <div class="routines-wrapper">
-            <ng-container *ngIf="!isLoading && !errorMessage">
+
+             <ng-container *ngIf="!validandoAcceso && tieneAccesoIA && !isLoading && !errorMessage">
                 <header class="page-header">
                     <div class="page-header__left">
                         <h1>Mis Rutinas</h1>
@@ -124,7 +125,7 @@
                         </div>
                         <div class="tip-banner__text">
                             <h4>Consejo: Manten tus rutinas actualizadas</h4>
-                            <p>Revisa y ajusta tus rutinas cada 2-4 semanas para seguir progresando</p>
+                            <p>Revisa y ajusta tus rutinas cada 2 semanas para seguir progresando</p>
                         </div>
                     </div>
                 </div>
@@ -147,6 +148,26 @@
         <div class="modal-actions">
             <button class="modal-btn modal-btn-secondary" (click)="onCloseModal()">Cancelar</button>
             <button class="modal-btn modal-btn-primary" (click)="onRetry()">Reintentar</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showMembresiaModal">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-icon warning-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/>
+                <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+        </div>
+        <h3 class="modal-title">Membresía requerida</h3>
+        <p class="modal-message">
+            No tienes una membresía que incluya la generación de rutinas con IA.
+            Mejora tu plan para acceder a esta funcionalidad.
+        </p>
+        <div class="modal-actions">
+            <button class="modal-btn modal-btn-primary" (click)="irAMembresias()">Ver membresías</button>
         </div>
     </div>
 </div>

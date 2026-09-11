@@ -1,6 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { RutinasService, RutinaDetalle, RutinaDetalleEjercicio, Equipo } from '../../../../../core/services/rutinas.service';
+import {
+  RutinasService,
+  RutinaDetalle,
+  RutinaDetalleEjercicio,
+  Equipo,
+  HistorialVersion
+} from '../../../../../core/services/rutinas.service';
 
 interface DiaRutina {
   alias: string;
@@ -46,6 +52,11 @@ export class DetalleRutinaComponent implements OnInit {
   public semanas: SemanaRutina[] = [];
   public equipamiento: Equipamiento[] = [];
 
+  // Historial de versiones
+  public historial: HistorialVersion[] = [];
+  public cargandoHistorial: boolean = false;
+  public versionExpandida: number | null = null;
+
   constructor(
     private router: Router,
     private route: ActivatedRoute,
@@ -72,6 +83,8 @@ export class DetalleRutinaComponent implements OnInit {
         this.procesarSemanas();
         this.procesarEquipamiento();
         this.isLoading = false;
+
+        this.cargarHistorial();
       },
       error: (error: any) => {
         this.isLoading = false;
@@ -95,6 +108,67 @@ export class DetalleRutinaComponent implements OnInit {
     });
   }
 
+  // Historial de versiones
+  cargarHistorial(): void {
+    this.cargandoHistorial = true;
+
+    this.rutinasService.getHistorialRutina(this.rutinaId).subscribe({
+      next: (response: HistorialVersion[]) => {
+        this.historial = response || [];
+        this.cargandoHistorial = false;
+      },
+      error: (error: any) => {
+        console.error('Error al cargar historial:', error);
+        this.historial = [];
+        this.cargandoHistorial = false;
+      }
+    });
+  }
+
+  // Acordeon del historial
+  toggleVersion(idHistorial: number): void {
+    if (this.versionExpandida === idHistorial) {
+      this.versionExpandida = null;
+    } else {
+      this.versionExpandida = idHistorial;
+    }
+  }
+
+  isVersionExpandida(idHistorial: number): boolean {
+    return this.versionExpandida === idHistorial;
+  }
+
+  agruparDetallesVersion(detalles: any[]): { semana: number; dia: number; ejercicios: any[] }[] {
+    if (!detalles || detalles.length === 0) return [];
+
+    const mapa = new Map<string, { semana: number; dia: number; ejercicios: any[] }>();
+
+    detalles.forEach((detalle: any) => {
+      const semana = detalle.semana || 1;
+      const dia = detalle.diaSemana || 1;
+      const key = `${semana}-${dia}`;
+
+      if (!mapa.has(key)) {
+        mapa.set(key, { semana, dia, ejercicios: [] });
+      }
+      mapa.get(key)!.ejercicios.push(detalle);
+    });
+
+    return Array.from(mapa.values()).sort((a, b) => {
+      if (a.semana !== b.semana) return a.semana - b.semana;
+      return a.dia - b.dia;
+    });
+  }
+
+  getNombreDia(dia: number): string {
+    const nombres = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'];
+    return nombres[(dia - 1) % 7] || `Dia ${dia}`;
+  }
+
+  getTotalEjerciciosVersion(detalles: any[]): number {
+    return detalles?.length || 0;
+  }
+
   organizarDetallesPorDia(): void {
     if (!this.rutina) return;
 
@@ -115,16 +189,14 @@ export class DetalleRutinaComponent implements OnInit {
     const nombresDias = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'];
     const aliasDias = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'];
 
-    // Agrupar por semana
     const semanasMap = new Map<number, any[]>();
 
     Object.keys(this.detallesPorDia).forEach(key => {
       const dia = Number(key);
       const ejercicios = this.detallesPorDia[dia] || [];
-      
-      // Obtener la semana del primer ejercicio de este día
-      const semana = ejercicios.length > 0 && ejercicios[0].semana 
-        ? ejercicios[0].semana 
+
+      const semana = ejercicios.length > 0 && ejercicios[0].semana
+        ? ejercicios[0].semana
         : Math.floor((dia - 1) / 7) + 1;
 
       if (!semanasMap.has(semana)) {
@@ -133,12 +205,11 @@ export class DetalleRutinaComponent implements OnInit {
       semanasMap.get(semana)!.push({ dia, ejercicios });
     });
 
-    // Ordenar semanas y procesar
     const semanasOrdenadas = Array.from(semanasMap.keys()).sort((a, b) => a - b);
-    
+
     this.semanas = semanasOrdenadas.map((semana: number) => {
       const diasDeSemana = semanasMap.get(semana) || [];
-      
+
       const dias: DiaRutina[] = diasDeSemana.map((item: { dia: number; ejercicios: RutinaDetalleEjercicio[] }) => {
         const dia = item.dia;
         const ejercicios = item.ejercicios;
@@ -175,7 +246,7 @@ export class DetalleRutinaComponent implements OnInit {
     if (!this.rutina) return;
 
     const equiposSet = new Set<string>();
-    
+
     this.rutina.detalles.forEach((detalle: RutinaDetalleEjercicio) => {
       if (detalle.equipoRequerido && detalle.equipoRequerido !== 'Sin equipo') {
         equiposSet.add(detalle.equipoRequerido);
@@ -199,8 +270,8 @@ export class DetalleRutinaComponent implements OnInit {
   }
 
   isDiaExpandido(semana: number, dia: number): boolean {
-    return this.diaExpandido !== null && 
-           this.diaExpandido.semana === semana && 
+    return this.diaExpandido !== null &&
+           this.diaExpandido.semana === semana &&
            this.diaExpandido.dia === dia;
   }
 
