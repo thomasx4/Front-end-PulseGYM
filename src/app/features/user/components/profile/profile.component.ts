@@ -50,6 +50,7 @@ export class ProfileComponent implements OnInit {
     contactoEmergenciaNombre: '',
     contactoEmergenciaTelefono: '',
     idSede: 0,
+    nombreSede: '',
     nivelExperiencia: '',
     username: ''
   };
@@ -221,86 +222,91 @@ export class ProfileComponent implements OnInit {
     this.sedeNombre = 'Sede Principal';
   }
 
-  usarDatosDelToken(): void {
-    const nombre = this.userUsername || this.userName || 'Usuario';
+ usarDatosDelToken(): void {
+  const nombre = this.userUsername || this.userName || 'Usuario';
 
-    this.userProfile = {
-      ...this.userProfile,
-      nombre: nombre,
-      apellido: '',
-      nombreCompleto: nombre,
-      email: this.userEmail || '',
-      telefono: '',
-      documentoIdentidad: '',
-      fechaNacimiento: '',
-      edad: 0,
-      sexo: '',
-      tipoMembresia: this.tipoMembresia || 'Miembro',
-      objetivo: 'Mejorar condicion fisica',
-      fotoUrl: '',
-      contactoEmergenciaNombre: '',
-      contactoEmergenciaTelefono: '',
-      idSede: 0,
-      nivelExperiencia: 'intermedio',
-      username: nombre
-    };
+  this.userProfile = {
+    ...this.userProfile,
+    nombre: nombre,
+    apellido: '',
+    nombreCompleto: nombre,
+    email: this.userEmail || '',
+    telefono: '',
+    documentoIdentidad: '',
+    fechaNacimiento: '',
+    edad: 0,
+    sexo: '',
+    tipoMembresia: this.tipoMembresia || 'Miembro',
+    objetivo: 'Mejorar condicion fisica',
+    fotoUrl: '',
+    contactoEmergenciaNombre: '',
+    contactoEmergenciaTelefono: '',
+    idSede: 0,
+    nombreSede: '',               
+    nivelExperiencia: 'intermedio',
+    username: nombre
+  };
 
-    this.avatarUrl = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(nombre) + '&background=0F1C3F&color=fff&bold=true';
-    this.profileBackup = { ...this.userProfile };
-  }
+  this.avatarUrl = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(nombre) + '&background=0F1C3F&color=fff&bold=true';
+  this.sedeNombre = 'Sede no asignada';
+  this.profileBackup = { ...this.userProfile };
+}
 
   procesarPerfil(data: any): void {
-    const nombreCompleto = data.nombreCompleto || data.nombre + ' ' + data.apellido || data.nombre || this.userUsername || this.userName;
+  const nombreCompleto = data.nombreCompleto || data.nombre + ' ' + data.apellido || data.nombre || this.userUsername || this.userName;
 
-    let nivelExperiencia = data.nivelExperiencia || 'intermedio';
-    const nivelesValidos = ['novato', 'intermedio', 'avanzado'];
-    if (!nivelesValidos.includes(nivelExperiencia)) {
-      nivelExperiencia = 'intermedio';
-    }
-
-    const sexo = data.sexo || '';
-
-    this.userProfile = {
-      ...this.userProfile,
-      nombre: data.nombre || '',
-      apellido: data.apellido || '',
-      nombreCompleto: nombreCompleto.trim(),
-      email: data.email || this.userEmail || '',
-      telefono: data.telefono || '',
-      documentoIdentidad: data.documentoIdentidad || '',
-      fechaNacimiento: data.fechaNacimiento || '',
-      edad: this.calcularEdad(data.fechaNacimiento),
-      sexo: sexo,
-      objetivo: data.objetivoPrincipal || 'Mejorar condicion fisica',
-      fotoUrl: data.fotoUrl || data.urlFoto || '',
-      contactoEmergenciaNombre: data.contactoEmergenciaNombre || '',
-      contactoEmergenciaTelefono: data.contactoEmergenciaTelefono || '',
-      idSede: data.idSede || 0,
-      nivelExperiencia: nivelExperiencia,
-      tipoMembresia: this.tipoMembresia || this.userProfile.tipoMembresia,
-      username: data.username || this.userUsername || this.userName
-    };
-
-    if (this.userProfile.fotoUrl) {
-      this.avatarUrl = this.userProfile.fotoUrl;
-    } else {
-      this.avatarUrl = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(this.userName) + '&background=0F1C3F&color=fff&bold=true';
-    }
-
-    if (data.contactoEmergenciaNombre) {
-      this.contactos = [{
-        nombre: data.contactoEmergenciaNombre,
-        telefono: data.contactoEmergenciaTelefono,
-        parentesco: 'Emergencia'
-      }];
-    }
-
-    if (this.userProfile.nombreCompleto) {
-      this.userName = this.userProfile.nombreCompleto;
-    }
-
-    this.profileBackup = { ...this.userProfile };
+  let nivelExperiencia = data.nivelExperiencia || 'intermedio';
+  const nivelesValidos = ['novato', 'intermedio', 'avanzado'];
+  if (!nivelesValidos.includes(nivelExperiencia)) {
+    nivelExperiencia = 'intermedio';
   }
+
+  const sexo = data.sexo || '';
+
+  this.userProfile = {
+    ...this.userProfile,
+    nombre: data.nombre || '',
+    apellido: data.apellido || '',
+    nombreCompleto: nombreCompleto.trim(),
+    email: data.email || this.userEmail || '',
+    telefono: data.telefono || '',
+    documentoIdentidad: data.documentoIdentidad || '',
+    fechaNacimiento: data.fechaNacimiento || '',
+    edad: this.calcularEdad(data.fechaNacimiento),
+    sexo: sexo,
+    objetivo: data.objetivoPrincipal || 'Mejorar condicion fisica',
+    fotoUrl: data.fotoUrl || data.urlFoto || '',
+    contactoEmergenciaNombre: data.contactoEmergenciaNombre || '',
+    contactoEmergenciaTelefono: data.contactoEmergenciaTelefono || '',
+    idSede: data.idSede || 0,
+    nombreSede: data.nombreSede || '',       
+    nivelExperiencia: nivelExperiencia,
+    tipoMembresia: this.tipoMembresia || this.userProfile.tipoMembresia,
+    username: data.username || this.userUsername || this.userName
+  };
+
+  this.sedeNombre = data.nombreSede || 'Sede no asignada';
+
+  if (this.userProfile.fotoUrl) {
+    this.avatarUrl = this.userProfile.fotoUrl;
+  } else {
+    this.avatarUrl = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(this.userName) + '&background=0F1C3F&color=fff&bold=true';
+  }
+
+  if (data.contactoEmergenciaNombre) {
+    this.contactos = [{
+      nombre: data.contactoEmergenciaNombre,
+      telefono: data.contactoEmergenciaTelefono,
+      parentesco: 'Emergencia'
+    }];
+  }
+
+  if (this.userProfile.nombreCompleto) {
+    this.userName = this.userProfile.nombreCompleto;
+  }
+
+  this.profileBackup = { ...this.userProfile };
+}
 
   actualizarMedidas(): void {
     const peso = this.historialFisico.pesoKg || this.perfilMedico.pesoKg || 0;

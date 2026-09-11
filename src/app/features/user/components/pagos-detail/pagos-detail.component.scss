@@ -202,18 +202,53 @@
     }
 }
 
-// RESPONSIVE 768px
+/* ============================================
+   RESPONSIVE - TABLET
+   ============================================ */
+@media (max-width: 1024px) {
+    .dashboard-main {
+        margin-left: 72px;
+    }
+
+    .dashboard-wrapper {
+        padding: 1.25rem 1.5rem;
+    }
+}
+
+/* ============================================
+   RESPONSIVE - MOVIL (≤ 768px)
+   ============================================ */
 @media (max-width: 768px) {
     .dashboard-main {
-        margin-top: 56px;
+        margin-left: 0;
+        padding-bottom: 70px;
+    }
+
+    .dashboard-wrapper {
+        padding: 1rem;
     }
 
     .detalle-pago-container {
         padding: 0 0.5rem;
 
         .receipt-card {
+            border-radius: 16px;
+
             .receipt-header {
                 padding: 1.25rem 1rem;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+
+                .receipt-brand {
+                    .brand-title { font-size: 1rem; }
+                    .receipt-subtitle { font-size: 0.7rem; }
+                }
+
+                .status-badge {
+                    align-self: flex-start;
+                    font-size: 0.65rem;
+                }
             }
 
             .receipt-body {
@@ -221,14 +256,99 @@
 
                 .amount-display-box {
                     padding: 1rem;
+
                     .amount-value {
                         font-size: 2.2rem;
+                    }
+
+                    .plan-name-tag {
+                        font-size: 0.75rem;
+                        padding: 0.2rem 0.6rem;
+                    }
+                }
+
+                .receipt-details-list {
+                    .receipt-row {
+                        font-size: 0.85rem;
+                        flex-direction: column;
+                        align-items: flex-start;
+                        gap: 0.15rem;
+
+                        .value {
+                            text-align: left;
+                        }
                     }
                 }
             }
 
             .receipt-footer {
                 padding: 0.85rem 1rem;
+
+                .receipt-legal {
+                    font-size: 0.68rem;
+                }
+            }
+        }
+    }
+}
+
+/* ============================================
+   RESPONSIVE - MOVIL PEQUEÑO (≤ 480px)
+   ============================================ */
+@media (max-width: 480px) {
+    .dashboard-wrapper {
+        padding: 0.75rem;
+    }
+
+    .detalle-pago-container {
+        padding: 0;
+
+        .receipt-card {
+            border-radius: 12px;
+
+            &::before {
+                height: 4px;
+            }
+
+            .receipt-header {
+                padding: 1rem 0.85rem;
+
+                .receipt-brand {
+                    .brand-title { font-size: 0.9rem; }
+                    .receipt-subtitle { font-size: 0.65rem; }
+                }
+            }
+
+            .receipt-body {
+                padding: 1rem 0.85rem;
+
+                .amount-display-box {
+                    padding: 0.85rem;
+
+                    .amount-label {
+                        font-size: 0.65rem;
+                    }
+
+                    .amount-value {
+                        font-size: 1.8rem;
+                    }
+                }
+
+                .receipt-details-list {
+                    gap: 0.75rem;
+
+                    .receipt-row {
+                        font-size: 0.8rem;
+                    }
+                }
+            }
+
+            .receipt-footer {
+                padding: 0.75rem 0.85rem;
+
+                .receipt-legal {
+                    font-size: 0.62rem;
+                }
             }
         }
     }

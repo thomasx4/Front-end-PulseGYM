@@ -26,7 +26,7 @@
                     <path fill-rule="evenodd" clip-rule="evenodd" d="M15.082 19.0006H17.917C18.7661 19.0247 19.4744 18.3567 19.5 17.5076V16.4936C19.4744 15.6449 18.7667 14.9771 17.918 15.0006H15.082C14.2333 14.9771 13.5256 15.6449 13.5 16.4936V17.5066C13.525 18.3557 14.2329 19.0241 15.082 19.0006Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
             </span>
-            <span>Dashboard</span>
+            <span>Tablero</span>
         </a>
 
         <!-- Perfil -->
@@ -68,18 +68,6 @@
             <span>Rutinas</span>
         </a>
 
-        <!-- Pagos (Actualizado a /user/pagos) -->
-        <a routerLink="/user/pagos" routerLinkActive="sidebar__nav-item--active" class="sidebar__nav-item">
-            <span class="sidebar__icon-wrapper">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" stroke-width="2"/>
-                    <path d="M2 10h20" stroke="currentColor" stroke-width="2"/>
-                    <path d="M6 15h4" stroke="currentColor" stroke-width="2"/>
-                </svg>
-            </span>
-            <span>Pagos</span>
-        </a>
-
         <!-- Plan Nutricional -->
         <a routerLink="/user/plan-nutricional" routerLinkActive="sidebar__nav-item--active" class="sidebar__nav-item">
             <span class="sidebar__icon-wrapper">
@@ -89,6 +77,18 @@
                 </svg>
             </span>
             <span>Plan Nutricional</span>
+        </a>
+
+                <!-- Pagos (Actualizado a /user/pagos) -->
+        <a routerLink="/user/pagos" routerLinkActive="sidebar__nav-item--active" class="sidebar__nav-item">
+            <span class="sidebar__icon-wrapper">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" stroke-width="2"/>
+                    <path d="M2 10h20" stroke="currentColor" stroke-width="2"/>
+                    <path d="M6 15h4" stroke="currentColor" stroke-width="2"/>
+                </svg>
+            </span>
+            <span>Pagos</span>
         </a>
 
         <!-- Ajustes -->
@@ -167,16 +167,6 @@
         <span>Rutinas</span>
     </a>
 
-    <!-- Pagos (Actualizado a /user/pagos) -->
-    <a routerLink="/user/pagos" routerLinkActive="bottom-nav__item--active" class="bottom-nav__item">
-        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" stroke-width="2"/>
-            <path d="M2 10h20" stroke="currentColor" stroke-width="2"/>
-            <path d="M6 15h4" stroke="currentColor" stroke-width="2"/>
-        </svg>
-        <span>Pagos</span>
-    </a>
-
     <a routerLink="/user/plan-nutricional" routerLinkActive="bottom-nav__item--active" class="bottom-nav__item">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M12 21s6-3 6-8V5l-6-2.5L6 5v8c0 5 6 8 6 8z"/>
@@ -184,4 +174,5 @@
         </svg>
         <span>Planes</span>
     </a>
+
 </nav>

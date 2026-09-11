@@ -84,9 +84,9 @@ export class UserService {
     );
   }
 
-  // 👈 Obtiene la ultima rutina generada
+  //  Obtiene la ultima rutina generada
   getLastRoutine(): Observable<Routine> {
-    const url = `${this.apiUrl}/pg-ms-users/api/v1/rutinas/mis-rutinas`;
+    const url = `${this.apiUrl}/pg-ms-users/api/v1/rutinas/ultima`;
     return this.http.get<any>(url, { headers: this.getHeaders() }).pipe(
       map((response) => {
         if (Array.isArray(response) && response.length > 0) {

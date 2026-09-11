@@ -131,7 +131,6 @@
                   <span>Duracion estimada: {{ todayRoutine.duracion }}</span>
                 </div>
               </div>
-              <button class="btn-primary" (click)="verRutinaCompleta()">Ver rutina</button>
             </div>
 
             <ul class="exercise-list">
@@ -144,7 +143,6 @@
                     {{ ex.sets }}
                   </span>
                 </div>
-                <span class="arrow">›</span>
               </li>
             </ul>
           </div>
@@ -160,8 +158,8 @@
                   <path d="M9 12h6"/>
                 </svg>
               </div>
-              <p class="empty-routine__text">{{ todayRoutine.nombre || 'No tienes rutinas generadas aun' }}</p>
-              <button class="btn-primary" (click)="irACrearRutina()">Crear rutina con IA</button>
+              <p class="empty-routine__text">{{ todayRoutine.nombre || 'No tienes rutina para hoy' }}</p>
+              <button class="btn-primary" (click)="irACrearRutina()">Agregar rutina para hoy</button>
             </div>
           </ng-template>
         </div>

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { RutinasService, RutinaDetalle } from '../../../../core/services/rutinas.service';
+import { UserService } from '../../../../core/services/users.service';
 
 @Component({
   selector: 'app-rutinas',
@@ -12,17 +13,57 @@ export class RutinasComponent implements OnInit {
   public errorMessage: string = '';
   public rutinas: RutinaDetalle[] = [];
 
+  // NUEVO: control de acceso a IA
+  public tieneAccesoIA: boolean = false;
+  public validandoAcceso: boolean = true;
+
   public showErrorModal: boolean = false;
   public errorModalTitle: string = 'Error al cargar';
   public errorModalMessage: string = '';
 
+  // NUEVO: modal de membresía requerida
+  public showMembresiaModal: boolean = false;
+
   constructor(
     private router: Router,
-    private rutinasService: RutinasService
+    private rutinasService: RutinasService,
+    private userService: UserService
   ) {}
 
   ngOnInit(): void {
-    this.cargarRutinas();
+    this.validarAccesoIA();
+  }
+
+  // NUEVO: valida si la membresía incluye IA antes de cargar rutinas
+  validarAccesoIA(): void {
+    this.validandoAcceso = true;
+
+    // ✅ Usa getMiMembresiaActiva() que apunta al endpoint correcto
+    this.userService.getMiMembresiaActiva().subscribe({
+      next: (membresia: any) => {
+        console.log('Membresía activa recibida:', membresia);
+        console.log('¿incluyeIA?:', membresia?.incluyeIA);
+
+        this.tieneAccesoIA = membresia?.incluyeIA === true;
+        this.validandoAcceso = false;
+
+        if (this.tieneAccesoIA) {
+          // Solo cargamos las rutinas si tiene acceso
+          this.cargarRutinas();
+        } else {
+          // Mostramos el modal bloqueante
+          this.showMembresiaModal = true;
+          this.isLoading = false;
+        }
+      },
+      error: (error: any) => {
+        console.error('Error al validar membresía:', error);
+        this.validandoAcceso = false;
+        this.tieneAccesoIA = false;
+        this.isLoading = false;
+        this.showMembresiaModal = true;
+      }
+    });
   }
 
   cargarRutinas(): void {
@@ -58,8 +99,18 @@ export class RutinasComponent implements OnInit {
     });
   }
 
-  // Método para crear rutina IA
+  // NUEVO: redirige a membresías o cierra el modal
+  irAMembresias(): void {
+    this.showMembresiaModal = false;
+    this.router.navigate(['/user/membresias']);
+  }
+
+  // Método para crear rutina IA — solo accesible si tiene membresía
   crearRutinaIA(): void {
+    if (!this.tieneAccesoIA) {
+      this.showMembresiaModal = true;
+      return;
+    }
     this.router.navigate(['/user/rutinas/crear-ia']);
   }
 
