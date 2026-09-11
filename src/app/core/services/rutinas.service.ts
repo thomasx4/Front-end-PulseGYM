@@ -59,6 +59,25 @@ export interface Equipo {
   estado: 'disponible' | 'en uso' | 'mantenimiento';
 }
 
+// ✅ NUEVO: estructura real del endpoint de historial
+export interface HistorialVersion {
+  idHistorial: number;
+  version: number;
+  datosJson: {
+    idRutina: number;
+    nombre: string;
+    descripcion: string;
+    version: number;
+    generadaPorIA: boolean;
+    fechaGeneracion: string;
+    explicacionIA: string;
+    detalles: any[];
+  };
+  modificadoPor: string;
+  motivo: string;
+  fechaModificacion: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -91,7 +110,6 @@ export class RutinasService {
     return this.http.get<RutinaDetalle>(url, this.getHeaders());
   }
 
-
   /**
    * Ajusta un detalle específico de la rutina
    * PUT /pg-ms-users/api/v1/rutinas/{idRutina}/ajustar
@@ -99,6 +117,16 @@ export class RutinasService {
   ajustarDetalle(idRutina: number | string, data: any): Observable<any> {
     const url = `${this.apiUrl}/pg-ms-users/api/v1/rutinas/${idRutina}/ajustar`;
     return this.http.put<any>(url, data, this.getHeaders());
+  }
+
+  // ✅ NUEVO: historial de versiones
+  /**
+   * Obtiene el historial de versiones de una rutina
+   * GET /pg-ms-users/api/v1/rutinas/{idRutina}/historial
+   */
+  getHistorialRutina(idRutina: number | string): Observable<HistorialVersion[]> {
+    const url = `${this.apiUrl}/pg-ms-users/api/v1/rutinas/${idRutina}/historial`;
+    return this.http.get<HistorialVersion[]>(url, this.getHeaders());
   }
 
   getEquipos(): Observable<Equipo[]> {
@@ -112,9 +140,9 @@ export class RutinasService {
   }
 
   /**
- * Exporta una rutina específica en PDF
- * GET /pg-ms-users/api/v1/seguimiento/rutina/exportar-pdf/62
- */
+   * Exporta una rutina específica en PDF
+   * GET /pg-ms-users/api/v1/seguimiento/rutina/exportar-pdf/62
+   */
   exportarRutinaPDF(idRutina: number | string): Observable<Blob> {
     const url = `${this.apiUrl}/pg-ms-users/api/v1/seguimiento/rutina/exportar-pdf/${idRutina}`;
     return this.http.get(url, {

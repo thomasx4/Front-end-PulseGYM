@@ -15,10 +15,10 @@ export class CrearRutinaIaComponent {
   public errorModalTitle: string = 'Error';
   public errorModalMessage: string = '';
 
-  public datosIA: GenerarRutinaIARequest = {
-    diasPorSemana: 4,
-    duracionSemanas: 4,
-    incluirCardio: true
+  public datosIA: any = {
+    diasPorSemana: '',
+    duracionSemanas: '',
+    incluirCardio: null
   };
 
   public diasDisponibles: { label: string; value: number }[] = [
@@ -28,21 +28,40 @@ export class CrearRutinaIaComponent {
   ];
 
   public duracionesSemanas: { label: string; value: number }[] = [
-    { label: '2 semanas', value: 2 },
-    { label: '4 semanas', value: 4 },
+    { label: '1 semana', value: 1 }
   ];
 
   constructor(
     private router: Router,
     private rutinasService: RutinasService
-  ) {}
+  ) { }
 
   cancelar(): void {
     this.router.navigate(['/user/rutinas']);
   }
 
   generarRutinaIA(): void {
-    console.log('Enviando datos:', this.datosIA);
+    // ✅ Validación: que el usuario haya seleccionado todo
+    if (!this.datosIA.diasPorSemana) {
+      this.errorModalTitle = 'Campos incompletos';
+      this.errorModalMessage = 'Por favor, selecciona los días por semana.';
+      this.showErrorModal = true;
+      return;
+    }
+
+    if (!this.datosIA.duracionSemanas) {
+      this.errorModalTitle = 'Campos incompletos';
+      this.errorModalMessage = 'Por favor, selecciona la duración en semanas.';
+      this.showErrorModal = true;
+      return;
+    }
+
+    if (this.datosIA.incluirCardio === null) {
+      this.errorModalTitle = 'Campos incompletos';
+      this.errorModalMessage = 'Por favor, indica si deseas incluir cardio.';
+      this.showErrorModal = true;
+      return;
+    }
 
     this.isLoading = true;
     this.errorMessage = '';
