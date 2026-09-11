@@ -17,7 +17,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   loading = false;
   errorMessage = '';
   successMessage = '';
-  
+
   showSuccessPopup = false;
 
   private subscription?: Subscription;
@@ -113,10 +113,10 @@ export class LoginComponent implements OnInit, OnDestroy {
     if (this.lockTimer) {
       clearInterval(this.lockTimer);
     }
-    
+
     this.lockTimer = setInterval(() => {
       this.lockRemainingSeconds = this.authService.getLockRemainingSeconds();
-      
+
       if (this.lockRemainingSeconds <= 0) {
         clearInterval(this.lockTimer);
         this.lockTimer = null;
