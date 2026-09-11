@@ -20,14 +20,18 @@ export class AdminPlantillasComponent implements OnInit {
   modalAbierto = false;
   esEdicion = false;
 
-  // Propiedades de filtrado
   filtroBusqueda: string = '';
   filtroTipo: string = '';
   filtroEstado: boolean | null = null;
   
-  // Variables auxiliares para mostrar texto plano con llaves en el HTML
   ejemploNombre = '{{nombre}}';
   ejemploEmail = '{{email}}';
+
+  canalesDisponibles: EnumCanalNotificacion[] = ['EMAIL', 'WHATSAPP'];
+  eventosDisponibles: EnumEventoAsociado[] = [
+    'WELCOME', 'REGISTRO_USUARIO', 'LOGIN_USUARIO',  
+    'PAYMENT_REMINDER', 'ACHIEVEMENT', 'MAINTENANCE_ALERT', 'PROMOTION', 'CHANGE_PASSWORD'
+  ];
   
   plantillaForm: PlantillaNotificacion = {
     nombre: '',
@@ -35,19 +39,12 @@ export class AdminPlantillasComponent implements OnInit {
     descripcion: '',
     contenido: '',
     tipoPlantilla: 'EMAIL',
-    eventoAsociado: 'WELCOME',
-    eventosAsociados: ['WELCOME']
+    eventoAsociado: 'PROMOTION',
+    eventosAsociados: ['PROMOTION']
   };
-
-  canalesDisponibles: EnumCanalNotificacion[] = ['EMAIL', 'WHATSAPP'];
-  eventosDisponibles: EnumEventoAsociado[] = [
-    'WELCOME', 'REGISTRO_USUARIO', 'LOGIN_USUARIO',  
-    'PAYMENT_REMINDER', 'ACHIEVEMENT', 'MAINTENANCE_ALERT', 'PROMOTION', 'CHANGE_PASSWORD'
-  ];
 
   vistaPreviaTexto = '';
 
-  // Getter de plantillas filtradas para la tabla y contadores
   get plantillasFiltradas(): PlantillaNotificacion[] {
     return this.plantillas.filter(p => {
       const coincideTexto = !this.filtroBusqueda || 
@@ -88,16 +85,26 @@ export class AdminPlantillasComponent implements OnInit {
       descripcion: '',
       contenido: '',
       tipoPlantilla: 'EMAIL',
-      eventoAsociado: 'WELCOME',
-      eventosAsociados: ['WELCOME']
+      eventoAsociado: 'PROMOTION',
+      eventosAsociados: ['PROMOTION']
     };
     this.modalAbierto = true;
   }
 
   abrirModalEditar(plantilla: PlantillaNotificacion): void {
     this.esEdicion = true;
-    this.plantillaForm = { ...plantilla };
+    this.plantillaForm = { 
+      ...plantilla,
+      eventoAsociado: plantilla.eventoAsociado || plantilla.eventosAsociados?.[0] || 'PROMOTION',
+      eventosAsociados: plantilla.eventosAsociados?.length ? plantilla.eventosAsociados : [plantilla.eventoAsociado || 'PROMOTION']
+    };
     this.modalAbierto = true;
+  }
+
+  onEventoChange(event: any): void {
+    const valorSeleccionado = event.target.value;
+    this.plantillaForm.eventoAsociado = valorSeleccionado;
+    this.plantillaForm.eventosAsociados = [valorSeleccionado];
   }
 
   cerrarModal(): void {

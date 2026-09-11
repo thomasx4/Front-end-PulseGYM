@@ -172,7 +172,7 @@
 
                     <div class="form-group">
                         <label class="form-label">Evento Asociado</label>
-                        <select [(ngModel)]="plantillaForm.eventoAsociado" class="form-control">
+                        <select [ngModel]="plantillaForm.eventoAsociado" (change)="onEventoChange($event)" name="eventoAsociado" class="form-control">
                             <option *ngFor="let e of eventosDisponibles" [value]="e">{{ e }}</option>
                         </select>
                     </div>
