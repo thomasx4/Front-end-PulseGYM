@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { NutricionalService, PlanNutricionalReal } from '../../../../core/services/nutricional.service';
+import { UserService } from '../../../../core/services/users.service';
 
 export interface PlanNutricionalUI {
   id: number;
@@ -20,6 +21,13 @@ export class PlanNutricionalComponent implements OnInit {
   public isLoading: boolean = false;
   public planes: PlanNutricionalUI[] = [];
 
+  // Control de acceso a IA
+  public tieneAccesoIA: boolean = false;
+  public validandoAcceso: boolean = true;
+
+  // Modal de membresia requerida
+  public showMembresiaModal: boolean = false;
+
   public showErrorModal: boolean = false;
   public errorModalTitle: string = 'Error';
   public errorModalMessage: string = '';
@@ -27,11 +35,41 @@ export class PlanNutricionalComponent implements OnInit {
 
   constructor(
     private nutricionalService: NutricionalService,
+    private userService: UserService,
     private router: Router
   ) { }
 
   ngOnInit(): void {
-    this.cargarPlanes();
+    this.validarAccesoIA();
+  }
+
+  // Valida si la membresia incluye IA antes de cargar planes
+  validarAccesoIA(): void {
+    this.validandoAcceso = true;
+
+    this.userService.getMiMembresiaActiva().subscribe({
+      next: (membresia: any) => {
+        console.log('Membresia activa recibida:', membresia);
+        console.log('incluyeIA:', membresia?.incluyeIA);
+
+        this.tieneAccesoIA = membresia?.incluyeIA === true;
+        this.validandoAcceso = false;
+
+        if (this.tieneAccesoIA) {
+          this.cargarPlanes();
+        } else {
+          this.showMembresiaModal = true;
+          this.isLoading = false;
+        }
+      },
+      error: (error: any) => {
+        console.error('Error al validar membresia:', error);
+        this.validandoAcceso = false;
+        this.tieneAccesoIA = false;
+        this.isLoading = false;
+        this.showMembresiaModal = true;
+      }
+    });
   }
 
   private formatearFecha(fecha: string): string {
@@ -74,10 +112,10 @@ export class PlanNutricionalComponent implements OnInit {
 
         let mensaje = 'Hubo un error al obtener tus planes nutricionales. Por favor, intenta de nuevo.';
         if (err.status === 401) {
-          mensaje = 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.';
-          this.errorModalAction = 'Iniciar sesión';
+          mensaje = 'Tu sesion ha expirado. Por favor, inicia sesion nuevamente.';
+          this.errorModalAction = 'Iniciar sesion';
         } else if (err.status === 404) {
-          mensaje = 'No tienes planes nutricionales creados aún. ¿Quieres crear uno?';
+          mensaje = 'No tienes planes nutricionales creados aun. Quieres crear uno?';
           this.errorModalAction = 'Crear plan';
         } else if (err.error?.message) {
           mensaje = err.error.message;
@@ -89,6 +127,10 @@ export class PlanNutricionalComponent implements OnInit {
   }
 
   crearPlan(): void {
+    if (!this.tieneAccesoIA) {
+      this.showMembresiaModal = true;
+      return;
+    }
     this.router.navigate(['/user/plan-nutricional/crear-plan']);
   }
 
@@ -96,9 +138,18 @@ export class PlanNutricionalComponent implements OnInit {
     this.router.navigate(['/user/plan-nutricional/exportar']);
   }
 
-  // 👈 Ruta CORREGIDA: debe coincidir con la definida en user-routing.module.ts
   verPlan(plan: PlanNutricionalUI): void {
     this.router.navigate(['/user/plan-nutricional/detalle', plan.id]);
+  }
+
+  // Redirige a membresias o cierra el modal
+  irAMembresias(): void {
+    this.showMembresiaModal = false;
+    this.router.navigate(['/user/membresias']);
+  }
+
+  cerrarMembresiaModal(): void {
+    this.showMembresiaModal = false;
   }
 
   mostrarError(titulo: string, mensaje: string): void {
@@ -110,7 +161,7 @@ export class PlanNutricionalComponent implements OnInit {
   onRetry(): void {
     this.showErrorModal = false;
 
-    if (this.errorModalAction === 'Iniciar sesión') {
+    if (this.errorModalAction === 'Iniciar sesion') {
       this.router.navigate(['/auth/login']);
     } else if (this.errorModalAction === 'Crear plan') {
       this.crearPlan();

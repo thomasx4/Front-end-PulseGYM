@@ -45,7 +45,7 @@ export interface GenerarPlanPayload {
   objetivo_especifico: string;
 }
 
-// 👈 Nueva interfaz para camelCase
+// Nueva interfaz para camelCase
 export interface GenerarPlanPayloadCamel {
   restriccionesDieteticas: string[];
   alergias: string[];
@@ -80,24 +80,24 @@ export class NutricionalService {
     return this.http.get<PlanNutricionalReal>(`${this.apiUrl}/${id}`);
   }
 
-  // 👈 Generar plan (por token)
+  //  Generar plan (por token)
   generarPlan(payload: GenerarPlanPayload): Observable<any> {
     return this.http.post(`${this.apiUrl}/mi-plan/generar`, payload);
   }
 
-  // 👈 Ajustar plan (por token)
+  //  Ajustar plan (por token)
   editarPlan(payload: EditarPlanPayload): Observable<any> {
     return this.http.put(`${this.apiUrl}/mi-plan/ajustar`, payload);
   }
 
-  // 👈 Exportar un plan específico a PDF
+  //  Exportar un plan específico a PDF
   exportarPlanPDF(idPlan: number): Observable<Blob> {
     return this.http.get(`${this.exportUrl}/exportar-pdf/${idPlan}`, {
       responseType: 'blob'
     });
   }
 
-  // 👈 Exportar el último plan a PDF
+  //  Exportar el último plan a PDF
   exportarUltimoPlanPDF(): Observable<Blob> {
     return this.http.get(`${this.exportUrl}/exportar-pdf`, {
       responseType: 'blob'
