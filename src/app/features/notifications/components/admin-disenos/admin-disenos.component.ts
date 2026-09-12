@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NotificationService } from '../../services/notification.service';
 import { PlantillaDisenoEmail, EnumEventoAsociado, EnumCanalNotificacion } from '../../models/notification.model';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-admin-disenos',
@@ -45,6 +46,8 @@ export class AdminDisenosComponent implements OnInit {
 
   get disenosFiltrados(): PlantillaDisenoEmail[] {
     return this.disenos.filter(d => {
+      if (d.eliminado) return false;
+
       const coincideTexto = !this.filtroBusqueda ||
         d.nombre.toLowerCase().includes(this.filtroBusqueda.toLowerCase()) ||
         d.tituloHeader.toLowerCase().includes(this.filtroBusqueda.toLowerCase());
@@ -91,15 +94,87 @@ export class AdminDisenosComponent implements OnInit {
   guardarDiseno(): void {
     if (this.esEdicion && this.disenoForm.idDiseno) {
       this.notificationService.actualizarDiseno(this.rolAdmin, this.disenoForm.idDiseno, this.disenoForm).subscribe({
-        next: () => { this.cargarDisenos(); this.cerrarModal(); },
-        error: (err) => alert('Error al actualizar diseño: ' + err.error?.message)
+        next: () => { 
+          this.cargarDisenos(); 
+          this.cerrarModal(); 
+          Swal.fire({
+            icon: 'success',
+            title: '¡Actualizado!',
+            text: 'El diseño se ha actualizado exitosamente.',
+            confirmButtonColor: '#0e3b72',
+            timer: 2000
+          });
+        },
+        error: (err) => {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: err.error?.message || 'Error al actualizar diseño.',
+            confirmButtonColor: '#0e3b72'
+          });
+        }
       });
     } else {
       this.notificationService.crearDiseno(this.rolAdmin, this.disenoForm).subscribe({
-        next: () => { this.cargarDisenos(); this.cerrarModal(); },
-        error: (err) => alert('Error al crear diseño: ' + err.error?.message)
+        next: () => { 
+          this.cargarDisenos(); 
+          this.cerrarModal(); 
+          Swal.fire({
+            icon: 'success',
+            title: '¡Creado!',
+            text: 'El diseño se ha creado exitosamente.',
+            confirmButtonColor: '#0e3b72',
+            timer: 2000
+          });
+        },
+        error: (err) => {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: err.error?.message || 'Error al crear diseño.',
+            confirmButtonColor: '#0e3b72'
+          });
+        }
       });
     }
+  }
+
+  eliminarDiseno(diseno: PlantillaDisenoEmail): void {
+    if (!diseno.idDiseno) return;
+
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: `Deseas eliminar el diseño "${diseno.nombre}"`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc2626',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.notificationService.eliminarDiseno(this.rolAdmin, diseno.idDiseno!).subscribe({
+          next: () => {
+            this.cargarDisenos();
+            Swal.fire({
+              icon: 'success',
+              title: '¡Eliminado!',
+              text: 'El diseño ha sido eliminado correctamente.',
+              confirmButtonColor: '#0e3b72',
+              timer: 2000
+            });
+          },
+          error: (err) => {
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: err.error?.message || 'Error al eliminar diseño.',
+              confirmButtonColor: '#0e3b72'
+            });
+          }
+        });
+      }
+    });
   }
 
   limpiarFiltros(): void {
