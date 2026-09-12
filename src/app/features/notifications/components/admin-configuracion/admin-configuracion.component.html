@@ -1,31 +1,124 @@
-<div class="p-6 max-w-3xl mx-auto">
-    <h2 class="text-2xl font-bold text-gray-800 mb-6">Configuración Global de Límites (Rate Limiting)</h2>
+<div class="payments-page">
+    <div class="page-header">
+        <div class="page-header__left">
+            <div class="page-header__title-group">
+                <div class="page-header__icon-wrapper">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="page-header__title">Configuración & Límites</h1>
+                    <p class="page-header__subtitle">Define los límites de envío de notificaciones y configura los parámetros generales.</p>
+                </div>
+            </div>
+        </div>
 
-    <div *ngIf="mensajeExito" class="mb-4 p-4 bg-green-100 text-green-700 rounded-lg">
-        {{ mensajeExito }}
+        <div class="page-header__actions">
+            <button type="button" class="btn btn--primary" (click)="guardarConfiguracion()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                    <polyline points="7 3 7 8 15 8"></polyline>
+                </svg>
+                Guardar cambios
+            </button>
+        </div>
     </div>
 
-    <div class="bg-white shadow-md rounded-lg p-6 space-y-6">
-        <div>
-            <label class="block text-sm font-medium text-gray-700">Máximo de notificaciones por minuto por
-                usuario</label>
-            <input [(ngModel)]="config.maxNotificacionesPorMinuto" type="number" min="1"
-                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2">
-            <p class="text-xs text-gray-500 mt-1">Límite estricto para evitar spam por minuto.</p>
+    <!-- SECCIÓN 1: LÍMITES DE ENVÍO -->
+    <div class="config-card">
+        <div class="config-card__header">
+            <div class="config-card__icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                </svg>
+            </div>
+            <div>
+                <h3 class="config-card__title">Límites de envío</h3>
+                <p class="config-card__subtitle">Controla la cantidad de notificaciones que puede recibir cada usuario.</p>
+            </div>
         </div>
 
-        <div>
-            <label class="block text-sm font-medium text-gray-700">Máximo de notificaciones por día por usuario</label>
-            <input [(ngModel)]="config.maxNotificacionesPorDia" type="number" min="1"
-                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2">
-            <p class="text-xs text-gray-500 mt-1">Tope máximo acumulado en un periodo de 24 horas.</p>
+        <div class="config-card__body">
+            <div class="form-row-half">
+                <div class="form-group-full">
+                    <label class="form-label">Máximo de notificaciones por día</label>
+                    <input [(ngModel)]="config.maxNotificacionesPorDia" type="number" min="1" class="form-control-custom">
+                    <span class="form-hint">Máximo de notificaciones permitidas por usuario al día.</span>
+                </div>
+
+                <div class="form-group-full">
+                    <label class="form-label">Máximo de notificaciones por minuto</label>
+                    <input [(ngModel)]="config.maxNotificacionesPorMinuto" type="number" min="1" class="form-control-custom">
+                    <span class="form-hint">Máximo de notificaciones permitidas por usuario por minuto.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECCIÓN 2: CONFIGURACIÓN GENERAL -->
+    <div class="config-card">
+        <div class="config-card__header">
+            <div class="config-card__icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+            </div>
+            <div>
+                <h3 class="config-card__title">Configuración general</h3>
+                <p class="config-card__subtitle">Ajusta los canales y preferencias de notificación.</p>
+            </div>
         </div>
 
-        <div class="flex justify-end">
-            <button (click)="guardarConfiguracion()"
-                class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
-                Guardar Cambios
-            </button>
+        <div class="config-card__body">
+            <div class="config-row-split">
+                <div class="channels-section">
+                    <label class="form-label mb-2">Canales habilitados</label>
+                    <div class="channels-list">
+                        <div class="channel-item">
+                            <label class="switch">
+                                <input type="checkbox" checked disabled>
+                                <span class="slider round"></span>
+                            </label>
+                            <span class="channel-name">Email</span>
+                        </div>
+                        <div class="channel-item">
+                            <label class="switch">
+                                <input type="checkbox" checked disabled>
+                                <span class="slider round"></span>
+                            </label>
+                            <span class="channel-name">Whatsapp</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="system-status-section">
+                    <label class="form-label mb-2">Estado del sistema</label>
+                    <div class="status-box">
+                        <span class="status-pill success">● Activo</span>
+                        <p class="status-desc">El sistema de notificaciones está funcionando correctamente.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECCIÓN 3: INFORMACIÓN -->
+    <div class="info-card-footer">
+        <div class="info-card-footer__icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+        </div>
+        <div>
+            <h4 class="info-title">Información</h4>
+            <p class="info-text">Los límites se aplican por usuario y pueden ser modificados en cualquier momento.</p>
         </div>
     </div>
 </div>
