@@ -101,10 +101,9 @@ export class AdminPlantillasComponent implements OnInit {
     this.modalAbierto = true;
   }
 
-  onEventoChange(event: any): void {
-    const valorSeleccionado = event.target.value;
-    this.plantillaForm.eventoAsociado = valorSeleccionado;
-    this.plantillaForm.eventosAsociados = [valorSeleccionado];
+  onEventoChange(nuevoEvento: EnumEventoAsociado): void {
+    this.plantillaForm.eventoAsociado = nuevoEvento;
+    this.plantillaForm.eventosAsociados = [nuevoEvento];
   }
 
   cerrarModal(): void {
