@@ -3,12 +3,14 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NotificationService } from '../../services/notification.service';
 import { ConfiguracionGlobal } from '../../models/notification.model';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-admin-configuracion',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './admin-configuracion.component.html'
+  templateUrl: './admin-configuracion.component.html',
+  styleUrls: ['./admin-configuracion.component.scss']
 })
 export class AdminConfiguracionComponent implements OnInit {
   private notificationService = inject(NotificationService);
@@ -18,7 +20,6 @@ export class AdminConfiguracionComponent implements OnInit {
     maxNotificacionesPorDia: 100,
     maxNotificacionesPorMinuto: 10
   };
-  mensajeExito = '';
 
   ngOnInit(): void {
     this.cargarConfiguracion();
@@ -38,10 +39,22 @@ export class AdminConfiguracionComponent implements OnInit {
   guardarConfiguracion(): void {
     this.notificationService.actualizarConfiguracionGlobal(this.rolAdmin, this.config).subscribe({
       next: (res) => {
-        this.mensajeExito = res.message || 'Configuración actualizada correctamente';
-        setTimeout(() => this.mensajeExito = '', 3000);
+        Swal.fire({
+          icon: 'success',
+          title: '¡Actualizado!',
+          text: res.message || 'Configuración global actualizada correctamente.',
+          confirmButtonColor: '#0e3b72',
+          timer: 2000
+        });
       },
-      error: (err) => alert('Error al actualizar límites: ' + err.error?.message)
+      error: (err) => {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: err.error?.message || 'Error al actualizar límites.',
+          confirmButtonColor: '#0e3b72'
+        });
+      }
     });
   }
 }
