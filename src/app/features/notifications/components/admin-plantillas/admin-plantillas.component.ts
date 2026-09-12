@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NotificationService } from '../../services/notification.service';
 import { PlantillaNotificacion, EnumCanalNotificacion, EnumEventoAsociado } from '../../models/notification.model';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-admin-plantillas',
@@ -116,16 +117,44 @@ export class AdminPlantillasComponent implements OnInit {
         next: () => {
           this.cargarPlantillas();
           this.cerrarModal();
+          Swal.fire({
+            icon: 'success',
+            title: '¡Actualizado!',
+            text: 'La plantilla se ha actualizado exitosamente.',
+            confirmButtonColor: '#0e3b72',
+            timer: 2000
+          });
         },
-        error: (err) => alert('Error al actualizar: ' + err.error?.message)
+        error: (err) => {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: err.error?.message || 'Error al actualizar la plantilla.',
+            confirmButtonColor: '#0e3b72'
+          });
+        }
       });
     } else {
       this.notificationService.crearPlantilla(this.rolAdmin, this.plantillaForm).subscribe({
         next: () => {
           this.cargarPlantillas();
           this.cerrarModal();
+          Swal.fire({
+            icon: 'success',
+            title: '¡Creado!',
+            text: 'La plantilla se ha creado exitosamente.',
+            confirmButtonColor: '#0e3b72',
+            timer: 2000
+          });
         },
-        error: (err) => alert('Error al crear: ' + err.error?.message)
+        error: (err) => {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: err.error?.message || 'Error al crear la plantilla.',
+            confirmButtonColor: '#0e3b72'
+          });
+        }
       });
     }
   }
@@ -136,8 +165,23 @@ export class AdminPlantillasComponent implements OnInit {
     this.notificationService.cambiarEstadoPlantilla(this.rolAdmin, plantilla.idPlantilla, nuevoEstado).subscribe({
       next: () => {
         plantilla.estado = nuevoEstado;
+        Swal.fire({
+          icon: 'success',
+          title: 'Estado actualizado',
+          text: `La plantilla ahora está ${nuevoEstado ? 'activa' : 'inactiva'}.`,
+          confirmButtonColor: '#0e3b72',
+          timer: 1500,
+          showConfirmButton: false
+        });
       },
-      error: (err) => alert('Error al cambiar estado: ' + err.error?.message)
+      error: (err) => {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: err.error?.message || 'No se pudo cambiar el estado.',
+          confirmButtonColor: '#0e3b72'
+        });
+      }
     });
   }
 
@@ -146,7 +190,14 @@ export class AdminPlantillasComponent implements OnInit {
       next: (res) => {
         this.vistaPreviaTexto = res.contenido;
       },
-      error: (err) => alert('Error al generar vista previa')
+      error: () => {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudo generar la vista previa.',
+          confirmButtonColor: '#0e3b72'
+        });
+      }
     });
   }
 
@@ -154,5 +205,43 @@ export class AdminPlantillasComponent implements OnInit {
     this.filtroBusqueda = '';
     this.filtroTipo = '';
     this.filtroEstado = null;
+  }
+
+  eliminarPlantilla(plantilla: PlantillaNotificacion): void {
+    if (!plantilla.idPlantilla) return;
+  
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: `Deseas eliminar la plantilla "${plantilla.nombre}"`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc2626',
+      cancelButtonColor: '#0e3b72',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.notificationService.eliminarPlantilla(this.rolAdmin, plantilla.idPlantilla!).subscribe({
+          next: () => {
+            this.cargarPlantillas();
+            Swal.fire({
+              icon: 'success',
+              title: '¡Eliminado!',
+              text: 'La plantilla ha sido eliminada correctamente.',
+              confirmButtonColor: '#0e3b72',
+              timer: 2000
+            });
+          },
+          error: (err) => {
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: err.error?.message || 'Error al eliminar plantilla.',
+              confirmButtonColor: '#0e3b72'
+            });
+          }
+        });
+      }
+    });
   }
 }
