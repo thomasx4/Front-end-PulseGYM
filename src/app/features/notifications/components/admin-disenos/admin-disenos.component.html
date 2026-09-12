@@ -1,72 +1,183 @@
-<div class="p-6 max-w-7xl mx-auto">
-    <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold text-gray-800">Diseños HTML de Correos Electrónicos</h2>
-        <button (click)="abrirModalCrear()"
-            class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
-            + Nuevo Diseño
-        </button>
+<div class="payments-page">
+    <div class="page-header">
+        <div class="page-header__left">
+            <div class="page-header__title-group">
+                <div class="page-header__icon-wrapper">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.5">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path
+                            d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z">
+                        </path>
+                        <line x1="2" y1="12" x2="22" y2="12"></line>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="page-header__title">Diseños HTML</h1>
+                    <p class="page-header__subtitle">Personaliza los diseños de tus notificaciones con HTML.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="page-header__actions">
+            <button type="button" class="btn btn--primary" (click)="abrirModalCrear()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Nuevo Diseño
+            </button>
+        </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div *ngFor="let d of disenos" class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
-            <div class="p-4 text-white"
-                [style.background]="'linear-gradient(135deg, ' + d.colorPrincipal + ' 0%, ' + d.colorSecundario + ' 100%)'">
-                <h3 class="font-bold text-lg">{{ d.tituloHeader }}</h3>
-                <p class="text-xs opacity-90">{{ d.subtituloHeader }}</p>
+    <!-- BARRA DE FILTROS -->
+    <div class="filters-card">
+        <div class="filters-card__search">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" placeholder="Buscar diseño..." [(ngModel)]="filtroBusqueda" />
+        </div>
+
+        <div class="filters-card__selects">
+            <div class="filter-group">
+                <label>Tipo de diseño</label>
+                <select [(ngModel)]="filtroEvento">
+                    <option value="TODOS">Todos</option>
+                    <option *ngFor="let e of eventosDisponibles" [value]="e">{{ e }}</option>
+                </select>
             </div>
-            <div class="p-4 space-y-2">
-                <p class="text-sm font-semibold text-gray-700">Nombre: <span class="font-normal text-gray-600">{{
-                        d.nombre }}</span></p>
-                <p class="text-sm font-semibold text-gray-700">Evento: <span class="font-normal text-gray-600">{{
-                        d.eventoAsociado }}</span></p>
-                <div class="flex justify-end pt-2">
-                    <button (click)="abrirModalEditar(d)"
-                        class="text-indigo-600 hover:text-indigo-900 text-sm font-semibold">Editar Estilos</button>
+
+            <div class="filter-group">
+                <label>Canal</label>
+                <select [(ngModel)]="filtroCanal">
+                    <option value="TODOS">Todos</option>
+                    <option value="EMAIL">Email</option>
+                    <option value="WHATSAPP">WhatsApp</option>
+                </select>
+            </div>
+
+            <button class="btn-filters-icon" title="Limpiar filtros" (click)="limpiarFiltros()">Limpiar</button>
+        </div>
+    </div>
+
+    <!-- GRID DE TARJETAS DE DISEÑO -->
+    <div class="designs-grid">
+        <div *ngFor="let d of disenosFiltrados" class="design-card">
+            <!-- Header visual simulado del correo -->
+            <div class="design-card__preview"
+                [style.background]="'linear-gradient(135deg, ' + d.colorPrincipal + ' 0%, ' + d.colorSecundario + ' 100%)'">
+                <div class="preview-content">
+                    <span class="preview-title">{{ d.tituloHeader }}</span>
+                    <span class="preview-subtitle">{{ d.subtituloHeader }}</span>
                 </div>
+            </div>
+
+            <!-- Cuerpo de la tarjeta -->
+            <div class="design-card__body">
+                <div class="design-card__info">
+                    <span class="design-name">{{ d.nombre }}</span>
+                </div>
+
+                <div class="design-badges">
+                    <span class="plan-badge">{{ d.canal }}</span>
+                    <span class="method-tag">{{ d.eventoAsociado }}</span>
+                </div>
+
+                <div class="design-card__footer">
+                    <span class="design-date">Activo</span>
+                    <div class="actions-cell">
+                        <button class="action-btn" title="Editar Estilos" (click)="abrirModalEditar(d)">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div *ngIf="disenosFiltrados.length === 0" class="empty-state-card">
+            <div class="empty-state-content">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <p>No se encontraron diseños registrados.</p>
             </div>
         </div>
     </div>
 
-    <!-- Modal -->
-    <div *ngIf="modalAbierto" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl max-w-lg w-full p-6 shadow-xl">
-            <h3 class="text-xl font-bold mb-4">{{ esEdicion ? 'Editar Diseño' : 'Nuevo Diseño' }}</h3>
+    <!-- MODAL FORMULARIO -->
+    <div *ngIf="modalAbierto" class="modal-backdrop">
+        <div class="modal-container-custom">
+            <div class="detail-header">
+                <h3>{{ esEdicion ? 'Editar Diseño' : 'Nuevo Diseño' }}</h3>
+                <button class="close-btn" (click)="cerrarModal()">✕</button>
+            </div>
 
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Identificador (Nombre)</label>
-                    <input [(ngModel)]="disenoForm.nombre" type="text"
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2">
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Color Principal</label>
-                        <input [(ngModel)]="disenoForm.colorPrincipal" type="color"
-                            class="mt-1 block w-full h-10 rounded border p-1 cursor-pointer">
+            <div class="modal-body-custom">
+                <div class="form-grid-custom">
+                    <div class="form-group-full">
+                        <label class="form-label">Identificador (Nombre)</label>
+                        <input [(ngModel)]="disenoForm.nombre" type="text" placeholder="Ej: Diseño corporativo"
+                            class="form-control-custom">
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Color Secundario</label>
-                        <input [(ngModel)]="disenoForm.colorSecundario" type="color"
-                            class="mt-1 block w-full h-10 rounded border p-1 cursor-pointer">
+
+                    <div class="form-row-half">
+                        <div class="form-group-full">
+                            <label class="form-label">Color Principal</label>
+                            <div class="color-picker-wrapper">
+                                <input [(ngModel)]="disenoForm.colorPrincipal" type="color" class="color-input">
+                                <input [(ngModel)]="disenoForm.colorPrincipal" type="text" class="form-control-custom">
+                            </div>
+                        </div>
+                        <div class="form-group-full">
+                            <label class="form-label">Color Secundario</label>
+                            <div class="color-picker-wrapper">
+                                <input [(ngModel)]="disenoForm.colorSecundario" type="color" class="color-input">
+                                <input [(ngModel)]="disenoForm.colorSecundario" type="text" class="form-control-custom">
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Título Header</label>
-                    <input [(ngModel)]="disenoForm.tituloHeader" type="text"
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Subtítulo Header</label>
-                    <input [(ngModel)]="disenoForm.subtituloHeader" type="text"
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2">
+
+                    <div class="form-row-half">
+                        <div class="form-group-full">
+                            <label class="form-label">Canal</label>
+                            <select [(ngModel)]="disenoForm.canal" class="form-control-custom">
+                                <option value="EMAIL">EMAIL</option>
+                                <option value="WHATSAPP">WHATSAPP</option>
+                            </select>
+                        </div>
+                        <div class="form-group-full">
+                            <label class="form-label">Evento Asociado</label>
+                            <select [(ngModel)]="disenoForm.eventoAsociado" class="form-control-custom">
+                                <option *ngFor="let e of eventosDisponibles" [value]="e">{{ e }}</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group-full">
+                        <label class="form-label">Título Header</label>
+                        <input [(ngModel)]="disenoForm.tituloHeader" type="text" placeholder="Ej: Pulse Gym"
+                            class="form-control-custom">
+                    </div>
+
+                    <div class="form-group-full">
+                        <label class="form-label">Subtítulo Header</label>
+                        <input [(ngModel)]="disenoForm.subtituloHeader" type="text"
+                            placeholder="Ej: Tu bienestar, nuestra pasión" class="form-control-custom">
+                    </div>
                 </div>
             </div>
 
-            <div class="mt-6 flex justify-end space-x-3">
-                <button (click)="cerrarModal()"
-                    class="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400">Cancelar</button>
-                <button (click)="guardarDiseno()"
-                    class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Guardar</button>
+            <div class="modal-footer-custom">
+                <button (click)="cerrarModal()" class="btn btn--outline-dark" style="width: auto;">Cancelar</button>
+                <button (click)="guardarDiseno()" class="btn btn--primary" style="width: auto;">Guardar</button>
             </div>
         </div>
     </div>
