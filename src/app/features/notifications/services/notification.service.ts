@@ -68,4 +68,17 @@ export class NotificationService {
   enviarNotificacionManual(rol: string, data: EnvioNotificacion): Observable<any> {
     return this.http.post(`${this.apiUrl}/notificaciones/enviar`, data, { headers: this.getHeaders(rol) });
   }
+
+  // --- DISEÑOS DE EMAIL (ADMIN) ---
+  listarDisenos(rol: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/diseno-email/leer`, { headers: this.getHeaders(rol) });
+  }
+
+  crearDiseno(rol: string, data: PlantillaDisenoEmail): Observable<any> {
+    return this.http.post(`${this.apiUrl}/diseno-email/crear`, data, { headers: this.getHeaders(rol) });
+  }
+
+  actualizarDiseno(rol: string, id: number, data: PlantillaDisenoEmail): Observable<any> {
+    return this.http.put(`${this.apiUrl}/diseno-email/actualizar/${id}`, data, { headers: this.getHeaders(rol) });
+  }
 }
