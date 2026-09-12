@@ -81,4 +81,12 @@ export class NotificationService {
   actualizarDiseno(rol: string, id: number, data: PlantillaDisenoEmail): Observable<any> {
     return this.http.put(`${this.apiUrl}/diseno-email/actualizar/${id}`, data, { headers: this.getHeaders(rol) });
   }
+
+  eliminarPlantilla(rol: string, id: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}/plantilla/eliminar/${id}`, {}, { headers: this.getHeaders(rol) });
+  }
+
+  eliminarDiseno(rol: string, id: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}/diseno-email/eliminar/${id}`, {}, { headers: this.getHeaders(rol) });
+  }
 }
