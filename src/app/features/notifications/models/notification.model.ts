@@ -35,8 +35,10 @@ export interface PlantillaDisenoEmail {
     tituloHeader: string;
     subtituloHeader: string;
     activo: boolean;
+    eliminado?: boolean;
+    fechaCreacion?: string;
+    fechaActualizacion?: string;
 }
-
 export interface ConfiguracionGlobal {
     maxNotificacionesPorDia: number;
     maxNotificacionesPorMinuto: number;
