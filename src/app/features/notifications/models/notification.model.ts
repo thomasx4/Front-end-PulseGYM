@@ -42,6 +42,10 @@ export interface PlantillaDisenoEmail {
 export interface ConfiguracionGlobal {
     maxNotificacionesPorDia: number;
     maxNotificacionesPorMinuto: number;
+    emailHabilitado?: boolean;
+    whatsappHabilitado?: boolean;
+    estadoSistema?: string;
+    mensajeEstado?: string;
 }
 
 export interface EnvioNotificacion {
