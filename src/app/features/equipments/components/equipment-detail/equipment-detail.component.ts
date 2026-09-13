@@ -4,6 +4,7 @@ import { SedeService } from '../../../../core/services/sede.service';
 import { SupplierService } from '../../../../core/services/supplier.service';
 import { Supplier } from '../../../suppliers/models/suppliers.model';
 import { EquipmentService } from '../../../../core/services/equipment.service';
+import { MantenimientoItem } from '../../models/maintenance.model';
 
 @Component({
   selector: 'app-equipment-detail',
@@ -25,6 +26,9 @@ export class EquipmentDetailComponent implements OnChanges {
   urgenciaSeleccionada: 'BAJA' | 'MEDIA' | 'ALTA' | 'CRITICA' | 'NINGUNA' = 'MEDIA';
   descripcionFalla: string = '';
 
+  historialMantenimientos: MantenimientoItem[] = [];
+  cargandoMantenimientos: boolean = false;
+
   constructor(
     private sedeService: SedeService,
     private supplierService: SupplierService,
@@ -38,7 +42,29 @@ export class EquipmentDetailComponent implements OnChanges {
       this.mostrandoFormFalla = false;
       this.descripcionFalla = '';
       this.urgenciaSeleccionada = 'MEDIA';
+
+      const eq = this.equipo as any;
+      const id = eq?.idEquipo || eq?.id;
+
+      if (id) {
+        this.cargarHistorialMantenimiento(Number(id));
+      }
     }
+  }
+
+  cargarHistorialMantenimiento(idEquipo: number): void {
+    this.cargandoMantenimientos = true;
+    this.equipmentService.obtenerHistorialMantenimiento(idEquipo).subscribe({
+      next: (res) => {
+        this.historialMantenimientos = res?.data || [];
+        this.cargandoMantenimientos = false;
+      },
+      error: (err) => {
+        console.error('Error al obtener el historial de mantenimientos:', err);
+        this.historialMantenimientos = [];
+        this.cargandoMantenimientos = false;
+      }
+    });
   }
 
   private cargarSede(): void {

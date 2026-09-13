@@ -95,7 +95,6 @@ export class FaultReportsComponent implements OnInit {
 
     this.guardandoMantenimiento = true;
 
-    // Formatear payload para Spring Boot (fechas vacías como null y costo como number)
     const payload: RegistrarMantenimientoPayload = {
       idEquipo: Number(this.nuevoMantenimiento.idEquipo),
       fechaServicio: this.nuevoMantenimiento.fechaServicio,
@@ -114,7 +113,6 @@ export class FaultReportsComponent implements OnInit {
         this.guardandoMantenimiento = false;
         this.mostrarModalMantenimiento = false;
 
-        // Actualizamos automáticamente el estado de la falla a RESUELTO
         if (this.equipoSeleccionadoFalla) {
           this.cambiarEstado(this.equipoSeleccionadoFalla, 'RESUELTO');
         }
@@ -123,7 +121,6 @@ export class FaultReportsComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error HTTP al registrar mantenimiento:', err);
-        // Imprimir el mensaje detallado del backend si existe
         const mensajeError = err?.error?.message || err?.error || 'Ocurrió un error al guardar el registro de mantenimiento.';
         alert(`Error: ${typeof mensajeError === 'string' ? mensajeError : 'Revisa la consola para más detalles.'}`);
         this.guardandoMantenimiento = false;

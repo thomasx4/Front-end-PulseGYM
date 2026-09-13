@@ -326,9 +326,6 @@ $bg-light: #f4f6fa;
     color: #64748b;
 }
 
-
-// Añadir al final de fault-reports.component.scss
-
 .btn-maint-action {
   display: flex;
   align-items: center;
@@ -350,7 +347,7 @@ $bg-light: #f4f6fa;
   }
 }
 
-// ESTILOS DE MODAL
+
 .modal-backdrop {
   position: fixed; inset: 0; background: rgba(11, 25, 44, 0.5); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 1000;
 }
