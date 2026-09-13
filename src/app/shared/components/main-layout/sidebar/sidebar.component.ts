@@ -28,8 +28,8 @@ export class SidebarComponent implements OnInit {
   isUsersOpen: boolean = false;
   paymentsChildren: MenuItem[] = [];
   isPaymentsOpen: boolean = false;
-
-  // Propiedades añadidas para Notificaciones
+  equipmentChildren: MenuItem[] = [];
+  isEquipmentOpen: boolean = false;
   notificationsChildren: MenuItem[] = [];
   isNotificationsOpen: boolean = false;
 
@@ -50,6 +50,7 @@ export class SidebarComponent implements OnInit {
       this.isAttendanceOpen = this.isAttendanceActive();
       this.isPaymentsOpen = this.isPaymentsActive();
       this.isNotificationsOpen = this.isNotificationsActive();
+      this.isEquipmentOpen = this.isEquipmentActive();
     });
 
     setTimeout(() => {
@@ -140,6 +141,14 @@ export class SidebarComponent implements OnInit {
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
         <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+      </svg>
+    `);
+
+    const faultIcon = this.sanitizer.bypassSecurityTrustHtml(`
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+        <line x1="12" y1="9" x2="12" y2="13"></line>
+        <line x1="12" y1="17" x2="12.01" y2="17"></line>
       </svg>
     `);
 
@@ -236,6 +245,14 @@ export class SidebarComponent implements OnInit {
       }
     ];
 
+    this.equipmentChildren = [
+      {
+        label: 'Reporte de Fallas',
+        route: '/dashboard-admin/equipments/faults',
+        iconHtml: faultIcon,
+      }
+    ]
+
     this.menuItems = [
       {
         label: 'Tablero', // Traducido de Dashboard
@@ -280,27 +297,6 @@ export class SidebarComponent implements OnInit {
          `)
       },
       {
-        label: 'Equipos',
-        route: '/dashboard-admin/equipments',
-        exact: true,
-        iconHtml: this.sanitizer.bypassSecurityTrustHtml(`
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="sidebar__nav-icon">
-            <circle cx="6.27" cy="13.91" r="4.77" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
-            <circle cx="18.2" cy="16.3" r="2.39" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
-            <polyline points="6.27 13.91 8.18 13.91 18.68 13.91" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
-            <line x1="6.27" y1="18.68" x2="18.68" y2="18.68" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
-            <line x1="18.68" y1="6.27" x2="18.68" y2="13.91" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
-            <line x1="6.27" y1="2.45" x2="6.27" y2="9.14" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
-            <polyline points="0.55 1.5 2.46 1.5 10.09 4.36" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
-            <line x1="6.27" y1="18.68" x2="4.36" y2="22.5" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
-            <line x1="18.68" y1="18.68" x2="18.68" y2="22.5" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
-            <line x1="23.45" y1="22.5" x2="0.55" y2="22.5" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
-            <path d="M21.55,5.32h0a3.28,3.28,0,0,1-2.31.95H15.82" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
-            <circle cx="6.27" cy="13.91" r="0.95" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
-          </svg>
-        `),
-      },
-      {
         label: 'Reportes',
         route: '/dashboard-admin/reports',
         iconHtml: this.sanitizer.bypassSecurityTrustHtml(`
@@ -342,6 +338,25 @@ export class SidebarComponent implements OnInit {
     `)
   }
 
+  getEquipmentIcon(): SafeHtml {
+    return this.sanitizer.bypassSecurityTrustHtml(`
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="sidebar__nav-icon">
+            <circle cx="6.27" cy="13.91" r="4.77" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
+            <circle cx="18.2" cy="16.3" r="2.39" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
+            <polyline points="6.27 13.91 8.18 13.91 18.68 13.91" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
+            <line x1="6.27" y1="18.68" x2="18.68" y2="18.68" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
+            <line x1="18.68" y1="6.27" x2="18.68" y2="13.91" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
+            <line x1="6.27" y1="2.45" x2="6.27" y2="9.14" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
+            <polyline points="0.55 1.5 2.46 1.5 10.09 4.36" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
+            <line x1="6.27" y1="18.68" x2="4.36" y2="22.5" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
+            <line x1="18.68" y1="18.68" x2="18.68" y2="22.5" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
+            <line x1="23.45" y1="22.5" x2="0.55" y2="22.5" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
+            <path d="M21.55,5.32h0a3.28,3.28,0,0,1-2.31.95H15.82" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
+            <circle cx="6.27" cy="13.91" r="0.95" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
+          </svg>
+        `)
+  }
+
   isMembershipActive(): boolean {
     const url = this.router.url;
     return url.includes('/dashboard-admin/memberships');
@@ -366,6 +381,11 @@ export class SidebarComponent implements OnInit {
     return url.includes('/dashboard-admin/notifications');
   }
 
+  isEquipmentActive(): boolean {
+    const url = this.router.url;
+    return url.includes('/dashboard-admin/equipments')
+  }
+
   goToMembershipList(): void {
     this.router.navigate(['/dashboard-admin/memberships/list']);
   }
@@ -380,6 +400,10 @@ export class SidebarComponent implements OnInit {
 
   goToNotifications(): void {
     this.router.navigate(['/dashboard-admin/notifications/plantillas']);
+  }
+
+  goToEquipmentList(): void {
+    this.router.navigate(['/dashboard-admin/equipments'])
   }
 
   onLogout() {
