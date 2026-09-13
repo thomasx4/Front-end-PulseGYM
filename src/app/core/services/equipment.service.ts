@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { Equipo, ConsultaEquipoRequest, ApiResponseEquipos, ApiResponseSimple, EstadoEquipo, RegistrarFallaPayload } from '../../features/equipments/models/equipment.model';
+import { ReportesFallaResponse, FiltrosFalla, ActualizarEstadoFallaRequest } from '../../features/equipments/models/equipment-fault.model';
 
 @Injectable({
   providedIn: 'root'
@@ -39,5 +40,26 @@ export class EquipmentService {
 
   registrarFalla(idEquipo: number, payload: RegistrarFallaPayload): Observable<ApiResponseSimple> {
     return this.http.post<ApiResponseSimple>(`${this.apiUrl}/${idEquipo}/reportar-falla`, payload);
+  }
+
+  obtenerReportesFalla(filtros: FiltrosFalla = {}): Observable<ReportesFallaResponse> {
+    let params = new HttpParams();
+
+    if (filtros.idEquipo) {
+      params = params.set('idEquipo', filtros.idEquipo.toString());
+    }
+    if (filtros.estado) {
+      params = params.set('estado', filtros.estado);
+    }
+    if (filtros.urgencia) {
+      params = params.set('urgencia', filtros.urgencia);
+    }
+
+    return this.http.get<ReportesFallaResponse>(`${this.apiUrl}/reportes-falla`, { params });
+  }
+
+  actualizarEstadoReporte(idEquipo: number, nuevoEstado: string): Observable<any> {
+    const body: ActualizarEstadoFallaRequest = { estado: nuevoEstado as any };
+    return this.http.patch<any>(`${this.apiUrl}/${idEquipo}/estado-reporte`, body);
   }
 }
