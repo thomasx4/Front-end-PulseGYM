@@ -75,6 +75,7 @@
                         <th>URGENCIA</th>
                         <th>DESCRIPCIÓN DE LA FALLA</th>
                         <th>ESTADO REPORTE</th>
+                        <th>ACCIONES</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -118,6 +119,19 @@
                             </select>
                         </td>
 
+                        <td>
+                            <button type="button" class="btn-maint-action" (click)="abrirModalMantenimiento(item)"
+                                title="Registrar Mantenimiento">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path
+                                        d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z">
+                                    </path>
+                                </svg>
+                                <span>Mantenimiento</span>
+                            </button>
+                        </td>
+
                     </tr>
                 </tbody>
             </table>
@@ -146,4 +160,75 @@
 
     </div>
 
+</div>
+
+<div class="modal-backdrop" *ngIf="mostrarModalMantenimiento" (click)="cerrarModalMantenimiento()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+
+        <div class="modal-header">
+            <div>
+                <span class="modal-tag">EQUIPO #{{ equipoSeleccionadoFalla?.idEquipo }}</span>
+                <h3 class="modal-title">Registrar Mantenimiento</h3>
+                <p class="modal-subtitle">{{ equipoSeleccionadoFalla?.nombre }} ({{ equipoSeleccionadoFalla?.marca }})
+                </p>
+            </div>
+            <button type="button" class="btn-close" (click)="cerrarModalMantenimiento()">&times;</button>
+        </div>
+
+        <div class="modal-body">
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Tipo de Mantenimiento</label>
+                    <select [(ngModel)]="nuevoMantenimiento.tipo" class="form-input">
+                        <option value="CORRECTIVO">CORRECTIVO</option>
+                        <option value="PREVENTIVO">PREVENTIVO</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Fecha de Servicio</label>
+                    <input type="date" [(ngModel)]="nuevoMantenimiento.fechaServicio" class="form-input" />
+                </div>
+            </div>
+
+            <div class="form-row mt-2">
+                <div class="form-group">
+                    <label>Técnico Responsable *</label>
+                    <input type="text" [(ngModel)]="nuevoMantenimiento.tecnicoResponsable"
+                        placeholder="Ingrese Nombre del Técnio" class="form-input" />
+                </div>
+
+                <div class="form-group">
+                    <label>Costo (COP)</label>
+                    <input type="number" [(ngModel)]="nuevoMantenimiento.costo" placeholder="0.00" class="form-input" />
+                </div>
+            </div>
+
+            <div class="form-group mt-2">
+                <label>Próximo Mantenimiento Sugerido</label>
+                <input type="date" [(ngModel)]="nuevoMantenimiento.proximoMantenimiento" class="form-input" />
+            </div>
+
+            <div class="form-group mt-2">
+                <label>Descripción del Trabajo / Reparación *</label>
+                <textarea [(ngModel)]="nuevoMantenimiento.descripcion" rows="3"
+                    placeholder="Ingrese la descripción del Mantenimiento realizado "
+                    class="form-input"></textarea>
+            </div>
+
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn-secondary" (click)="cerrarModalMantenimiento()"
+                [disabled]="guardandoMantenimiento">
+                Cancelar
+            </button>
+            <button type="button" class="btn-primary" (click)="guardarMantenimiento()"
+                [disabled]="guardandoMantenimiento">
+                {{ guardandoMantenimiento ? 'Guardando...' : 'Guardar Mantenimiento' }}
+            </button>
+        </div>
+
+    </div>
 </div>

@@ -5,12 +5,14 @@ import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { Equipo, ConsultaEquipoRequest, ApiResponseEquipos, ApiResponseSimple, EstadoEquipo, RegistrarFallaPayload } from '../../features/equipments/models/equipment.model';
 import { ReportesFallaResponse, FiltrosFalla, ActualizarEstadoFallaRequest } from '../../features/equipments/models/equipment-fault.model';
+import { RegistrarMantenimientoPayload, HistorialMantenimientoResponse } from '../../features/equipments/models/maintenance.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class EquipmentService {
   private apiUrl = `${environment.apiUrl}/pg-ms-operation/api/equipos`;
+  private maintenanceUrl = `${environment.apiUrl}/pg-ms-operation/api/mantenimientos`;
 
   constructor(private http: HttpClient) { }
 
@@ -61,5 +63,13 @@ export class EquipmentService {
   actualizarEstadoReporte(idEquipo: number, nuevoEstado: string): Observable<any> {
     const body: ActualizarEstadoFallaRequest = { estado: nuevoEstado as any };
     return this.http.patch<any>(`${this.apiUrl}/${idEquipo}/estado-reporte`, body);
+  }
+
+  registrarMantenimiento(payload: RegistrarMantenimientoPayload): Observable<any> {
+    return this.http.post<any>(this.maintenanceUrl, payload);
+  }
+
+  obtenerHistorialMantenimiento(idEquipo: number): Observable<HistorialMantenimientoResponse> {
+    return this.http.get<HistorialMantenimientoResponse>(`${this.maintenanceUrl}/historial/equipo/${idEquipo}`);
   }
 }
