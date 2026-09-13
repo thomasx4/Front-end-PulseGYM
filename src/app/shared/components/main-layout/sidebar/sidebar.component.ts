@@ -29,6 +29,10 @@ export class SidebarComponent implements OnInit {
   paymentsChildren: MenuItem[] = [];
   isPaymentsOpen: boolean = false;
 
+  // Propiedades añadidas para Notificaciones
+  notificationsChildren: MenuItem[] = [];
+  isNotificationsOpen: boolean = false;
+
   constructor(
     private sanitizer: DomSanitizer,
     private router: Router,
@@ -45,6 +49,7 @@ export class SidebarComponent implements OnInit {
       this.isMembershipOpen = this.isMembershipActive();
       this.isAttendanceOpen = this.isAttendanceActive();
       this.isPaymentsOpen = this.isPaymentsActive();
+      this.isNotificationsOpen = this.isNotificationsActive();
     });
 
     setTimeout(() => {
@@ -52,6 +57,7 @@ export class SidebarComponent implements OnInit {
       this.isMembershipOpen = this.isMembershipActive();
       this.isAttendanceOpen = this.isAttendanceActive();
       this.isPaymentsOpen = this.isPaymentsActive();
+      this.isNotificationsOpen = this.isNotificationsActive();
     }, 100);
   }
 
@@ -130,6 +136,13 @@ export class SidebarComponent implements OnInit {
       </svg>
     `);
 
+    const notificationIcon = this.sanitizer.bypassSecurityTrustHtml(`
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+      </svg>
+    `);
+
     this.membershipChildren = [
       {
         label: 'Asignar Membresía',
@@ -198,7 +211,30 @@ export class SidebarComponent implements OnInit {
         route: '/dashboard-admin/payments/reports',
         iconHtml: reportsFinIcon
       }
-    ]
+    ];
+
+    this.notificationsChildren = [
+      {
+        label: 'Plantillas',
+        route: '/dashboard-admin/notifications/plantillas',
+        iconHtml: notificationIcon
+      },
+      {
+        label: 'Diseños HTML',
+        route: '/dashboard-admin/notifications/disenos',
+        iconHtml: notificationIcon
+      },
+      {
+        label: 'Configuración & Límites',
+        route: '/dashboard-admin/notifications/configuracion',
+        iconHtml: notificationIcon
+      },
+      {
+        label: 'Envío Manual',
+        route: '/dashboard-admin/notifications/envio-manual',
+        iconHtml: notificationIcon
+      }
+    ];
 
     this.menuItems = [
       {
@@ -321,6 +357,15 @@ export class SidebarComponent implements OnInit {
     return url.includes('/dashboard-admin/users');
   }
 
+  isPaymentsActive(): boolean {
+    return this.router.url.includes('/dashboard-admin/payments');
+  }
+
+  isNotificationsActive(): boolean {
+    const url = this.router.url;
+    return url.includes('/dashboard-admin/notifications');
+  }
+
   goToMembershipList(): void {
     this.router.navigate(['/dashboard-admin/memberships/list']);
   }
@@ -329,12 +374,12 @@ export class SidebarComponent implements OnInit {
     this.router.navigate(['/dashboard-admin/attendance/list']);
   }
 
-  isPaymentsActive(): boolean {
-    return this.router.url.includes('/dashboard-admin/payments');
-  }
-
   goToPaymentsList(): void {
     this.router.navigate(['/dashboard-admin/payments']);
+  }
+
+  goToNotifications(): void {
+    this.router.navigate(['/dashboard-admin/notifications/plantillas']);
   }
 
   onLogout() {

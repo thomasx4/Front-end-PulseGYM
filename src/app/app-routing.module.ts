@@ -59,7 +59,7 @@ const routes: Routes = [
                     }
                 ]
             },
-            { 
+            {
                 path: 'equipments',
                 children: [
                     {
@@ -84,6 +84,11 @@ const routes: Routes = [
                 loadChildren: () =>
                     import('./features/payments/payments/payments.module').then((m) => m.PaymentsModule),
             },
+            {
+                path: 'notifications',
+                loadChildren: () =>
+                    import('./features/notifications/notification.routes').then((m) => m.NOTIFICATION_ROUTES),
+            }
         ],
     },
     {
@@ -95,7 +100,7 @@ const routes: Routes = [
     { path: 'auth/login', component: LoginComponent },
     { path: 'forgot-password', component: ForgotComponent },
     { path: 'user', component: DashboardComponent },
-    
+
     { path: 'comprobante/:idPago', component: PaymentDetailComponent },
 
     { path: '', redirectTo: '/auth/login', pathMatch: 'full' },

@@ -108,6 +108,29 @@
                 </a>
             </div>
         </div>
+
+        <!-- ITEM CON SUBMENÚ (NOTIFICACIONES - AÑADIDO) -->
+        <div class="sidebar__nav-item--parent" [class.open]="isNotificationsOpen" (mouseenter)="isNotificationsOpen = true"
+            (mouseleave)="isNotificationsOpen = false">
+
+            <div class="sidebar__nav-item" [class.sidebar__nav-item--active]="isNotificationsActive()"
+                (click)="goToNotifications()">
+                <span [innerHTML]="notificationsChildren[0]?.iconHtml || getMembershipIcon()" class="sidebar__icon-wrapper"></span>
+                <span>Notificaciones</span>
+                <svg class="sidebar__dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+            </div>
+
+            <div class="sidebar__submenu" *ngIf="isNotificationsOpen">
+                <a *ngFor="let child of notificationsChildren" [routerLink]="child.route"
+                    routerLinkActive="sidebar__submenu-item--active" class="sidebar__submenu-item">
+                    <span [innerHTML]="child.iconHtml" class="sidebar__icon-wrapper"></span>
+                    <span>{{ child.label }}</span>
+                </a>
+            </div>
+        </div>
     </nav>
 
     <button class="sidebar__logout" (click)="logout()">

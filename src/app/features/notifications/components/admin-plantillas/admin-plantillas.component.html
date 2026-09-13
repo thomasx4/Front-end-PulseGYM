@@ -1,0 +1,235 @@
+<div class="payments-page">
+    <div class="page-header">
+        <div class="page-header__left">
+            <div class="page-header__title-group">
+                <div class="page-header__icon-wrapper">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.5">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="page-header__title">Plantillas de Notificaciones</h1>
+                    <p class="page-header__subtitle">Gestiona las plantillas de mensajes que se enviarán a los socios.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="page-header__actions">
+            <button type="button" class="btn btn--primary" (click)="abrirModalCrear()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Nueva Plantilla
+            </button>
+        </div>
+    </div>
+
+    <!-- BARRA DE FILTROS -->
+    <div class="filters-card">
+        <div class="filters-card__search">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" placeholder="Buscar plantilla, título..." [(ngModel)]="filtroBusqueda" />
+        </div>
+
+        <div class="filters-card__selects">
+            <div class="filter-group">
+                <label>Estado</label>
+                <select [(ngModel)]="filtroEstado">
+                    <option [ngValue]="null">Todos</option>
+                    <option [ngValue]="true">Activa</option>
+                    <option [ngValue]="false">Inactiva</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label>Tipo de plantilla</label>
+                <select [(ngModel)]="filtroTipo">
+                    <option value="">Todos</option>
+                    <option value="EMAIL">Email</option>
+                    <option value="WHATSAPP">WhatsApp</option>
+                </select>
+            </div>
+
+            <button class="btn-filters-icon" title="Limpiar filtros" (click)="limpiarFiltros()">Limpiar</button>
+        </div>
+    </div>
+
+    <!-- TABLA DE PLANTILLAS -->
+    <div class="table-container">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>NOMBRE</th>
+                    <th>TIPO / EVENTO</th>
+                    <th>CANAL</th>
+                    <th class="text-center">ESTADO</th>
+                    <th class="text-center">ACCIONES</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let p of plantillasFiltradas">
+                    <td>
+                        <div class="user-cell">
+                            <div class="avatar-mini">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                </svg>
+                            </div>
+                            <div class="info">
+                                <span class="name">{{ p.nombre }}</span>
+                                <span class="id" *ngIf="p.descripcion">{{ p.descripcion }}</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="plan-badge">{{ p.eventoAsociado }}</span>
+                    </td>
+                    <td>
+                        <div class="method-cell">
+                            <span class="method-tag">{{ p.tipoPlantilla }}</span>
+                        </div>
+                    </td>
+                    <td class="text-center">
+                        <span class="status-pill" [class.success]="p.estado" [class.danger]="!p.estado">
+                            {{ p.estado ? 'ACTIVA' : 'INACTIVA' }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="actions-cell">
+                            <button class="action-btn" title="Editar" (click)="abrirModalEditar(p)">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                            </button>
+                            <button class="action-btn" [title]="p.estado ? 'Inactivar' : 'Activar'"
+                                (click)="cambiarEstado(p)">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+                                </svg>
+                            </button>
+                            <!-- NUEVO BOTÓN DE ELIMINAR -->
+                            <button class="action-btn action-btn--danger" title="Eliminar plantilla"
+                                (click)="eliminarPlantilla(p)">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path
+                                        d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
+                                    </path>
+                                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                <tr *ngIf="plantillasFiltradas.length === 0">
+                    <td colspan="5" class="empty-row">
+                        <div class="empty-state-content">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#94a3b8"
+                                stroke-width="1.5">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            <p>No se encontraron plantillas registradas.</p>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="pagination-footer">
+            <span class="pagination-footer__info">Mostrando {{ plantillasFiltradas.length }} de {{ plantillas.length }}
+                plantillas</span>
+        </div>
+    </div>
+
+    <!-- MODAL FORMULARIO -->
+    <div *ngIf="modalAbierto" class="modal-backdrop">
+        <div class="modal-container-custom">
+            <div class="detail-header">
+                <h3>{{ esEdicion ? 'Editar Plantilla' : 'Nueva Plantilla' }}</h3>
+                <button class="close-btn" (click)="cerrarModal()">✕</button>
+            </div>
+
+            <div class="modal-body-custom">
+                <div class="form-grid-custom">
+                    <div class="form-group-full">
+                        <label class="form-label">Nombre de la plantilla</label>
+                        <input [(ngModel)]="plantillaForm.nombre" type="text" placeholder="Ej: Recordatorio de pago"
+                            class="form-control-custom">
+                    </div>
+
+                    <div class="form-group-full">
+                        <label class="form-label">Título del mensaje</label>
+                        <input [(ngModel)]="plantillaForm.titulo" type="text"
+                            placeholder="Ej: Su membresía está por vencer" class="form-control-custom">
+                    </div>
+
+                    <div class="form-group-full">
+                        <label class="form-label">Descripción corta</label>
+                        <input [(ngModel)]="plantillaForm.descripcion" type="text"
+                            placeholder="Breve detalle de la plantilla" class="form-control-custom">
+                    </div>
+
+                    <div class="form-row-half">
+                        <div class="form-group-full">
+                            <label class="form-label">Canal</label>
+                            <select [(ngModel)]="plantillaForm.tipoPlantilla" class="form-control-custom">
+                                <option *ngFor="let c of canalesDisponibles" [value]="c">{{ c }}</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group-full">
+                            <label class="form-label">Evento Asociado</label>
+                            <select [ngModel]="plantillaForm.eventoAsociado" (ngModelChange)="onEventoChange($event)"
+                                class="form-control-custom">
+                                <option *ngFor="let e of eventosDisponibles" [value]="e">{{ e }}</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group-full">
+                        <label class="form-label">
+                            Contenido del Mensaje <span style="color: #2563eb; font-weight: normal;">(Usa {{
+                                ejemploNombre }}, {{ ejemploEmail }}, etc.)</span>
+                        </label>
+                        <textarea [(ngModel)]="plantillaForm.contenido" rows="5"
+                            placeholder="Escribe el cuerpo del mensaje aquí..." class="form-control-custom"></textarea>
+                    </div>
+
+                    <div>
+                        <button (click)="generarVistaPrevia()" class="btn btn--outline-dark">
+                            Generar Vista Previa
+                        </button>
+                    </div>
+
+                    <div *ngIf="vistaPreviaTexto" class="form-group-full preview-box">
+                        <p class="section-title">Resultado de prueba:</p>
+                        <div [innerHTML]="vistaPreviaTexto" style="color: #334155; font-size: 0.85rem;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer-custom">
+                <button (click)="cerrarModal()" class="btn btn--outline-dark" style="width: auto;">Cancelar</button>
+                <button (click)="guardarPlantilla()" class="btn btn--primary" style="width: auto;">Guardar
+                    Plantilla</button>
+            </div>
+        </div>
+    </div>
+</div>
