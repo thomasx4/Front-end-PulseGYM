@@ -36,3 +36,8 @@ export interface ConsultaEquipoRequest {
   estado?: string;
   idSede?: number | null;
 }
+
+export interface RegistrarFallaPayload {
+  urgencia: 'BAJA' | 'MEDIA' | 'ALTA' | 'CRITICA' | 'NINGUNA';
+  descripcion: string;
+}

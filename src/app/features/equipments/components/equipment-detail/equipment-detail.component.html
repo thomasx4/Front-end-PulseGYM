@@ -1,6 +1,6 @@
 <div class="modal-backdrop" (click)="cerrar()">
   <div class="modal-dialog" (click)="$event.stopPropagation()" *ngIf="equipo">
-    
+
     <header class="modal-header">
       <div class="modal-header__title-group">
         <span class="equipment-id">ACTIVO #{{ equipo.idEquipo || equipo.id || 'N/A' }}</span>
@@ -16,7 +16,7 @@
 
 
     <div class="modal-body">
-      
+
       <div class="status-banner" [ngClass]="{
         'status-banner--operativo': equipo.estado === 'OPERATIVO',
         'status-banner--mantenimiento': equipo.estado === 'MANTENIMIENTO',
@@ -35,9 +35,9 @@
         </div>
       </div>
 
-      
+
       <div class="details-grid">
-        
+
         <div class="detail-card">
           <span class="detail-card__label">MARCA</span>
           <p class="detail-card__value">{{ equipo.marca || 'No registrada' }}</p>
@@ -79,14 +79,53 @@
           <p class="detail-card__value">{{ nombreProveedor }}</p>
         </div>
 
-        <div class="detail-card detail-card--full detail-card--falla" *ngIf="equipo.urgenciaFalla">
-          <span class="detail-card__label">REPORTES / FALLAS ACTIVAS</span>
-          <p class="detail-card__value">
-            Urgencia: <strong>{{ equipo.urgenciaFalla }}</strong>
-          </p>
-          <p class="detail-card__subtext" *ngIf="equipo.descripcionFalla">
-            {{ equipo.descripcionFalla }}
-          </p>
+        <div class="detail-card detail-card--full detail-card--falla">
+          <div class="falla-header">
+            <span class="detail-card__label">REPORTES / FALLAS ACTIVAS</span>
+
+            <button type="button" class="btn-report-toggle" (click)="toggleFormFalla()">
+              {{ mostrandoFormFalla ? 'Cancelar' : '+ Reportar Falla' }}
+            </button>
+          </div>
+
+          <!-- 1. VISTA DE FALLA EXISTENTE (Si ya tiene falla y no estamos editando) -->
+          <ng-container *ngIf="!mostrandoFormFalla">
+            <div *ngIf="equipo?.urgenciaFalla; else sinFalla">
+              <p class="detail-card__value">
+                Urgencia: <strong>{{ equipo?.urgenciaFalla }}</strong>
+              </p>
+              <p class="detail-card__subtext" *ngIf="equipo?.descripcionFalla">
+                {{ equipo?.descripcionFalla }}
+              </p>
+            </div>
+            <ng-template #sinFalla>
+              <p class="detail-card__subtext text-gray">El equipo no presenta fallas reportadas actualmente.</p>
+            </ng-template>
+          </ng-container>
+
+          <!-- 2. FORMULARIO PARA REGISTRAR NUEVA FALLA (Endpoint 5) -->
+          <div *ngIf="mostrandoFormFalla" class="falla-form">
+            <div class="form-row">
+              <label class="form-label-sm">Urgencia:</label>
+              <select [(ngModel)]="urgenciaSeleccionada" class="form-select-sm">
+                <option value="BAJA">BAJA</option>
+                <option value="MEDIA">MEDIA</option>
+                <option value="ALTA">ALTA</option>
+                <option value="CRITICA">CRÍTICA</option>
+              </select>
+            </div>
+
+            <div class="form-row">
+              <textarea [(ngModel)]="descripcionFalla" rows="2"
+                placeholder="Describe la falla observada en la máquina..." class="form-textarea-sm"></textarea>
+            </div>
+
+            <div class="form-actions-right">
+              <button type="button" class="btn-submit-falla" (click)="enviarReporteFalla()" [disabled]="guardandoFalla">
+                {{ guardandoFalla ? 'Enviando...' : 'Guardar Reporte' }}
+              </button>
+            </div>
+          </div>
         </div>
 
       </div>

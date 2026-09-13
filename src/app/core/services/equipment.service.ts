@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
-import { Equipo, ConsultaEquipoRequest, ApiResponseEquipos, ApiResponseSimple, EstadoEquipo } from '../../features/equipments/models/equipment.model';
+import { Equipo, ConsultaEquipoRequest, ApiResponseEquipos, ApiResponseSimple, EstadoEquipo, RegistrarFallaPayload } from '../../features/equipments/models/equipment.model';
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +11,7 @@ import { Equipo, ConsultaEquipoRequest, ApiResponseEquipos, ApiResponseSimple, E
 export class EquipmentService {
   private apiUrl = `${environment.apiUrl}/pg-ms-operation/api/equipos`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   consultarEquipos(filtros: ConsultaEquipoRequest = {}): Observable<Equipo[]> {
     return this.http.post<ApiResponseEquipos<Equipo[]>>(`${this.apiUrl}/consultar`, filtros).pipe(
@@ -35,5 +35,9 @@ export class EquipmentService {
 
   cambiarEstado(id: number, estado: EstadoEquipo): Observable<ApiResponseSimple> {
     return this.http.patch<ApiResponseSimple>(`${this.apiUrl}/${id}/estado`, { estado });
+  }
+
+  registrarFalla(idEquipo: number, payload: RegistrarFallaPayload): Observable<ApiResponseSimple> {
+    return this.http.post<ApiResponseSimple>(`${this.apiUrl}/${idEquipo}/reportar-falla`, payload);
   }
 }
