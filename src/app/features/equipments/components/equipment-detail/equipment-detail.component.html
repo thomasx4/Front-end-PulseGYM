@@ -88,14 +88,13 @@
             </button>
           </div>
 
-          <!-- 1. VISTA DE FALLA EXISTENTE (Si ya tiene falla y no estamos editando) -->
           <ng-container *ngIf="!mostrandoFormFalla">
-            <div *ngIf="equipo?.urgenciaFalla; else sinFalla">
+            <div *ngIf="equipo.urgenciaFalla; else sinFalla">
               <p class="detail-card__value">
-                Urgencia: <strong>{{ equipo?.urgenciaFalla }}</strong>
+                Urgencia: <strong>{{ equipo.urgenciaFalla }}</strong>
               </p>
-              <p class="detail-card__subtext" *ngIf="equipo?.descripcionFalla">
-                {{ equipo?.descripcionFalla }}
+              <p class="detail-card__subtext" *ngIf="equipo.descripcionFalla">
+                {{ equipo.descripcionFalla }}
               </p>
             </div>
             <ng-template #sinFalla>
@@ -103,7 +102,6 @@
             </ng-template>
           </ng-container>
 
-          <!-- 2. FORMULARIO PARA REGISTRAR NUEVA FALLA (Endpoint 5) -->
           <div *ngIf="mostrandoFormFalla" class="falla-form">
             <div class="form-row">
               <label class="form-label-sm">Urgencia:</label>
