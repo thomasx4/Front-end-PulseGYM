@@ -1,0 +1,149 @@
+<div class="fault-page">
+
+    <header class="page-header">
+        <div class="page-title-box">
+            <h1 class="page-title">Reportes de Fallas</h1>
+            <p class="page-subtitle">Seguimiento e incidencias de mantenimiento en máquinas y equipos</p>
+        </div>
+    </header>
+
+    <div class="toolbar-section">
+        <div class="search-box">
+            <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" [(ngModel)]="busquedaTexto" (input)="aplicarBusquedaLocal()"
+                placeholder="Buscar por equipo, marca o ubicación..." class="search-input" />
+        </div>
+
+        <div class="filter-popover-wrapper">
+            <button type="button" class="btn-filter-trigger" [class.active]="mostrarPopoverFiltros"
+                (click)="togglePopover()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="4" y1="6" x2="20" y2="6"></line>
+                    <line x1="7" y1="12" x2="17" y2="12"></line>
+                    <line x1="10" y1="18" x2="14" y2="18"></line>
+                </svg>
+                <span>Filtrar</span>
+            </button>
+
+            <div class="filter-popover" *ngIf="mostrarPopoverFiltros">
+                <div class="filter-field">
+                    <label>ID de Equipo</label>
+                    <input type="number" [(ngModel)]="filtros.idEquipo" placeholder="Ej: 1" class="popover-input" />
+                </div>
+
+                <div class="filter-field">
+                    <label>Estado del Reporte</label>
+                    <select [(ngModel)]="filtros.estado" class="popover-input">
+                        <option value="">Todos los estados</option>
+                        <option *ngFor="let est of estadosOpciones" [value]="est">{{ est }}</option>
+                    </select>
+                </div>
+
+                <div class="filter-field">
+                    <label>Nivel de Urgencia</label>
+                    <select [(ngModel)]="filtros.urgencia" class="popover-input">
+                        <option value="">Todas las urgencias</option>
+                        <option *ngFor="let urg of urgenciasOpciones" [value]="urg">{{ urg }}</option>
+                    </select>
+                </div>
+
+                <div class="popover-actions">
+                    <button type="button" class="btn-popover-clear" (click)="limpiarFiltros()">Limpiar</button>
+                    <button type="button" class="btn-popover-apply" (click)="aplicarFiltros()">Aplicar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-card">
+
+        <div *ngIf="cargando" class="state-container">
+            <div class="spinner"></div>
+            <p>Cargando incidencias de equipos...</p>
+        </div>
+
+        <div *ngIf="!cargando && reportesPaginados.length > 0" class="table-wrapper">
+            <table class="pulse-table">
+                <thead>
+                    <tr>
+                        <th>EQUIPO</th>
+                        <th>UBICACIÓN</th>
+                        <th>URGENCIA</th>
+                        <th>DESCRIPCIÓN DE LA FALLA</th>
+                        <th>ESTADO REPORTE</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let item of reportesPaginados">
+
+                        <td>
+                            <div class="equipment-cell">
+                                <strong class="equipment-name">{{ item.nombre }}</strong>
+                                <span class="equipment-meta">{{ item.marca }} {{ item.modelo }} · S/N: {{
+                                    item.numeroSerie }}</span>
+                            </div>
+                        </td>
+
+                        <td>
+                            <span class="location-text">{{ item.ubicacion }}</span>
+                        </td>
+
+                        <td>
+                            <span class="badge-urgency" [ngClass]="{
+                'badge-urgency--alta': item.urgenciaFalla === 'ALTA' || item.urgenciaFalla === 'CRITICA',
+                'badge-urgency--media': item.urgenciaFalla === 'MEDIA',
+                'badge-urgency--baja': item.urgenciaFalla === 'BAJA' || item.urgenciaFalla === 'NINGUNA'
+              }">
+                                {{ item.urgenciaFalla }}
+                            </span>
+                        </td>
+
+                        <td class="description-cell">
+                            {{ item.descripcionFalla }}
+                        </td>
+
+                        <td>
+                            <select [ngModel]="item.estadoReporte" (ngModelChange)="cambiarEstado(item, $event)"
+                                class="status-select" [ngClass]="{
+                        'status-select--pending': item.estadoReporte === 'PENDIENTE',
+                        'status-select--revision': item.estadoReporte === 'EN_REVISION',
+                        'status-select--repair': item.estadoReporte === 'EN_REPARACION',
+                        'status-select--resolved': item.estadoReporte === 'RESUELTO'
+                      }">
+                                <option *ngFor="let est of estadosOpciones" [value]="est">{{ est }}</option>
+                            </select>
+                        </td>
+
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div *ngIf="!cargando && reportesPaginados.length === 0" class="empty-state">
+            <p>No se encontraron reportes de falla con los criterios seleccionados.</p>
+        </div>
+
+        <footer *ngIf="!cargando && totalElementos > 0" class="table-footer">
+            <span class="showing-text">
+                Mostrando <strong>{{ inicio + 1 }}</strong> a <strong>{{ fin }}</strong> de <strong>{{ totalElementos
+                    }}</strong> incidencias
+            </span>
+
+            <div class="pagination">
+                <button class="page-btn" (click)="paginaAnterior()" [disabled]="paginaActual === 1">‹</button>
+                <button class="page-btn" *ngFor="let p of paginas" [class.active]="p === paginaActual"
+                    (click)="irPagina(p)">
+                    {{ p }}
+                </button>
+                <button class="page-btn" (click)="paginaSiguiente()"
+                    [disabled]="paginaActual === totalPaginas">›</button>
+            </div>
+        </footer>
+
+    </div>
+
+</div>

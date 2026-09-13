@@ -6,13 +6,15 @@ import { EquipmentsRoutingModule } from './equipments-routing.module';
 import { EquipmentListComponent } from './components/equipment-list/equipment-list.component';
 import { RegisterEquipmentComponent } from './components/register-equipment/register-equipment.component';
 import { EquipmentDetailComponent } from './components/equipment-detail/equipment-detail.component';
+import { FaultReportsComponent } from './components/fault-reports/fault-reports.component';
 
 
 @NgModule({
   declarations: [
     EquipmentListComponent,
     RegisterEquipmentComponent,
-    EquipmentDetailComponent
+    EquipmentDetailComponent,
+    FaultReportsComponent
   ],
   imports: [
     CommonModule,
