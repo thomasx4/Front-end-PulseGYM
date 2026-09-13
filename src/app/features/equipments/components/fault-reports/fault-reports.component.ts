@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { EquipmentService } from '../../../../core/services/equipment.service';
 import { ReporteFallaItem, FiltrosFalla, EstadoReporteFalla, UrgenciaFalla } from '../../models/equipment-fault.model';
+import { RegistrarMantenimientoPayload, TipoMantenimiento } from '../../models/maintenance.model';
 
 @Component({
   selector: 'app-fault-reports',
@@ -19,7 +20,6 @@ export class FaultReportsComponent implements OnInit {
     estado: '',
     urgencia: ''
   };
-
   mostrarPopoverFiltros: boolean = false;
 
   paginaActual: number = 1;
@@ -27,6 +27,20 @@ export class FaultReportsComponent implements OnInit {
 
   estadosOpciones: EstadoReporteFalla[] = ['PENDIENTE', 'EN_REVISION', 'EN_REPARACION', 'RESUELTO'];
   urgenciasOpciones: UrgenciaFalla[] = ['BAJA', 'MEDIA', 'ALTA', 'CRITICA', 'NINGUNA'];
+
+  mostrarModalMantenimiento: boolean = false;
+  guardandoMantenimiento: boolean = false;
+  equipoSeleccionadoFalla: ReporteFallaItem | null = null;
+
+  nuevoMantenimiento: RegistrarMantenimientoPayload = {
+    idEquipo: 0,
+    fechaServicio: new Date().toISOString().slice(0, 10),
+    tipo: 'CORRECTIVO',
+    descripcion: '',
+    costo: 0,
+    tecnicoResponsable: '',
+    proximoMantenimiento: ''
+  };
 
   constructor(private equipmentService: EquipmentService) { }
 
@@ -48,6 +62,71 @@ export class FaultReportsComponent implements OnInit {
         this.reportes = [];
         this.reportesFiltrados = [];
         this.cargando = false;
+      }
+    });
+  }
+
+  abrirModalMantenimiento(reporte: ReporteFallaItem): void {
+    this.equipoSeleccionadoFalla = reporte;
+    this.nuevoMantenimiento = {
+      idEquipo: reporte.idEquipo,
+      fechaServicio: new Date().toISOString().slice(0, 10),
+      tipo: 'CORRECTIVO', // Al provenir de una falla, por defecto proponemos CORRECTIVO
+      descripcion: `Atención a falla reportada: ${reporte.descripcionFalla}`,
+      costo: 0,
+      tecnicoResponsable: '',
+      proximoMantenimiento: ''
+    };
+    this.mostrarModalMantenimiento = true;
+  }
+
+  cerrarModalMantenimiento(): void {
+    if (!this.guardandoMantenimiento) {
+      this.mostrarModalMantenimiento = false;
+      this.equipoSeleccionadoFalla = null;
+    }
+  }
+
+  guardarMantenimiento(): void {
+    if (!this.nuevoMantenimiento.tecnicoResponsable.trim() || !this.nuevoMantenimiento.descripcion.trim()) {
+      alert('Por favor ingrese el técnico responsable y la descripción del trabajo.');
+      return;
+    }
+
+    this.guardandoMantenimiento = true;
+
+    // Formatear payload para Spring Boot (fechas vacías como null y costo como number)
+    const payload: RegistrarMantenimientoPayload = {
+      idEquipo: Number(this.nuevoMantenimiento.idEquipo),
+      fechaServicio: this.nuevoMantenimiento.fechaServicio,
+      tipo: this.nuevoMantenimiento.tipo,
+      descripcion: this.nuevoMantenimiento.descripcion.trim(),
+      costo: Number(this.nuevoMantenimiento.costo) || 0,
+      tecnicoResponsable: this.nuevoMantenimiento.tecnicoResponsable.trim(),
+      proximoMantenimiento: this.nuevoMantenimiento.proximoMantenimiento?.trim() || undefined
+    };
+
+    console.log('Payload enviado a POST /api/mantenimientos:', payload);
+
+    this.equipmentService.registrarMantenimiento(payload).subscribe({
+      next: (res) => {
+        console.log('Respuesta del servidor:', res);
+        this.guardandoMantenimiento = false;
+        this.mostrarModalMantenimiento = false;
+
+        // Actualizamos automáticamente el estado de la falla a RESUELTO
+        if (this.equipoSeleccionadoFalla) {
+          this.cambiarEstado(this.equipoSeleccionadoFalla, 'RESUELTO');
+        }
+
+        this.cargarReportes();
+      },
+      error: (err) => {
+        console.error('Error HTTP al registrar mantenimiento:', err);
+        // Imprimir el mensaje detallado del backend si existe
+        const mensajeError = err?.error?.message || err?.error || 'Ocurrió un error al guardar el registro de mantenimiento.';
+        alert(`Error: ${typeof mensajeError === 'string' ? mensajeError : 'Revisa la consola para más detalles.'}`);
+        this.guardandoMantenimiento = false;
       }
     });
   }
