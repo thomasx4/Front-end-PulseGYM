@@ -9,12 +9,11 @@ import { SharedModule } from './shared/shared.module';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 import { RouterModule } from '@angular/router';
 import { IdleService } from './core/services/idle.service';
-import { AdminModule } from './features/admin/admin.module'; 
+import { AdminModule } from './features/admin/admin.module';
 import { MembershipModule } from './features/membership/membership.module';
 import { AttendanceModule } from './features/attendance/attendance.module';
 import { LoadingInterceptor } from './core/interceptors/loading.interceptor';
 import { ThemeInitializerService } from './core/services/theme-initializer.service';
-import { PaymentReportsComponent } from './features/payments/components/payment-reports/payment-reports.component';
 
 export function initializeTheme(themeInitializer: ThemeInitializerService) {
   return () => themeInitializer.initializeTheme();
