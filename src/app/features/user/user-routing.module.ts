@@ -19,6 +19,7 @@ import { AjustesComponent } from './components/ajustes/ajustes.component';
 import { PagosListComponent } from './components/pagos-list/pagos-list.component';
 import { PagosFormComponent } from './components/pagos-form/pagos-form.component';
 import { PagosDetailComponent } from './components/pagos-detail/pagos-detail.component';
+import { AsistenciaComponent } from './components/asistencia/asistencia.component';
 
 const routes: Routes = [
   { path: '', component: DashboardComponent },
@@ -39,7 +40,8 @@ const routes: Routes = [
   { path: 'ajustes', component: AjustesComponent },
   { path: 'pagos', component: PagosListComponent },
   { path: 'pagos/form', component: PagosFormComponent },
-  { path: 'pagos/detail/:id', component: PagosDetailComponent }
+  { path: 'pagos/detail/:id', component: PagosDetailComponent },
+  { path: 'asistencia', component: AsistenciaComponent }
 ];
 
 @NgModule({
