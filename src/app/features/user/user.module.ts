@@ -25,6 +25,7 @@ import { AjustesComponent } from './components/ajustes/ajustes.component';
 import { PagosListComponent } from './components/pagos-list/pagos-list.component';
 import { PagosFormComponent } from './components/pagos-form/pagos-form.component';
 import { PagosDetailComponent } from './components/pagos-detail/pagos-detail.component';
+import { AsistenciaComponent } from './components/asistencia/asistencia.component';
 
 @NgModule({
   declarations: [
@@ -46,7 +47,8 @@ import { PagosDetailComponent } from './components/pagos-detail/pagos-detail.com
     AjustesComponent,
     PagosListComponent,
     PagosFormComponent,
-    PagosDetailComponent
+    PagosDetailComponent,
+    AsistenciaComponent
   ],
   imports: [
     CommonModule,

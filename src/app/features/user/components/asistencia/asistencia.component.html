@@ -1,0 +1,383 @@
+<div class="asistencia-layout">
+    <app-navbar></app-navbar>
+
+    <div class="asistencia-main">
+        <app-header></app-header>
+
+        <div class="asistencia-content">
+
+
+            <!-- Contenido -->
+            <div *ngIf="!isLoading && rutina" class="asistencia-container">
+
+                <!-- Header de la página -->
+                <header class="page-header">
+                    <button class="btn-back" (click)="volver()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path d="M19 12H5"/>
+                            <path d="m12 19-7-7 7-7"/>
+                        </svg>
+                        Volver
+                    </button>
+                    <div class="header-text">
+                        <h1>Registrar sesion de hoy</h1>
+                        <p class="subtitle">Marca tu progreso y guarda los detalles de tu entrenamiento</p>
+                    </div>
+                </header>
+
+                <!-- Banner: sesion ya registrada -->
+                <div class="bloqueo-banner" *ngIf="sesionYaRegistradaHoy">
+                    <div class="bloqueo-banner__icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                            <polyline points="22 4 12 14.01 9 11.01"/>
+                        </svg>
+                    </div>
+                    <div class="bloqueo-banner__text">
+                        <h4>Sesion ya registrada hoy</h4>
+                        <p>Vuelve mañana para registrar un nuevo entrenamiento. El bloqueo se reinicia automaticamente a las 12:00 AM.</p>
+                    </div>
+                </div>
+
+                <!-- Card resumen de la rutina -->
+                <div class="rutina-summary" [class.disabled]="sesionYaRegistradaHoy">
+                    <div class="rutina-summary__icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M6.5 6.5h11M6.5 17.5h11M2 12h20M4 7v10M20 7v10" />
+                        </svg>
+                    </div>
+                    <div class="rutina-summary__info">
+                        <h3>{{ rutina.nombre || 'Rutina de hoy' }}</h3>
+                        <p>{{ ejercicios.length }} ejercicios programados</p>
+                    </div>
+                    <div class="rutina-summary__stats">
+                        <div class="mini-stat">
+                            <span class="mini-stat__value">{{ totalCompletados }}</span>
+                            <span class="mini-stat__label">Completados</span>
+                        </div>
+                        <div class="mini-stat">
+                            <span class="mini-stat__value">{{ totalParciales }}</span>
+                            <span class="mini-stat__label">Parciales</span>
+                        </div>
+                        <div class="mini-stat">
+                            <span class="mini-stat__value">{{ porcentajeCompletado }}%</span>
+                            <span class="mini-stat__label">Progreso</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Duracion de la sesion -->
+                <div class="card duracion-card">
+                    <div class="card__header">
+                        <div class="card__icon">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <polyline points="12 6 12 12 16 14"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3>Duracion de la sesion</h3>
+                            <p>Cuanto tiempo entrenaste hoy? (minimo 30 min)</p>
+                        </div>
+                    </div>
+
+                    <div class="duracion-input-wrapper">
+                        <button type="button"
+                                class="btn-round"
+                                [disabled]="sesionYaRegistradaHoy || duracionMinutos <= 30"
+                                (click)="decrementarDuracion()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                            </svg>
+                        </button>
+
+                        <div class="duracion-value">
+                            <input type="number"
+                                   [(ngModel)]="duracionMinutos"
+                                   (ngModelChange)="onDuracionChange()"
+                                   min="30"
+                                   max="300"
+                                   [disabled]="sesionYaRegistradaHoy" />
+                            <span class="duracion-unit">min</span>
+                        </div>
+
+                        <button type="button"
+                                class="btn-round"
+                                [disabled]="sesionYaRegistradaHoy || duracionMinutos >= 300"
+                                (click)="incrementarDuracion()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                <line x1="12" y1="5" x2="12" y2="19"/>
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Ejercicios -->
+                <div class="card ejercicios-card">
+                    <div class="card__header">
+                        <div class="card__icon">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M6.5 6.5h11M6.5 17.5h11M2 12h20M4 7v10M20 7v10" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3>Ejercicios de la rutina</h3>
+                            <p>Marca el estado de cada ejercicio</p>
+                        </div>
+                        <span class="card__badge">{{ ejercicios.length }}</span>
+                    </div>
+
+                    <div class="ejercicios-lista">
+                        <div class="ejercicio-item"
+                             *ngFor="let ej of ejercicios; let i = index"
+                             [class.expandido]="ej.expandido"
+                             [class.parcial]="ej.estado === 'PARCIAL'"
+                             [class.no-realizado]="ej.estado === 'NO_REALIZADO'"
+                             [class.completado]="ej.estado === 'COMPLETADO'">
+
+                            <div class="ejercicio-item__header" (click)="toggleEjercicio(i)">
+                                <div class="ejercicio-item__left">
+                                    <span class="ejercicio-numero">{{ i + 1 }}</span>
+                                    <div class="ejercicio-item__info">
+                                        <h4>{{ ej.nombreEjercicio }}</h4>
+                                        <span class="ejercicio-grupo">{{ ej.grupoMuscular }}</span>
+                                    </div>
+                                </div>
+
+                                <div class="ejercicio-item__right">
+                                    <span class="estado-badge"
+                                          [class.completado]="ej.estado === 'COMPLETADO'"
+                                          [class.parcial]="ej.estado === 'PARCIAL'"
+                                          [class.no-realizado]="ej.estado === 'NO_REALIZADO'">
+                                        {{ ej.estado === 'COMPLETADO' ? 'Completado' : (ej.estado === 'PARCIAL' ? 'Parcial' : 'No realizado') }}
+                                    </span>
+
+                                    <div class="quick-info" *ngIf="!ej.expandido">
+                                        <span>{{ ej.seriesCompletadas }} x {{ ej.repeticionesRealizadas }}</span>
+                                        <span class="dot-sep">|</span>
+                                        <span>{{ ej.pesoUsado }} kg</span>
+                                    </div>
+
+                                    <div class="chevron" [class.rotated]="ej.expandido">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="6 9 12 15 18 9"></polyline>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="ejercicio-item__body" *ngIf="ej.expandido">
+
+                                <div class="objetivo-box">
+                                    <span class="objetivo-label">Objetivo:</span>
+                                    <span class="objetivo-value">{{ ej.seriesObjetivo }} series x {{ ej.repeticionesMin }}-{{ ej.repeticionesMax }} reps</span>
+                                    <span class="objetivo-peso" *ngIf="ej.pesoSugerido > 0">· {{ ej.pesoSugerido }} kg</span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Estado del ejercicio</label>
+                                    <div class="estado-selector">
+                                        <button type="button"
+                                                *ngFor="let est of estadosDisponibles"
+                                                class="estado-btn"
+                                                [class.active]="ej.estado === est.value"
+                                                [class.completado]="est.value === 'COMPLETADO' && ej.estado === 'COMPLETADO'"
+                                                [class.parcial]="est.value === 'PARCIAL' && ej.estado === 'PARCIAL'"
+                                                [class.no-realizado]="est.value === 'NO_REALIZADO' && ej.estado === 'NO_REALIZADO'"
+                                                [disabled]="sesionYaRegistradaHoy"
+                                                (click)="cambiarEstado(i, $any(est.value))">
+                                            {{ est.label }}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="form-row" *ngIf="ej.estado !== 'NO_REALIZADO'">
+                                    <div class="form-group">
+                                        <label>Series completadas</label>
+                                        <div class="counter">
+                                            <button type="button" class="counter-btn" [disabled]="sesionYaRegistradaHoy" (click)="decrementarSeries(i)">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                                    <line x1="5" y1="12" x2="19" y2="12"/>
+                                                </svg>
+                                            </button>
+                                            <span class="counter-value">{{ ej.seriesCompletadas }}</span>
+                                            <button type="button" class="counter-btn" [disabled]="sesionYaRegistradaHoy" (click)="incrementarSeries(i)">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                                    <line x1="12" y1="5" x2="12" y2="19"/>
+                                                    <line x1="5" y1="12" x2="19" y2="12"/>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Repeticiones realizadas</label>
+                                        <div class="counter">
+                                            <button type="button" class="counter-btn" [disabled]="sesionYaRegistradaHoy" (click)="decrementarReps(i)">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                                    <line x1="5" y1="12" x2="19" y2="12"/>
+                                                </svg>
+                                            </button>
+                                            <span class="counter-value">{{ ej.repeticionesRealizadas }}</span>
+                                            <button type="button" class="counter-btn" [disabled]="sesionYaRegistradaHoy" (click)="incrementarReps(i)">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                                    <line x1="12" y1="5" x2="12" y2="19"/>
+                                                    <line x1="5" y1="12" x2="19" y2="12"/>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group" *ngIf="ej.estado !== 'NO_REALIZADO'">
+                                    <label>Peso usado (kg)</label>
+                                    <div class="input-with-suffix">
+                                        <input type="number"
+                                               [(ngModel)]="ej.pesoUsado"
+                                               (ngModelChange)="onPesoChange()"
+                                               min="0"
+                                               step="0.5"
+                                               placeholder="0"
+                                               [disabled]="sesionYaRegistradaHoy" />
+                                        <span class="input-suffix">kg</span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Observaciones (opcional)</label>
+                                    <textarea [(ngModel)]="ej.observaciones"
+                                              (ngModelChange)="onObservacionEjercicioChange()"
+                                              rows="2"
+                                              placeholder="Ejemplo: Aumente el peso en la ultima serie..."
+                                              [disabled]="sesionYaRegistradaHoy"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Observaciones generales -->
+                <div class="card observaciones-card">
+                    <div class="card__header">
+                        <div class="card__icon">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3>Observaciones generales</h3>
+                            <p>Como te sentiste en el entrenamiento?</p>
+                        </div>
+                    </div>
+                    <textarea [(ngModel)]="observaciones"
+                              (ngModelChange)="onObservacionesGeneralesChange()"
+                              rows="3"
+                              placeholder="Ejemplo: Buena sesion, buena tecnica, me senti con energia..."
+                              [disabled]="sesionYaRegistradaHoy"></textarea>
+                </div>
+
+                <!-- Acciones -->
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" (click)="volver()">
+                        Cancelar
+                    </button>
+                    <button type="button"
+                            class="btn-primary"
+                            [disabled]="isRegistrando || sesionYaRegistradaHoy"
+                            (click)="registrarSesion()">
+                        <ng-container *ngIf="!isRegistrando && !sesionYaRegistradaHoy">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                                <polyline points="17 21 17 13 7 13 7 21"/>
+                                <polyline points="7 3 7 8 15 8"/>
+                            </svg>
+                            Registrar sesion
+                        </ng-container>
+                        <ng-container *ngIf="isRegistrando">
+                            <span class="spinner-border"></span>
+                            Registrando...
+                        </ng-container>
+                        <ng-container *ngIf="sesionYaRegistradaHoy">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                            </svg>
+                            Sesion registrada hoy
+                        </ng-container>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- Modal: Sin rutina asignada -->
+<!-- ========================================== -->
+<div class="modal-overlay" *ngIf="showNoRutinaModal">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-icon info-icon">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 16v-4"/>
+                <path d="M12 8h.01"/>
+            </svg>
+        </div>
+        <h3>No tienes rutina para hoy</h3>
+        <p>
+            Aun no tienes una rutina asignada para el dia de hoy.
+            Crea una con nuestra IA para empezar a entrenar.
+        </p>
+        <div class="modal-actions">
+            <button class="modal-btn modal-btn-secondary" (click)="irARutinas()">
+                Ver mis rutinas
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- Modal de Exito -->
+<!-- ========================================== -->
+<div class="modal-overlay" *ngIf="showSuccessModal">
+    <div class="modal-content success-modal">
+        <div class="modal-icon success-icon">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+        </div>
+        <h3>Sesion registrada!</h3>
+        <p>Tu entrenamiento del dia ha sido guardado correctamente. El bloqueo se reinicia manana a las 12:00 AM.</p>
+        <div class="modal-actions">
+            <button class="modal-btn modal-btn-primary" (click)="cerrarSuccessModal()">
+                Ir al dashboard
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M5 12h14"/>
+                    <path d="m12 5 7 7-7 7"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- Modal de Error -->
+<!-- ========================================== -->
+<div class="modal-overlay" *ngIf="showErrorModal" (click)="cerrarErrorModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-icon error-icon">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+        </div>
+        <h3>{{ modalErrorTitulo }}</h3>
+        <p>{{ modalErrorMessage }}</p>
+        <div class="modal-actions">
+            <button class="modal-btn modal-btn-primary" (click)="cerrarErrorModal()">Entendido</button>
+        </div>
+    </div>
+</div>

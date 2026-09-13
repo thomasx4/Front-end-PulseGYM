@@ -1,0 +1,2035 @@
+// ==========================================
+// Variables locales (fallback)
+// ==========================================
+$primary-color: #0f1c3f;
+$primary-hover: #1a2b5c;
+$primary-light: #e8edf5;
+$bg-main: #f8fafc;
+$bg-card: #ffffff;
+$text-primary: #0f172a;
+$text-secondary: #475569;
+$text-muted: #94a3b8;
+$border-color: #e2e8f0;
+$radius: 16px;
+$radius-sm: 10px;
+$transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+$shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+$shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+$shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+$success: #10b981;
+$warning: #f59e0b;
+$danger: #ef4444;
+
+// ==========================================
+// Layout
+// ==========================================
+.asistencia-layout {
+    display: flex;
+    min-height: 100vh;
+    background-color: var(--color-bg-main, $bg-main);
+}
+
+.asistencia-main {
+    flex: 1;
+    margin-left: 260px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    width: calc(100% - 260px);
+    max-width: calc(100% - 260px);
+    overflow-x: hidden;
+    background-color: var(--color-bg-main, $bg-main);
+}
+
+.asistencia-content {
+    flex: 1;
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: center;
+}
+
+.asistencia-container {
+    max-width: 1000px;
+    width: 100%;
+    animation: fadeInUp 0.5s ease;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+// ==========================================
+// Loading / Error states
+// ==========================================
+.loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 5rem 2rem;
+    color: var(--color-text-secondary, $text-secondary);
+
+    .spinner-border {
+        display: inline-block;
+        width: 2.5rem;
+        height: 2.5rem;
+        border: 0.25rem solid var(--color-border, $border-color);
+        border-top-color: var(--color-primary, $primary-color);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        margin-bottom: 1rem;
+    }
+
+    p {
+        margin: 0;
+        font-size: 0.95rem;
+    }
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.error-state {
+    max-width: 480px;
+    margin: 4rem auto;
+    text-align: center;
+    background: var(--color-bg-card, $bg-card);
+    border: 1px solid var(--color-border, $border-color);
+    border-radius: var(--radius-lg, $radius);
+    padding: 3rem 2rem;
+    box-shadow: var(--shadow-sm, $shadow-sm);
+
+    &__icon {
+        color: var(--color-error, $danger);
+        margin-bottom: 1rem;
+
+        svg {
+            stroke: var(--color-error, $danger);
+        }
+    }
+
+    h3 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--color-text-primary, $text-primary);
+        margin: 0 0 0.5rem;
+    }
+
+    p {
+        color: var(--color-text-secondary, $text-secondary);
+        font-size: 0.9rem;
+        margin: 0 0 1.5rem;
+        line-height: 1.6;
+    }
+
+    &__actions {
+        display: flex;
+        gap: 0.75rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+}
+
+// ==========================================
+// Page Header
+// ==========================================
+.page-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+
+    .btn-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: none;
+        border: none;
+        color: var(--color-text-secondary, $text-secondary);
+        font-weight: 500;
+        font-size: 0.9rem;
+        cursor: pointer;
+        padding: 0.5rem 0.75rem;
+        border-radius: 8px;
+        transition: $transition;
+
+        &:hover {
+            background-color: var(--color-bg-hover, #f1f5f9);
+            color: var(--color-text-primary, $text-primary);
+        }
+
+        svg {
+            stroke: currentColor;
+        }
+    }
+
+    .header-text {
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--color-text-primary, $text-primary);
+            margin: 0;
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            color: var(--color-text-secondary, $text-secondary);
+            margin: 0.25rem 0 0 0;
+        }
+    }
+}
+
+// ==========================================
+// Banner de bloqueo diario
+// ==========================================
+.bloqueo-banner {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: linear-gradient(135deg,
+        var(--color-success-bg, #d1fae5) 0%,
+        color-mix(in srgb, var(--color-success-bg, #d1fae5) 75%, #ffffff) 100%);
+    border: 1.5px solid color-mix(in srgb, var(--color-success, #10b981) 50%, transparent);
+    border-radius: var(--radius-lg, $radius);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+    animation: fadeInUp 0.4s ease;
+
+    &__icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: var(--color-bg-card, #ffffff);
+        color: var(--color-success, #059669);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+
+        svg {
+            stroke: var(--color-success, #059669);
+        }
+    }
+
+    &__text {
+        flex: 1;
+
+        h4 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--color-success, #065f46);
+            margin: 0 0 0.2rem;
+        }
+
+        p {
+            font-size: 0.85rem;
+            color: var(--color-text-secondary, #047857);
+            margin: 0;
+            line-height: 1.5;
+        }
+    }
+}
+
+// ==========================================
+// Rutina Summary
+// ==========================================
+.rutina-summary {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: linear-gradient(135deg,
+        var(--color-primary, #0f1c3f) 0%,
+        var(--color-primary-hover, #1a2b5c) 100%);
+    border-radius: var(--radius-lg, $radius);
+    padding: 1.5rem 2rem;
+    margin-bottom: 1.5rem;
+    color: var(--color-text-inverse, #ffffff);
+    box-shadow: var(--shadow-md, 0 8px 24px rgba(15, 28, 63, 0.2));
+    flex-wrap: wrap;
+
+    &.disabled {
+        opacity: 0.7;
+        filter: grayscale(0.3);
+    }
+
+    &__icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.12);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        backdrop-filter: blur(8px);
+
+        svg {
+            stroke: var(--color-text-inverse, #ffffff);
+        }
+    }
+
+    &__info {
+        flex: 1;
+        min-width: 200px;
+
+        h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 0 0 0.2rem;
+            color: var(--color-text-inverse, #ffffff);
+        }
+
+        p {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.75);
+            margin: 0;
+        }
+    }
+
+    &__stats {
+        display: flex;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+    .mini-stat {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 0.5rem 1rem;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        backdrop-filter: blur(8px);
+        min-width: 80px;
+
+        &__value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--color-text-inverse, #ffffff);
+            line-height: 1;
+        }
+
+        &__label {
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.65);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 0.25rem;
+        }
+    }
+}
+
+// ==========================================
+// Card generico
+// ==========================================
+.card {
+    background: var(--color-bg-card, $bg-card);
+    border: 1px solid var(--color-border, $border-color);
+    border-radius: var(--radius-lg, $radius);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow-sm, $shadow-sm);
+    transition: $transition;
+
+    &.disabled {
+        opacity: 0.75;
+        pointer-events: none;
+    }
+
+    &__header {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.85rem;
+        margin-bottom: 1.25rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--color-border, $border-color);
+
+        .card__icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: var(--color-primary-light, $primary-light);
+            color: var(--color-primary, $primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+
+            svg {
+                stroke: var(--color-primary, $primary-color);
+            }
+        }
+
+        h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--color-text-primary, $text-primary);
+            margin: 0 0 0.15rem;
+        }
+
+        p {
+            font-size: 0.85rem;
+            color: var(--color-text-secondary, $text-secondary);
+            margin: 0;
+        }
+
+        .card__badge {
+            margin-left: auto;
+            background: var(--color-primary, $primary-color);
+            color: var(--color-text-inverse, #ffffff);
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            flex-shrink: 0;
+        }
+    }
+}
+
+// ==========================================
+// Duracion
+// ==========================================
+.duracion-input-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    padding: 1.25rem 0;
+
+    .btn-round {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        border: 1.5px solid var(--color-border, $border-color);
+        background: var(--color-bg-card, $bg-card);
+        color: var(--color-text-primary, $text-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: $transition;
+        flex-shrink: 0;
+
+        svg {
+            stroke: currentColor;
+        }
+
+        &:hover:not(:disabled) {
+            background: var(--color-primary, $primary-color);
+            color: var(--color-text-inverse, #ffffff);
+            border-color: var(--color-primary, $primary-color);
+            transform: scale(1.05);
+        }
+
+        &:active:not(:disabled) {
+            transform: scale(0.95);
+        }
+
+        &:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            color: var(--color-text-muted, $text-muted);
+        }
+    }
+
+    .duracion-value {
+        display: flex;
+        align-items: baseline;
+        gap: 0.5rem;
+        justify-content: center;
+        min-width: 140px;
+
+        input {
+            width: 100px;
+            text-align: center;
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--color-primary, $primary-color);
+            border: none;
+            background: transparent;
+            padding: 0;
+            border-bottom: 2px dashed var(--color-border, $border-color);
+            transition: border-color 0.2s;
+
+            &:focus {
+                outline: none;
+                border-bottom-color: var(--color-primary, $primary-color);
+            }
+
+            &:disabled {
+                color: var(--color-text-muted, $text-muted);
+                cursor: not-allowed;
+            }
+
+            &::-webkit-inner-spin-button,
+            &::-webkit-outer-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+            }
+            -moz-appearance: textfield;
+        }
+
+        .duracion-unit {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--color-text-muted, $text-muted);
+        }
+    }
+}
+
+// ==========================================
+// Ejercicios
+// ==========================================
+.ejercicios-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.ejercicio-item {
+    border: 1.5px solid var(--color-border, $border-color);
+    border-radius: var(--radius-sm, $radius-sm);
+    overflow: hidden;
+    background: var(--color-bg-card, $bg-card);
+    transition: $transition;
+
+    &.expandido {
+        border-color: var(--color-primary, $primary-color);
+        box-shadow: 0 4px 12px rgba(15, 28, 63, 0.08);
+    }
+
+    &.completado {
+        background: var(--color-success-bg, #f0fdf4);
+        border-color: color-mix(in srgb, var(--color-success, #10b981) 30%, transparent);
+
+        .ejercicio-item__header {
+            background: color-mix(in srgb, var(--color-success-bg, #dcfce7) 80%, transparent);
+
+            &:hover {
+                background: color-mix(in srgb, var(--color-success-bg, #dcfce7) 100%, transparent);
+            }
+        }
+    }
+
+    &.parcial {
+        background: var(--color-warning-bg, #fffbeb);
+        border-color: color-mix(in srgb, var(--color-warning, #f59e0b) 30%, transparent);
+
+        .ejercicio-item__header {
+            background: color-mix(in srgb, var(--color-warning-bg, #fef3c7) 80%, transparent);
+
+            &:hover {
+                background: color-mix(in srgb, var(--color-warning-bg, #fef3c7) 100%, transparent);
+            }
+        }
+    }
+
+    &.no-realizado {
+        background: var(--color-error-bg, #fef2f2);
+        border-color: color-mix(in srgb, var(--color-error, #ef4444) 30%, transparent);
+
+        .ejercicio-item__header {
+            background: color-mix(in srgb, var(--color-error-bg, #fee2e2) 80%, transparent);
+
+            &:hover {
+                background: color-mix(in srgb, var(--color-error-bg, #fee2e2) 100%, transparent);
+            }
+        }
+    }
+
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1.25rem;
+        cursor: pointer;
+        background: var(--color-bg-hover, #fafbfc);
+        transition: background 0.2s;
+
+        &:hover {
+            background: color-mix(in srgb, var(--color-bg-hover, #f1f5f9) 90%, transparent);
+        }
+    }
+
+    &__left {
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+        min-width: 0;
+        flex: 1;
+
+        .ejercicio-numero {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--color-primary, $primary-color);
+            color: var(--color-text-inverse, #ffffff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .ejercicio-item__info {
+            min-width: 0;
+
+            h4 {
+                font-size: 0.95rem;
+                font-weight: 600;
+                color: var(--color-text-primary, $text-primary);
+                margin: 0 0 0.15rem;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .ejercicio-grupo {
+                font-size: 0.7rem;
+                color: var(--color-text-muted, $text-muted);
+                text-transform: uppercase;
+                letter-spacing: 0.3px;
+                font-weight: 600;
+            }
+        }
+    }
+
+    &__right {
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+        flex-shrink: 0;
+
+        .quick-info {
+            font-size: 0.8rem;
+            color: var(--color-text-secondary, $text-secondary);
+            font-weight: 500;
+            display: none;
+            gap: 0.4rem;
+            align-items: center;
+
+            .dot-sep {
+                color: var(--color-text-muted, $text-muted);
+            }
+        }
+
+        .chevron {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--color-text-muted, $text-muted);
+            transition: transform 0.3s ease;
+
+            &.rotated {
+                transform: rotate(180deg);
+            }
+        }
+    }
+
+    &__body {
+        padding: 1.25rem;
+        border-top: 1px solid var(--color-border, $border-color);
+        background: var(--color-bg-card, $bg-card);
+        animation: slideDown 0.3s ease;
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.estado-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.25rem 0.7rem;
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+
+    &.completado {
+        background: var(--color-success-bg, #d1fae5);
+        color: var(--color-success, #059669);
+    }
+
+    &.parcial {
+        background: var(--color-warning-bg, #fef3c7);
+        color: var(--color-warning, #d97706);
+    }
+
+    &.no-realizado {
+        background: var(--color-error-bg, #fee2e2);
+        color: var(--color-error, #dc2626);
+    }
+}
+
+// ==========================================
+// Objetivo box
+// ==========================================
+.objetivo-box {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--color-bg-hover, #f1f5f9);
+    border-radius: 8px;
+    padding: 0.6rem 0.9rem;
+    margin-bottom: 1rem;
+    font-size: 0.85rem;
+    flex-wrap: wrap;
+
+    .objetivo-label {
+        font-weight: 600;
+        color: var(--color-text-secondary, $text-secondary);
+    }
+
+    .objetivo-value {
+        font-weight: 600;
+        color: var(--color-text-primary, $text-primary);
+    }
+
+    .objetivo-peso {
+        color: var(--color-text-muted, $text-muted);
+        font-size: 0.8rem;
+    }
+}
+
+// ==========================================
+// Form Groups
+// ==========================================
+.form-group {
+    margin-bottom: 1rem;
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+
+    label {
+        display: block;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--color-text-primary, $text-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    textarea,
+    input[type="number"] {
+        width: 100%;
+        padding: 0.65rem 0.9rem;
+        border: 1.5px solid var(--color-border, $border-color);
+        border-radius: 8px;
+        font-size: 0.9rem;
+        color: var(--color-text-primary, $text-primary);
+        background: var(--color-bg-input, $bg-card);
+        transition: $transition;
+        font-family: inherit;
+
+        &::placeholder {
+            color: var(--color-text-muted, $text-muted);
+        }
+
+        &:focus {
+            outline: none;
+            border-color: var(--color-primary, $primary-color);
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary, $primary-color) 15%, transparent);
+        }
+    }
+
+    textarea {
+        resize: vertical;
+        line-height: 1.5;
+    }
+}
+
+// ==========================================
+// Estado selector
+// ==========================================
+.estado-selector {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    background: var(--color-bg-hover, #f1f5f9);
+    padding: 0.35rem;
+    border-radius: 10px;
+
+    .estado-btn {
+        padding: 0.55rem 0.75rem;
+        border: none;
+        background: transparent;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--color-text-secondary, $text-secondary);
+        cursor: pointer;
+        transition: $transition;
+        white-space: nowrap;
+
+        &:hover:not(:disabled) {
+            background: color-mix(in srgb, var(--color-bg-card, #ffffff) 70%, transparent);
+        }
+
+        &.active {
+            background: var(--color-bg-card, $bg-card);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            color: var(--color-text-primary, $text-primary);
+        }
+
+        &.active.completado {
+            background: var(--color-success-bg, #d1fae5);
+            color: var(--color-success, #059669);
+        }
+
+        &.active.parcial {
+            background: var(--color-warning-bg, #fef3c7);
+            color: var(--color-warning, #d97706);
+        }
+
+        &.active.no-realizado {
+            background: var(--color-error-bg, #fee2e2);
+            color: var(--color-error, #dc2626);
+        }
+
+        &:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+    }
+}
+
+// ==========================================
+// Contadores de series/reps
+// ==========================================
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.counter {
+    display: flex;
+    align-items: center;
+    background: var(--color-bg-card, $bg-card);
+    border: 1.5px solid var(--color-border, $border-color);
+    border-radius: 8px;
+    overflow: hidden;
+
+    .counter-btn {
+        width: 40px;
+        height: 40px;
+        border: none;
+        background: transparent;
+        color: var(--color-text-secondary, $text-secondary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: $transition;
+        flex-shrink: 0;
+
+        svg {
+            stroke: currentColor;
+        }
+
+        &:hover:not(:disabled) {
+            background: var(--color-primary, $primary-color);
+            color: var(--color-text-inverse, #ffffff);
+        }
+
+        &:active:not(:disabled) {
+            transform: scale(0.95);
+        }
+
+        &:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+    }
+
+    .counter-value {
+        flex: 1;
+        text-align: center;
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--color-text-primary, $text-primary);
+        padding: 0 0.5rem;
+        user-select: none;
+    }
+}
+
+// ==========================================
+// Input con sufijo (kg)
+// ==========================================
+.input-with-suffix {
+    display: flex;
+    align-items: center;
+    border: 1.5px solid var(--color-border, $border-color);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: $transition;
+
+    &:focus-within {
+        border-color: var(--color-primary, $primary-color);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary, $primary-color) 15%, transparent);
+    }
+
+    input {
+        flex: 1;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0.65rem 0.9rem;
+        font-size: 0.9rem;
+        background: transparent;
+        color: var(--color-text-primary, $text-primary);
+
+        &:focus {
+            outline: none;
+        }
+    }
+
+    .input-suffix {
+        padding: 0 0.9rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--color-text-muted, $text-muted);
+        background: var(--color-bg-hover, #f1f5f9);
+        align-self: stretch;
+        display: flex;
+        align-items: center;
+        border-left: 1.5px solid var(--color-border, $border-color);
+    }
+}
+
+// ==========================================
+// Observaciones card
+// ==========================================
+.observaciones-card {
+    textarea {
+        width: 100%;
+        padding: 0.85rem 1rem;
+        border: 1.5px solid var(--color-border, $border-color);
+        border-radius: 10px;
+        font-size: 0.9rem;
+        color: var(--color-text-primary, $text-primary);
+        background: var(--color-bg-input, $bg-card);
+        transition: $transition;
+        font-family: inherit;
+        resize: vertical;
+        line-height: 1.5;
+
+        &::placeholder {
+            color: var(--color-text-muted, $text-muted);
+        }
+
+        &:focus {
+            outline: none;
+            border-color: var(--color-primary, $primary-color);
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary, $primary-color) 15%, transparent);
+        }
+
+        &:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+    }
+}
+
+// ==========================================
+// Form Actions
+// ==========================================
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 1rem;
+
+    .btn-secondary,
+    .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.75rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: $transition;
+        border: none;
+    }
+
+    .btn-secondary {
+        background: var(--color-bg-card, $bg-card);
+        color: var(--color-text-secondary, $text-secondary);
+        border: 1.5px solid var(--color-border, $border-color);
+
+        &:hover {
+            background: var(--color-bg-hover, #f1f5f9);
+            color: var(--color-text-primary, $text-primary);
+        }
+    }
+
+    .btn-primary {
+        background: var(--color-primary, $primary-color);
+        color: var(--color-text-inverse, #ffffff);
+        box-shadow: var(--shadow-md, 0 4px 12px rgba(15, 28, 63, 0.25));
+
+        &:hover:not(:disabled) {
+            background: var(--color-primary-hover, $primary-hover);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg, 0 8px 24px rgba(15, 28, 63, 0.35));
+        }
+
+        &:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .spinner-border {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 0.15em solid currentColor;
+            border-right-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.75s linear infinite;
+        }
+    }
+}
+
+// ==========================================
+// Modal
+// ==========================================
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+    background: var(--color-bg-card, $bg-card);
+    border-radius: 16px;
+    padding: 40px 48px 32px;
+    max-width: 440px;
+    width: 90%;
+    text-align: center;
+    box-shadow: var(--shadow-lg, 0 20px 60px rgba(0, 0, 0, 0.3));
+    animation: slideUp 0.3s ease;
+
+    &.success-modal {
+        max-width: 480px;
+    }
+
+    h3 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--color-text-primary, $text-primary);
+        margin: 0 0 8px;
+    }
+
+    p {
+        font-size: 0.95rem;
+        color: var(--color-text-secondary, $text-secondary);
+        margin: 0 0 24px;
+        line-height: 1.6;
+    }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.modal-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+
+    &.error-icon {
+        background: var(--color-error-bg, #fef2f2);
+        color: var(--color-error, $danger);
+        svg { stroke: var(--color-error, $danger); }
+    }
+
+    &.success-icon {
+        background: var(--color-success-bg, #d1fae5);
+        color: var(--color-success, $success);
+        svg { stroke: var(--color-success, $success); }
+    }
+}
+
+.modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.modal-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: $transition;
+
+    &-primary {
+        background: var(--color-primary, $primary-color);
+        color: var(--color-text-inverse, #ffffff);
+
+        &:hover {
+            background: var(--color-primary-hover, $primary-hover);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md, 0 4px 12px rgba(15, 28, 63, 0.3));
+        }
+    }
+}
+
+// ==========================================
+// Icono "info" para modal sin rutina
+// ==========================================
+.modal-icon.info-icon {
+    background: var(--color-info-bg, #dbeafe);
+    color: var(--color-info, #2563eb);
+
+    svg {
+        stroke: var(--color-info, #2563eb);
+    }
+}
+
+// Boton secundario para el modal (por si no lo tienes)
+.modal-btn-secondary {
+    background: var(--color-bg-hover, #f1f5f9);
+    color: var(--color-text-primary, #0f172a);
+    border: none;
+    cursor: pointer;
+    transition: $transition;
+
+    &:hover {
+        background: var(--color-border, #e2e8f0);
+    }
+}
+
+// ==========================================
+// Deshabilitados generales
+// ==========================================
+input:disabled,
+textarea:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+    background-color: var(--color-bg-hover, #f8fafc);
+}
+
+// ==========================================================================
+// MEDIA QUERIES PARA TODOS LOS DISPOSITIVOS
+// ==========================================================================
+
+// ==========================================
+// 1. Pantallas grandes (≥ 1400px)
+// ==========================================
+@media (min-width: 1400px) {
+    .asistencia-container {
+        max-width: 1100px;
+    }
+
+    .asistencia-content {
+        padding: 2rem 2.5rem;
+    }
+
+    .page-header .header-text h1 {
+        font-size: 2rem;
+    }
+
+    .card {
+        padding: 2rem;
+    }
+
+    .rutina-summary {
+        padding: 2rem 2.5rem;
+
+        .mini-stat {
+            padding: 0.75rem 1.25rem;
+
+            &__value {
+                font-size: 1.6rem;
+            }
+        }
+    }
+}
+
+// ==========================================
+// 2. Desktop grande (1200px - 1399px)
+// ==========================================
+@media (min-width: 1200px) and (max-width: 1399px) {
+    .ejercicio-item__right .quick-info {
+        display: flex;
+    }
+
+    .asistencia-container {
+        max-width: 1050px;
+    }
+}
+
+// ==========================================
+// 3. Desktop (992px - 1199px)
+// ==========================================
+@media (max-width: 1199px) {
+    .asistencia-content {
+        padding: 1.5rem;
+    }
+
+    .rutina-summary {
+        padding: 1.25rem 1.5rem;
+    }
+
+    .ejercicio-item__right .quick-info {
+        display: flex;
+    }
+}
+
+// ==========================================
+// 4. Tablets horizontales (768px - 991px)
+// ==========================================
+@media (max-width: 991px) {
+    .asistencia-main {
+        margin-left: 0;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .asistencia-content {
+        padding: 1rem 1.25rem;
+    }
+
+    .asistencia-container {
+        max-width: 100%;
+    }
+
+    .page-header .header-text h1 {
+        font-size: 1.5rem;
+    }
+
+    .rutina-summary {
+        padding: 1.25rem;
+
+        &__info {
+            min-width: 150px;
+        }
+
+        &__stats {
+            gap: 1rem;
+        }
+
+        .mini-stat {
+            padding: 0.5rem 0.75rem;
+            min-width: 70px;
+
+            &__value {
+                font-size: 1.25rem;
+            }
+        }
+    }
+
+    .card {
+        padding: 1.25rem;
+    }
+
+    .ejercicio-item__right .quick-info {
+        display: none;
+    }
+}
+
+// ==========================================
+// 5. Tablets verticales (600px - 767px)
+// ==========================================
+@media (max-width: 767px) {
+    .asistencia-content {
+        padding: 1rem;
+    }
+
+    .page-header {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+
+        .header-text h1 {
+            font-size: 1.4rem;
+        }
+
+        .header-text .subtitle {
+            font-size: 0.85rem;
+        }
+    }
+
+    .bloqueo-banner {
+        flex-direction: column;
+        text-align: center;
+        padding: 1rem;
+        gap: 0.75rem;
+
+        &__text h4 {
+            font-size: 0.95rem;
+        }
+
+        &__text p {
+            font-size: 0.8rem;
+        }
+    }
+
+    .rutina-summary {
+        padding: 1.25rem;
+        flex-direction: column;
+        align-items: flex-start;
+
+        &__icon {
+            width: 48px;
+            height: 48px;
+        }
+
+        &__info {
+            width: 100%;
+
+            h3 {
+                font-size: 1rem;
+            }
+        }
+
+        &__stats {
+            width: 100%;
+            justify-content: space-between;
+            gap: 0.5rem;
+        }
+
+        .mini-stat {
+            flex: 1;
+            min-width: 0;
+            padding: 0.5rem;
+        }
+    }
+
+    .card {
+        padding: 1rem;
+        margin-bottom: 1rem;
+
+        &__header {
+            gap: 0.75rem;
+
+            .card__icon {
+                width: 36px;
+                height: 36px;
+            }
+
+            h3 {
+                font-size: 0.95rem;
+            }
+
+            p {
+                font-size: 0.8rem;
+            }
+        }
+    }
+
+    .duracion-input-wrapper {
+        gap: 1rem;
+
+        .btn-round {
+            width: 40px;
+            height: 40px;
+        }
+
+        .duracion-value {
+            min-width: 120px;
+
+            input {
+                font-size: 2.5rem;
+                width: 85px;
+            }
+
+            .duracion-unit {
+                font-size: 1rem;
+            }
+        }
+    }
+
+    .ejercicio-item__header {
+        padding: 0.9rem 1rem;
+    }
+
+    .ejercicio-item__left .ejercicio-numero {
+        width: 30px;
+        height: 30px;
+        font-size: 0.75rem;
+    }
+
+    .ejercicio-item__left .ejercicio-item__info h4 {
+        font-size: 0.9rem;
+    }
+
+    .ejercicio-item__body {
+        padding: 1rem;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+
+    .estado-selector {
+        grid-template-columns: 1fr;
+        gap: 0.35rem;
+    }
+
+    .form-actions {
+        flex-direction: column-reverse;
+        gap: 0.75rem;
+
+        .btn-primary,
+        .btn-secondary {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+    .modal-content {
+        padding: 32px 24px 28px;
+    }
+
+    .modal-icon {
+        width: 56px;
+        height: 56px;
+    }
+}
+
+// ==========================================
+// 6. Móviles grandes (480px - 599px)
+// ==========================================
+@media (max-width: 599px) {
+    .asistencia-content {
+        padding: 0.75rem;
+    }
+
+    .page-header .header-text h1 {
+        font-size: 1.3rem;
+    }
+
+    .rutina-summary {
+        padding: 1rem;
+
+        &__icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+        }
+
+        .mini-stat {
+            padding: 0.4rem 0.5rem;
+
+            &__value {
+                font-size: 1.1rem;
+            }
+
+            &__label {
+                font-size: 0.65rem;
+            }
+        }
+    }
+
+    .card {
+        padding: 0.9rem;
+        border-radius: 12px;
+    }
+
+    .duracion-input-wrapper {
+        gap: 0.75rem;
+
+        .btn-round {
+            width: 38px;
+            height: 38px;
+        }
+
+        .duracion-value {
+            min-width: 100px;
+
+            input {
+                font-size: 2.25rem;
+                width: 75px;
+            }
+
+            .duracion-unit {
+                font-size: 0.95rem;
+            }
+        }
+    }
+
+    .ejercicio-item__header {
+        padding: 0.85rem 0.9rem;
+    }
+
+    .ejercicio-item__left .ejercicio-numero {
+        width: 28px;
+        height: 28px;
+        font-size: 0.7rem;
+    }
+
+    .ejercicio-item__left .ejercicio-item__info h4 {
+        font-size: 0.85rem;
+    }
+
+    .ejercicio-item__left .ejercicio-item__info .ejercicio-grupo {
+        font-size: 0.65rem;
+    }
+
+    .ejercicio-item__body {
+        padding: 0.9rem;
+    }
+
+    .objetivo-box {
+        font-size: 0.8rem;
+        padding: 0.5rem 0.7rem;
+    }
+
+    .form-group label {
+        font-size: 0.75rem;
+    }
+
+    .form-group textarea,
+    .form-group input[type="number"] {
+        font-size: 0.85rem;
+        padding: 0.6rem 0.8rem;
+    }
+
+    .counter .counter-btn {
+        width: 36px;
+        height: 36px;
+    }
+
+    .counter .counter-value {
+        font-size: 0.95rem;
+    }
+
+    .estado-selector .estado-btn {
+        font-size: 0.75rem;
+        padding: 0.5rem 0.65rem;
+    }
+
+    .modal-content {
+        padding: 28px 20px 24px;
+
+        h3 {
+            font-size: 1.1rem;
+        }
+
+        p {
+            font-size: 0.9rem;
+        }
+    }
+}
+
+// ==========================================
+// 7. Móviles pequeños (≤ 479px)
+// ==========================================
+@media (max-width: 479px) {
+    .asistencia-content {
+        padding: 0.5rem;
+    }
+
+    .page-header {
+        gap: 0.35rem;
+
+        .btn-back {
+            padding: 0.4rem 0.6rem;
+            font-size: 0.85rem;
+        }
+
+        .header-text h1 {
+            font-size: 1.15rem;
+        }
+
+        .header-text .subtitle {
+            font-size: 0.8rem;
+        }
+    }
+
+    .bloqueo-banner {
+        padding: 0.75rem;
+
+        &__icon {
+            width: 38px;
+            height: 38px;
+
+            svg {
+                width: 20px;
+                height: 20px;
+            }
+        }
+
+        &__text h4 {
+            font-size: 0.9rem;
+        }
+
+        &__text p {
+            font-size: 0.75rem;
+        }
+    }
+
+    .rutina-summary {
+        padding: 0.85rem;
+        border-radius: 12px;
+
+        &__icon {
+            width: 40px;
+            height: 40px;
+
+            svg {
+                width: 22px;
+                height: 22px;
+            }
+        }
+
+        &__info h3 {
+            font-size: 0.95rem;
+        }
+
+        &__info p {
+            font-size: 0.75rem;
+        }
+
+        &__stats {
+            gap: 0.35rem;
+        }
+
+        .mini-stat {
+            padding: 0.35rem 0.4rem;
+            min-width: 0;
+            border-radius: 8px;
+
+            &__value {
+                font-size: 1rem;
+            }
+
+            &__label {
+                font-size: 0.55rem;
+                letter-spacing: 0.3px;
+            }
+        }
+    }
+
+    .card {
+        padding: 0.75rem;
+        border-radius: 10px;
+        margin-bottom: 0.75rem;
+
+        &__header {
+            gap: 0.6rem;
+            margin-bottom: 0.85rem;
+            padding-bottom: 0.75rem;
+
+            .card__icon {
+                width: 32px;
+                height: 32px;
+                border-radius: 8px;
+
+                svg {
+                    width: 18px;
+                    height: 18px;
+                }
+            }
+
+            h3 {
+                font-size: 0.9rem;
+            }
+
+            p {
+                font-size: 0.75rem;
+            }
+
+            .card__badge {
+                font-size: 0.7rem;
+                padding: 0.2rem 0.6rem;
+            }
+        }
+    }
+
+    .duracion-input-wrapper {
+        gap: 0.6rem;
+        padding: 0.85rem 0;
+
+        .btn-round {
+            width: 34px;
+            height: 34px;
+
+            svg {
+                width: 14px;
+                height: 14px;
+            }
+        }
+
+        .duracion-value {
+            min-width: 90px;
+            gap: 0.35rem;
+
+            input {
+                font-size: 2rem;
+                width: 65px;
+            }
+
+            .duracion-unit {
+                font-size: 0.85rem;
+            }
+        }
+    }
+
+    .ejercicio-item {
+        border-radius: 8px;
+
+        &__header {
+            padding: 0.75rem 0.8rem;
+        }
+
+        &__left {
+            gap: 0.6rem;
+
+            .ejercicio-numero {
+                width: 26px;
+                height: 26px;
+                font-size: 0.65rem;
+            }
+
+            .ejercicio-item__info h4 {
+                font-size: 0.8rem;
+            }
+
+            .ejercicio-item__info .ejercicio-grupo {
+                font-size: 0.6rem;
+            }
+        }
+
+        &__right {
+            gap: 0.5rem;
+        }
+
+        &__body {
+            padding: 0.75rem;
+        }
+    }
+
+    .estado-badge {
+        font-size: 0.6rem;
+        padding: 0.2rem 0.55rem;
+    }
+
+    .objetivo-box {
+        font-size: 0.75rem;
+        padding: 0.45rem 0.6rem;
+        gap: 0.35rem;
+    }
+
+    .form-group {
+        margin-bottom: 0.75rem;
+
+        label {
+            font-size: 0.7rem;
+            margin-bottom: 0.35rem;
+        }
+
+        textarea,
+        input[type="number"] {
+            font-size: 0.8rem;
+            padding: 0.55rem 0.7rem;
+        }
+    }
+
+    .counter {
+        .counter-btn {
+            width: 32px;
+            height: 32px;
+
+            svg {
+                width: 12px;
+                height: 12px;
+            }
+        }
+
+        .counter-value {
+            font-size: 0.9rem;
+        }
+    }
+
+    .input-with-suffix {
+        input {
+            font-size: 0.8rem;
+            padding: 0.55rem 0.7rem;
+        }
+
+        .input-suffix {
+            font-size: 0.75rem;
+            padding: 0 0.7rem;
+        }
+    }
+
+    .estado-selector {
+        padding: 0.25rem;
+        gap: 0.25rem;
+
+        .estado-btn {
+            font-size: 0.7rem;
+            padding: 0.45rem 0.55rem;
+            border-radius: 6px;
+        }
+    }
+
+    .observaciones-card textarea {
+        font-size: 0.8rem;
+        padding: 0.7rem 0.8rem;
+    }
+
+    .form-actions {
+        margin-top: 0.75rem;
+
+        .btn-primary,
+        .btn-secondary {
+            padding: 0.65rem 1.25rem;
+            font-size: 0.85rem;
+        }
+    }
+
+    .modal-content {
+        padding: 24px 16px 20px;
+        border-radius: 14px;
+
+        h3 {
+            font-size: 1rem;
+        }
+
+        p {
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+        }
+    }
+
+    .modal-icon {
+        width: 52px;
+        height: 52px;
+        margin-bottom: 14px;
+
+        svg {
+            width: 44px;
+            height: 44px;
+        }
+    }
+
+    .modal-btn {
+        padding: 9px 18px;
+        font-size: 0.85rem;
+    }
+}
+
+// ==========================================
+// 8. Móviles muy pequeños (≤ 360px)
+// ==========================================
+@media (max-width: 360px) {
+    .asistencia-content {
+        padding: 0.4rem;
+    }
+
+    .page-header .header-text h1 {
+        font-size: 1.05rem;
+    }
+
+    .rutina-summary {
+        padding: 0.75rem;
+
+        &__icon {
+            width: 36px;
+            height: 36px;
+        }
+
+        &__info h3 {
+            font-size: 0.9rem;
+        }
+
+        .mini-stat {
+            &__value {
+                font-size: 0.9rem;
+            }
+
+            &__label {
+                font-size: 0.5rem;
+            }
+        }
+    }
+
+    .card {
+        padding: 0.65rem;
+    }
+
+    .duracion-input-wrapper {
+        gap: 0.5rem;
+
+        .btn-round {
+            width: 30px;
+            height: 30px;
+        }
+
+        .duracion-value {
+            min-width: 80px;
+
+            input {
+                font-size: 1.75rem;
+                width: 55px;
+            }
+
+            .duracion-unit {
+                font-size: 0.8rem;
+            }
+        }
+    }
+
+    .ejercicio-item__left .ejercicio-numero {
+        width: 24px;
+        height: 24px;
+        font-size: 0.6rem;
+    }
+
+    .ejercicio-item__left .ejercicio-item__info h4 {
+        font-size: 0.75rem;
+    }
+
+    .counter {
+        .counter-btn {
+            width: 28px;
+            height: 28px;
+        }
+
+        .counter-value {
+            font-size: 0.85rem;
+        }
+    }
+
+    .form-actions {
+        .btn-primary,
+        .btn-secondary {
+            padding: 0.6rem 1rem;
+            font-size: 0.8rem;
+        }
+    }
+}
+
+// ==========================================
+// 9. Orientación landscape en móviles (altura pequeña)
+// ==========================================
+@media (max-height: 500px) and (orientation: landscape) {
+    .asistencia-content {
+        padding: 0.5rem 1rem;
+    }
+
+    .rutina-summary {
+        padding: 0.75rem 1rem;
+        margin-bottom: 1rem;
+
+        &__icon {
+            width: 40px;
+            height: 40px;
+        }
+
+        &__info h3 {
+            font-size: 0.95rem;
+        }
+    }
+
+    .card {
+        padding: 0.85rem;
+        margin-bottom: 0.85rem;
+    }
+
+    .duracion-input-wrapper {
+        padding: 0.5rem 0;
+    }
+
+    .bloqueo-banner {
+        padding: 0.75rem 1rem;
+        flex-direction: row;
+        text-align: left;
+
+        &__icon {
+            width: 36px;
+            height: 36px;
+        }
+    }
+}
+
+// ==========================================
+// 10. Pantallas con DPI alto / Retina
+// ==========================================
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .card,
+    .rutina-summary,
+    .ejercicio-item {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+}
+
+// ==========================================
+// 11. Modo impresión (por si acaso)
+// ==========================================
+@media print {
+    .asistencia-layout {
+        background: #ffffff;
+    }
+
+    .form-actions,
+    .bloqueo-banner,
+    .btn-back {
+        display: none;
+    }
+
+    .card {
+        box-shadow: none;
+        border: 1px solid #ddd;
+        break-inside: avoid;
+    }
+
+    .ejercicio-item__body {
+        display: block !important;
+    }
+}
