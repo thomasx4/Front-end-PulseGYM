@@ -507,10 +507,10 @@ export class AsistenciaComponent implements OnInit, OnDestroy {
 
   cerrarSuccessModal(): void {
     this.showSuccessModal = false;
-    this.router.navigate(['/user/dashboard']);
+    this.router.navigate(['/user/']);
   }
 
   volver(): void {
-    this.router.navigate(['/user/dashboard']);
+    this.router.navigate(['/user/']);
   }
 }
