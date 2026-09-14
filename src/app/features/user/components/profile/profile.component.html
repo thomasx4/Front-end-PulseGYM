@@ -183,7 +183,7 @@
                         </div>
 
                         <div class="profile-main-info">
-                            <h2>{{ userProfile.nombre || userName }}</h2>
+                            <h2>{{ userProfile.nombreCompleto || userProfile.nombre || userName }}</h2>
                             <div class="profile-badges">
                                 <span class="profile-badge">{{ userProfile.tipoMembresia || 'Miembro' }}</span>
                                 <span class="profile-badge username">{{ userProfile.username || 'Usuario' }}</span>

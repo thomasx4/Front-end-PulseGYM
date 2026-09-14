@@ -1,14 +1,14 @@
 .dashboard-layout {
     display: flex;
     min-height: 100vh;
-    background-color: #f8fafc;
+    background-color: var(--color-bg-main, #f8fafc);
 }
 
 .dashboard-main {
     flex: 1;
     display: flex;
     flex-direction: column;
-    
+
     @media (min-width: 1025px) {
         margin-left: 260px;
     }
@@ -28,7 +28,7 @@
     width: 100%;
 
     .back-link {
-        color: #64748b;
+        color: var(--color-text-secondary, #64748b);
         text-decoration: none;
         font-weight: 600;
         font-size: 0.85rem;
@@ -36,7 +36,7 @@
         margin-bottom: 0.5rem;
 
         &:hover {
-            color: #0e3b72;
+            color: var(--color-primary, #0e3b72);
         }
     }
 
@@ -45,12 +45,12 @@
         &__title {
             font-size: 1.5rem;
             font-weight: 800;
-            color: #0f172a;
+            color: var(--color-text-primary, #0f172a);
             margin: 0;
         }
         &__subtitle {
             font-size: 0.85rem;
-            color: #64748b;
+            color: var(--color-text-secondary, #64748b);
             margin: 0.2rem 0 0 0;
         }
     }
@@ -66,11 +66,11 @@
     }
 
     .card-step {
-        background: #ffffff;
+        background: var(--color-bg-card, #ffffff);
         border-radius: 16px;
         padding: 1.5rem;
-        border: 1px solid #e2e8f0;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+        border: 1px solid var(--color-border, #e2e8f0);
+        box-shadow: var(--shadow-sm, 0 4px 12px rgba(0, 0, 0, 0.02));
         margin-bottom: 1.5rem;
 
         .step-header {
@@ -80,8 +80,8 @@
             margin-bottom: 1.25rem;
 
             .step-number {
-                background: #0e3b72;
-                color: #ffffff;
+                background: var(--color-primary, #0e3b72);
+                color: var(--color-text-inverse, #ffffff);
                 width: 28px;
                 height: 28px;
                 border-radius: 50%;
@@ -96,15 +96,15 @@
             h2 {
                 font-size: 1.05rem;
                 font-weight: 800;
-                color: #0f172a;
+                color: var(--color-text-primary, #0f172a);
                 margin: 0;
             }
         }
     }
 
     .selected-plan-summary-box {
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
+        background: var(--color-bg-hover, #f8fafc);
+        border: 1px solid var(--color-border, #e2e8f0);
         border-radius: 12px;
         padding: 1rem 1.25rem;
         display: flex;
@@ -117,8 +117,8 @@
             gap: 0.85rem;
 
             .plan-icon-wrap {
-                background: #e0f2fe;
-                color: #0284c7;
+                background: var(--color-info-bg, #e0f2fe);
+                color: var(--color-info, #0284c7);
                 padding: 0.6rem;
                 border-radius: 10px;
                 display: flex;
@@ -128,7 +128,7 @@
             .label-muted {
                 font-size: 0.7rem;
                 text-transform: uppercase;
-                color: #64748b;
+                color: var(--color-text-secondary, #64748b);
                 font-weight: 700;
                 display: block;
             }
@@ -141,7 +141,7 @@
 
                 strong {
                     font-size: 0.95rem;
-                    color: #0f172a;
+                    color: var(--color-text-primary, #0f172a);
                 }
             }
         }
@@ -151,14 +151,14 @@
             .label-muted {
                 font-size: 0.7rem;
                 text-transform: uppercase;
-                color: #64748b;
+                color: var(--color-text-secondary, #64748b);
                 font-weight: 700;
                 display: block;
             }
             .price-val {
                 font-size: 1.2rem;
                 font-weight: 800;
-                color: #059669;
+                color: var(--color-success, #059669);
             }
         }
     }
@@ -166,13 +166,13 @@
     .payment-method-selector-group {
         margin-top: 1.25rem;
         padding-top: 1.25rem;
-        border-top: 1px dashed #e2e8f0;
+        border-top: 1px dashed var(--color-border, #e2e8f0);
 
         .selector-label {
             display: block;
             font-size: 0.72rem;
             text-transform: uppercase;
-            color: #64748b;
+            color: var(--color-text-secondary, #64748b);
             font-weight: 700;
             letter-spacing: 0.03em;
             margin-bottom: 0.5rem;
@@ -185,29 +185,29 @@
 
             .custom-styled-select {
                 width: 100%;
-                background: #f8fafc;
-                border: 1px solid #cbd5e1;
+                background: var(--color-bg-input, #f8fafc);
+                border: 1px solid var(--color-border, #cbd5e1);
                 border-radius: 10px;
                 padding: 0.65rem 1rem;
                 font-size: 0.9rem;
                 font-weight: 700;
-                color: #0f172a;
+                color: var(--color-text-primary, #0f172a);
                 appearance: none;
                 cursor: pointer;
                 transition: all 0.2s ease;
 
                 &:focus {
                     outline: none;
-                    border-color: #0e3b72;
-                    background: #ffffff;
-                    box-shadow: 0 0 0 3px rgba(14, 59, 114, 0.1);
+                    border-color: var(--color-primary, #0e3b72);
+                    background: var(--color-bg-input, #ffffff);
+                    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary, #0e3b72) 15%, transparent);
                 }
             }
 
             .select-icon-chevron {
                 position: absolute;
                 right: 1rem;
-                color: #64748b;
+                color: var(--color-text-secondary, #64748b);
                 pointer-events: none;
                 display: flex;
                 align-items: center;
@@ -216,8 +216,8 @@
     }
 
     .badge-activo {
-        background-color: #d1fae5;
-        color: #065f46;
+        background-color: var(--color-success-bg, #d1fae5);
+        color: var(--color-success, #065f46);
         font-size: 0.65rem;
         font-weight: 800;
         padding: 0.2rem 0.6rem;
@@ -227,11 +227,11 @@
 
     .sidebar-info {
         .info-card {
-            background: #ffffff;
+            background: var(--color-bg-card, #ffffff);
             border-radius: 16px;
             padding: 1.25rem 1.5rem;
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+            border: 1px solid var(--color-border, #e2e8f0);
+            box-shadow: var(--shadow-sm, 0 4px 12px rgba(0, 0, 0, 0.02));
 
             &.mb-4 {
                 margin-bottom: 1.25rem;
@@ -246,7 +246,7 @@
                 h3 {
                     margin: 0;
                     font-size: 0.95rem;
-                    color: #64748b;
+                    color: var(--color-text-secondary, #64748b);
                     font-weight: 700;
                     text-transform: uppercase;
                     letter-spacing: 0.03em;
@@ -259,8 +259,8 @@
                 align-items: flex-start;
 
                 .plan-icon-mini {
-                    background: #f1f5f9;
-                    color: #475569;
+                    background: var(--color-bg-hover, #f1f5f9);
+                    color: var(--color-text-secondary, #475569);
                     padding: 0.5rem;
                     border-radius: 8px;
                     display: flex;
@@ -269,20 +269,20 @@
 
                 strong {
                     font-size: 0.95rem;
-                    color: #0f172a;
+                    color: var(--color-text-primary, #0f172a);
                     display: block;
                 }
 
                 p {
                     margin: 0.1rem 0 0;
                     font-size: 0.78rem;
-                    color: #64748b;
+                    color: var(--color-text-secondary, #64748b);
                 }
             }
 
             hr {
                 border: none;
-                border-top: 1px solid #f1f5f9;
+                border-top: 1px solid var(--color-border-light, #f1f5f9);
                 margin: 1rem 0;
             }
 
@@ -295,16 +295,16 @@
                 .label-muted {
                     display: block;
                     font-size: 0.7rem;
-                    color: #64748b;
+                    color: var(--color-text-secondary, #64748b);
                     text-transform: uppercase;
                     font-weight: 600;
                 }
 
                 strong {
-                    color: #0f172a;
+                    color: var(--color-text-primary, #0f172a);
                     font-weight: 700;
                     &.text-success {
-                        color: #059669;
+                        color: var(--color-success, #059669);
                         font-size: 1.1rem;
                     }
                 }
@@ -313,15 +313,15 @@
             .sidebar-subtitle {
                 font-size: 0.78rem;
                 font-weight: 700;
-                color: #64748b;
+                color: var(--color-text-secondary, #64748b);
                 text-transform: uppercase;
                 margin: 0 0 0.75rem;
                 letter-spacing: 0.03em;
             }
 
             &.security-card {
-                background: #f0fdf4;
-                border-color: #bbf7d0;
+                background: color-mix(in srgb, var(--color-success-bg, #f0fdf4) 60%, var(--color-bg-card, #ffffff));
+                border-color: color-mix(in srgb, var(--color-success, #bbf7d0) 50%, var(--color-border, #e2e8f0));
 
                 .security-flex {
                     display: flex;
@@ -329,8 +329,8 @@
                     align-items: flex-start;
 
                     .sec-icon {
-                        color: #16a34a;
-                        background: #dcfce7;
+                        color: var(--color-success, #16a34a);
+                        background: var(--color-success-bg, #dcfce7);
                         padding: 0.5rem;
                         border-radius: 50%;
                         display: flex;
@@ -339,7 +339,7 @@
 
                     strong {
                         font-size: 0.85rem;
-                        color: #166534;
+                        color: var(--color-success, #166534);
                         display: block;
                         margin-bottom: 0.15rem;
                     }
@@ -347,7 +347,7 @@
                     p {
                         margin: 0;
                         font-size: 0.75rem;
-                        color: #15803d;
+                        color: var(--color-text-secondary, #15803d);
                         line-height: 1.4;
                     }
                 }
@@ -362,8 +362,8 @@
     gap: 0.6rem;
 
     .brand-logo-box {
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
+        background: var(--color-bg-hover, #f8fafc);
+        border: 1px solid var(--color-border, #e2e8f0);
         border-radius: 10px;
         height: 44px;
         display: flex;
@@ -373,9 +373,9 @@
         transition: all 0.2s ease;
 
         &:hover {
-            border-color: #cbd5e1;
-            background: #ffffff;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+            border-color: var(--color-text-muted, #cbd5e1);
+            background: var(--color-bg-card, #ffffff);
+            box-shadow: var(--shadow-sm, 0 2px 4px rgba(0, 0, 0, 0.02));
         }
 
         .brand-img {
@@ -474,7 +474,7 @@
             .summary-right {
                 text-align: left;
                 width: 100%;
-                border-top: 1px solid #e2e8f0;
+                border-top: 1px solid var(--color-border, #e2e8f0);
                 padding-top: 0.65rem;
                 display: flex;
                 justify-content: space-between;
