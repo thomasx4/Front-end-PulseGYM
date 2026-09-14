@@ -97,6 +97,13 @@ const routes: Routes = [
         loadChildren: () =>
             import('./features/user/user.module').then((m) => m.UserModule),
     },
+    {
+        path: 'trainer',
+        canActivate: [AuthGuard],
+        data: { expectedRole: 'entrenador' },
+        loadChildren: () =>
+            import('./features/trainer/trainer.module').then((m) => m.TrainerModule),
+    },
     { path: 'auth/login', component: LoginComponent },
     { path: 'forgot-password', component: ForgotComponent },
     { path: 'user', component: DashboardComponent },
