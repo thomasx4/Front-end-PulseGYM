@@ -6,10 +6,18 @@ import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { TrainerRoutingModule } from './trainer-routing.module';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { SharedModule } from '../../shared/shared.module';
+import { RutinasComponent } from './components/rutinas/rutinas.component';
+import { RutinasSocioComponent } from './components/rutinas/rutinas-socio/rutinas-socio.component';
+import { DetalleSocioComponent } from './components/rutinas/detalle-socio/detalle-socio.component';
+import { EditarSocioComponent } from './components/rutinas/editar-socio/editar-socio.component';
 
 @NgModule({
   declarations: [
-    DashboardComponent
+    DashboardComponent,
+    RutinasComponent,
+    RutinasSocioComponent,
+    DetalleSocioComponent,
+    EditarSocioComponent
   ],
   imports: [
     CommonModule,
