@@ -295,18 +295,6 @@ export class SidebarComponent implements OnInit {
             <path d="M15 14H23" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
          `)
-      },
-      {
-        label: 'Reportes',
-        route: '/dashboard-admin/reports',
-        iconHtml: this.sanitizer.bypassSecurityTrustHtml(`
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="sidebar__nav-icon">
-            <path d="M2,2V20a2,2,0,0,0,2,2H22" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
-            <rect x="6" y="12" width="3" height="6" rx="1.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
-            <rect x="12" y="7" width="3" height="6" rx="1.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
-            <rect x="18" y="3" width="3" height="6" rx="1.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
-          </svg>
-        `),
       }
     ];
   }
