@@ -1,5 +1,10 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpErrorResponse, HttpParams } from '@angular/common/http';
+import {
+  HttpClient,
+  HttpHeaders,
+  HttpErrorResponse,
+  HttpParams,
+} from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { map, tap, catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment.prod';
@@ -9,7 +14,7 @@ import {
   Routine,
   Exercise,
   WeeklySummary,
-  DashboardSocioResponse
+  DashboardSocioResponse,
 } from '../../features/user/models/user.module';
 
 export interface FiltrosMembresias {
@@ -34,16 +39,22 @@ export interface RespuestaPaginadaMembresias {
   ultima?: boolean;
 }
 
+export interface Equipo {
+  id: number;
+  nombre: string;
+  estado: 'OPERATIVO' | 'MANTENIMIENTO' | 'FUERA DE SERVICIO';
+}
+
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UserService {
   private apiUrl = environment.apiUrl;
 
   constructor(
     private http: HttpClient,
-    private authService: AuthService
-  ) { }
+    private authService: AuthService,
+  ) {}
 
   private getHeaders(): HttpHeaders {
     const token = this.authService.getToken();
@@ -59,7 +70,9 @@ export class UserService {
 
   getDashboardSocio(): Observable<DashboardSocioResponse> {
     const url = `${this.apiUrl}/pg-ms-users/api/v1/seguimiento/dashboard/mi-progreso`;
-    return this.http.get<DashboardSocioResponse>(url, { headers: this.getHeaders() });
+    return this.http.get<DashboardSocioResponse>(url, {
+      headers: this.getHeaders(),
+    });
   }
 
   getMisRutinas(): Observable<any> {
@@ -80,7 +93,7 @@ export class UserService {
           return planActual.calorias_diarias || 0;
         }
         return 0;
-      })
+      }),
     );
   }
 
@@ -98,10 +111,15 @@ export class UserService {
           // Mapear ejercicios
           const ejercicios: Exercise[] = detalles.map((detalle: any) => ({
             nombre: detalle.nombreEjercicio || 'Ejercicio',
-            sets: (detalle.series || 0) + ' x ' + (detalle.repeticionesMin || 0) + '-' + (detalle.repeticionesMax || 0),
+            sets:
+              (detalle.series || 0) +
+              ' x ' +
+              (detalle.repeticionesMin || 0) +
+              '-' +
+              (detalle.repeticionesMax || 0),
             imageUrl: detalle.urlImagen || '',
             grupoMuscular: detalle.grupoMuscular,
-            diaSemana: detalle.diaSemana
+            diaSemana: detalle.diaSemana,
           }));
 
           // Obtener dia actual (1=Lunes, 7=Domingo)
@@ -109,16 +127,19 @@ export class UserService {
           const diaActual = today === 0 ? 7 : today;
 
           // Filtrar ejercicios del dia actual
-          const ejerciciosHoy = ejercicios.filter(e => e.diaSemana === diaActual);
+          const ejerciciosHoy = ejercicios.filter(
+            (e) => e.diaSemana === diaActual,
+          );
 
           // Si hay ejercicios para hoy, mostrarlos; si no, mostrar todos
-          const ejerciciosMostrar = ejerciciosHoy.length > 0 ? ejerciciosHoy : ejercicios;
+          const ejerciciosMostrar =
+            ejerciciosHoy.length > 0 ? ejerciciosHoy : ejercicios;
 
           return {
             nombre: nombreRutina,
             duracion: '60 - 75 min',
             dateStr: this.getTodayDateStr(),
-            ejercicios: ejerciciosMostrar
+            ejercicios: ejerciciosMostrar,
           };
         }
 
@@ -126,7 +147,7 @@ export class UserService {
           nombre: 'Sin rutina generada',
           duracion: '--',
           dateStr: this.getTodayDateStr(),
-          ejercicios: []
+          ejercicios: [],
         };
       }),
       catchError((error) => {
@@ -135,16 +156,37 @@ export class UserService {
           nombre: 'Error al cargar rutina',
           duracion: '--',
           dateStr: this.getTodayDateStr(),
-          ejercicios: []
+          ejercicios: [],
         });
-      })
+      }),
     );
   }
 
   private getTodayDateStr(): string {
     const today = new Date();
-    const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'];
-    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    const diasSemana = [
+      'Domingo',
+      'Lunes',
+      'Martes',
+      'Miercoles',
+      'Jueves',
+      'Viernes',
+      'Sabado',
+    ];
+    const meses = [
+      'Enero',
+      'Febrero',
+      'Marzo',
+      'Abril',
+      'Mayo',
+      'Junio',
+      'Julio',
+      'Agosto',
+      'Septiembre',
+      'Octubre',
+      'Noviembre',
+      'Diciembre',
+    ];
     return `${diasSemana[today.getDay()]} ${today.getDate()} de ${meses[today.getMonth()]}`;
   }
 
@@ -161,7 +203,10 @@ export class UserService {
 
         if (Array.isArray(response) && response.length > 0) {
           const primerElemento = response[0];
-          if (primerElemento.detalles && Array.isArray(primerElemento.detalles)) {
+          if (
+            primerElemento.detalles &&
+            Array.isArray(primerElemento.detalles)
+          ) {
             detalles = primerElemento.detalles;
             nombreRutina = primerElemento.nombre || 'Rutina del dia';
           }
@@ -172,30 +217,46 @@ export class UserService {
           return {
             nombre: 'Sin rutina programada',
             duracion: '--',
-            dateStr: new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }),
-            ejercicios: []
+            dateStr: new Date().toLocaleDateString('es-ES', {
+              weekday: 'long',
+              day: 'numeric',
+              month: 'long',
+            }),
+            ejercicios: [],
           };
         }
 
         const detallesFiltrados = detalles.filter(
-          (detalle: any) => detalle.diaSemana === diaSemana
+          (detalle: any) => detalle.diaSemana === diaSemana,
         );
 
-        const ejercicios: Exercise[] = detallesFiltrados.map((detalle: any) => ({
-          nombre: detalle.nombreEjercicio || 'Ejercicio',
-          sets: (detalle.series || 0) + ' series x ' + (detalle.repeticionesMin || 0) + ' - ' + (detalle.repeticionesMax || 0) + ' repeticiones',
-          imageUrl: detalle.urlImagen || '',
-          grupoMuscular: detalle.grupoMuscular,
-          diaSemana: detalle.diaSemana
-        }));
+        const ejercicios: Exercise[] = detallesFiltrados.map(
+          (detalle: any) => ({
+            nombre: detalle.nombreEjercicio || 'Ejercicio',
+            sets:
+              (detalle.series || 0) +
+              ' series x ' +
+              (detalle.repeticionesMin || 0) +
+              ' - ' +
+              (detalle.repeticionesMax || 0) +
+              ' repeticiones',
+            imageUrl: detalle.urlImagen || '',
+            grupoMuscular: detalle.grupoMuscular,
+            diaSemana: detalle.diaSemana,
+          }),
+        );
 
         return {
           nombre: nombreRutina,
           duracion: '60 - 75 min',
-          dateStr: new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }),
-          ejercicios: ejercicios
+          dateStr: new Date().toLocaleDateString('es-ES', {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'long',
+          }),
+          ejercicios: ejercicios,
         };
-      })
+      }),
     );
   }
 
@@ -207,7 +268,7 @@ export class UserService {
       { name: 'Jue', active: false, dayNumber: 4 },
       { name: 'Vie', active: false, dayNumber: 5 },
       { name: 'Sab', active: false, dayNumber: 6 },
-      { name: 'Dom', active: false, dayNumber: 7 }
+      { name: 'Dom', active: false, dayNumber: 7 },
     ];
     return of(days);
   }
@@ -218,18 +279,20 @@ export class UserService {
       catchError((error: HttpErrorResponse) => {
         console.error('Error en getUserProfile:', error);
         return of(null);
-      })
+      }),
     );
   }
 
   updateUserProfile(data: any): Observable<any> {
     const url = `${this.apiUrl}/pg-ms-users/api/v1/usuarios/mi-perfil`;
-    return this.http.put<any>(url, data, { headers: this.getJsonHeaders() }).pipe(
-      catchError((error: HttpErrorResponse) => {
-        console.error('Error en updateUserProfile:', error);
-        return of(null);
-      })
-    );
+    return this.http
+      .put<any>(url, data, { headers: this.getJsonHeaders() })
+      .pipe(
+        catchError((error: HttpErrorResponse) => {
+          console.error('Error en updateUserProfile:', error);
+          return of(null);
+        }),
+      );
   }
 
   getPerfilMedico(): Observable<any> {
@@ -238,7 +301,7 @@ export class UserService {
       catchError((error: HttpErrorResponse) => {
         console.error('Error en getPerfilMedico:', error);
         return of(null);
-      })
+      }),
     );
   }
 
@@ -248,7 +311,7 @@ export class UserService {
       catchError((error: HttpErrorResponse) => {
         console.error('Error en getHistorialFisico:', error);
         return of(null);
-      })
+      }),
     );
   }
 
@@ -258,7 +321,7 @@ export class UserService {
       catchError((error: HttpErrorResponse) => {
         console.error('Error en getEvolucion:', error);
         return of(null);
-      })
+      }),
     );
   }
 
@@ -268,7 +331,7 @@ export class UserService {
       catchError((error: HttpErrorResponse) => {
         console.error('Error en getMiMembresia:', error);
         return of(null);
-      })
+      }),
     );
   }
 
@@ -278,11 +341,13 @@ export class UserService {
       catchError((error: HttpErrorResponse) => {
         console.error('Error en getMiMembresiaActiva:', error);
         return of(null);
-      })
+      }),
     );
   }
 
-  getMembresiasPaginadas(filtros: FiltrosMembresias = {}): Observable<RespuestaPaginadaMembresias> {
+  getMembresiasPaginadas(
+    filtros: FiltrosMembresias = {},
+  ): Observable<RespuestaPaginadaMembresias> {
     let params = new HttpParams();
 
     if (filtros.busqueda) {
@@ -293,18 +358,23 @@ export class UserService {
     params = params.set('tamanio', (filtros.tamanio ?? 6).toString());
 
     const url = `${this.apiUrl}/pg-ms-users/api/v1/membresias`;
-    return this.http.get<RespuestaPaginadaMembresias>(url, { headers: this.getHeaders(), params }).pipe(
-      catchError((error: HttpErrorResponse) => {
-        console.error('Error al obtener membresias paginadas:', error);
-        return of({
-          contenido: [],
-          totalElementos: 0,
-          totalPaginas: 0,
-          numeroPagina: 0,
-          tamanioPagina: 6
-        });
+    return this.http
+      .get<RespuestaPaginadaMembresias>(url, {
+        headers: this.getHeaders(),
+        params,
       })
-    );
+      .pipe(
+        catchError((error: HttpErrorResponse) => {
+          console.error('Error al obtener membresias paginadas:', error);
+          return of({
+            contenido: [],
+            totalElementos: 0,
+            totalPaginas: 0,
+            numeroPagina: 0,
+            tamanioPagina: 6,
+          });
+        }),
+      );
   }
 
   getMembresias(): Observable<any[]> {
@@ -313,17 +383,38 @@ export class UserService {
       catchError((error: HttpErrorResponse) => {
         console.error('Error en getMembresias:', error);
         return of([]);
-      })
+      }),
     );
   }
 
   actualizarPerfilMedico(data: any): Observable<any> {
     const url = `${this.apiUrl}/pg-ms-users/api/v1/usuarios/perfil-medico/mi-perfil-medico`;
-    return this.http.put<any>(url, data, { headers: this.getJsonHeaders() }).pipe(
+    return this.http
+      .put<any>(url, data, { headers: this.getJsonHeaders() })
+      .pipe(
+        catchError((error: HttpErrorResponse) => {
+          console.error('Error en actualizarPerfilMedico:', error);
+          return of(null);
+        }),
+      );
+  }
+
+  /**
+   * Obtiene todos los equipos del gimnasio
+   * GET /pg-ms-operation/api/equipos/todos
+   */
+  getEquipos(): Observable<any> {
+    const url = `${this.apiUrl}/pg-ms-operation/api/equipos/todos`;
+    return this.http.get<any>(url, { headers: this.getHeaders() }).pipe(
       catchError((error: HttpErrorResponse) => {
-        console.error('Error en actualizarPerfilMedico:', error);
-        return of(null);
-      })
+        console.error('Error en getEquipos:', error);
+        return of({
+          data: [],
+          success: false,
+          count: 0,
+          message: 'Error al cargar equipos',
+        });
+      }),
     );
   }
 }

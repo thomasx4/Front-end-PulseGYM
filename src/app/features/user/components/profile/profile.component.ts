@@ -117,7 +117,7 @@ export class ProfileComponent implements OnInit {
     this.router.navigate(['/user/detalle-medico']);
   }
 
-  // 👈 Navegar a ajustes
+  //  Navegar a ajustes
   irAjustes(): void {
     this.router.navigate(['/user/ajustes']);
   }
@@ -253,7 +253,20 @@ export class ProfileComponent implements OnInit {
 }
 
   procesarPerfil(data: any): void {
-  const nombreCompleto = data.nombreCompleto || data.nombre + ' ' + data.apellido || data.nombre || this.userUsername || this.userName;
+  // Construir nombre completo correctamente
+  const nombre = (data.nombre || '').trim();
+  const apellido = (data.apellido || '').trim();
+
+  let nombreCompleto = '';
+  if (nombre && apellido) {
+    nombreCompleto = `${nombre} ${apellido}`;
+  } else if (nombre) {
+    nombreCompleto = nombre;
+  } else if (apellido) {
+    nombreCompleto = apellido;
+  } else {
+    nombreCompleto = data.nombreCompleto || this.userUsername || this.userName || 'Usuario';
+  }
 
   let nivelExperiencia = data.nivelExperiencia || 'intermedio';
   const nivelesValidos = ['novato', 'intermedio', 'avanzado'];
@@ -265,8 +278,8 @@ export class ProfileComponent implements OnInit {
 
   this.userProfile = {
     ...this.userProfile,
-    nombre: data.nombre || '',
-    apellido: data.apellido || '',
+    nombre: nombre,
+    apellido: apellido,
     nombreCompleto: nombreCompleto.trim(),
     email: data.email || this.userEmail || '',
     telefono: data.telefono || '',
@@ -279,13 +292,18 @@ export class ProfileComponent implements OnInit {
     contactoEmergenciaNombre: data.contactoEmergenciaNombre || '',
     contactoEmergenciaTelefono: data.contactoEmergenciaTelefono || '',
     idSede: data.idSede || 0,
-    nombreSede: data.nombreSede || '',       
+    nombreSede: data.nombreSede || '',
     nivelExperiencia: nivelExperiencia,
     tipoMembresia: this.tipoMembresia || this.userProfile.tipoMembresia,
     username: data.username || this.userUsername || this.userName
   };
 
   this.sedeNombre = data.nombreSede || 'Sede no asignada';
+
+  //  Actualizar userName con el nombre completo
+  if (nombreCompleto.trim()) {
+    this.userName = nombreCompleto.trim();
+  }
 
   if (this.userProfile.fotoUrl) {
     this.avatarUrl = this.userProfile.fotoUrl;
@@ -299,10 +317,6 @@ export class ProfileComponent implements OnInit {
       telefono: data.contactoEmergenciaTelefono,
       parentesco: 'Emergencia'
     }];
-  }
-
-  if (this.userProfile.nombreCompleto) {
-    this.userName = this.userProfile.nombreCompleto;
   }
 
   this.profileBackup = { ...this.userProfile };

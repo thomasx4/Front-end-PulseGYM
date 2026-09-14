@@ -14,6 +14,7 @@ export interface Membresia {
   precioPorDia: number;
   restricciones: string;
   esActual: boolean;
+  fechaVencimiento: string;
 }
 
 @Component({
@@ -148,7 +149,8 @@ export class MembresiasComponent implements OnInit {
       tipoDuracion: data.tipoDuracion || 'MES',
       precioPorDia: data.precioPorDia || 0,
       restricciones: data.restricciones || 'Sin restricciones',
-      esActual: esActual
+      esActual: esActual,
+      fechaVencimiento: data.fechaVencimiento || ''
     };
   }
 

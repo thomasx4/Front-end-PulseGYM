@@ -1,0 +1,189 @@
+<div class="equipos-layout">
+    <app-navbar></app-navbar>
+
+    <div class="equipos-main">
+        <app-header></app-header>
+
+        <div class="equipos-wrapper">
+
+            <!-- Header -->
+            <header class="page-header">
+                <div class="page-header__left">
+                    <h1>Equipos del Gimnasio</h1>
+                    <p class="subtitle">Consulta el estado y disponibilidad de todos los equipos</p>
+                </div>
+            </header>
+
+            <!-- Contenido -->
+            <ng-container *ngIf="!isLoading">
+
+                <!-- Stats -->
+                <section class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-card__icon stat-card__icon--blue">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M6.5 6.5h11M6.5 17.5h11M2 12h20M4 7v10M20 7v10" />
+                            </svg>
+                        </div>
+                        <div class="stat-card__info">
+                            <span class="stat-card__value">{{ totalEquipos }}</span>
+                            <span class="stat-card__label">Total Equipos</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-card__icon stat-card__icon--green">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                                <polyline points="22 4 12 14.01 9 11.01" />
+                            </svg>
+                        </div>
+                        <div class="stat-card__info">
+                            <span class="stat-card__value">{{ totalOperativos }}</span>
+                            <span class="stat-card__label">Operativos</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-card__icon stat-card__icon--orange">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path
+                                    d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                                <line x1="12" y1="9" x2="12" y2="13" />
+                                <line x1="12" y1="17" x2="12.01" y2="17" />
+                            </svg>
+                        </div>
+                        <div class="stat-card__info">
+                            <span class="stat-card__value">{{ totalMantenimiento }}</span>
+                            <span class="stat-card__label">En Mantenimiento</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-card__icon stat-card__icon--red">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="15" y1="9" x2="9" y2="15" />
+                                <line x1="9" y1="9" x2="15" y2="15" />
+                            </svg>
+                        </div>
+                        <div class="stat-card__info">
+                            <span class="stat-card__value">{{ totalFueraServicio }}</span>
+                            <span class="stat-card__label">Fuera de Servicio</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Filtros -->
+                <section class="filtros-bar">
+                    <div class="filtros-bar__left">
+                        <div class="filtro-select">
+                            <select [(ngModel)]="filtroEstado" (ngModelChange)="onFiltroEstadoChange()">
+                                <option *ngFor="let est of estadosDisponibles" [value]="est.value">
+                                    {{ est.label }}
+                                </option>
+                            </select>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <polyline points="6 9 12 15 18 9" />
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="filtros-bar__right">
+                        <div class="filtro-busqueda">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <circle cx="11" cy="11" r="8" />
+                                <path d="m21 21-4.35-4.35" />
+                            </svg>
+                            <input type="text" placeholder="Buscar equipo por nombre o ID..." [(ngModel)]="busqueda"
+                                (ngModelChange)="onBusquedaChange()" />
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Grid de equipos -->
+                <section class="equipos-section" *ngIf="equiposFiltrados.length > 0">
+                    <div class="equipos-count-bar">
+                        <span class="equipos-count">{{ equiposFiltrados.length }} {{ equiposFiltrados.length === 1 ?
+                            'equipo' : 'equipos' }}</span>
+                    </div>
+
+                    <div class="equipos-grid">
+                        <div class="equipo-card" *ngFor="let equipo of equiposFiltrados">
+
+                            <div class="equipo-card__header">
+                                <div class="equipo-card__avatar">
+                                    <img src="../../../../../favicon.ico" alt="Pulse GYM" class="equipo-card__logo">
+                                </div>
+                                <span class="estado-badge" [ngClass]="getEstadoClass(equipo.estado)">
+                                    {{ getEstadoLabel(equipo.estado) }}
+                                </span>
+                            </div>
+
+                            <div class="equipo-card__body">
+                                <h3 class="equipo-card__nombre">{{ equipo.nombre }}</h3>
+                                <span class="equipo-card__id">ID #{{ equipo.id }}</span>
+                            </div>
+
+                            <div class="equipo-card__footer">
+                                <div class="equipo-meta">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <circle cx="12" cy="12" r="10" />
+                                        <polyline points="12 6 12 12 16 14" />
+                                    </svg>
+                                    <span>Actualizado recientemente</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Empty state -->
+                <div *ngIf="equiposFiltrados.length === 0" class="empty-state">
+                    <div class="empty-state__icon">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5">
+                            <path d="M6.5 6.5h11M6.5 17.5h11M2 12h20M4 7v10M20 7v10" />
+                        </svg>
+                    </div>
+                    <h3>No se encontraron equipos</h3>
+                    <p *ngIf="busqueda || filtroEstado !== 'todos'">
+                        No hay equipos que coincidan con los filtros aplicados.
+                    </p>
+                    <p *ngIf="!busqueda && filtroEstado === 'todos'">
+                        No hay equipos registrados en el gimnasio.
+                    </p>
+                    <button class="btn-limpiar" (click)="limpiarFiltros()" *ngIf="busqueda || filtroEstado !== 'todos'">
+                        Limpiar filtros
+                    </button>
+                </div>
+            </ng-container>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Error -->
+<div class="modal-overlay" *ngIf="showErrorModal" (click)="cerrarErrorModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-icon error-icon">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+        </div>
+        <h3 class="modal-title">Error al cargar</h3>
+        <p class="modal-message">{{ modalErrorMessage }}</p>
+        <div class="modal-actions">
+            <button class="modal-btn modal-btn-secondary" (click)="cerrarErrorModal()">Cancelar</button>
+            <button class="modal-btn modal-btn-primary" (click)="recargarDatos()">Reintentar</button>
+        </div>
+    </div>
+</div>
