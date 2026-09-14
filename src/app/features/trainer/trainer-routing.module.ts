@@ -12,7 +12,7 @@ const routes: Routes = [
   {
     path: 'physical-history',
     loadChildren: () => import('./components/physical-history/physical-history.module').then(m => m.PhysicalHistoryModule)
-  }
+  },
   { path: 'rutinas', component: RutinasComponent },
   { path: 'rutinas/socio/:idSocio', component: RutinasSocioComponent },
   { path: 'rutinas/socio/:idSocio/rutina/:idRutina',  component: DetalleSocioComponent },
