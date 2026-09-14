@@ -9,6 +9,10 @@ import { EditarSocioComponent } from './components/rutinas/editar-socio/editar-s
 const routes: Routes = [
   { path: '', component: DashboardComponent },
   { path: 'dashboard', component: DashboardComponent },
+  {
+    path: 'physical-history',
+    loadChildren: () => import('./components/physical-history/physical-history.module').then(m => m.PhysicalHistoryModule)
+  },
   { path: 'rutinas', component: RutinasComponent },
   { path: 'rutinas/socio/:idSocio', component: RutinasSocioComponent },
   { path: 'rutinas/socio/:idSocio/rutina/:idRutina',  component: DetalleSocioComponent },
