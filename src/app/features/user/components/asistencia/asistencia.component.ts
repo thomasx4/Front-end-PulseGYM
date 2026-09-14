@@ -164,65 +164,73 @@ export class AsistenciaComponent implements OnInit, OnDestroy {
   // Cargar rutina del día
   // ==========================================
   cargarRutinaDelDia(): void {
-    this.isLoading = true;
+  this.isLoading = true;
 
-    this.asistenciaService.getUltimaRutina().subscribe({
-      next: (rutina: RutinaDelDia) => {
-        console.log('Rutina recibida:', rutina);
+  this.asistenciaService.getUltimaRutina().subscribe({
+    next: (rutina: RutinaDelDia) => {
+      console.log('=== CARGANDO RUTINA ===');
+      console.log('Rutina recibida:', rutina);
 
-        if (!rutina || !rutina.detalles || rutina.detalles.length === 0) {
-          this.isLoading = false;
-          this.abrirModalNoRutina();
-          return;
-        }
-
-        const today = new Date().getDay();
-        const diaActual = today === 0 ? 7 : today;
-
-        const detallesHoy = rutina.detalles.filter(d => d.diaSemana === diaActual);
-        const detallesMostrar = detallesHoy.length > 0 ? detallesHoy : rutina.detalles;
-
-        this.rutina = rutina;
-        this.ejercicios = detallesMostrar.map((d: DetalleRutina) => ({
-          idDetalleRutina: d.idDetalle,
-          nombreEjercicio: d.nombreEjercicio,
-          grupoMuscular: d.grupoMuscular || 'General',
-          seriesObjetivo: d.series || 3,
-          repeticionesMin: d.repeticionesMin || 8,
-          repeticionesMax: d.repeticionesMax || 12,
-          pesoSugerido: d.pesoSugerido || 0,
-          seriesCompletadas: d.series || 3,
-          repeticionesRealizadas: d.repeticionesMax || 12,
-          pesoUsado: d.pesoSugerido || 0,
-          estado: 'COMPLETADO',
-          observaciones: '',
-          expandido: false
-        }));
-
-        this.restaurarProgreso();
+      if (!rutina || !rutina.detalles || rutina.detalles.length === 0) {
         this.isLoading = false;
-        this.verificarSesionDelDia();
-      },
-      error: (error: any) => {
-        console.error('Error al cargar rutina:', error);
-        this.isLoading = false;
-
-        if (error.status === 404) {
-          this.abrirModalNoRutina();
-        } else if (error.status === 401) {
-          this.mostrarError(
-            'Sesion expirada',
-            'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.'
-          );
-        } else {
-          this.mostrarError(
-            'No se pudo cargar',
-            error.error?.message || 'Error al cargar la rutina del día. Por favor, intenta de nuevo.'
-          );
-        }
+        this.abrirModalNoRutina();
+        return;
       }
-    });
-  }
+
+      const today = new Date().getDay();
+      const diaActual = today === 0 ? 7 : today;
+
+      const detallesHoy = rutina.detalles.filter(d => d.diaSemana === diaActual);
+      const detallesMostrar = detallesHoy.length > 0 ? detallesHoy : rutina.detalles;
+
+      this.rutina = rutina;
+      this.ejercicios = detallesMostrar.map((d: DetalleRutina) => ({
+        idDetalleRutina: d.idDetalle,
+        nombreEjercicio: d.nombreEjercicio,
+        grupoMuscular: d.grupoMuscular || 'General',
+        seriesObjetivo: d.series || 3,
+        repeticionesMin: d.repeticionesMin || 8,
+        repeticionesMax: d.repeticionesMax || 12,
+        pesoSugerido: d.pesoSugerido || 0,
+        seriesCompletadas: d.series || 3,
+        repeticionesRealizadas: d.repeticionesMax || 12,
+        pesoUsado: d.pesoSugerido || 0,
+        estado: 'COMPLETADO',
+        observaciones: '',
+        expandido: false
+      }));
+
+      console.log('Ejercicios recién creados (todos COMPLETADO):',
+        this.ejercicios.map(e => ({ id: e.idDetalleRutina, estado: e.estado })));
+
+      this.restaurarProgreso();
+
+      console.log('Ejercicios después de restaurar:',
+        this.ejercicios.map(e => ({ id: e.idDetalleRutina, estado: e.estado })));
+
+      this.isLoading = false;
+      this.verificarSesionDelDia();
+    },
+    error: (error: any) => {
+      console.error('Error al cargar rutina:', error);
+      this.isLoading = false;
+
+      if (error.status === 404) {
+        this.abrirModalNoRutina();
+      } else if (error.status === 401) {
+        this.mostrarError(
+          'Sesion expirada',
+          'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.'
+        );
+      } else {
+        this.mostrarError(
+          'No se pudo cargar',
+          error.error?.message || 'Error al cargar la rutina del día. Por favor, intenta de nuevo.'
+        );
+      }
+    }
+  });
+}
 
   // ==========================================
   // Modales
@@ -268,45 +276,68 @@ export class AsistenciaComponent implements OnInit, OnDestroy {
   }
 
   restaurarProgreso(): void {
-    const data = localStorage.getItem(this.STORAGE_PROGRESO);
-    if (!data) return;
-
-    try {
-      const progreso: ProgresoGuardado = JSON.parse(data);
-      const hoy = this.getFechaHoy();
-
-      if (progreso.fecha !== hoy) {
-        localStorage.removeItem(this.STORAGE_PROGRESO);
-        return;
-      }
-
-      if (this.rutina && progreso.idRutina !== this.rutina.idRutina) {
-        return;
-      }
-
-      this.duracionMinutos = progreso.duracionMinutos ?? 60;
-      if (this.duracionMinutos < 30) {
-        this.duracionMinutos = 30;
-      }
-      this.observaciones = progreso.observaciones ?? '';
-
-      progreso.ejercicios.forEach(ejGuardado => {
-        const encontrado = this.ejercicios.find(e => e.idDetalleRutina === ejGuardado.idDetalleRutina);
-        if (encontrado) {
-          encontrado.seriesCompletadas = ejGuardado.seriesCompletadas;
-          encontrado.repeticionesRealizadas = ejGuardado.repeticionesRealizadas;
-          encontrado.pesoUsado = ejGuardado.pesoUsado;
-          encontrado.estado = ejGuardado.estado;
-          encontrado.observaciones = ejGuardado.observaciones;
-          encontrado.expandido = ejGuardado.expandido;
-        }
-      });
-
-      console.log('Progreso restaurado del día');
-    } catch (e) {
-      console.warn('Error al restaurar progreso:', e);
-    }
+  const data = localStorage.getItem(this.STORAGE_PROGRESO);
+  if (!data) {
+    console.log('No hay progreso guardado en localStorage');
+    return;
   }
+
+  try {
+    const progreso: ProgresoGuardado = JSON.parse(data);
+    const hoy = this.getFechaHoy();
+
+    console.log('=== RESTAURANDO PROGRESO ===');
+    console.log('Progreso guardado:', progreso);
+    console.log('Fecha progreso:', progreso.fecha, '| Fecha hoy:', hoy);
+
+    if (progreso.fecha !== hoy) {
+      console.log('Progreso es de otro día, se descarta');
+      localStorage.removeItem(this.STORAGE_PROGRESO);
+      return;
+    }
+
+    if (this.rutina && progreso.idRutina !== this.rutina.idRutina) {
+      console.log('Progreso es de otra rutina, se descarta');
+      return;
+    }
+
+    this.duracionMinutos = progreso.duracionMinutos ?? 60;
+    if (this.duracionMinutos < 30) {
+      this.duracionMinutos = 30;
+    }
+    this.observaciones = progreso.observaciones ?? '';
+
+    console.log('Ejercicios guardados:',
+      progreso.ejercicios.map(e => ({ id: e.idDetalleRutina, estado: e.estado })));
+
+    // ✅ RECORREMOS LOS EJERCICIOS ACTUALES Y BUSCAMOS POR ID
+    let encontrados = 0;
+    let noEncontrados = 0;
+
+    this.ejercicios.forEach(ejActual => {
+      const guardado = progreso.ejercicios.find(
+        g => g.idDetalleRutina === ejActual.idDetalleRutina
+      );
+
+      if (guardado) {
+        ejActual.seriesCompletadas = guardado.seriesCompletadas;
+        ejActual.repeticionesRealizadas = guardado.repeticionesRealizadas;
+        ejActual.pesoUsado = guardado.pesoUsado;
+        ejActual.estado = guardado.estado;
+        ejActual.observaciones = guardado.observaciones;
+        ejActual.expandido = guardado.expandido;
+        encontrados++;
+      } else {
+        noEncontrados++;
+        console.warn(`No se encontró progreso guardado para idDetalleRutina=${ejActual.idDetalleRutina}`);
+      }
+    });
+
+    console.log(`Restauración: ${encontrados} encontrados, ${noEncontrados} no encontrados`);
+  } catch (e) {
+    console.warn('Error al restaurar progreso:', e);
+  }
+}
 
   // ==========================================
   // Duración de la sesión
@@ -507,10 +538,10 @@ export class AsistenciaComponent implements OnInit, OnDestroy {
 
   cerrarSuccessModal(): void {
     this.showSuccessModal = false;
-    this.router.navigate(['/user/dashboard']);
+    this.router.navigate(['/user/']);
   }
 
   volver(): void {
-    this.router.navigate(['/user/dashboard']);
+    this.router.navigate(['/user/']);
   }
 }

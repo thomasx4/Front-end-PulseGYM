@@ -1,0 +1,277 @@
+<div class="rutinas-layout">
+    <app-navbar></app-navbar>
+
+    <div class="rutinas-main">
+        <app-header></app-header>
+
+        <div class="rutinas-content">
+
+            <!-- Header -->
+            <header class="page-header">
+                <h1>Rutinas</h1>
+            </header>
+
+            <!-- Contenido -->
+            <ng-container *ngIf="!isLoading">
+
+                <!-- Stats cards -->
+                <section class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-card__icon stat-card__icon--blue">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M6.5 6.5h11M6.5 17.5h11M2 12h20M4 7v10M20 7v10" />
+                            </svg>
+                        </div>
+                        <div class="stat-card__info">
+                            <span class="stat-card__value">{{ stats.totalRutinas }}</span>
+                            <span class="stat-card__label">Total Rutinas Generadas</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-card__icon stat-card__icon--purple">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                <circle cx="9" cy="7" r="4"/>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                            </svg>
+                        </div>
+                        <div class="stat-card__info">
+                            <span class="stat-card__value">{{ stats.totalSocios }}</span>
+                            <span class="stat-card__label">Socios con Rutinas</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-card__icon stat-card__icon--green">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                            </svg>
+                        </div>
+                        <div class="stat-card__info">
+                            <span class="stat-card__value">{{ stats.totalModificadas }}</span>
+                            <span class="stat-card__label">Modificadas por entrenador</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-card__icon stat-card__icon--orange">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                <line x1="16" y1="2" x2="16" y2="6"/>
+                                <line x1="8" y1="2" x2="8" y2="6"/>
+                                <line x1="3" y1="10" x2="21" y2="10"/>
+                            </svg>
+                        </div>
+                        <div class="stat-card__info">
+                            <span class="stat-card__value">{{ stats.ultimaFecha }}</span>
+                            <span class="stat-card__label">Ultima fecha de generacion</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Filtros -->
+                <section class="filtros-bar">
+                    <div class="filtros-bar__left">
+                        <div class="filtro-select">
+                            <select [(ngModel)]="filtroUsuario" (ngModelChange)="onFiltroUsuarioChange()">
+                                <option *ngFor="let u of usuariosDisponibles" [value]="u.value">
+                                    {{ u.label }}
+                                </option>
+                            </select>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="filtros-bar__right">
+                        <div class="filtro-busqueda">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"/>
+                                <path d="m21 21-4.35-4.35"/>
+                            </svg>
+                            <input type="text"
+                                   placeholder="Buscar por nombre de usuario "
+                                   [(ngModel)]="filtroBusqueda"
+                                   (ngModelChange)="onBusquedaChange()" />
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Tabla -->
+                <section class="tabla-card">
+                    <div class="tabla-wrapper">
+                        <table class="tabla">
+                            <thead>
+                                <tr>
+                                    <th>Fecha de generacion</th>
+                                    <th>Modificado por</th>
+                                    <th>Usuario</th>
+                                    <th>Version</th>
+                                    <th>Nombre</th>
+                                    <th class="text-center">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let rutina of rutinasPaginadas">
+                                    <td>
+                                        <div class="fecha-cell">
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                                <line x1="16" y1="2" x2="16" y2="6"/>
+                                                <line x1="8" y1="2" x2="8" y2="6"/>
+                                                <line x1="3" y1="10" x2="21" y2="10"/>
+                                            </svg>
+                                            <div class="fecha-cell__info">
+                                                <span class="fecha-cell__dia">{{ rutina.fechaGeneracion }}</span>
+                                                <span class="fecha-cell__hora">{{ rutina.horaGeneracion }}</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="creador-cell">
+                                            <img [src]="rutina.avatarUrl" [alt]="rutina.modificadoPor" class="creador-avatar" />
+                                            <div class="creador-cell__info">
+                                                <span class="creador-nombre">{{ rutina.modificadoPor }}</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="username-socio">{{ rutina.usernameSocio }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="version-badge">v{{ rutina.version }}</span>
+                                    </td>
+                                    <td>
+                                        <div class="nombre-cell">
+                                            <span class="nombre-texto">{{ rutina.nombre }}</span>
+                                            <span class="badge-ia" *ngIf="rutina.generadaPorIA">IA</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="acciones-cell">
+                                            <button class="btn-accion" title="Ver detalle" (click)="verRutina(rutina)">
+                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                                    <circle cx="12" cy="12" r="3"/>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Empty state: sin resultados de busqueda -->
+                                <tr *ngIf="mostrarEmptyPorBusqueda">
+                                    <td colspan="6" class="empty-row">
+                                        <div class="empty-state">
+                                            <div class="empty-state__illustration empty-state__illustration--search">
+                                                <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                                    <circle cx="11" cy="11" r="8"/>
+                                                    <path d="m21 21-4.35-4.35"/>
+                                                    <line x1="8" y1="11" x2="14" y2="11"/>
+                                                </svg>
+                                            </div>
+                                            <h3 class="empty-state__title">No se encontraron rutinas</h3>
+                                            <p class="empty-state__text">
+                                                No hay rutinas que coincidan con <strong>"{{ filtroBusqueda }}"</strong>.
+                                                <br>Intenta con otro termino o limpia la busqueda.
+                                            </p>
+                                            <button class="empty-state__btn empty-state__btn--secondary" (click)="limpiarFiltros()">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <line x1="18" y1="6" x2="6" y2="18"/>
+                                                    <line x1="6" y1="6" x2="18" y2="18"/>
+                                                </svg>
+                                                Limpiar busqueda
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Empty state: socio sin rutinas -->
+                                <tr *ngIf="mostrarEmptySinRutinas">
+                                    <td colspan="6" class="empty-row">
+                                        <div class="empty-state">
+                                            <div class="empty-state__illustration empty-state__illustration--empty">
+                                                <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                                    <path d="M6.5 6.5h11M6.5 17.5h11M2 12h20M4 7v10M20 7v10" />
+                                                </svg>
+                                            </div>
+                                            <h3 class="empty-state__title">
+                                                <ng-container *ngIf="filtroUsuario !== 'todos'; else todosEmpty">
+                                                    {{ usuarioSeleccionadoNombre }} no tiene rutinas
+                                                </ng-container>
+                                                <ng-template #todosEmpty>
+                                                    No hay rutinas disponibles
+                                                </ng-template>
+                                            </h3>
+                                            <p class="empty-state__text">
+                                                <ng-container *ngIf="filtroUsuario !== 'todos'; else todosTexto">
+                                                    Este socio aun no tiene ninguna rutina generada.
+                                                    <br>Crea una nueva para empezar.
+                                                </ng-container>
+                                                <ng-template #todosTexto>
+                                                    Ningun socio tiene rutinas generadas aun.
+                                                </ng-template>
+                                            </p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Paginacion -->
+                    <div class="tabla-footer" *ngIf="totalRegistros > 0">
+                        <span class="tabla-footer__info">{{ rangoActual }}</span>
+
+                        <div class="paginacion">
+                            <button class="pagina-btn"
+                                    [disabled]="paginaActual === 1"
+                                    (click)="paginaAnterior()">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="15 18 9 12 15 6"/>
+                                </svg>
+                            </button>
+
+                            <button class="pagina-btn"
+                                    *ngFor="let p of paginas"
+                                    [class.active]="p === paginaActual"
+                                    (click)="irAPagina(p)">
+                                {{ p }}
+                            </button>
+
+                            <button class="pagina-btn"
+                                    [disabled]="paginaActual === totalPaginas"
+                                    (click)="paginaSiguiente()">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="9 18 15 12 9 6"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+            </ng-container>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Error -->
+<div class="modal-overlay" *ngIf="showErrorModal" (click)="cerrarErrorModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-icon error-icon">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+        </div>
+        <h3>Algo salio mal</h3>
+        <p>{{ errorModalMessage }}</p>
+        <div class="modal-actions">
+            <button class="modal-btn modal-btn-primary" (click)="cerrarErrorModal()">Entendido</button>
+        </div>
+    </div>
+</div>
