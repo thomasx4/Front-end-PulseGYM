@@ -77,6 +77,7 @@ export interface PageResponse<T> {
 export interface SocioSimpleDTO {
     id: number;
     nombre: string;
+    telefono: String
 }
 
 export interface HistorialResumenDTO {

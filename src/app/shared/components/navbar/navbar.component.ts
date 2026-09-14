@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
@@ -7,13 +8,35 @@ import { AuthService } from '../../../core/services/auth.service';
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss']
 })
-export class NavbarComponent {
+export class NavbarComponent implements OnInit {
   isMobileOpen = false;
+  userRoleLabel = 'SOCIO';
+  isTrainer = false;
 
   constructor(
     private authService: AuthService,
     private router: Router
   ) {}
+
+  ngOnInit(): void {
+    this.checkUserRole(this.router.url);
+
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event: any) => {
+      this.checkUserRole(event.urlAfterRedirects);
+    });
+  }
+
+  private checkUserRole(url: string): void {
+    if (url.includes('/trainer')) {
+      this.userRoleLabel = 'ENTRENADOR';
+      this.isTrainer = true;
+    } else {
+      this.userRoleLabel = 'SOCIO';
+      this.isTrainer = false;
+    }
+  }
 
   toggleMobileMenu(): void {
     this.isMobileOpen = !this.isMobileOpen;
