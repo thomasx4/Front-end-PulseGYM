@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { PhysicalHistoryRoutingModule } from './physical-history-routing.module';
+import { PhysicalHistoryRoutingModule } from '../physical-history/physical-history-routing.module';
 
 
 @NgModule({
