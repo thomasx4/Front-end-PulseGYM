@@ -166,7 +166,7 @@ $shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
 
         svg { stroke: currentColor; }
 
-        &--blue { background: #dbeafe; color: #2563eb; }
+        &--blue { background: #dbeafe; color: #0f1c3f; }
         &--green { background: #d1fae5; color: #059669; }
         &--purple { background: #ede9fe; color: #7c3aed; }
         &--orange { background: #ffedd5; color: #ea580c; }
@@ -510,6 +510,13 @@ $shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
         background: var(--color-error, #dc2626);
         color: #ffffff;
         border-color: var(--color-error, #dc2626);
+        transform: translateY(-1px);
+    }
+
+    &.btn-ver:hover {
+        background: #0f1c3f;
+        color: #ffffff;
+        border-color: #0f1c3f;
         transform: translateY(-1px);
     }
 }

@@ -1,0 +1,112 @@
+<div class="detalle-ejercicio-layout">
+    <app-navbar></app-navbar>
+
+    <div class="detalle-ejercicio-main">
+        <app-header></app-header>
+
+        <div class="detalle-ejercicio-wrapper">
+
+            <!-- Header -->
+            <header class="page-header">
+                <div class="page-header__left">
+                    <button class="btn-volver" (click)="volver()">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <line x1="19" y1="12" x2="5" y2="12" />
+                            <polyline points="12 19 5 12 12 5" />
+                        </svg>
+                        Volver
+                    </button>
+                    <div class="page-header__title">
+                        <h1>Detalle del Ejercicio</h1>
+                        <p class="subtitle">Información completa del ejercicio</p>
+                    </div>
+                </div>
+            </header>
+
+
+            <!-- Error -->
+            <div *ngIf="!isLoading && error" class="state-container error">
+                <p>{{ error }}</p>
+                <button class="btn-volver-error" (click)="volver()">Volver a la lista</button>
+            </div>
+
+            <!-- Contenido -->
+            <ng-container *ngIf="!isLoading && !error && ejercicio">
+
+                <!-- Card principal -->
+                <div class="card hero-card">
+
+                    <!-- Imagen -->
+                    <div class="hero-image"
+                         [style.backgroundImage]="ejercicio.urlImagen ? 'url(' + ejercicio.urlImagen + ')' : 'none'">
+                        <div class="hero-image__placeholder" *ngIf="!ejercicio.urlImagen">
+                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                <circle cx="8.5" cy="8.5" r="1.5"/>
+                                <polyline points="21 15 16 10 5 21"/>
+                            </svg>
+                        </div>
+
+                        <span class="hero-estado"
+                              [class.activo]="ejercicio.activo"
+                              [class.inactivo]="!ejercicio.activo">
+                            {{ ejercicio.activo ? 'Activo' : 'Inactivo' }}
+                        </span>
+                    </div>
+
+                    <!-- Título -->
+                    <div class="hero-body">
+                        <div class="hero-header">
+                            <h2>{{ ejercicio.nombre }}</h2>
+                            <span class="hero-grupo">{{ ejercicio.grupoMuscular }}</span>
+                        </div>
+
+                        <!-- Meta -->
+                        <div class="meta-row">
+                            <div class="meta-item dificultad" [ngClass]="getDificultadClass(ejercicio.dificultad)">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/>
+                                </svg>
+                                <span>{{ getDificultadLabel(ejercicio.dificultad) }}</span>
+                            </div>
+
+                            <div class="meta-item">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <polyline points="12 6 12 12 16 14"/>
+                                </svg>
+                                <span>{{ ejercicio.caloriasPorMinuto }} kcal/min</span>
+                            </div>
+
+                            <div class="meta-item">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M6.5 6.5h11M6.5 17.5h11M2 12h20M4 7v10M20 7v10"/>
+                                </svg>
+                                <span>{{ ejercicio.equipoNecesario }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Explicación técnica -->
+                <div class="card info-card">
+                    <div class="card-header">
+                        <h3>Explicación Técnica</h3>
+                    </div>
+
+                    <div class="info-content">
+                        <p *ngIf="ejercicio.explicacionTecnica; else sinExplicacion">
+                            {{ ejercicio.explicacionTecnica }}
+                        </p>
+                        <ng-template #sinExplicacion>
+                            <p class="empty-text">Este ejercicio aún no tiene explicación técnica registrada.</p>
+                        </ng-template>
+                    </div>
+                </div>
+
+            </ng-container>
+
+        </div>
+    </div>
+</div>

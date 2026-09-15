@@ -115,10 +115,12 @@ export class EjerciciosService {
     }
 
     /**
-     * Obtener equipos necesarios disponibles
-     * GET /ejercicios/equipos
+     * Obtener equipos necesarios disponibles (inventario completo)
+     * GET /pg-ms-operation/api/equipos/todos
      */
     getEquipos(): Observable<any> {
-        return this.http.get<any>(`${this.apiUrl}/equipos`, this.getHeaders());
+        //  URL al microservicio de operaciones (no al de usuarios)
+        const url = `${environment.apiUrl}/pg-ms-operation/api/equipos/todos`;
+        return this.http.get<any>(url, this.getHeaders());
     }
 }
