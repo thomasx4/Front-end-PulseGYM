@@ -34,7 +34,7 @@ export class AdminEnvioManualComponent implements OnInit {
   selectedUsuario: any = null;
   searchUsuario: string = '';
   telefonoWhatsapp: string = '';
-  
+
   paginaModalActual: number = 0;
   itemsPorPaginaModal: number = 5;
   totalElementosModal: number = 0;
@@ -167,12 +167,45 @@ export class AdminEnvioManualComponent implements OnInit {
     this.avatarSelectedError = false;
   }
 
-  onSeleccionarPlantilla(): void {
-    if (!this.plantillaSeleccionadaId) return;
+onSeleccionarPlantilla(): void {
+    if (!this.plantillaSeleccionadaId) {
+      this.envio.plantillaId = undefined;
+      this.envio.tipoEvento = undefined;
+      return;
+    }
+    
     const plantillaEncontrada = this.plantillasList.find(p => p.idPlantilla === this.plantillaSeleccionadaId);
     if (plantillaEncontrada) {
-      this.envio.asunto = plantillaEncontrada.titulo || '';
-      this.envio.contenido = plantillaEncontrada.contenido || '';
+      let contenido = plantillaEncontrada.contenido || '';
+      let asunto = plantillaEncontrada.titulo || '';
+
+      if (this.selectedUsuario) {
+        const nombre = this.selectedUsuario.nombre || this.selectedUsuario.username || 'Usuario';
+        const apellido = this.selectedUsuario.apellido || '';
+        const objetivo = this.selectedUsuario.objetivoPrincipal;
+
+        contenido = contenido
+          .replace(/{nombre}/g, nombre)
+          .replace(/{apellido}/g, apellido)
+          .replace(/{objetivo}/g, objetivo)
+          .replace(/{email}/g, this.selectedUsuario.email || '');
+
+        asunto = asunto
+          .replace(/{nombre}/g, nombre)
+          .replace(/{apellido}/g, apellido)
+          .replace(/{objetivo}/g, objetivo);
+      }
+
+      this.envio.asunto = asunto;
+      this.envio.contenido = contenido;
+      this.envio.plantillaId = plantillaEncontrada.idPlantilla;
+      
+      if (plantillaEncontrada.eventosAsociados && plantillaEncontrada.eventosAsociados.length > 0) {
+        this.envio.tipoEvento = plantillaEncontrada.eventosAsociados[0];
+      } else {
+        this.envio.tipoEvento = plantillaEncontrada.eventoAsociado;
+      }
+
       if (plantillaEncontrada.tipoPlantilla) {
         this.envio.canal = plantillaEncontrada.tipoPlantilla;
       }
