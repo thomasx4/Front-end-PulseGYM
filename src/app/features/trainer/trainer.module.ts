@@ -13,6 +13,7 @@ import { EditarSocioComponent } from './components/rutinas/editar-socio/editar-s
 import { EjerciciosComponent } from './components/ejercicios/ejercicios.component';
 import { PerfilMedicoComponent } from './components/perfil-medico/perfil-medico.component';
 import { DetalleMedicoComponent } from './components/perfil-medico/detalle-medico/detalle-medico.component';
+import { DetalleEjerciciosComponent } from './components/ejercicios/detalle-ejercicios/detalle-ejercicios.component';
 
 @NgModule({
   declarations: [
@@ -23,7 +24,8 @@ import { DetalleMedicoComponent } from './components/perfil-medico/detalle-medic
     EditarSocioComponent,
     EjerciciosComponent,
     PerfilMedicoComponent,
-    DetalleMedicoComponent
+    DetalleMedicoComponent,
+    DetalleEjerciciosComponent
   ],
   imports: [
     CommonModule,

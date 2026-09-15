@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { EjerciciosService, Ejercicio, CrearEjercicioPayload } from '../../../../core/services/ejercicios.service';
 import { environment } from '../../../../../environments/environment';
 import { Observable } from 'rxjs';
@@ -78,7 +79,10 @@ export class EjerciciosComponent implements OnInit {
   // Exponer environment al template
   public environment = environment;
 
-  constructor(private ejerciciosService: EjerciciosService) {}
+  constructor(
+    private ejerciciosService: EjerciciosService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.cargarCatalogos();
@@ -101,8 +105,6 @@ export class EjerciciosComponent implements OnInit {
 
     this.ejerciciosService.getEjercicios(filtros).subscribe({
       next: (response: any) => {
-        console.log('Ejercicios recibidos:', response);
-
         let lista: Ejercicio[] = [];
         if (response && Array.isArray(response.data)) {
           lista = response.data;
@@ -150,29 +152,29 @@ export class EjerciciosComponent implements OnInit {
   }
 
   // ==========================================
-  // Cargar catalogos
+  // Cargar catalogos (SIN datos quemados)
   // ==========================================
   cargarCatalogos(): void {
+    // Grupos musculares - solo desde backend
     this.ejerciciosService.getGruposMusculares().subscribe({
       next: (response: any) => {
-        console.log('Grupos musculares recibidos:', response);
         this.gruposMusculares = this.extraerListaStrings(response);
-        console.log('Grupos musculares mapeados:', this.gruposMusculares);
+        console.log('Grupos musculares:', this.gruposMusculares);
       },
       error: (err: any) => {
-        console.warn('Error al cargar grupos musculares:', err);
-        this.gruposMusculares = ['PECHO', 'ESPALDA', 'PIERNA', 'HOMBRO', 'BRAZO', 'CORE', 'CARDIO'];
+        console.error('Error al cargar grupos musculares:', err);
+        this.gruposMusculares = [];  // 👈 SIN fallback quemado
       }
     });
 
+    // Equipos - desde inventario real (pg-ms-operation)
     this.ejerciciosService.getEquipos().subscribe({
       next: (response: any) => {
-        console.log('Equipos recibidos:', response);
         this.equipos = this.extraerListaStrings(response);
-        console.log('Equipos mapeados:', this.equipos);
+        console.log('Equipos del inventario:', this.equipos);
       },
       error: (err: any) => {
-        console.warn('Error al cargar equipos:', err);
+        console.error('Error al cargar equipos:', err);
         this.equipos = [];
       }
     });
@@ -182,10 +184,12 @@ export class EjerciciosComponent implements OnInit {
   private extraerListaStrings(response: any): string[] {
     if (!response) return [];
 
+    // Caso: array de strings puros
     if (Array.isArray(response) && response.every(item => typeof item === 'string')) {
       return response;
     }
 
+    // Caso: array de objetos
     if (Array.isArray(response)) {
       return response
         .map(item => {
@@ -195,6 +199,7 @@ export class EjerciciosComponent implements OnInit {
         .filter((s: string) => !!s);
     }
 
+    // Caso: { data: [...] }
     if (response.data && Array.isArray(response.data)) {
       return this.extraerListaStrings(response.data);
     }
@@ -246,6 +251,13 @@ export class EjerciciosComponent implements OnInit {
 
   get hayFiltros(): boolean {
     return !!(this.filtroNombre || this.filtroGrupo || this.filtroDificultad);
+  }
+
+  // ==========================================
+  // ✅ NUEVO: Ver detalle del ejercicio
+  // ==========================================
+  verEjercicio(ejercicio: EjercicioUI): void {
+    this.router.navigate(['/trainer/ejercicios', ejercicio.idEjercicio]);
   }
 
   // ==========================================
@@ -339,14 +351,12 @@ export class EjerciciosComponent implements OnInit {
     return new Observable(observer => {
 
       if (this.usarUrlManual) {
-        console.log('Modo URL manual, se usa:', this.form.urlImagen);
         observer.next(this.form.urlImagen);
         observer.complete();
         return;
       }
 
       if (!this.selectedFile) {
-        console.log('Sin archivo nuevo, se conserva URL:', this.form.urlImagen);
         observer.next(this.form.urlImagen);
         observer.complete();
         return;
@@ -366,11 +376,6 @@ export class EjerciciosComponent implements OnInit {
 
       const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${environment.cloudinary.cloudName}/image/upload`;
 
-      console.log('Subiendo imagen a Cloudinary...');
-      console.log('Cloud Name:', environment.cloudinary.cloudName);
-      console.log('Upload Preset:', environment.cloudinary.uploadPreset);
-      console.log('Archivo:', this.selectedFile.name, this.selectedFile.size, 'bytes');
-
       this.uploadToCloudinary(cloudinaryUrl, formData).subscribe({
         next: (response: any) => {
           this.uploadingImage = false;
@@ -381,13 +386,11 @@ export class EjerciciosComponent implements OnInit {
             return;
           }
 
-          console.log('Imagen subida:', imageUrl);
           observer.next(imageUrl);
           observer.complete();
         },
         error: (err: any) => {
           this.uploadingImage = false;
-          console.error('Error al subir a Cloudinary:', err);
           observer.error(err);
         }
       });
@@ -436,7 +439,6 @@ export class EjerciciosComponent implements OnInit {
 
     this.subirImagen().subscribe({
       next: (imageUrl: string) => {
-        // 👇 Al crear siempre activo; al editar conserva el valor actual
         const activoFinal = this.modoEdicion ? this.form.activo : true;
 
         const payload: CrearEjercicioPayload = {
@@ -518,7 +520,6 @@ export class EjerciciosComponent implements OnInit {
       },
       error: (err) => {
         this.isDeleting = false;
-        console.error('Error al eliminar:', err);
         this.cerrarDeleteModal();
         this.mostrarError('Error al eliminar', err.error?.message || 'No se pudo eliminar el ejercicio.');
       }
