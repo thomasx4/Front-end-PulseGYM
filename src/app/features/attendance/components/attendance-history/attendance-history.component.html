@@ -63,11 +63,6 @@
 
   <div class="attendance-history__card">
 
-    <div *ngIf="isLoading" class="state-container">
-      <div class="spinner"></div>
-      <p>Cargando el historial de accesos...</p>
-    </div>
-
     <div *ngIf="errorMessage && !isLoading" class="state-container state-container--error">
       <p>{{ errorMessage }}</p>
       <button type="button" class="btn btn--secondary" (click)="cargarHistorial()">Reintentar</button>

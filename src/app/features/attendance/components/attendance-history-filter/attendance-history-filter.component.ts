@@ -20,22 +20,29 @@ export class AttendanceHistoryFilterComponent {
     const filtros: FiltrosHistorial = {};
 
     if (this.nombreUsuario && this.nombreUsuario.trim()) {
-      filtros.nombreUsuario = this.nombreUsuario.trim();
+      const val = this.nombreUsuario.trim();
+      const num = Number(val);
+
+      if (!isNaN(num)) {
+        filtros.usuarioId = num; // Envía usuarioId si es número
+      } else {
+        filtros.nombreUsuario = val;
+      }
     }
 
-    if (this.fechaDesde && this.fechaDesde.trim() !== '') {
+    if (this.fechaDesde && this.fechaDesde.trim()) {
       filtros.fechaDesde = this.fechaDesde.trim();
     }
 
-    if (this.fechaHasta && this.fechaHasta.trim() !== '') {
+    if (this.fechaHasta && this.fechaHasta.trim()) {
       filtros.fechaHasta = this.fechaHasta.trim();
     }
 
-    if (this.tipoAcceso && this.tipoAcceso.trim() !== '') {
+    if (this.tipoAcceso && this.tipoAcceso.trim()) {
       filtros.tipoAcceso = this.tipoAcceso.trim();
     }
 
-    if (this.resultado && this.resultado.trim() !== '') {
+    if (this.resultado && this.resultado.trim()) {
       filtros.resultado = this.resultado.trim();
     }
 

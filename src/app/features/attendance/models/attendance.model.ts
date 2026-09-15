@@ -39,6 +39,7 @@ export interface HistorialAccesoResponse {
 }
 
 export interface FiltrosHistorial {
+  usuarioId?: number | string;
   nombreUsuario?: string;
   fechaDesde?: string;
   fechaHasta?: string;
