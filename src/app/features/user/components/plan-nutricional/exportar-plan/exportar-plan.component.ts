@@ -1,6 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import Swal from 'sweetalert2';
 import { NutricionalService, PlanNutricionalReal } from '../../../../../core/services/nutricional.service';
+import { Capacitor } from '@capacitor/core';
+import { Filesystem, Directory } from '@capacitor/filesystem';
+import { Share } from '@capacitor/share';
 
 @Component({
   selector: 'app-exportar-plan',
@@ -70,17 +74,13 @@ export class ExportarPlanComponent implements OnInit {
     if (!idPlan) return;
 
     this.isLoading = true;
+    const plan = this.planes.find(p => p.idPlanNutricional === idPlan);
+    const fileName = `plan-nutricional-${plan?.idPlanNutricional || idPlan}.pdf`;
 
     this.nutricionalService.exportarPlanPDF(idPlan).subscribe({
-      next: (blob: Blob) => {
+      next: async (blob: Blob) => {
         this.isLoading = false;
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        const plan = this.planes.find(p => p.idPlanNutricional === idPlan);
-        link.download = `plan-nutricional-${plan?.idPlanNutricional || idPlan}.pdf`;
-        link.click();
-        window.URL.revokeObjectURL(url);
+        await this.procesarPdfMovilOWeb(blob, fileName);
       },
       error: (error: any) => {
         this.isLoading = false;
@@ -94,16 +94,12 @@ export class ExportarPlanComponent implements OnInit {
 
   exportarUltimoPlan(): void {
     this.isLoading = true;
+    const fileName = `plan-nutricional-ultimo.pdf`;
 
     this.nutricionalService.exportarUltimoPlanPDF().subscribe({
-      next: (blob: Blob) => {
+      next: async (blob: Blob) => {
         this.isLoading = false;
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `plan-nutricional-ultimo.pdf`;
-        link.click();
-        window.URL.revokeObjectURL(url);
+        await this.procesarPdfMovilOWeb(blob, fileName);
       },
       error: (error: any) => {
         this.isLoading = false;
@@ -113,6 +109,52 @@ export class ExportarPlanComponent implements OnInit {
         this.showErrorModal = true;
       }
     });
+  }
+
+  private async procesarPdfMovilOWeb(blob: Blob, fileName: string): Promise<void> {
+    try {
+      if (Capacitor.isNativePlatform()) {
+        try {
+          await Filesystem.requestPermissions();
+        } catch (permErr) {
+          console.warn('Permisos no disponibles o denegados:', permErr);
+        }
+
+        const reader = new FileReader();
+        reader.readAsDataURL(blob);
+        reader.onloadend = async () => {
+          const base64data = reader.result as string;
+          const base64Content = base64data.includes(',') ? base64data.split(',')[1] : base64data;
+
+          try {
+            const savedFile = await Filesystem.writeFile({
+              path: fileName,
+              data: base64Content,
+              directory: Directory.Cache
+            });
+
+            await Share.share({
+              title: 'Plan Nutricional Pulse Gym',
+              url: savedFile.uri,
+              dialogTitle: 'Abrir o compartir plan nutricional PDF'
+            });
+          } catch (fsError: any) {
+            console.error('Error al guardar archivo en móvil:', fsError);
+            Swal.fire('Error', 'No se pudo abrir el archivo en el dispositivo: ' + (fsError.message || fsError), 'error');
+          }
+        };
+      } else {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = fileName;
+        link.click();
+        window.URL.revokeObjectURL(url);
+      }
+    } catch (err) {
+      console.error('Error procesando PDF:', err);
+      Swal.fire('Error', 'Ocurrió un error al procesar el archivo', 'error');
+    }
   }
 
   volver(): void {

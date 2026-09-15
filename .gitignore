@@ -43,3 +43,5 @@ Thumbs.db
 
 # Archivos de entorno con credenciales
 src/environments/environment.prod.ts
+
+.env
