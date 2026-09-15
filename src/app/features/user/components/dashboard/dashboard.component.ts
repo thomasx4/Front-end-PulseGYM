@@ -18,14 +18,14 @@ export class DashboardComponent implements OnInit {
   dashboardData!: DashboardSocioResponse;
 
   weekDays: WeekDay[] = [];
-  
+
   todayRoutine: Routine = {
     nombre: 'Cargando...',
     duracion: '--',
     dateStr: '',
     ejercicios: []
   };
-  
+
   weeklySummary: WeeklySummary = {
     totalTime: '0h',
     timeProgress: 0,
@@ -64,7 +64,7 @@ export class DashboardComponent implements OnInit {
   initWeekDays(): void {
     const days = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'];
     const todayIndex = new Date().getDay() === 0 ? 6 : new Date().getDay() - 1;
-    
+
     this.weekDays = days.map((name, index) => {
       const isActive = index <= todayIndex && index >= todayIndex - 4;
       return {
@@ -119,7 +119,7 @@ export class DashboardComponent implements OnInit {
         this.bestStreak = 0;
         this.updateWeekDays(0);
         this.mostrarErrorModal('Ocurrio un error al cargar tu panel. Por favor, intenta de nuevo.');
-        this.loadTodayRoutineFallback();
+        this.loadTodayRoutine(); 
       }
     });
   }
@@ -128,7 +128,7 @@ export class DashboardComponent implements OnInit {
     this.userService.getLastRoutine().subscribe({
       next: (routine) => {
         console.log('Ultima rutina recibida:', routine);
-        if (routine && routine.ejercicios && routine.ejercicios.length > 0) {
+        if (routine) {
           this.todayRoutine = routine;
         } else {
           this.todayRoutine = {
@@ -141,7 +141,12 @@ export class DashboardComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error al cargar rutina:', err);
-        this.loadTodayRoutineFallback();
+        this.todayRoutine = {
+          nombre: 'No se pudo cargar tu rutina',
+          duracion: '--',
+          dateStr: this.getTodayDateStr(),
+          ejercicios: []
+        };
       }
     });
   }
@@ -151,21 +156,6 @@ export class DashboardComponent implements OnInit {
     const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'];
     const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
     return `${diasSemana[today.getDay()]} ${today.getDate()} de ${meses[today.getMonth()]}`;
-  }
-
-  loadTodayRoutineFallback(): void {
-    // Datos quemados solo para mostrar el diseño
-    this.todayRoutine = {
-      nombre: 'Rutina de Fuerza',
-      duracion: '45 - 60 min',
-      dateStr: this.getTodayDateStr(),
-      ejercicios: [
-        { nombre: 'Press de Banca', sets: '4 x 8-12', grupoMuscular: 'Pecho' },
-        { nombre: 'Dominadas', sets: '3 x 6-10', grupoMuscular: 'Espalda' },
-        { nombre: 'Sentadilla', sets: '4 x 10-15', grupoMuscular: 'Piernas' },
-        { nombre: 'Press Militar', sets: '3 x 8-12', grupoMuscular: 'Hombros' }
-      ]
-    };
   }
 
   updateWeekDays(racha: number): void {

@@ -1,0 +1,321 @@
+<div class="detalle-medico-layout">
+    <app-navbar></app-navbar>
+
+    <div class="detalle-medico-main">
+        <app-header></app-header>
+
+        <div class="detalle-medico-wrapper">
+
+            <ng-container *ngIf="!editando">
+
+                <!-- Header -->
+                <header class="page-header">
+                    <div class="page-header__left">
+                        <button class="btn-volver" (click)="volver()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <line x1="19" y1="12" x2="5" y2="12" />
+                                <polyline points="12 19 5 12 12 5" />
+                            </svg>
+                            Volver
+                        </button>
+                        <div class="page-header__title">
+                            <h1>Perfil Médico</h1>
+                            <p class="subtitle">Detalle completo de tu información médica</p>
+                        </div>
+                    </div>
+
+                    <div class="page-header__right">
+                        <button *ngIf="!isLoading" class="btn-editar" (click)="activarEdicion()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                            </svg>
+                            Editar Perfil
+                        </button>
+                    </div>
+                </header>
+
+                <!-- Contenido vista -->
+                <ng-container *ngIf="!isLoading">
+
+                    <!-- Mensaje de éxito -->
+                    <div *ngIf="mensajeExito" class="alert-success">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                            <polyline points="22 4 12 14.01 9 11.01" />
+                        </svg>
+                        {{ mensajeExito }}
+                    </div>
+
+                    <!-- Card del socio -->
+                    <div class="card socio-card">
+                        <div class="socio-info">
+                            <div class="socio-avatar">
+                                <img *ngIf="fotoSocio"
+                                     [src]="fotoSocio"
+                                     [alt]="perfilMedico.nombreSocio"
+                                     (error)="onImageError($event)" />
+                                <span *ngIf="!fotoSocio" class="avatar-initials">
+                                    {{ getIniciales(perfilMedico.nombreSocio) }}
+                                </span>
+                            </div>
+                            <h2 class="socio-nombre">{{ perfilMedico.nombreSocio || 'Socio sin nombre' }}</h2>
+                        </div>
+
+                        <div class="fecha-badge">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                                <line x1="16" y1="2" x2="16" y2="6" />
+                                <line x1="8" y1="2" x2="8" y2="6" />
+                                <line x1="3" y1="10" x2="21" y2="10" />
+                            </svg>
+                            Última actualización: {{ formatearFecha(perfilMedico.fechaActualizacion) }}
+                        </div>
+                    </div>
+
+                    <!-- Grid 2 columnas -->
+                    <div class="info-grid">
+                        <div class="card info-card">
+                            <div class="card-header">
+                                <h3>Información Física</h3>
+                            </div>
+                            <div class="info-list">
+                                <div class="info-row">
+                                    <span class="info-label">Peso</span>
+                                    <span class="info-value">
+                                        {{ perfilMedico.pesoKg ? perfilMedico.pesoKg + ' kg' : 'No registrado' }}
+                                    </span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Estatura</span>
+                                    <span class="info-value">
+                                        {{ perfilMedico.estaturaCm ? perfilMedico.estaturaCm + ' cm' : 'No registrado' }}
+                                    </span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Porcentaje de Grasa</span>
+                                    <span class="info-value">
+                                        {{ perfilMedico.porcentajeGrasa ? perfilMedico.porcentajeGrasa + ' %' : 'No registrado' }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card info-card">
+                            <div class="card-header">
+                                <h3>Información Médica</h3>
+                            </div>
+                            <div class="info-list">
+                                <div class="info-row">
+                                    <span class="info-label">Alergias</span>
+                                    <span class="info-value">{{ perfilMedico.alergias || 'Ninguna' }}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Condiciones Crónicas</span>
+                                    <span class="info-value">{{ perfilMedico.condicionesCronicas || 'Ninguna' }}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Lesiones Previas</span>
+                                    <span class="info-value">{{ perfilMedico.lesionesPrevias || 'Ninguna' }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Banner -->
+                    <div class="card banner-card">
+                        <div class="banner-icon">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                                <path d="m9 12 2 2 4-4" />
+                            </svg>
+                        </div>
+                        <div class="banner-text">
+                            <strong>Tu información médica es confidencial</strong>
+                            <p>Esta información solo es visible para ti y tu entrenador asignado.</p>
+                        </div>
+                    </div>
+
+                </ng-container>
+            </ng-container>
+
+            <!-- ============================================
+                 MODO EDICIÓN
+                 ============================================ -->
+            <ng-container *ngIf="editando">
+
+                <!-- Header edición -->
+                <header class="page-header page-header--edit">
+                    <div class="page-header__left">
+                        <button class="btn-cancelar-link" (click)="cancelarEdicion()" [disabled]="isSaving">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <line x1="19" y1="12" x2="5" y2="12" />
+                                <polyline points="12 19 5 12 12 5" />
+                            </svg>
+                            Cancelar
+                        </button>
+                        <div class="page-header__title">
+                            <h1>Editar Perfil Médico</h1>
+                            <p class="subtitle">Actualiza tu información médica y física</p>
+                        </div>
+                    </div>
+
+                    <div class="page-header__right">
+                        <button class="btn-secondary" (click)="cancelarEdicion()" [disabled]="isSaving">
+                            Cancelar
+                        </button>
+                        <button class="btn-primary" (click)="guardarCambios()" [disabled]="isSaving">
+                            <ng-container *ngIf="!isSaving">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12" />
+                                </svg>
+                                Guardar cambios
+                            </ng-container>
+                            <ng-container *ngIf="isSaving">
+                                <span class="spinner-border"></span>
+                                Guardando...
+                            </ng-container>
+                        </button>
+                    </div>
+                </header>
+
+                <!-- Error -->
+                <div *ngIf="error" class="alert-error">
+                    {{ error }}
+                </div>
+
+                <!-- Card del socio (modo edición) -->
+                <div class="card socio-card">
+                    <div class="socio-info">
+                        <div class="socio-avatar">
+                            <img *ngIf="fotoSocio"
+                                 [src]="fotoSocio"
+                                 [alt]="perfilMedico.nombreSocio"
+                                 (error)="onImageError($event)" />
+                            <span *ngIf="!fotoSocio" class="avatar-initials">
+                                {{ getIniciales(perfilMedico.nombreSocio) }}
+                            </span>
+                        </div>
+                        <h2 class="socio-nombre">{{ perfilMedico.nombreSocio || 'Socio sin nombre' }}</h2>
+                    </div>
+                </div>
+
+                <!-- Formulario -->
+                <form (ngSubmit)="guardarCambios()" #perfilForm="ngForm" class="form-card">
+
+                    <div class="form-grid">
+
+                        <!-- Peso -->
+                        <div class="form-group">
+                            <label for="pesoKg">
+                                Peso <span class="required">*</span>
+                            </label>
+                            <div class="input-with-suffix">
+                                <input type="number"
+                                       id="pesoKg"
+                                       name="pesoKg"
+                                       [(ngModel)]="perfilMedico.pesoKg"
+                                       placeholder="Ej: 75"
+                                       step="0.1"
+                                       min="0"
+                                       required />
+                                <span class="suffix">kg</span>
+                            </div>
+                        </div>
+
+                        <!-- Estatura -->
+                        <div class="form-group">
+                            <label for="estaturaCm">
+                                Estatura <span class="required">*</span>
+                            </label>
+                            <div class="input-with-suffix">
+                                <input type="number"
+                                       id="estaturaCm"
+                                       name="estaturaCm"
+                                       [(ngModel)]="perfilMedico.estaturaCm"
+                                       placeholder="Ej: 175"
+                                       min="0"
+                                       required />
+                                <span class="suffix">cm</span>
+                            </div>
+                        </div>
+
+                        <!-- Porcentaje de grasa -->
+                        <div class="form-group">
+                            <label for="porcentajeGrasa">Porcentaje de Grasa</label>
+                            <div class="input-with-suffix">
+                                <input type="number"
+                                       id="porcentajeGrasa"
+                                       name="porcentajeGrasa"
+                                       [(ngModel)]="perfilMedico.porcentajeGrasa"
+                                       placeholder="Ej: 15.5"
+                                       step="0.1"
+                                       min="0"
+                                       max="100" />
+                                <span class="suffix">%</span>
+                            </div>
+                        </div>
+
+                        <!-- Alergias -->
+                        <div class="form-group">
+                            <label for="alergias">Alergias</label>
+                            <input type="text"
+                                   id="alergias"
+                                   name="alergias"
+                                   [(ngModel)]="perfilMedico.alergias"
+                                   placeholder="Ej: Polen, lactosa..." />
+                        </div>
+
+                        <!-- Condiciones crónicas -->
+                        <div class="form-group">
+                            <label for="condicionesCronicas">Condiciones Crónicas</label>
+                            <input type="text"
+                                   id="condicionesCronicas"
+                                   name="condicionesCronicas"
+                                   [(ngModel)]="perfilMedico.condicionesCronicas"
+                                   placeholder="Ej: Asma, diabetes..." />
+                        </div>
+
+                        <!-- Lesiones previas -->
+                        <div class="form-group">
+                            <label for="lesionesPrevias">Lesiones Previas</label>
+                            <input type="text"
+                                   id="lesionesPrevias"
+                                   name="lesionesPrevias"
+                                   [(ngModel)]="perfilMedico.lesionesPrevias"
+                                   placeholder="Ej: Dolor en rodilla derecha..." />
+                        </div>
+
+                    </div>
+                </form>
+
+            </ng-container>
+
+        </div>
+    </div>
+</div>
+
+<!-- Modal Error -->
+<div class="modal-overlay" *ngIf="mostrarModalError" (click)="cerrarModalError()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-icon error-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+        </div>
+        <h3 class="modal-title">Error</h3>
+        <p class="modal-message">{{ modalErrorMessage }}</p>
+        <div class="modal-actions">
+            <button class="modal-btn modal-btn-primary" (click)="cerrarModalError()">Entendido</button>
+        </div>
+    </div>
+</div>

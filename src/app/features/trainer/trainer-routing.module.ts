@@ -6,6 +6,8 @@ import { RutinasSocioComponent } from './components/rutinas/rutinas-socio/rutina
 import { DetalleSocioComponent } from './components/rutinas/detalle-socio/detalle-socio.component';
 import { EditarSocioComponent } from './components/rutinas/editar-socio/editar-socio.component';
 import { EjerciciosComponent } from './components/ejercicios/ejercicios.component';
+import { PerfilMedicoComponent } from './components/perfil-medico/perfil-medico.component';
+import { DetalleMedicoComponent } from './components/perfil-medico/detalle-medico/detalle-medico.component';
 
 const routes: Routes = [
   { path: '', component: DashboardComponent },
@@ -16,9 +18,11 @@ const routes: Routes = [
   },
   { path: 'rutinas', component: RutinasComponent },
   { path: 'rutinas/socio/:idSocio', component: RutinasSocioComponent },
-  { path: 'rutinas/socio/:idSocio/rutina/:idRutina',  component: DetalleSocioComponent },
+  { path: 'rutinas/socio/:idSocio/rutina/:idRutina', component: DetalleSocioComponent },
   { path: 'rutinas/socio/:idSocio/rutina/:idRutina/editar', component: EditarSocioComponent },
-  { path: 'ejercicios', component: EjerciciosComponent }
+  { path: 'ejercicios', component: EjerciciosComponent },
+  { path: 'perfil-medico', component: PerfilMedicoComponent },
+  { path: 'perfil-medico/:idSocio', component: DetalleMedicoComponent },
 ];
 
 @NgModule({
