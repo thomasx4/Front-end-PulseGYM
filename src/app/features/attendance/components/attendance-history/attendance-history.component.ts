@@ -38,77 +38,40 @@ export class AttendanceHistoryComponent implements OnInit {
     this.cargarHistorial();
   }
 
-  cargarHistorial(filtros: FiltrosHistorial = {}): void {
+  cargarHistorial(): void {
     this.isLoading = true;
     this.errorMessage = null;
 
-    this.filtrosActivos = {
+    const params: FiltrosHistorial = {
       ...this.filtrosActivos,
-      ...filtros,
       page: this.currentPage,
       size: this.pageSize
     };
 
-    this.attendanceService.obtenerHistorialAccesos(this.filtrosActivos).subscribe({
+    this.attendanceService.obtenerHistorialAccesos(params).subscribe({
       next: (response: HistorialAccesoResponse) => {
-        let datos: HistorialAccesoItem[] = response.content || [];
+        let registros = response.content || [];
 
-        if (this.filtrosActivos.nombreUsuario && this.filtrosActivos.nombreUsuario.trim() !== '') {
-          const busqueda = this.filtrosActivos.nombreUsuario.trim().toLowerCase();
+        const busquedaTexto = this.filtrosActivos.nombreUsuario?.trim().toLowerCase();
 
-          datos = datos.filter((item: HistorialAccesoItem) => {
-            const itemAny = item as any;
-            const nombreDirecto = item.nombreUsuario || itemAny.nombre || itemAny.usuario || itemAny.usuarioNombre || '';
-            const nombreAnidado = itemAny.usuario?.nombre || itemAny.usuario?.nombreCompleto || '';
-            const textoCompleto = `${nombreDirecto} ${nombreAnidado}`.toLowerCase();
-
-            return textoCompleto.includes(busqueda);
-          });
-        }
-
-        if (this.filtrosActivos.fechaDesde) {
-          const desde = new Date(`${this.filtrosActivos.fechaDesde}T00:00:00`);
-          datos = datos.filter(item => new Date(item.fechaHora) >= desde);
-        }
-
-        if (this.filtrosActivos.fechaHasta) {
-          const hasta = new Date(`${this.filtrosActivos.fechaHasta}T23:59:59`);
-          datos = datos.filter(item => new Date(item.fechaHora) <= hasta);
-        }
-
-        if (this.filtrosActivos.tipoAcceso) {
-          datos = datos.filter(item =>
-            item.tipoAcceso?.toUpperCase() === this.filtrosActivos.tipoAcceso?.toUpperCase()
+        if (busquedaTexto && isNaN(Number(busquedaTexto))) {
+          registros = registros.filter(item =>
+            item.nombreUsuario?.toLowerCase().includes(busquedaTexto)
           );
         }
 
-        if (this.filtrosActivos.resultado) {
-          datos = datos.filter(item =>
-            item.resultado?.toUpperCase() === this.filtrosActivos.resultado?.toUpperCase()
-          );
-        }
+        this.logs = registros;
+        this.totalElements = response.totalElements ?? 0;
+        this.totalPages = response.totalPages ?? 1;
 
-        this.logs = datos;
-
-        const seAplicoFiltroLocal = !!(
-          this.filtrosActivos.nombreUsuario ||
-          this.filtrosActivos.fechaDesde ||
-          this.filtrosActivos.fechaHasta ||
-          this.filtrosActivos.tipoAcceso ||
-          this.filtrosActivos.resultado
-        );
-
-        this.totalElements = seAplicoFiltroLocal ? datos.length : (response.totalElements || datos.length);
-        this.totalPages = Math.ceil(this.totalElements / this.pageSize) || 1;
-
-        if (this.currentPage >= this.totalPages) {
-          this.currentPage = 0;
+        if (response.currentPage !== undefined) {
+          this.currentPage = response.currentPage;
         }
 
         this.calcularKpis();
         this.isLoading = false;
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Error al cargar historial de accesos:', err);
         this.errorMessage = 'No se pudo obtener el historial de accesos. Intente nuevamente.';
         this.isLoading = false;
@@ -182,12 +145,9 @@ export class AttendanceHistoryComponent implements OnInit {
   }
 
   onFiltrar(filtrosEmitidos: FiltrosHistorial): void {
-    this.filtrosActivos = {
-      ...filtrosEmitidos
-    };
-
+    this.filtrosActivos = { ...filtrosEmitidos };
     this.currentPage = 0;
-    this.cargarHistorial(this.filtrosActivos);
+    this.cargarHistorial();
   }
 
   cambiarPagina(nuevaPagina: number): void {
