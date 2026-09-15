@@ -14,6 +14,7 @@ import { EjerciciosComponent } from './components/ejercicios/ejercicios.componen
 import { PerfilMedicoComponent } from './components/perfil-medico/perfil-medico.component';
 import { DetalleMedicoComponent } from './components/perfil-medico/detalle-medico/detalle-medico.component';
 import { DetalleEjerciciosComponent } from './components/ejercicios/detalle-ejercicios/detalle-ejercicios.component';
+import { MembresiasComponent } from './components/membresias/membresias.component';
 
 @NgModule({
   declarations: [
@@ -25,7 +26,8 @@ import { DetalleEjerciciosComponent } from './components/ejercicios/detalle-ejer
     EjerciciosComponent,
     PerfilMedicoComponent,
     DetalleMedicoComponent,
-    DetalleEjerciciosComponent
+    DetalleEjerciciosComponent,
+    MembresiasComponent
   ],
   imports: [
     CommonModule,

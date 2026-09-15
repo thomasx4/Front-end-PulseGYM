@@ -1,0 +1,235 @@
+<div class="membresias-layout">
+    <app-navbar></app-navbar>
+
+    <div class="membresias-main">
+        <app-header></app-header>
+
+        <div class="membresias-wrapper">
+
+            <!-- ============================================ -->
+            <!-- MODO LISTA -->
+            <!-- ============================================ -->
+            <ng-container *ngIf="modo === 'lista'">
+
+                <!-- Header -->
+                <header class="page-header">
+                    <div class="page-header__left">
+                        <h1>Membresías</h1>
+                        <p class="subtitle">Consulta los planes disponibles en el gimnasio</p>
+                    </div>
+                </header>
+
+                <!-- Grid -->
+                <section class="membresias-section" *ngIf="!isLoading && membresias.length > 0">
+                    <h2 class="section-title">Planes Disponibles</h2>
+
+                    <div class="membresias-grid">
+                        <div class="membresia-card" *ngFor="let m of membresias">
+
+                            <div class="membresia-card__header">
+                                <span class="badge-tipo" [class.premium]="esPremium(m)">
+                                    {{ esPremium(m) ? 'PREMIUM IA' : 'STANDARD' }}
+                                </span>
+                                <span class="duracion-text">{{ m.duracionDescripcion | uppercase }}</span>
+                            </div>
+
+                            <div class="membresia-card__price">
+                                {{ formatearPrecio(m.precioTotal) }}
+                            </div>
+
+                            <div class="membresia-card__modalidad" *ngIf="m.esFlexible">
+                                <span class="badge-flexible">Flexible</span>
+                            </div>
+
+                            <ul class="beneficios-list">
+                                <li *ngFor="let b of getBeneficiosArray(m)">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="3">
+                                        <polyline points="20 6 9 17 4 12" />
+                                    </svg>
+                                    <span>{{ b }}</span>
+                                </li>
+                            </ul>
+
+                            <button class="btn-ver-detalle" (click)="verDetalle(m.idMembresia)">
+                                Ver Detalle
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Empty -->
+                <div *ngIf="!isLoading && membresias.length === 0" class="empty-state">
+                    <div class="empty-icon">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5">
+                            <rect x="2" y="5" width="20" height="14" rx="2" />
+                            <line x1="2" y1="10" x2="22" y2="10" />
+                        </svg>
+                    </div>
+                    <h3>No hay membresías</h3>
+                    <p>Aún no hay membresías registradas en el sistema.</p>
+                </div>
+            </ng-container>
+
+            <!-- ============================================ -->
+            <!-- MODO DETALLE -->
+            <!-- ============================================ -->
+            <ng-container *ngIf="modo === 'detalle'">
+
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb">
+                    <span class="breadcrumb-item" (click)="volverALista()">Membresías</span>
+                    <span class="breadcrumb-sep">/</span>
+                    <span class="breadcrumb-item active">Detalle</span>
+                </nav>
+
+                <!-- Header -->
+                <header class="page-header">
+                    <div class="page-header__left">
+                        <h1>{{ membresia?.nombre || 'Detalle de Membresía' }}</h1>
+                        <p class="subtitle">Información completa del plan de membresía</p>
+                    </div>
+                    <div class="page-header__right">
+                        <button class="btn-volver" (click)="volverALista()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <line x1="19" y1="12" x2="5" y2="12" />
+                                <polyline points="12 19 5 12 12 5" />
+                            </svg>
+                            Volver
+                        </button>
+                    </div>
+                </header>
+
+                <!-- Error detalle -->
+                <div *ngIf="!isLoadingDetalle && errorDetalle" class="state-container error">
+                    <p>{{ errorDetalle }}</p>
+                    <button class="btn-volver-error" (click)="volverALista()">Volver a la lista</button>
+                </div>
+
+                <!-- Contenido detalle -->
+                <div *ngIf="!isLoadingDetalle && !errorDetalle && membresia" class="detalle-grid">
+
+                    <!-- Columna izquierda -->
+                    <div class="detalle-left">
+
+                        <!-- Card Información General -->
+                        <div class="card info-card">
+                            <div class="card-header">
+                                <h3>Información General</h3>
+                            </div>
+
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <span class="info-label">NOMBRE DEL PLAN</span>
+                                    <span class="info-value bold">{{ membresia.nombre }}</span>
+                                </div>
+
+                                <div class="info-item">
+                                    <span class="info-label">PRECIO TOTAL</span>
+                                    <span class="info-value bold">{{ formatearPrecio(membresia.precioTotal) }}</span>
+                                </div>
+
+                                <div class="info-item">
+                                    <span class="info-label">DURACIÓN</span>
+                                    <span class="info-value bold">{{ membresia.duracionDescripcion }}</span>
+                                </div>
+
+                                <div class="info-item">
+                                    <span class="info-label">TIPO DE DURACIÓN</span>
+                                    <span class="info-value bold">{{ membresia.tipoDuracion }}</span>
+                                </div>
+
+                                <div class="info-item">
+                                    <span class="info-label">PRECIO POR DÍA</span>
+                                    <span class="info-value bold">{{ formatearPrecio(membresia.precioPorDia) }}</span>
+                                </div>
+
+                                <div class="info-item">
+                                    <span class="info-label">ESTADO</span>
+                                    <span class="badge-estado" [class.activo]="membresia.activo"
+                                        [class.inactivo]="!membresia.activo">
+                                        {{ membresia.activo ? 'Disponible' : 'No disponible' }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card Descripción -->
+                        <div class="card info-card">
+                            <div class="card-header">
+                                <h3>Descripción</h3>
+                            </div>
+                            <p class="descripcion-text">
+                                {{ membresia.nombre }}
+                            </p>
+                        </div>
+
+                        <!-- Card Beneficios -->
+                        <div class="card info-card">
+                            <div class="card-header">
+                                <h3>Beneficios</h3>
+                            </div>
+                            <ul class="beneficios-list">
+                                <li *ngFor="let b of getBeneficiosArray(membresia)">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2.5">
+                                        <polyline points="20 6 9 17 4 12" />
+                                    </svg>
+                                    <span>{{ b }}</span>
+                                </li>
+                                <li *ngIf="getBeneficiosArray(membresia).length === 0" class="empty-text">
+                                    No hay beneficios registrados.
+                                </li>
+                            </ul>
+                        </div>
+
+                    </div>
+
+                    <!-- Columna derecha -->
+                    <div class="detalle-right">
+
+                        <!-- Card Información Adicional (restricciones) -->
+                        <div class="card info-adicional-card">
+                            <div class="card-header">
+                                <h3>Información Adicional</h3>
+                            </div>
+
+                            <div class="info-adicional-list">
+                                <div class="info-adicional-row">
+                                    <span class="info-adicional-label">Restricciones</span>
+                                    <span class="info-adicional-value">
+                                        {{ membresia.restricciones || 'Sin restricciones' }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card Configuración Adicional (fondo oscuro) -->
+                        <div class="card config-dark-card">
+                            <div class="card-header">
+                                <h3>Configuración Adicional</h3>
+                            </div>
+
+                            <div class="config-dark-list">
+                                <div class="config-dark-row">
+                                    <span class="config-dark-label">Asistente IA</span>
+                                    <span class="badge-dark" [class.activo]="membresia.incluyeIA"
+                                        [class.inactivo]="!membresia.incluyeIA">
+                                        {{ membresia.incluyeIA ? 'Incluido' : 'No incluido' }}
+                                    </span>
+                                </div>
+                                <div class="config-dark-row">
+                                    <span class="config-dark-label">Membresía Flexible</span>
+                                    <span class="badge-dark" [class.activo]="membresia.esFlexible"
+                                        [class.inactivo]="!membresia.esFlexible">
+                                        {{ membresia.esFlexible ? 'Sí' : 'No' }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
