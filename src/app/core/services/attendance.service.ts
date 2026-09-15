@@ -34,22 +34,26 @@ export class AttendanceService {
   obtenerHistorialAccesos(filtros: FiltrosHistorial): Observable<HistorialAccesoResponse> {
     let params = new HttpParams();
 
-    if (filtros.nombreUsuario && filtros.nombreUsuario.trim() !== '') {
-      params = params.set('nombreUsuario', filtros.nombreUsuario.trim());
+    if (filtros.usuarioId) {
+      params = params.set('usuarioId', filtros.usuarioId.toString());
+    } else if (filtros.nombreUsuario && !isNaN(Number(filtros.nombreUsuario.trim()))) {
+      params = params.set('usuarioId', filtros.nombreUsuario.trim());
     }
-    if (filtros.fechaDesde) {
-      const fDesde = filtros.fechaDesde.split('T')[0];
-      params = params.set('fechaDesde', fDesde);
+
+    if (filtros.fechaDesde && filtros.fechaDesde.trim() !== '') {
+      params = params.set('fechaInicio', `${filtros.fechaDesde.split('T')[0]}T00:00:00`);
     }
-    if (filtros.fechaHasta) {
-      const fHasta = filtros.fechaHasta.split('T')[0];
-      params = params.set('fechaHasta', fHasta);
+
+    if (filtros.fechaHasta && filtros.fechaHasta.trim() !== '') {
+      params = params.set('fechaFin', `${filtros.fechaHasta.split('T')[0]}T23:59:59`);
     }
-    if (filtros.tipoAcceso) {
+
+    if (filtros.tipoAcceso && filtros.tipoAcceso.trim() !== '') {
       params = params.set('tipoAcceso', filtros.tipoAcceso.trim().toUpperCase());
     }
-    if (filtros.tipoAcceso) {
-      params = params.set('tipoAcceso', filtros.tipoAcceso.trim().toUpperCase());
+
+    if (filtros.resultado && filtros.resultado.trim() !== '') {
+      params = params.set('resultado', filtros.resultado.trim().toUpperCase());
     }
 
     params = params.set('page', (filtros.page ?? 0).toString());
