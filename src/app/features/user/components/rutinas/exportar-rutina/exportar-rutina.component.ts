@@ -1,6 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import Swal from 'sweetalert2';
 import { RutinasService, RutinaDetalle } from '../../../../../core/services/rutinas.service';
+import { Capacitor } from '@capacitor/core';
+import { Filesystem, Directory } from '@capacitor/filesystem';
+import { Share } from '@capacitor/share';
 
 @Component({
   selector: 'app-exportar-rutina',
@@ -76,17 +80,13 @@ export class ExportarRutinaComponent implements OnInit {
     if (!idRutina) return;
 
     this.isLoading = true;
+    const rutina = this.rutinas.find(r => r.idRutina === idRutina);
+    const fileName = `rutina-${rutina?.nombre || idRutina}.pdf`;
 
     this.rutinasService.exportarRutinaPDF(idRutina).subscribe({
-      next: (blob: Blob) => {
+      next: async (blob: Blob) => {
         this.isLoading = false;
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        const rutina = this.rutinas.find(r => r.idRutina === idRutina);
-        link.download = `rutina-${rutina?.nombre || idRutina}.pdf`;
-        link.click();
-        window.URL.revokeObjectURL(url);
+        await this.procesarPdfMovilOWeb(blob, fileName);
       },
       error: (error: any) => {
         this.isLoading = false;
@@ -100,16 +100,12 @@ export class ExportarRutinaComponent implements OnInit {
 
   exportarUltimaRutina(): void {
     this.isLoading = true;
+    const fileName = `rutina-ultima.pdf`;
 
     this.rutinasService.exportarUltimaRutinaPDF().subscribe({
-      next: (blob: Blob) => {
+      next: async (blob: Blob) => {
         this.isLoading = false;
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `rutina-ultima.pdf`;
-        link.click();
-        window.URL.revokeObjectURL(url);
+        await this.procesarPdfMovilOWeb(blob, fileName);
       },
       error: (error: any) => {
         this.isLoading = false;
@@ -119,6 +115,52 @@ export class ExportarRutinaComponent implements OnInit {
         this.showErrorModal = true;
       }
     });
+  }
+
+  private async procesarPdfMovilOWeb(blob: Blob, fileName: string): Promise<void> {
+    try {
+      if (Capacitor.isNativePlatform()) {
+        try {
+          await Filesystem.requestPermissions();
+        } catch (permErr) {
+          console.warn('Permisos no disponibles o denegados:', permErr);
+        }
+
+        const reader = new FileReader();
+        reader.readAsDataURL(blob);
+        reader.onloadend = async () => {
+          const base64data = reader.result as string;
+          const base64Content = base64data.includes(',') ? base64data.split(',')[1] : base64data;
+
+          try {
+            const savedFile = await Filesystem.writeFile({
+              path: fileName,
+              data: base64Content,
+              directory: Directory.Cache
+            });
+
+            await Share.share({
+              title: 'Rutina Pulse Gym',
+              url: savedFile.uri,
+              dialogTitle: 'Abrir o compartir rutina PDF'
+            });
+          } catch (fsError: any) {
+            console.error('Error al guardar archivo en móvil:', fsError);
+            Swal.fire('Error', 'No se pudo abrir el archivo en el dispositivo: ' + (fsError.message || fsError), 'error');
+          }
+        };
+      } else {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = fileName;
+        link.click();
+        window.URL.revokeObjectURL(url);
+      }
+    } catch (err) {
+      console.error('Error procesando PDF:', err);
+      Swal.fire('Error', 'Ocurrió un error al procesar el archivo', 'error');
+    }
   }
 
   volver(): void {

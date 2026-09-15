@@ -3,6 +3,9 @@ import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
 import { PaymentService } from '../../../../core/services/payment.service';
 import { Payment, PaymentSummaryDTO, AnularPagoRequestDTO } from '../../../../core/models/payment';
+import { Capacitor } from '@capacitor/core';
+import { Filesystem, Directory } from '@capacitor/filesystem';
+import { Share } from '@capacitor/share';
 
 @Component({
   selector: 'app-payment-list',
@@ -34,7 +37,7 @@ export class PaymentListComponent implements OnInit {
     completadosCount: 0
   };
 
-  constructor(private paymentService: PaymentService, private router: Router) {}
+  constructor(private paymentService: PaymentService, private router: Router) { }
 
   ngOnInit(): void {
     this.loadResumen();
@@ -85,7 +88,7 @@ export class PaymentListComponent implements OnInit {
 
   async onAnularPago(item: Payment, event: Event): Promise<void> {
     event.stopPropagation();
-    
+
     const { value: motivoInput } = await Swal.fire({
       title: '¿Estás seguro de anular este pago?',
       text: `ID del Pago: #${item.idPago}`,
@@ -183,17 +186,86 @@ export class PaymentListComponent implements OnInit {
     this.router.navigate(['/dashboard-admin/payments/new']);
   }
 
-  descargarPdf(idPago: number): void {
+  async descargarPdf(idPago: number): Promise<void> {
     this.paymentService.descargarComprobantePDF(idPago).subscribe({
-      next: (blob) => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `comprobante-pago-${idPago}.pdf`;
-        a.click();
-        window.URL.revokeObjectURL(url);
+      next: async (blob) => {
+        try {
+          if (Capacitor.isNativePlatform()) {
+            try {
+              const permissionStatus = await Filesystem.requestPermissions();
+              console.log('Estado de permisos:', permissionStatus);
+            } catch (permErr) {
+              console.warn('El sistema de permisos no está disponible o fue denegado:', permErr);
+            }
+
+            const reader = new FileReader();
+            reader.readAsDataURL(blob);
+            reader.onloadend = async () => {
+              const base64data = reader.result as string;
+              const base64Content = base64data.includes(',') ? base64data.split(',')[1] : base64data;
+              const fileName = `comprobante-pago-${idPago}.pdf`;
+
+              try {
+                const savedFile = await Filesystem.writeFile({
+                  path: fileName,
+                  data: base64Content,
+                  directory: Directory.ExternalStorage
+                });
+
+                console.log('Archivo guardado exitosamente:', savedFile.uri);
+
+                Swal.fire({
+                  icon: 'success',
+                  title: '¡Comprobante Descargado!',
+                  text: `Guardado correctamente en la carpeta de almacenamiento del dispositivo.`,
+                  timer: 3000,
+                  showConfirmButton: false
+                });
+
+                await Share.share({
+                  title: 'Comprobante de Pago Pulse Gym',
+                  url: savedFile.uri,
+                  dialogTitle: 'Abrir o compartir comprobante'
+                });
+
+              } catch (fsError: any) {
+                console.error('Error al guardar con ExternalStorage, intentando con Documents:', fsError);
+
+                try {
+                  const savedFileFallback = await Filesystem.writeFile({
+                    path: fileName,
+                    data: base64Content,
+                    directory: Directory.Documents
+                  });
+
+                  await Share.share({
+                    title: 'Comprobante de Pago Pulse Gym',
+                    url: savedFileFallback.uri,
+                    dialogTitle: 'Abrir o compartir comprobante'
+                  });
+                } catch (fallbackErr: any) {
+                  console.error('Error definitivo al guardar archivo:', fallbackErr);
+                  Swal.fire('Error', 'No se pudo guardar el archivo en el almacenamiento: ' + (fallbackErr.message || fallbackErr), 'error');
+                }
+              }
+            };
+          } else {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `comprobante-pago-${idPago}.pdf`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+          }
+        } catch (err) {
+          console.error('Error procesando el PDF:', err);
+          Swal.fire('Error', 'Ocurrió un error al procesar el comprobante', 'error');
+        }
       },
-      error: (err) => console.error('Error al descargar el PDF', err)
+      error: (err) => {
+        console.error('Error al descargar el PDF desde el servidor', err);
+        Swal.fire('Error', 'No se pudo obtener el comprobante del servidor', 'error');
+      }
     });
   }
 }
