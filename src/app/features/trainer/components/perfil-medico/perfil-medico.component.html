@@ -1,0 +1,175 @@
+<div class="perfil-medico-layout">
+    <app-navbar></app-navbar>
+
+    <div class="perfil-medico-main">
+        <app-header></app-header>
+
+        <div class="perfil-medico-wrapper">
+
+            <!-- Header -->
+            <header class="page-header">
+                <div class="page-header__left">
+                    <div class="page-header__title">
+                        <h1>Perfil Médico</h1>
+                        <p class="subtitle">Gestiona la información médica de los socios del gimnasio</p>
+                    </div>
+                </div>
+                <div class="page-header__right">
+                    <span class="badge-total">{{ socios.length }} {{ socios.length === 1 ? 'socio' : 'socios' }}</span>
+                </div>
+            </header>
+
+            <!-- Buscador -->
+            <div class="buscador-card">
+                <div class="buscador">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8" />
+                        <path d="m21 21-4.35-4.35" />
+                    </svg>
+                    <input type="text" placeholder="Buscar por usuario..." [(ngModel)]="busqueda"
+                        (ngModelChange)="filtrarSocios()" />
+                    <button *ngIf="busqueda" class="btn-clear" (click)="busqueda = ''; filtrarSocios()" title="Limpiar">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18" />
+                            <line x1="6" y1="6" x2="18" y2="18" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Grid de socios -->
+            <div *ngIf="!cargando && sociosFiltrados.length > 0" class="socios-grid">
+                <div class="socio-card" *ngFor="let socio of sociosPaginados" (click)="verDetalle(socio.idUsuario)">
+
+                    <div class="socio-card__header">
+                        <div class="socio-avatar">
+                            <img *ngIf="socio.fotoUrl" [src]="socio.fotoUrl" [alt]="socio.nombreCompleto"
+                                (error)="onImageError($event)" />
+                            <span class="avatar-initials" *ngIf="!socio.fotoUrl">
+                                {{ getIniciales(socio.nombreCompleto) }}
+                            </span>
+                        </div>
+
+                        <div class="socio-status" [class.activo]="socio.estado === 'ACTIVO'"
+                            [class.inactivo]="socio.estado !== 'ACTIVO'">
+                            <span class="dot"></span>
+                            {{ socio.estado === 'ACTIVO' ? 'Activo' : 'Inactivo' }}
+                        </div>
+                    </div>
+
+                    <div class="socio-card__body">
+                        <h3 class="socio-nombre">{{ socio.nombreCompleto }}</h3>
+                        <p class="socio-username">{{ socio.username }}</p>
+
+                        <div class="socio-info-list">
+                            <div class="info-item">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path
+                                        d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                                    <polyline points="22,6 12,13 2,6" />
+                                </svg>
+                                <span>{{ socio.email }}</span>
+                            </div>
+
+                            <div class="info-item" *ngIf="getEdad(socio.fechaNacimiento) as edad">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                                    <line x1="16" y1="2" x2="16" y2="6" />
+                                    <line x1="8" y1="2" x2="8" y2="6" />
+                                    <line x1="3" y1="10" x2="21" y2="10" />
+                                </svg>
+                                <span>{{ edad }} años</span>
+                            </div>
+
+                            <div class="info-item" *ngIf="socio.nombreSede">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                                    <circle cx="12" cy="10" r="3" />
+                                </svg>
+                                <span>{{ socio.nombreSede }}</span>
+                            </div>
+                        </div>
+
+                        <div class="socio-nivel" [ngClass]="getNivelClass(socio.nivelExperiencia)">
+                            <span class="nivel-label">Nivel</span>
+                            <span class="nivel-value">{{ socio.nivelExperiencia | titlecase }}</span>
+                        </div>
+                    </div>
+
+                    <div class="socio-card__footer">
+                        <button class="btn-ver-perfil">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                <polyline points="14 2 14 8 20 8" />
+                                <line x1="12" y1="11" x2="12" y2="17" />
+                                <line x1="9" y1="14" x2="15" y2="14" />
+                            </svg>
+                            Ver perfil médico
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" class="arrow">
+                                <line x1="5" y1="12" x2="19" y2="12" />
+                                <polyline points="12 5 19 12 12 19" />
+                            </svg>
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- ✅ PAGINACIÓN -->
+            <div *ngIf="!cargando && sociosFiltrados.length > 0" class="paginacion">
+                <span class="paginacion__info">Mostrando {{ rangoMostrado }} socios</span>
+
+                <div class="paginacion__controles">
+                    <button class="pag-btn pag-btn--nav"
+                            [disabled]="paginaActual === 1"
+                            (click)="paginaAnterior()"
+                            title="Anterior">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="15 18 9 12 15 6"/>
+                        </svg>
+                    </button>
+
+                    <button class="pag-btn"
+                            *ngFor="let p of paginas"
+                            [class.pag-btn--active]="p === paginaActual"
+                            (click)="irAPagina(p)">
+                        {{ p }}
+                    </button>
+
+                    <button class="pag-btn pag-btn--nav"
+                            [disabled]="paginaActual === totalPaginas"
+                            (click)="paginaSiguiente()"
+                            title="Siguiente">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="9 18 15 12 9 6"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Empty -->
+            <div *ngIf="!cargando && sociosFiltrados.length === 0" class="empty-state">
+                <div class="empty-icon">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.5">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                        <circle cx="9" cy="7" r="4" />
+                    </svg>
+                </div>
+                <h3>{{ busqueda ? 'Sin resultados' : 'No hay socios registrados' }}</h3>
+                <p *ngIf="busqueda">No se encontró ningún usuario con "{{ busqueda }}"</p>
+                <p *ngIf="!busqueda">Aún no hay socios en el sistema.</p>
+                <button *ngIf="busqueda" class="btn-clear-search" (click)="busqueda = ''; filtrarSocios()">
+                    Limpiar búsqueda
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>

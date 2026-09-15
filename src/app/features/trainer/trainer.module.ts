@@ -11,6 +11,7 @@ import { RutinasSocioComponent } from './components/rutinas/rutinas-socio/rutina
 import { DetalleSocioComponent } from './components/rutinas/detalle-socio/detalle-socio.component';
 import { EditarSocioComponent } from './components/rutinas/editar-socio/editar-socio.component';
 import { EjerciciosComponent } from './components/ejercicios/ejercicios.component';
+import { PerfilMedicoComponent } from './components/perfil-medico/perfil-medico.component';
 
 @NgModule({
   declarations: [
@@ -19,7 +20,8 @@ import { EjerciciosComponent } from './components/ejercicios/ejercicios.componen
     RutinasSocioComponent,
     DetalleSocioComponent,
     EditarSocioComponent,
-    EjerciciosComponent
+    EjerciciosComponent,
+    PerfilMedicoComponent
   ],
   imports: [
     CommonModule,

@@ -1,0 +1,629 @@
+:host {
+    display: block;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #0f172a;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.perfil-medico-layout {
+    display: flex;
+    min-height: 100vh;
+    background: #f8fafc;
+}
+
+.perfil-medico-main {
+    flex: 1;
+    margin-left: 260px;
+    min-height: 100vh;
+    width: calc(100% - 260px);
+    max-width: calc(100% - 260px);
+    overflow-x: hidden;
+}
+
+.perfil-medico-wrapper {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 32px 40px 48px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* ============================================
+   HEADER
+   ============================================ */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 16px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+
+    &__title {
+        h1 {
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: -0.3px;
+            margin: 0;
+            color: #0f172a;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            font-weight: 400;
+            color: #64748b;
+            margin: 6px 0 0;
+        }
+    }
+
+    &__right {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+}
+
+.badge-total {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 16px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #0f172a;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+/* ============================================
+   BUSCADOR
+   ============================================ */
+.buscador-card {
+    margin-bottom: 28px;
+}
+
+.buscador {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 18px;
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+
+    &:focus-within {
+        border-color: #0f1c3f;
+        box-shadow: 0 0 0 4px rgba(15, 28, 63, 0.08);
+    }
+
+    svg {
+        stroke: #94a3b8;
+        flex-shrink: 0;
+    }
+
+    input {
+        flex: 1;
+        border: none;
+        background: transparent;
+        font-size: 14.5px;
+        color: #0f172a;
+        font-family: inherit;
+        font-weight: 500;
+
+        &::placeholder {
+            color: #94a3b8;
+            font-weight: 400;
+        }
+
+        &:focus {
+            outline: none;
+        }
+    }
+
+    .btn-clear {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        border: none;
+        background: #f1f5f9;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        flex-shrink: 0;
+
+        &:hover {
+            background: #e2e8f0;
+        }
+
+        svg {
+            stroke: #64748b;
+        }
+    }
+}
+
+/* ============================================
+   LOADER
+   ============================================ */
+.state-container {
+    padding: 80px 40px;
+    text-align: center;
+    background: #ffffff;
+    border-radius: 16px;
+    border: 1px solid #edf0f5;
+
+    .spinner-border {
+        width: 2.5rem;
+        height: 2.5rem;
+        border: 3px solid #e2e8f0;
+        border-top-color: #0f1c3f;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        margin: 0 auto 18px;
+        display: block;
+    }
+
+    p {
+        color: #64748b;
+        font-size: 14.5px;
+        font-weight: 500;
+        margin: 0;
+    }
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ============================================
+   GRID DE SOCIOS
+   ============================================ */
+.socios-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 20px;
+}
+
+.socio-card {
+    background: #ffffff;
+    border: 1px solid #edf0f5;
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+
+    &:hover {
+        border-color: #cbd5e1;
+        box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+        transform: translateY(-3px);
+
+        .btn-ver-perfil {
+            background: #1a2b5c;
+            color: #ffffff;
+
+            .arrow {
+                transform: translateX(4px);
+            }
+        }
+    }
+
+    &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding: 24px 24px 0;
+    }
+
+    &__body {
+        padding: 16px 24px 20px;
+        flex: 1;
+    }
+
+    &__footer {
+        padding: 0 20px 20px;
+    }
+}
+
+/* ============================================
+   AVATAR
+   ============================================ */
+.socio-avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    overflow: hidden;
+    position: relative;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, #0f1c3f 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid #ffffff;
+    box-shadow: 0 4px 12px rgba(15, 28, 63, 0.15);
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .avatar-initials {
+        color: #ffffff;
+        font-size: 24px;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+    }
+
+    &.avatar-fallback {
+        background: linear-gradient(135deg, #0f1c3f 100%);
+    }
+}
+
+/* ============================================
+   STATUS BADGE
+   ============================================ */
+.socio-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 11px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+
+    .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+    }
+
+    &.activo {
+        background: #dcfce7;
+        color: #16a34a;
+
+        .dot {
+            background: #16a34a;
+        }
+    }
+
+    &.inactivo {
+        background: #f1f5f9;
+        color: #64748b;
+
+        .dot {
+            background: #94a3b8;
+        }
+    }
+}
+
+/* ============================================
+   INFO DEL SOCIO
+   ============================================ */
+.socio-nombre {
+    font-size: 17px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 4px;
+    letter-spacing: -0.2px;
+    line-height: 1.3;
+}
+
+.socio-username {
+    font-size: 13px;
+    font-weight: 500;
+    color: #64748b;
+    margin: 0 0 16px;
+}
+
+.socio-info-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12.5px;
+    color: #475569;
+    font-weight: 500;
+
+    svg {
+        stroke: #94a3b8;
+        flex-shrink: 0;
+    }
+
+    span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
+
+/* ============================================
+   NIVEL DE EXPERIENCIA
+   ============================================ */
+.socio-nivel {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 12px;
+
+    .nivel-label {
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        opacity: 0.75;
+    }
+
+    .nivel-value {
+        font-weight: 700;
+    }
+
+    &.nivel-novato {
+        background: #f0fdf4;
+        color: #15803d;
+    }
+
+    &.nivel-intermedio {
+        background: #eff6ff;
+        color: #1d4ed8;
+    }
+
+    &.nivel-avanzado {
+        background: #fef3c7;
+        color: #b45309;
+    }
+}
+
+/* ============================================
+   BOTÓN VER PERFIL
+   ============================================ */
+.btn-ver-perfil {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: #f8fafc;
+    color: #0f172a;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+
+    svg {
+        stroke: currentColor;
+        transition: transform 0.2s ease;
+        flex-shrink: 0;
+    }
+
+    .arrow {
+        margin-left: auto;
+    }
+}
+
+/* ============================================
+   EMPTY STATE
+   ============================================ */
+.empty-state {
+    text-align: center;
+    padding: 80px 24px;
+    background: #ffffff;
+    border: 1px dashed #cbd5e1;
+    border-radius: 16px;
+
+    .empty-icon {
+        color: #cbd5e1;
+        margin-bottom: 18px;
+    }
+
+    h3 {
+        font-size: 17px;
+        font-weight: 700;
+        color: #0f172a;
+        margin: 0 0 6px;
+    }
+
+    p {
+        font-size: 14px;
+        color: #64748b;
+        margin: 0 0 20px;
+    }
+
+    .btn-clear-search {
+        padding: 10px 22px;
+        background: #0f1c3f;
+        color: #ffffff;
+        border: none;
+        border-radius: 10px;
+        font-size: 13.5px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        &:hover {
+            background: #1a2b5c;
+        }
+    }
+}
+
+/* ============================================
+   PAGINACIÓN
+   ============================================ */
+.paginacion {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-top: 32px;
+    padding: 16px 20px;
+    background: #ffffff;
+    border: 1px solid #edf0f5;
+    border-radius: 14px;
+    flex-wrap: wrap;
+
+    &__info {
+        font-size: 13px;
+        font-weight: 500;
+        color: #64748b;
+    }
+
+    &__controles {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+}
+
+.pag-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 36px;
+    padding: 0 10px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #0f172a;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-family: inherit;
+
+    &:hover:not(:disabled):not(.pag-btn--active) {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+    }
+
+    &:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+
+    &--active {
+        background: #0f1c3f;
+        color: #ffffff;
+        border-color: #0f1c3f;
+        cursor: default;
+    }
+
+    &--nav {
+        padding: 0;
+        width: 36px;
+
+        svg {
+            stroke: currentColor;
+        }
+    }
+}
+
+@media (max-width: 480px) {
+    .paginacion {
+        flex-direction: column;
+        align-items: stretch;
+
+        &__info {
+            text-align: center;
+        }
+
+        &__controles {
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+    }
+
+    .pag-btn {
+        min-width: 32px;
+        height: 32px;
+        font-size: 12px;
+    }
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 992px) {
+    .perfil-medico-main {
+        margin-left: 0;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .perfil-medico-wrapper {
+        padding: 24px 20px 36px;
+    }
+}
+
+@media (max-width: 768px) {
+    .perfil-medico-wrapper {
+        padding: 20px 16px 32px;
+    }
+
+    .page-header {
+        &__title h1 {
+            font-size: 22px;
+        }
+    }
+
+    .socios-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .page-header__title h1 {
+        font-size: 20px;
+    }
+
+    .socio-card {
+        &__header {
+            padding: 20px 20px 0;
+        }
+
+        &__body {
+            padding: 14px 20px 18px;
+        }
+
+        &__footer {
+            padding: 0 16px 16px;
+        }
+    }
+
+    .socio-avatar {
+        width: 64px;
+        height: 64px;
+
+        .avatar-initials {
+            font-size: 20px;
+        }
+    }
+
+    .socio-nombre {
+        font-size: 15.5px;
+    }
+}

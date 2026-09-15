@@ -76,6 +76,16 @@ export class EntrenadorService {
         };
     }
 
+    private getJsonHeaders() {
+        const token = localStorage.getItem('auth_token');
+        return {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        };
+    }
+
     getUsuarios(): Observable<Usuario[]> {
         const url = `${this.apiUrl}/usuarios`;
         return this.http.get<Usuario[]>(url, this.getHeaders()).pipe(
@@ -124,5 +134,55 @@ export class EntrenadorService {
             params,
             responseType: 'blob'
         });
+    }
+
+    // ==========================================
+    // PERFIL MÉDICO
+    // ==========================================
+
+    /**
+     * GET /pg-ms-users/api/v1/usuarios/perfil-medico/{idSocio}
+     * Consulta el perfil médico de un socio por su ID
+     */
+    getPerfilMedicoPorSocio(idSocio: number): Observable<any> {
+        const url = `${this.apiUrl}/usuarios/perfil-medico/${idSocio}`;
+        return this.http.get<any>(url, this.getHeaders()).pipe(
+            catchError((error: HttpErrorResponse) => {
+                console.error('Error en getPerfilMedicoPorSocio:', error);
+                // Si es 404 → devolvemos null para que el componente muestre form vacío
+                if (error.status === 404) {
+                    return of(null);
+                }
+                throw error;
+            })
+        );
+    }
+
+    /**
+     * POST /pg-ms-users/api/v1/usuarios/perfil-medico
+     * Crea el perfil médico de un socio
+     */
+    crearPerfilMedico(data: any): Observable<any> {
+        const url = `${this.apiUrl}/usuarios/perfil-medico`;
+        return this.http.post<any>(url, data, this.getJsonHeaders()).pipe(
+            catchError((error: HttpErrorResponse) => {
+                console.error('Error en crearPerfilMedico:', error);
+                throw error;
+            })
+        );
+    }
+
+    /**
+     * PUT /pg-ms-users/api/v1/usuarios/perfil-medico/{idSocio}
+     * Actualiza el perfil médico de un socio
+     */
+    actualizarPerfilMedico(idSocio: number, data: any): Observable<any> {
+        const url = `${this.apiUrl}/usuarios/perfil-medico/${idSocio}`;
+        return this.http.put<any>(url, data, this.getJsonHeaders()).pipe(
+            catchError((error: HttpErrorResponse) => {
+                console.error('Error en actualizarPerfilMedico:', error);
+                throw error;
+            })
+        );
     }
 }
