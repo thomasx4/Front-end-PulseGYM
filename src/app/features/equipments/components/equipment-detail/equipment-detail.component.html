@@ -113,9 +113,15 @@
               </select>
             </div>
 
-            <div class="form-row">
+            <div class="form-row flex-col">
               <textarea [(ngModel)]="descripcionFalla" rows="2"
-                placeholder="Describe la falla observada en la máquina..." class="form-textarea-sm"></textarea>
+                placeholder="Describe la falla observada en la máquina..." class="form-textarea-sm"
+                [class.input-error]="errorDescripcionFalla" (input)="errorDescripcionFalla = ''">
+              </textarea>
+
+              <span class="error-text" *ngIf="errorDescripcionFalla">
+                {{ errorDescripcionFalla }}
+              </span>
             </div>
 
             <div class="form-actions-right">
@@ -128,7 +134,7 @@
 
       </div>
 
-      
+
       <div class="maintenance-section">
         <div class="maintenance-section__header">
           <span class="detail-card__label">HISTORIAL DE MANTENIMIENTOS</span>
@@ -144,7 +150,8 @@
         <div *ngIf="!cargandoMantenimientos && historialMantenimientos.length > 0" class="maint-list">
           <div *ngFor="let item of historialMantenimientos" class="maint-card">
             <div class="maint-card__header">
-              <span class="maint-badge" [class.maint-badge--preventivo]="item.tipo === 'PREVENTIVO'" [class.maint-badge--correctivo]="item.tipo === 'CORRECTIVO'">
+              <span class="maint-badge" [class.maint-badge--preventivo]="item.tipo === 'PREVENTIVO'"
+                [class.maint-badge--correctivo]="item.tipo === 'CORRECTIVO'">
                 {{ item.tipo }}
               </span>
               <span class="maint-date">{{ item.fechaServicio | date:'dd/MM/yyyy' }}</span>
@@ -164,7 +171,8 @@
                 <line x1="8" y1="2" x2="8" y2="6"></line>
                 <line x1="3" y1="10" x2="21" y2="10"></line>
               </svg>
-              <span>Próximo servicio sugerido: <strong>{{ item.proximoMantenimiento | date:'dd/MM/yyyy' }}</strong></span>
+              <span>Próximo servicio sugerido: <strong>{{ item.proximoMantenimiento | date:'dd/MM/yyyy'
+                  }}</strong></span>
             </div>
           </div>
         </div>

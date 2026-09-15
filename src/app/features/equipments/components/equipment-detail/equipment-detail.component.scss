@@ -275,6 +275,19 @@ $border-light: #e2e8f0;
     color: #9f1239;
   }
 
+  .form-textarea-sm.input-error {
+    border: 1px solid #ef4444 !important;
+    background-color: #fef2f2;
+  }
+
+  .error-text {
+    color: #ef4444;
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+    display: block;
+    font-weight: 500;
+  }
+
   .form-select-sm,
   .form-textarea-sm {
     width: 100%;
@@ -381,7 +394,9 @@ $border-light: #e2e8f0;
     color: #475569;
     margin-top: 2px;
 
-    strong { color: $button-navy; }
+    strong {
+      color: $button-navy;
+    }
   }
 
   &__next {
@@ -403,11 +418,19 @@ $border-light: #e2e8f0;
   padding: 2px 8px;
   border-radius: 6px;
 
-  &--preventivo { background: #dbeafe; color: #1e40af; }
-  &--correctivo { background: #fef3c7; color: #92400e; }
+  &--preventivo {
+    background: #dbeafe;
+    color: #1e40af;
+  }
+
+  &--correctivo {
+    background: #fef3c7;
+    color: #92400e;
+  }
 }
 
-.maint-state-text, .maint-empty {
+.maint-state-text,
+.maint-empty {
   font-size: 0.8rem;
   color: #94a3b8;
   text-align: center;
