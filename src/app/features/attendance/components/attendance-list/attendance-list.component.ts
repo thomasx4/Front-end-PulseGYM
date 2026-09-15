@@ -1,10 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AttendanceService } from '../../../../core/services/attendance.service';
+import { UserService, UsuarioPerfilResponseDTO } from '../../../../core/services/user.service';
 import { AsistenciaResponseDTO, PeakHour } from '../../models/attendance.model';
 import { FiltrosAsistencia } from '../../models/attendance-filter.model';
-import { jsPDF } from 'jspdf';
-import { autoTable } from 'jspdf-autotable';
 
 export interface AsistenciaTabla {
   idUsuario: number;
@@ -47,10 +46,10 @@ export class AttendanceListComponent implements OnInit {
 
   filtrosActivos: FiltrosAsistencia = { ordenFecha: 'desc' };
 
-  constructor(private attendnceService: AttendanceService) { }
+  constructor(private attendanceService: AttendanceService, private userService: UserService) { }
 
   ngOnInit(): void {
-    this.capacidadDiaria = this.attendnceService.capacidadDiaria;
+    this.capacidadDiaria = this.attendanceService.capacidadDiaria;
     this.cargarAsistenciaHoy();
     this.cargarMetaDiaria();
   }
@@ -58,7 +57,7 @@ export class AttendanceListComponent implements OnInit {
   cargarAsistenciaHoy(): void {
     this.cargando = true;
     this.errorMensaje = '';
-    this.attendnceService.obtenerAsistenciasHoy().subscribe({
+    this.attendanceService.obtenerAsistenciasHoy().subscribe({
       next: (respuesta) => {
         this.asistencias = respuesta;
         this.procesarAsistencias();
@@ -73,7 +72,7 @@ export class AttendanceListComponent implements OnInit {
   }
 
   cargarMetaDiaria(): void {
-    this.attendnceService.getMetaDiaria(this.idSedeActual).subscribe({
+    this.attendanceService.getMetaDiaria(this.idSedeActual).subscribe({
       next: (meta) => {
         if (meta) {
           this.metaDiariaGym = meta;
@@ -106,7 +105,7 @@ export class AttendanceListComponent implements OnInit {
     this.guardandoMeta = true;
     this.errorModal = '';
 
-    this.attendnceService.actualizarMetaDiaria(this.idSedeActual, this.nuevaMetaTemp).subscribe({
+    this.attendanceService.actualizarMetaDiaria(this.idSedeActual, this.nuevaMetaTemp).subscribe({
       next: () => {
         this.metaDiariaGym = this.nuevaMetaTemp;
         this.guardandoMeta = false;
@@ -209,7 +208,7 @@ export class AttendanceListComponent implements OnInit {
     this.asistenciasProcesadas = this.asistencias.map(a => {
       const fecha = new Date(a.fechaHoraEntrada.endsWith('Z') ? a.fechaHoraEntrada : a.fechaHoraEntrada + 'Z');
 
-      return {
+      const itemTabla: AsistenciaTabla = {
         idUsuario: a.idUsuario,
         nombre: `Usuario #${a.idUsuario}`,
         apellido: '',
@@ -221,6 +220,21 @@ export class AttendanceListComponent implements OnInit {
         estadoAcceso: a.estadoAcceso === 'PERMITIDO' ? 'Permitido' : 'Denegado',
         statusClass: a.estadoAcceso === 'PERMITIDO' ? 'active' : 'cancelled'
       };
+
+      this.userService.obtenerPerfilPorId(a.idUsuario).subscribe({
+        next: (perfil: UsuarioPerfilResponseDTO | null) => {
+          if (perfil) {
+            const nombreCompleto = perfil.nombreCompleto || `${perfil.nombre || ''} ${perfil.apellido || ''}`.trim();
+            itemTabla.nombre = nombreCompleto || `Usuario #${a.idUsuario}`;
+            if (perfil.email) itemTabla.email = perfil.email;
+          }
+        },
+        error: (err) => {
+          console.warn(`No se pudo obtener el perfil para el usuario ID: ${a.idUsuario}`, err);
+        }
+      });
+
+      return itemTabla;
     });
   }
 
@@ -252,7 +266,7 @@ export class AttendanceListComponent implements OnInit {
 
     if (nuevaMeta && !isNaN(+nuevaMeta) && +nuevaMeta > 0) {
       const valor = +nuevaMeta;
-      this.attendnceService.actualizarMetaDiaria(this.idSedeActual, valor).subscribe({
+      this.attendanceService.actualizarMetaDiaria(this.idSedeActual, valor).subscribe({
         next: () => {
           this.metaDiariaGym = valor;
         },
@@ -296,7 +310,7 @@ export class AttendanceListComponent implements OnInit {
     const fechaHoy = new Date().toISOString().slice(0, 10);
     this.cargandoExport = true;
 
-    this.attendnceService.exportarPdfAfluencia(fechaHoy).subscribe({
+    this.attendanceService.exportarPdfAfluencia(fechaHoy).subscribe({
       next: (blob) => {
         this.descargarArchivo(blob, `Afluencia_Accesos_${fechaHoy}.pdf`);
         this.cargandoExport = false;
@@ -312,7 +326,7 @@ export class AttendanceListComponent implements OnInit {
     const fechaHoy = new Date().toISOString().slice(0, 10);
     this.cargandoExport = true;
 
-    this.attendnceService.exportarExcelAfluencia(fechaHoy).subscribe({
+    this.attendanceService.exportarExcelAfluencia(fechaHoy).subscribe({
       next: (blob) => {
         this.descargarArchivo(blob, `Afluencia_Accesos_${fechaHoy}.xlsx`);
         this.cargandoExport = false;

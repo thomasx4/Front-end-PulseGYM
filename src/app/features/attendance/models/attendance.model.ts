@@ -1,6 +1,7 @@
 export interface AsistenciaResponseDTO {
   idAsistencia: number;
   idUsuario: number;
+  nombreUsuario: string;
   nombreSede: string;
   fechaHoraEntrada: string;
   tipoAcceso: string;
