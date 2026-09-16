@@ -1,0 +1,132 @@
+<app-navbar></app-navbar>
+
+<div class="progreso-page">
+
+    <app-header></app-header>
+
+    <div class="progreso-content">
+
+        <header class="page-header">
+            <div class="page-header__info">
+                <h1 class="page-header__title">Progreso de Socios</h1>
+                <p class="page-header__subtitle">Selecciona un socio para ver su evolución y sesiones</p>
+            </div>
+            <span class="badge-total">{{ socios.length }} {{ socios.length === 1 ? 'socio' : 'socios' }}</span>
+        </header>
+
+        <!-- Buscador -->
+        <div class="buscador-card">
+            <div class="buscador">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="m21 21-4.35-4.35"/>
+                </svg>
+                <input type="text"
+                       placeholder="Buscar por nombre, usuario o email..."
+                       [(ngModel)]="busqueda"
+                       (ngModelChange)="filtrarSocios()" />
+                <button *ngIf="busqueda" class="btn-clear" (click)="busqueda = ''; filtrarSocios()" title="Limpiar">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Grid -->
+        <div *ngIf="!cargando && sociosFiltrados.length > 0" class="socios-grid">
+            <div class="socio-card"
+                 *ngFor="let socio of sociosPaginados"
+                 (click)="verProgreso(socio.idUsuario)">
+
+                <div class="socio-card__header">
+                    <div class="socio-avatar">
+                        <img *ngIf="socio.fotoUrl"
+                             [src]="socio.fotoUrl"
+                             [alt]="socio.nombreCompleto"
+                             (error)="onImageError($event)" />
+                        <span class="avatar-initials" *ngIf="!socio.fotoUrl">
+                            {{ getIniciales(socio.nombreCompleto) }}
+                        </span>
+                    </div>
+
+                    <div class="socio-status"
+                         [class.activo]="socio.estado === 'ACTIVO'"
+                         [class.inactivo]="socio.estado !== 'ACTIVO'">
+                        <span class="dot"></span>
+                        {{ socio.estado === 'ACTIVO' ? 'Activo' : 'Inactivo' }}
+                    </div>
+                </div>
+
+                <div class="socio-card__body">
+                    <h3 class="socio-nombre">{{ socio.nombreCompleto }}</h3>
+                    <p class="socio-username">&#64;{{ socio.username }}</p>
+                    <p class="socio-email">{{ socio.email }}</p>
+                </div>
+
+                <div class="socio-card__footer">
+                    <button class="btn-ver-progreso">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                        </svg>
+                        Ver progreso
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="arrow">
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                            <polyline points="12 5 19 12 12 19"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Paginación -->
+        <div *ngIf="!cargando && sociosFiltrados.length > 0" class="paginacion">
+            <span class="paginacion__info">Mostrando {{ rangoMostrado }} socios</span>
+
+            <div class="paginacion__controles">
+                <button class="pag-btn pag-btn--nav"
+                        [disabled]="paginaActual === 1"
+                        (click)="paginaAnterior()"
+                        title="Anterior">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="15 18 9 12 15 6"/>
+                    </svg>
+                </button>
+
+                <button class="pag-btn"
+                        *ngFor="let p of paginas"
+                        [class.pag-btn--active]="p === paginaActual"
+                        (click)="irAPagina(p)">
+                    {{ p }}
+                </button>
+
+                <button class="pag-btn pag-btn--nav"
+                        [disabled]="paginaActual === totalPaginas"
+                        (click)="paginaSiguiente()"
+                        title="Siguiente">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Empty -->
+        <div *ngIf="!cargando && sociosFiltrados.length === 0" class="empty-state">
+            <div class="empty-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                </svg>
+            </div>
+            <h3>{{ busqueda ? 'Sin resultados' : 'No hay socios registrados' }}</h3>
+            <p *ngIf="busqueda">No se encontró ningún socio con "{{ busqueda }}"</p>
+            <p *ngIf="!busqueda">Aún no hay socios en el sistema.</p>
+            <button *ngIf="busqueda" class="btn-clear-search" (click)="busqueda = ''; filtrarSocios()">
+                Limpiar búsqueda
+            </button>
+        </div>
+
+    </div>
+</div>

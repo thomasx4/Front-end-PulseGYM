@@ -161,7 +161,9 @@
 
 </div>
 
+<!-- ========================================== -->
 <!-- Modal Mantenimiento -->
+<!-- ========================================== -->
 <div class="modal-backdrop" *ngIf="mostrarModalMantenimiento" (click)="cerrarModalMantenimiento()">
     <div class="modal-card" (click)="$event.stopPropagation()">
 
@@ -229,5 +231,44 @@
             </button>
         </div>
 
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- Modal Error -->
+<!-- ========================================== -->
+<div class="modal-backdrop" *ngIf="mostrarModalError" (click)="cerrarModalError()">
+    <div class="modal-content-state" (click)="$event.stopPropagation()">
+        <div class="modal-state-icon error-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+        </div>
+        <h3 class="modal-state-title">{{ modalErrorTitulo }}</h3>
+        <p class="modal-state-message">{{ modalErrorMensaje }}</p>
+        <div class="modal-state-actions">
+            <button class="modal-state-btn modal-state-btn--primary" (click)="cerrarModalError()">Entendido</button>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- Modal Éxito -->
+<!-- ========================================== -->
+<div class="modal-backdrop" *ngIf="mostrarModalExito" (click)="cerrarModalExito()">
+    <div class="modal-content-state" (click)="$event.stopPropagation()">
+        <div class="modal-state-icon success-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                <polyline points="22 4 12 14.01 9 11.01" />
+            </svg>
+        </div>
+        <h3 class="modal-state-title">¡Operación exitosa!</h3>
+        <p class="modal-state-message">{{ modalExitoMensaje }}</p>
+        <div class="modal-state-actions">
+            <button class="modal-state-btn modal-state-btn--primary" (click)="cerrarModalExito()">Aceptar</button>
+        </div>
     </div>
 </div>

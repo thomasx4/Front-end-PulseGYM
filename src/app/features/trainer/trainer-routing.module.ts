@@ -12,6 +12,8 @@ import { DetalleEjerciciosComponent } from './components/ejercicios/detalle-ejer
 import { MembresiasComponent } from './components/membresias/membresias.component';
 import { EquipmentListComponent } from './components/equipments/equipment-list/equipment-list.component';
 import { FaultReportsComponent } from './components/equipments/fault-reports/fault-reports.component';
+import { ProgresoComponent } from './components/progreso/progreso.component';
+import { DetalleProgresoComponent } from './components/progreso/detalle-progreso/detalle-progreso.component';
 
 const routes: Routes = [
   { path: '', component: DashboardComponent },
@@ -32,6 +34,8 @@ const routes: Routes = [
   { path: 'membresias/:id', component: MembresiasComponent },
   { path: 'equipos', component: EquipmentListComponent },
   { path: 'equipos/fallas', component: FaultReportsComponent },
+  { path: 'progreso', component: ProgresoComponent },
+  { path: 'progreso/:idSocio', component: DetalleProgresoComponent },
 ];
 
 @NgModule({

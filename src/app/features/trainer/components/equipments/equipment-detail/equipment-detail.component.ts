@@ -29,6 +29,16 @@ export class EquipmentDetailComponent implements OnChanges {
   historialMantenimientos: MantenimientoItem[] = [];
   cargandoMantenimientos: boolean = false;
 
+  // ==========================================
+  // Modales de estado
+  // ==========================================
+  mostrarModalError: boolean = false;
+  modalErrorTitulo: string = 'Error';
+  modalErrorMensaje: string = '';
+
+  mostrarModalExito: boolean = false;
+  modalExitoMensaje: string = '';
+
   constructor(
     private sedeService: SedeService,
     private supplierService: SupplierService,
@@ -82,7 +92,7 @@ export class EquipmentDetailComponent implements OnChanges {
           const encontrada = listaSedes.find((s: any) => Number(s.idSede || s.id) === Number(idSede));
           this.nombreSede = encontrada ? (encontrada.nombreSede || encontrada.nombre) : `Sede #${idSede}`;
         } else {
-          this.nombreSede = listaSedes[0]?.nombreSede || listaSedes[0]?.nombre;
+          this.nombreSede = listaSedes[0]?.nombreSede || listaSedes[0]?.nombre || 'Sede N/A';
         }
       },
       error: () => this.nombreSede = 'Sede N/A'
@@ -104,7 +114,7 @@ export class EquipmentDetailComponent implements OnChanges {
           const provEncontrado = listaProv.find((p: Supplier) => Number(p.idProveedor) === Number(idProveedor));
           this.nombreProveedor = provEncontrado ? provEncontrado.nombreEmpresa : `Proveedor #${idProveedor}`;
         } else {
-          this.nombreProveedor = listaProv[0]?.nombreEmpresa || 'LifeFitness Colombia';
+          this.nombreProveedor = listaProv[0]?.nombreEmpresa || 'Proveedor Registrado';
         }
       },
       error: () => this.nombreProveedor = 'Proveedor Registrado'
@@ -120,7 +130,7 @@ export class EquipmentDetailComponent implements OnChanges {
     const idEquipo = eq?.idEquipo || eq?.id;
 
     if (!idEquipo || !this.descripcionFalla.trim()) {
-      alert('Por favor escribe una descripción para la falla.');
+      this.mostrarError('Campos incompletos', 'Por favor escribe una descripción para la falla.');
       return;
     }
 
@@ -141,11 +151,15 @@ export class EquipmentDetailComponent implements OnChanges {
           (this.equipo as any).descripcionFalla = this.descripcionFalla.trim();
         }
 
+        this.mostrarExito('Falla reportada correctamente');
         this.fallaReportada.emit();
       },
       error: (err) => {
         console.error('Error al reportar la falla:', err);
-        alert('No se pudo registrar la falla del equipo.');
+        this.mostrarError(
+          'No se pudo registrar la falla',
+          err?.error?.message || 'Intenta de nuevo en unos momentos.'
+        );
         this.guardandoFalla = false;
       }
     });
@@ -163,5 +177,27 @@ export class EquipmentDetailComponent implements OnChanges {
       case 'FUERA_DE_SERVICIO': return 'FUERA DE SERVICIO';
       default: return estado;
     }
+  }
+
+  // ==========================================
+  // Modales
+  // ==========================================
+  mostrarError(titulo: string, mensaje: string): void {
+    this.modalErrorTitulo = titulo;
+    this.modalErrorMensaje = mensaje;
+    this.mostrarModalError = true;
+  }
+
+  cerrarModalError(): void {
+    this.mostrarModalError = false;
+  }
+
+  mostrarExito(mensaje: string): void {
+    this.modalExitoMensaje = mensaje;
+    this.mostrarModalExito = true;
+  }
+
+  cerrarModalExito(): void {
+    this.mostrarModalExito = false;
   }
 }
