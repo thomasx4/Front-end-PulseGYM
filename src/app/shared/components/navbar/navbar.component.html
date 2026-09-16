@@ -100,6 +100,41 @@
                 </span>
                 <span>Membresías</span>
             </a>
+
+            <!-- Equipos (desplegable) -->
+            <div class="sidebar__nav-group" [class.sidebar__nav-group--open]="equiposOpen">
+                <a class="sidebar__nav-item sidebar__nav-item--parent"
+                    [class.sidebar__nav-item--active]="isEquiposActive" (click)="toggleEquipos()">
+                    <span class="sidebar__icon-wrapper">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="7" width="20" height="14" rx="2"></rect>
+                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                        </svg>
+                    </span>
+                    <span>Equipos</span>
+                    <span class="sidebar__chevron" [class.sidebar__chevron--rotated]="equiposOpen">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </span>
+                </a>
+
+                <!-- Submenú -->
+                <div class="sidebar__submenu" *ngIf="equiposOpen">
+                    <a routerLink="/trainer/equipos" routerLinkActive="sidebar__submenu-item--active"
+                        [routerLinkActiveOptions]="{ exact: true }" class="sidebar__submenu-item"
+                        (click)="closeMobileMenu()">
+                        <span>Inventario</span>
+                    </a>
+
+                    <a routerLink="/trainer/equipos/fallas" routerLinkActive="sidebar__submenu-item--active"
+                        class="sidebar__submenu-item" (click)="closeMobileMenu()">
+                        <span>Reportes de Fallas</span>
+                    </a>
+                </div>
+            </div>
         </ng-container>
 
         <!-- MENÚ PARA SOCIO (ORIGINAL) -->

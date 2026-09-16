@@ -1,0 +1,192 @@
+<div class="modal-backdrop" (click)="cerrar()">
+    <div class="modal-dialog" (click)="$event.stopPropagation()" *ngIf="equipo">
+
+        <header class="modal-header">
+            <div class="modal-header__title-group">
+                <span class="equipment-id">ACTIVO #{{ equipo.idEquipo || equipo.id || 'N/A' }}</span>
+                <h2 class="modal-title">{{ equipo.nombre || 'Ficha Técnica de Equipo' }}</h2>
+            </div>
+            <button type="button" class="close-btn" (click)="cerrar()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </header>
+
+
+        <div class="modal-body">
+
+            <div class="status-banner" [ngClass]="{
+        'status-banner--operativo': equipo.estado === 'OPERATIVO',
+        'status-banner--mantenimiento': equipo.estado === 'MANTENIMIENTO',
+        'status-banner--fuera': equipo.estado === 'FUERA_DE_SERVICIO'
+      }">
+                <div class="status-banner__info">
+                    <span class="status-banner__label">ESTADO DE OPERACIÓN</span>
+                    <strong class="status-banner__value">{{ formatearEstado(equipo.estado) }}</strong>
+                </div>
+                <div class="status-banner__location" *ngIf="equipo.ubicacion">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                        <circle cx="12" cy="10" r="3"></circle>
+                    </svg>
+                    <span>Ubicación: <strong>{{ equipo.ubicacion }}</strong></span>
+                </div>
+            </div>
+
+
+            <div class="details-grid">
+
+                <div class="detail-card">
+                    <span class="detail-card__label">MARCA</span>
+                    <p class="detail-card__value">{{ equipo.marca || 'No registrada' }}</p>
+                </div>
+
+                <div class="detail-card">
+                    <span class="detail-card__label">MODELO</span>
+                    <p class="detail-card__value">{{ equipo.modelo || 'No registrado' }}</p>
+                </div>
+
+                <div class="detail-card detail-card--full">
+                    <span class="detail-card__label">NÚMERO DE SERIE / SERIAL</span>
+                    <p class="detail-card__value detail-card__value--serial">
+                        {{ equipo.numeroSerie || 'SN-NO-REGISTRADO' }}
+                    </p>
+                </div>
+
+                <div class="detail-card">
+                    <span class="detail-card__label">FECHA ADQUISICIÓN</span>
+                    <p class="detail-card__value">
+                        {{ equipo.fechaAdquisicion ? (equipo.fechaAdquisicion | date:'dd/MM/yyyy') : 'No registrada' }}
+                    </p>
+                </div>
+
+                <div class="detail-card">
+                    <span class="detail-card__label">VENCIMIENTO GARANTÍA</span>
+                    <p class="detail-card__value">
+                        {{ equipo.fechaGarantia ? (equipo.fechaGarantia | date:'dd/MM/yyyy') : 'No registrada' }}
+                    </p>
+                </div>
+
+                <div class="detail-card">
+                    <span class="detail-card__label">SEDE ASIGNADA</span>
+                    <p class="detail-card__value">{{ nombreSede }}</p>
+                </div>
+
+                <div class="detail-card">
+                    <span class="detail-card__label">PROVEEDOR / ALIADO</span>
+                    <p class="detail-card__value">{{ nombreProveedor }}</p>
+                </div>
+
+                <div class="detail-card detail-card--full detail-card--falla">
+                    <div class="falla-header">
+                        <span class="detail-card__label">REPORTES / FALLAS ACTIVAS</span>
+
+                        <button type="button" class="btn-report-toggle" (click)="toggleFormFalla()">
+                            {{ mostrandoFormFalla ? 'Cancelar' : '+ Reportar Falla' }}
+                        </button>
+                    </div>
+
+                    <ng-container *ngIf="!mostrandoFormFalla">
+                        <div *ngIf="equipo.urgenciaFalla; else sinFalla">
+                            <p class="detail-card__value">
+                                Urgencia: <strong>{{ equipo.urgenciaFalla }}</strong>
+                            </p>
+                            <p class="detail-card__subtext" *ngIf="equipo.descripcionFalla">
+                                {{ equipo.descripcionFalla }}
+                            </p>
+                        </div>
+                        <ng-template #sinFalla>
+                            <p class="detail-card__subtext text-gray">El equipo no presenta fallas reportadas
+                                actualmente.</p>
+                        </ng-template>
+                    </ng-container>
+
+                    <div *ngIf="mostrandoFormFalla" class="falla-form">
+                        <div class="form-row">
+                            <label class="form-label-sm">Urgencia:</label>
+                            <select [(ngModel)]="urgenciaSeleccionada" class="form-select-sm">
+                                <option value="BAJA">BAJA</option>
+                                <option value="MEDIA">MEDIA</option>
+                                <option value="ALTA">ALTA</option>
+                                <option value="CRITICA">CRÍTICA</option>
+                            </select>
+                        </div>
+
+                        <div class="form-row">
+                            <textarea [(ngModel)]="descripcionFalla" rows="2"
+                                placeholder="Describe la falla observada en la máquina..."
+                                class="form-textarea-sm"></textarea>
+                        </div>
+
+                        <div class="form-actions-right">
+                            <button type="button" class="btn-submit-falla" (click)="enviarReporteFalla()"
+                                [disabled]="guardandoFalla">
+                                {{ guardandoFalla ? 'Enviando...' : 'Guardar Reporte' }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="maintenance-section">
+                <div class="maintenance-section__header">
+                    <span class="detail-card__label">HISTORIAL DE MANTENIMIENTOS</span>
+                    <span class="maint-count" *ngIf="historialMantenimientos.length > 0">
+                        {{ historialMantenimientos.length }} registro(s)
+                    </span>
+                </div>
+
+                <div *ngIf="cargandoMantenimientos" class="maint-state-text">
+                    Cargando historial de servicios...
+                </div>
+
+                <div *ngIf="!cargandoMantenimientos && historialMantenimientos.length > 0" class="maint-list">
+                    <div *ngFor="let item of historialMantenimientos" class="maint-card">
+                        <div class="maint-card__header">
+                            <span class="maint-badge" [class.maint-badge--preventivo]="item.tipo === 'PREVENTIVO'"
+                                [class.maint-badge--correctivo]="item.tipo === 'CORRECTIVO'">
+                                {{ item.tipo }}
+                            </span>
+                            <span class="maint-date">{{ item.fechaServicio | date:'dd/MM/yyyy' }}</span>
+                        </div>
+
+                        <p class="maint-card__desc">{{ item.descripcion }}</p>
+
+                        <div class="maint-card__footer">
+                            <span>Técnico: <strong>{{ item.tecnicoResponsable }}</strong></span>
+                            <span>Costo: <strong>{{ item.costo | currency:'COP':'symbol':'1.0-0' }}</strong></span>
+                        </div>
+
+                        <div class="maint-card__next" *ngIf="item.proximoMantenimiento">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                            <span>Próximo servicio sugerido: <strong>{{ item.proximoMantenimiento | date:'dd/MM/yyyy'
+                                    }}</strong></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div *ngIf="!cargandoMantenimientos && historialMantenimientos.length === 0" class="maint-empty">
+                    <span>Sin registros de mantenimiento preventivo o correctivo.</span>
+                </div>
+            </div>
+
+        </div>
+
+        <footer class="modal-footer">
+            <button type="button" class="btn-primary" (click)="cerrar()">
+                Cerrar Ficha Técnica
+            </button>
+        </footer>
+
+    </div>
+</div>

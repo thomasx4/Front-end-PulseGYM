@@ -187,6 +187,110 @@
 }
 
 /* ==========================================
+   GRUPO DESPLEGABLE (Equipos)
+   ========================================== */
+.sidebar__nav-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.sidebar__nav-item--parent {
+    cursor: pointer;
+    user-select: none;
+}
+
+.sidebar__chevron {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    transition: transform 0.25s ease;
+    color: inherit;
+
+    svg {
+        stroke: currentColor;
+    }
+
+    &--rotated {
+        transform: rotate(180deg);
+    }
+}
+
+/* Submenú */
+.sidebar__submenu {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    padding-left: 2.75rem;      // sangría para que se vea anidado
+    padding-right: 0.5rem;
+    margin-top: 0.15rem;
+    animation: submenuFadeIn 0.2s ease;
+}
+
+@keyframes submenuFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.sidebar__submenu-item {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    color: var(--color-text-secondary, #64748b);
+    text-decoration: none;
+    font-size: 0.825rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    position: relative;
+
+    /* línea guía a la izquierda */
+    &::before {
+        content: '';
+        position: absolute;
+        left: -0.9rem;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--color-border, #cbd5e1);
+        transition: all 0.2s ease;
+    }
+
+    &:hover {
+        background: var(--color-bg-hover, #f1f5f9);
+        color: var(--color-text-primary, #0e3b72);
+        transform: translateX(2px);
+
+        &::before {
+            background: var(--color-text-secondary, #64748b);
+        }
+    }
+
+    &--active {
+        background: rgba(14, 59, 114, 0.08);
+        color: var(--color-primary, #0e3b72);
+        font-weight: 700;
+
+        &::before {
+            background: var(--color-primary, #0e3b72);
+            width: 8px;
+            height: 8px;
+        }
+    }
+}
+
+/* ==========================================
    HAMBURGER BUTTON (solo móvil)
    ========================================== */
 .hamburger-btn {

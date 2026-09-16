@@ -15,6 +15,9 @@ import { PerfilMedicoComponent } from './components/perfil-medico/perfil-medico.
 import { DetalleMedicoComponent } from './components/perfil-medico/detalle-medico/detalle-medico.component';
 import { DetalleEjerciciosComponent } from './components/ejercicios/detalle-ejercicios/detalle-ejercicios.component';
 import { MembresiasComponent } from './components/membresias/membresias.component';
+import { EquipmentListComponent } from './components/equipments/equipment-list/equipment-list.component';
+import { EquipmentDetailComponent } from './components/equipments/equipment-detail/equipment-detail.component';
+import { FaultReportsComponent } from './components/equipments/fault-reports/fault-reports.component';
 
 @NgModule({
   declarations: [
@@ -27,7 +30,10 @@ import { MembresiasComponent } from './components/membresias/membresias.componen
     PerfilMedicoComponent,
     DetalleMedicoComponent,
     DetalleEjerciciosComponent,
-    MembresiasComponent
+    MembresiasComponent,
+    EquipmentListComponent,
+    EquipmentDetailComponent,
+    FaultReportsComponent,
   ],
   imports: [
     CommonModule,
