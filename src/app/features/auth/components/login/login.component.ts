@@ -230,11 +230,11 @@ export class LoginComponent implements OnInit, OnDestroy {
       case RolUsuario.ADMIN:
         this.router.navigate(['/dashboard-admin']);
         break;
+      case RolUsuario.RECEPCIONISTA:
+        this.router.navigate(['/dashboard-admin']);
+        break;
       case RolUsuario.ENTRENADOR:
         this.router.navigate(['/trainer']);
-        break;
-      case RolUsuario.RECEPCIONISTA:
-        this.router.navigate(['/dashboard-recepcionista']);
         break;
       case RolUsuario.USER:
         this.router.navigate(['/user']);

@@ -8,12 +8,10 @@ import { DashboardComponent } from './features/user/components/dashboard/dashboa
 import { AuthGuard } from '../app/core/guards/auth.guard';
 import { PaymentDetailComponent } from './features/payments/components/payment-detail/payment-detail.component';
 import { LandingPageComponent } from './features/landing/pages/landing-page/landing-page.component';
-// 👇 IMPORTA EL COMPONENTE DE POLÍTICAS
 import { PoliticasPageComponent } from './features/landing/pages/politicas-page/politicas-page.component';
 
 const routes: Routes = [
     { path: '', component: LandingPageComponent },
-    // 👇 AGREGA LA RUTA DE POLÍTICAS AQUÍ
     { path: 'politicas', component: PoliticasPageComponent },
 
     {
@@ -21,11 +19,12 @@ const routes: Routes = [
         loadChildren: () =>
             import('./features/auth/auth.module').then((m) => m.AuthModule),
     },
+
     {
         path: 'dashboard-admin',
         component: MainLayoutComponent,
         canActivate: [AuthGuard],
-        data: { expectedRole: 'administrador' },
+        data: { expectedRoles: ['administrador', 'recepcionista'] },
         children: [
             {
                 path: '',
@@ -98,6 +97,7 @@ const routes: Routes = [
             }
         ],
     },
+
     {
         path: 'user',
         canActivate: [AuthGuard],
