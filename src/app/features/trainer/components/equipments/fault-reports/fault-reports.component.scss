@@ -467,6 +467,94 @@ $bg-light: #f4f6fa;
 }
 
 /* ============================================
+   MODALES DE ESTADO (error / éxito)
+   ============================================ */
+.modal-content-state {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 40px 48px 32px;
+    max-width: 420px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: slideUpState 0.3s ease;
+}
+
+@keyframes slideUpState {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.modal-state-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+
+    &.error-icon {
+        background: #fef2f2;
+
+        svg { stroke: #dc2626; }
+    }
+
+    &.success-icon {
+        background: #dcfce7;
+
+        svg { stroke: #16a34a; }
+    }
+}
+
+.modal-state-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 8px;
+}
+
+.modal-state-message {
+    font-size: 14px;
+    color: #64748b;
+    margin: 0 0 24px;
+    line-height: 1.6;
+}
+
+.modal-state-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.modal-state-btn {
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+
+    &--primary {
+        background: #0f1c3f;
+        color: #ffffff;
+
+        &:hover {
+            background: #1a2b5c;
+            box-shadow: 0 4px 12px rgba(15, 28, 63, 0.3);
+        }
+    }
+}
+
+/* ============================================
    RESPONSIVE
    ============================================ */
 @media (max-width: 992px) {

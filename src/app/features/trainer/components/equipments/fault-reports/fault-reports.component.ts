@@ -32,6 +32,16 @@ export class FaultReportsComponent implements OnInit {
   guardandoMantenimiento: boolean = false;
   equipoSeleccionadoFalla: ReporteFallaItem | null = null;
 
+  // ==========================================
+  // Modales de estado
+  // ==========================================
+  mostrarModalError: boolean = false;
+  modalErrorTitulo: string = 'Error';
+  modalErrorMensaje: string = '';
+
+  mostrarModalExito: boolean = false;
+  modalExitoMensaje: string = '';
+
   nuevoMantenimiento: RegistrarMantenimientoPayload = {
     idEquipo: 0,
     fechaServicio: new Date().toISOString().slice(0, 10),
@@ -71,7 +81,7 @@ export class FaultReportsComponent implements OnInit {
     this.nuevoMantenimiento = {
       idEquipo: reporte.idEquipo,
       fechaServicio: new Date().toISOString().slice(0, 10),
-      tipo: 'CORRECTIVO', // Al provenir de una falla, por defecto proponemos CORRECTIVO
+      tipo: 'CORRECTIVO',
       descripcion: `Atención a falla reportada: ${reporte.descripcionFalla}`,
       costo: 0,
       tecnicoResponsable: '',
@@ -89,7 +99,7 @@ export class FaultReportsComponent implements OnInit {
 
   guardarMantenimiento(): void {
     if (!this.nuevoMantenimiento.tecnicoResponsable.trim() || !this.nuevoMantenimiento.descripcion.trim()) {
-      alert('Por favor ingrese el técnico responsable y la descripción del trabajo.');
+      this.mostrarError('Campos incompletos', 'Por favor ingrese el técnico responsable y la descripción del trabajo.');
       return;
     }
 
@@ -105,11 +115,8 @@ export class FaultReportsComponent implements OnInit {
       proximoMantenimiento: this.nuevoMantenimiento.proximoMantenimiento?.trim() || undefined
     };
 
-    console.log('Payload enviado a POST /api/mantenimientos:', payload);
-
     this.equipmentService.registrarMantenimiento(payload).subscribe({
       next: (res) => {
-        console.log('Respuesta del servidor:', res);
         this.guardandoMantenimiento = false;
         this.mostrarModalMantenimiento = false;
 
@@ -117,12 +124,13 @@ export class FaultReportsComponent implements OnInit {
           this.cambiarEstado(this.equipoSeleccionadoFalla, 'RESUELTO');
         }
 
+        this.mostrarExito('Mantenimiento registrado correctamente');
         this.cargarReportes();
       },
       error: (err) => {
         console.error('Error HTTP al registrar mantenimiento:', err);
         const mensajeError = err?.error?.message || err?.error || 'Ocurrió un error al guardar el registro de mantenimiento.';
-        alert(`Error: ${typeof mensajeError === 'string' ? mensajeError : 'Revisa la consola para más detalles.'}`);
+        this.mostrarError('Error al guardar', typeof mensajeError === 'string' ? mensajeError : 'Revisa la consola para más detalles.');
         this.guardandoMantenimiento = false;
       }
     });
@@ -173,10 +181,36 @@ export class FaultReportsComponent implements OnInit {
       error: (err) => {
         console.error('Error al cambiar el estado del reporte:', err);
         reporte.estadoReporte = estadoPrevio;
+        this.mostrarError('Error al actualizar', 'No se pudo cambiar el estado del reporte.');
       }
     });
   }
 
+  // ==========================================
+  // Modales
+  // ==========================================
+  mostrarError(titulo: string, mensaje: string): void {
+    this.modalErrorTitulo = titulo;
+    this.modalErrorMensaje = mensaje;
+    this.mostrarModalError = true;
+  }
+
+  cerrarModalError(): void {
+    this.mostrarModalError = false;
+  }
+
+  mostrarExito(mensaje: string): void {
+    this.modalExitoMensaje = mensaje;
+    this.mostrarModalExito = true;
+  }
+
+  cerrarModalExito(): void {
+    this.mostrarModalExito = false;
+  }
+
+  // ==========================================
+  // Paginación
+  // ==========================================
   get totalElementos(): number {
     return this.reportesFiltrados.length;
   }

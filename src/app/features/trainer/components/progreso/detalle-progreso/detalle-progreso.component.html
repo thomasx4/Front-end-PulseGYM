@@ -1,0 +1,213 @@
+<app-navbar></app-navbar>
+
+<div class="detalle-progreso-page">
+
+    <app-header></app-header>
+
+    <div class="detalle-progreso-content">
+
+        <!-- Header -->
+        <header class="page-header">
+            <div class="page-header__left">
+                <button class="btn-volver" (click)="volver()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="19" y1="12" x2="5" y2="12" />
+                        <polyline points="12 19 5 12 12 5" />
+                    </svg>
+                    Volver
+                </button>
+                <div class="page-header__title">
+                    <h1>{{ dashboard?.nombreSocio || 'Progreso del Socio' }}</h1>
+                    <p class="subtitle">Resumen de evolución y sesiones de entrenamiento</p>
+                </div>
+            </div>
+        </header>
+
+        <!-- Error de carga -->
+        <div *ngIf="!isLoading && error" class="state-container error">
+            <p>{{ error }}</p>
+            <button class="btn-volver-error" (click)="volver()">Volver a la lista</button>
+        </div>
+
+        <!-- NUEVO: Sin datos (socio sin progreso) -->
+        <div *ngIf="!isLoading && !error && !dashboard" class="state-container empty">
+            <div class="empty-icon">
+                <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                </svg>
+            </div>
+            <h3 class="empty-title">Este socio no tiene progreso registrado</h3>
+            <p class="empty-subtitle">
+                Aún no hay sesiones de entrenamiento ni datos de evolución para mostrar.
+            </p>
+            <button class="btn-volver-error" (click)="volver()">Volver a la lista</button>
+        </div>
+
+        <!-- Contenido -->
+        <ng-container *ngIf="!isLoading && !error && dashboard">
+
+            <!-- KPIs -->
+            <section class="kpi-grid">
+                <div class="kpi-card kpi-card--blue">
+                    <div class="kpi-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                        </svg>
+                    </div>
+                    <div class="kpi-info">
+                        <span class="kpi-label">Racha actual</span>
+                        <span class="kpi-value">{{ dashboard.rachaDiasEntrenando }} <small>días</small></span>
+                    </div>
+                </div>
+
+                <div class="kpi-card kpi-card--green">
+                    <div class="kpi-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                            <polyline points="22 4 12 14.01 9 11.01" />
+                        </svg>
+                    </div>
+                    <div class="kpi-info">
+                        <span class="kpi-label">Cumplimiento semanal</span>
+                        <span class="kpi-value">{{ dashboard.porcentajeCumplimientoSemanal }}<small>%</small></span>
+                    </div>
+                </div>
+
+                <div class="kpi-card kpi-card--purple">
+                    <div class="kpi-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M6 4v16M18 4v16M3 8h6M15 8h6M3 16h6M15 16h6M9 12h6" />
+                        </svg>
+                    </div>
+                    <div class="kpi-info">
+                        <span class="kpi-label">Total sesiones</span>
+                        <span class="kpi-value">{{ dashboard.estadisticas?.totalSesiones || 0 }}</span>
+                    </div>
+                </div>
+
+                <div class="kpi-card kpi-card--orange">
+                    <div class="kpi-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <circle cx="12" cy="12" r="10" />
+                            <polyline points="12 6 12 12 16 14" />
+                        </svg>
+                    </div>
+                    <div class="kpi-info">
+                        <span class="kpi-label">Duración promedio</span>
+                        <span class="kpi-value">{{ (dashboard.estadisticas?.promedioDuracion || 0) | number:'1.0-0' }}
+                            <small>min</small></span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Evolución de ejercicios -->
+            <div class="card" *ngIf="dashboard?.evolucionEjercicios?.length">
+                <div class="card-header">
+                    <h3>Evolución por Ejercicio</h3>
+                    <span class="card-count">{{ dashboard.evolucionEjercicios.length }} ejercicios</span>
+                </div>
+
+                <div class="evolucion-list">
+                    <div class="evolucion-item" *ngFor="let ev of dashboard.evolucionEjercicios">
+                        <div class="evolucion-info">
+                            <span class="evolucion-nombre">{{ ev.nombreEjercicio }}</span>
+                            <span class="evolucion-estado" [ngClass]="getProgresoClass(ev.estado)">
+                                {{ ev.estado }}
+                            </span>
+                        </div>
+                        <div class="evolucion-bar">
+                            <div class="evolucion-fill" [ngClass]="getProgresoClass(ev.estado)"
+                                [style.width.%]="ev.progreso > 100 ? 100 : ev.progreso">
+                            </div>
+                        </div>
+                        <span class="evolucion-porcentaje">{{ ev.progreso }}%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Historial -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Historial de Sesiones</h3>
+                    <span class="card-count">{{ historial.length }} sesiones</span>
+                </div>
+
+                <div *ngIf="historial.length === 0" class="empty-historial">
+                    <p>Este socio no tiene sesiones registradas.</p>
+                </div>
+
+                <div class="historial-list" *ngIf="historial.length > 0">
+                    <div class="sesion-item" *ngFor="let sesion of historial">
+
+                        <!-- Header de la sesión -->
+                        <div class="sesion-header" (click)="toggleSesion(sesion.idSesion)">
+                            <div class="sesion-info">
+                                <div class="sesion-icon">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <path d="M6 4v16M18 4v16M3 8h6M15 8h6M3 16h6M15 16h6M9 12h6" />
+                                    </svg>
+                                </div>
+                                <div class="sesion-details">
+                                    <strong class="sesion-nombre">{{ sesion.nombreRutina }}</strong>
+                                    <span class="sesion-fecha">{{ formatearFecha(sesion.fechaSesion) }}</span>
+                                </div>
+                            </div>
+
+                            <div class="sesion-meta">
+                                <span class="sesion-badge">{{ sesion.duracionMinutos }} min</span>
+                                <span class="sesion-badge">{{ sesion.detalles?.length || 0 }} ejercicios</span>
+                                <svg class="sesion-chevron"
+                                    [class.sesion-chevron--rotated]="isSesionExpandida(sesion.idSesion)" width="16"
+                                    height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2.5">
+                                    <polyline points="6 9 12 15 18 9" />
+                                </svg>
+                            </div>
+                        </div>
+
+                        <!-- Detalle expandido -->
+                        <div class="sesion-body" *ngIf="isSesionExpandida(sesion.idSesion)">
+                            <div class="detalle-item" *ngFor="let det of sesion.detalles">
+                                <div class="detalle-left">
+                                    <span class="detalle-nombre">{{ det.nombreEjercicio }}</span>
+                                    <span class="detalle-grupo">{{ det.grupoMuscular }}</span>
+                                </div>
+
+                                <div class="detalle-mid">
+                                    <span class="detalle-stat">
+                                        <strong>{{ det.seriesCompletadas }}</strong> series
+                                    </span>
+                                    <span class="detalle-stat">
+                                        <strong>{{ det.repeticionesRealizadas }}</strong> reps
+                                    </span>
+                                    <span class="detalle-stat" *ngIf="det.pesoUsado > 0">
+                                        <strong>{{ det.pesoUsado }}</strong> kg
+                                    </span>
+                                </div>
+
+                                <span class="detalle-estado" [ngClass]="getEstadoClass(det.estado)">
+                                    {{ det.estado }}
+                                </span>
+                            </div>
+
+
+                            <ng-container *ngFor="let det of sesion.detalles">
+                                <p class="detalle-obs" *ngIf="det.observaciones">
+                                    <strong>{{ det.nombreEjercicio }}:</strong> {{ det.observaciones }}
+                                </p>
+                            </ng-container>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </ng-container>
+
+    </div>
+</div>

@@ -18,6 +18,8 @@ import { MembresiasComponent } from './components/membresias/membresias.componen
 import { EquipmentListComponent } from './components/equipments/equipment-list/equipment-list.component';
 import { EquipmentDetailComponent } from './components/equipments/equipment-detail/equipment-detail.component';
 import { FaultReportsComponent } from './components/equipments/fault-reports/fault-reports.component';
+import { ProgresoComponent } from './components/progreso/progreso.component';
+import { DetalleProgresoComponent } from './components/progreso/detalle-progreso/detalle-progreso.component';
 
 @NgModule({
   declarations: [
@@ -34,6 +36,8 @@ import { FaultReportsComponent } from './components/equipments/fault-reports/fau
     EquipmentListComponent,
     EquipmentDetailComponent,
     FaultReportsComponent,
+    ProgresoComponent,
+    DetalleProgresoComponent,
   ],
   imports: [
     CommonModule,

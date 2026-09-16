@@ -190,3 +190,42 @@
 
     </div>
 </div>
+
+<!-- ============================================ -->
+<!-- Modal Error -->
+<!-- ============================================ -->
+<div class="modal-overlay-nested" *ngIf="mostrarModalError" (click)="cerrarModalError()">
+    <div class="modal-content-nested" (click)="$event.stopPropagation()">
+        <div class="modal-icon error-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+        </div>
+        <h3 class="modal-title-nested">{{ modalErrorTitulo }}</h3>
+        <p class="modal-message-nested">{{ modalErrorMensaje }}</p>
+        <div class="modal-actions-nested">
+            <button class="modal-btn-nested modal-btn-nested--primary" (click)="cerrarModalError()">Entendido</button>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- Modal Éxito -->
+<!-- ============================================ -->
+<div class="modal-overlay-nested" *ngIf="mostrarModalExito" (click)="cerrarModalExito()">
+    <div class="modal-content-nested" (click)="$event.stopPropagation()">
+        <div class="modal-icon success-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                <polyline points="22 4 12 14.01 9 11.01" />
+            </svg>
+        </div>
+        <h3 class="modal-title-nested">¡Operación exitosa!</h3>
+        <p class="modal-message-nested">{{ modalExitoMensaje }}</p>
+        <div class="modal-actions-nested">
+            <button class="modal-btn-nested modal-btn-nested--primary" (click)="cerrarModalExito()">Aceptar</button>
+        </div>
+    </div>
+</div>
