@@ -7,8 +7,15 @@ import { ForgotComponent } from '../app/features/auth/components/forgot/forgot.c
 import { DashboardComponent } from './features/user/components/dashboard/dashboard.component';
 import { AuthGuard } from '../app/core/guards/auth.guard';
 import { PaymentDetailComponent } from './features/payments/components/payment-detail/payment-detail.component';
+import { LandingPageComponent } from './features/landing/pages/landing-page/landing-page.component';
+// 👇 IMPORTA EL COMPONENTE DE POLÍTICAS
+import { PoliticasPageComponent } from './features/landing/pages/politicas-page/politicas-page.component';
 
 const routes: Routes = [
+    { path: '', component: LandingPageComponent },
+    // 👇 AGREGA LA RUTA DE POLÍTICAS AQUÍ
+    { path: 'politicas', component: PoliticasPageComponent },
+
     {
         path: 'auth',
         loadChildren: () =>
@@ -106,11 +113,9 @@ const routes: Routes = [
     },
     { path: 'auth/login', component: LoginComponent },
     { path: 'forgot-password', component: ForgotComponent },
-    { path: 'user', component: DashboardComponent },
-
     { path: 'comprobante/:idPago', component: PaymentDetailComponent },
 
-    { path: '', redirectTo: '/auth/login', pathMatch: 'full' },
+    { path: '**', redirectTo: '' },
 ];
 
 @NgModule({
