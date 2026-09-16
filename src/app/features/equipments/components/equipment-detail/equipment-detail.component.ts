@@ -29,6 +29,8 @@ export class EquipmentDetailComponent implements OnChanges {
   historialMantenimientos: MantenimientoItem[] = [];
   cargandoMantenimientos: boolean = false;
 
+  errorDescripcionFalla: string = '';
+
   constructor(
     private sedeService: SedeService,
     private supplierService: SupplierService,
@@ -116,39 +118,13 @@ export class EquipmentDetailComponent implements OnChanges {
   }
 
   enviarReporteFalla(): void {
-    const eq = this.equipo as any;
-    const idEquipo = eq?.idEquipo || eq?.id;
+    this.errorDescripcionFalla = '';
 
-    if (!idEquipo || !this.descripcionFalla.trim()) {
-      alert('Por favor escribe una descripción para la falla.');
+    if (!this.descripcionFalla || !this.descripcionFalla.trim()) {
+      this.errorDescripcionFalla = 'Por favor escribe una descripción para la falla.';
       return;
     }
-
     this.guardandoFalla = true;
-    const payload: RegistrarFallaPayload = {
-      urgencia: this.urgenciaSeleccionada,
-      descripcion: this.descripcionFalla.trim()
-    };
-
-    this.equipmentService.registrarFalla(idEquipo, payload).subscribe({
-      next: (res) => {
-        this.guardandoFalla = false;
-        this.mostrandoFormFalla = false;
-
-        // Actualización local rápida de la ficha
-        if (this.equipo) {
-          (this.equipo as any).urgenciaFalla = this.urgenciaSeleccionada;
-          (this.equipo as any).descripcionFalla = this.descripcionFalla.trim();
-        }
-
-        this.fallaReportada.emit();
-      },
-      error: (err) => {
-        console.error('Error al reportar la falla:', err);
-        alert('No se pudo registrar la falla del equipo.');
-        this.guardandoFalla = false;
-      }
-    });
   }
 
   cerrar(): void {
