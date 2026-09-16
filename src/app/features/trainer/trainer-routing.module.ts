@@ -10,6 +10,8 @@ import { PerfilMedicoComponent } from './components/perfil-medico/perfil-medico.
 import { DetalleMedicoComponent } from './components/perfil-medico/detalle-medico/detalle-medico.component';
 import { DetalleEjerciciosComponent } from './components/ejercicios/detalle-ejercicios/detalle-ejercicios.component';
 import { MembresiasComponent } from './components/membresias/membresias.component';
+import { EquipmentListComponent } from './components/equipments/equipment-list/equipment-list.component';
+import { FaultReportsComponent } from './components/equipments/fault-reports/fault-reports.component';
 
 const routes: Routes = [
   { path: '', component: DashboardComponent },
@@ -28,6 +30,8 @@ const routes: Routes = [
   { path: 'perfil-medico/:idSocio', component: DetalleMedicoComponent },
   { path: 'membresias', component: MembresiasComponent },
   { path: 'membresias/:id', component: MembresiasComponent },
+  { path: 'equipos', component: EquipmentListComponent },
+  { path: 'equipos/fallas', component: FaultReportsComponent },
 ];
 
 @NgModule({
