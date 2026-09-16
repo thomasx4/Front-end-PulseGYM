@@ -14,10 +14,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
   userRoleLabel = 'SOCIO';
   isTrainer = false;
 
-  // 👇 Submenú de Equipos
-  equiposOpen = false;
+  //  Submenú de Equipos
+  equiposOpen = true;
 
-  // 👇 Para limpiar la suscripción al destruir el componente
+  //  Para limpiar la suscripción al destruir el componente
   private routerSub?: Subscription;
 
   constructor(
@@ -37,7 +37,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
       const url = event.urlAfterRedirects;
       this.checkUserRole(url);
 
-      // 👇 Abrir automáticamente el submenú si entramos a /trainer/equipos/*
+      //  Abrir automáticamente el submenú si entramos a /trainer/equipos/*
       if (url.startsWith('/trainer/equipos')) {
         this.equiposOpen = true;
       }

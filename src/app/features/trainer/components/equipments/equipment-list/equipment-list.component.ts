@@ -24,7 +24,7 @@ export class EquipmentListComponent implements OnInit {
   totalFueraServicio: number = 0;
 
   currentPage: number = 1;
-  pageSize: number = 6;
+  pageSize: number = 8;
   totalPages: number = 1;
   pagesArray: number[] = [];
 

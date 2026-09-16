@@ -104,7 +104,7 @@ export class EquipmentDetailComponent implements OnChanges {
           const provEncontrado = listaProv.find((p: Supplier) => Number(p.idProveedor) === Number(idProveedor));
           this.nombreProveedor = provEncontrado ? provEncontrado.nombreEmpresa : `Proveedor #${idProveedor}`;
         } else {
-          this.nombreProveedor = listaProv[0]?.nombreEmpresa || 'LifeFitness Colombia';
+          this.nombreProveedor = listaProv[0]?.nombreEmpresa;
         }
       },
       error: () => this.nombreProveedor = 'Proveedor Registrado'
