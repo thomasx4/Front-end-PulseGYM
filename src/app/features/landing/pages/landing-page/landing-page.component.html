@@ -1,0 +1,194 @@
+<div class="landing-container">
+    <!-- Navbar / Header -->
+    <header class="landing-header animate-header">
+        <div class="logo-container" (click)="irAlLogin()">
+            <img src="assets/favicon.ico" alt="Pulse GYM Logo" class="brand-logo" onerror="this.src='assets/logo.png'">
+            <div class="brand-title">
+                <span class="pulse-text">PULSE</span><span class="gym-text">GYM</span>
+            </div>
+        </div>
+        <div class="nav-actions">
+            <button class="btn-login" (click)="irAlLogin()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M13.8 12H3" />
+                </svg>
+                <span class="btn-text">Iniciar Sesión</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-background-slider">
+            <div class="slide-image" *ngFor="let slide of heroSlides; let i = index"
+                [style.backgroundImage]="'url(' + slide.image + ')'" [style.backgroundPosition]="slide.position"
+                [class.active]="i === currentHeroSlide">
+            </div>
+            <div class="hero-overlay"></div>
+        </div>
+
+        <div class="hero-content animate-fade-in-up">
+            <span class="badge-tag animate-pop-in">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                </svg>
+                La evolución del entrenamiento inteligente
+            </span>
+            <h1 class="animate-slide-up">Transforma tu cuerpo y rendimiento con <span class="highlight">Pulse
+                    GYM</span></h1>
+            <p class="animate-slide-up-delay">Administra tus rutinas, monitorea tu historial físico, accede a planes
+                nutricionales personalizados y lleva tu progreso al siguiente nivel con tecnología de punta y gestión
+                automatizada.</p>
+
+            <!-- 👇 TARJETA DE RENDIMIENTO (se mostrará arriba de los botones en móvil) -->
+            <div class="hero-image hero-image-mobile animate-float">
+                <div class="glow-effect animate-pulse-glow"></div>
+                <div class="card-stats-float animate-slide-in-right">
+                    <div class="icon-circle">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#192b5ee1" stroke-width="2">
+                            <path d="M12 2s-4 5-4 10a4 4 0 0 0 8 0c0-5-4-10-4-10z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h4>Rendimiento Óptimo</h4>
+                        <p>Control de asistencia y métricas en tiempo real</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-buttons animate-slide-up-delay-2">
+                <button class="btn-primary" (click)="irAlLogin()">
+                    <span>Comenzar Ahora</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                </button>
+                <button class="btn-secondary" (click)="irAPoliticas()">Conocer Políticas</button>
+            </div>
+
+            <div class="hero-slider-dots">
+                <span *ngFor="let slide of heroSlides; let i = index" class="dot"
+                    [class.active]="i === currentHeroSlide" (click)="goToHeroSlide(i)">
+                </span>
+            </div>
+        </div>
+
+        <!-- 👇 TARJETA DE RENDIMIENTO (versión desktop, se oculta en móvil) -->
+        <div class="hero-image hero-image-desktop animate-float">
+            <div class="glow-effect animate-pulse-glow"></div>
+            <div class="card-stats-float animate-slide-in-right">
+                <div class="icon-circle">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#192b5ee1" stroke-width="2">
+                        <path d="M12 2s-4 5-4 10a4 4 0 0 0 8 0c0-5-4-10-4-10z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h4>Rendimiento Óptimo</h4>
+                    <p>Control de asistencia y métricas en tiempo real</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section animate-scroll">
+        <h2 class="animate-fade-in-up">¿Por qué elegir <span class="highlight">Pulse GYM</span>?</h2>
+        <div class="features-grid">
+            <div class="feature-card animate-scroll-card delay-1">
+                <div class="icon-box">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M6.5 6.5h11v11h-11z"></path>
+                        <path d="M12 2v4M12 18v4M2 12h4M18 12h4"></path>
+                    </svg>
+                </div>
+                <h3>Rutinas Inteligentes</h3>
+                <p>Generación y seguimiento de rutinas de entrenamiento adaptadas a tus objetivos específicos con
+                    asistencia inteligente.</p>
+            </div>
+            <div class="feature-card animate-scroll-card delay-2">
+                <div class="icon-box">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"></path>
+                        <path d="M7 2v20"></path>
+                        <path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"></path>
+                    </svg>
+                </div>
+                <h3>Planes Nutricionales</h3>
+                <p>Lleva un control estricto de tu nutrición y evolución física de la mano de profesionales y
+                    herramientas integradas.</p>
+            </div>
+            <div class="feature-card animate-scroll-card delay-3">
+                <div class="icon-box">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    </svg>
+                </div>
+                <h3>Seguridad y Confianza</h3>
+                <p>Tus datos protegidos bajo altos estándares de seguridad y gestión transparente de membresías y pagos.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Políticas de Privacidad y Seguridad -->
+    <section id="politicas" class="policies-section animate-scroll">
+        <div class="policies-container">
+            <h2 class="animate-fade-in-up">Políticas de Seguridad y Privacidad</h2>
+            <p class="subtitle animate-fade-in-up">En Pulse GYM nos comprometemos a proteger tu información personal y
+                garantizar una experiencia segura.</p>
+
+            <div class="policy-grid">
+                <div class="policy-box animate-scroll-card delay-1">
+                    <h4>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                        Protección de Datos
+                    </h4>
+                    <p>Tus datos personales, historiales médicos y registros de pagos se almacenan bajo estrictos
+                        protocolos de cifrado y normativas de privacidad vigentes.</p>
+                </div>
+                <div class="policy-box animate-scroll-card delay-2">
+                    <h4>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                        Uso de Información
+                    </h4>
+                    <p>La información recopilada es utilizada exclusivamente para optimizar tu experiencia de
+                        entrenamiento, control de accesos y notificaciones personalizadas dentro del ecosistema Pulse.
+                    </p>
+                </div>
+                <div class="policy-box animate-scroll-card delay-3">
+                    <h4>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                        Términos de Servicio
+                    </h4>
+                    <p>El uso de nuestras instalaciones y plataformas digitales implica la aceptación de nuestras
+                        normativas internas de convivencia, pagos puntuales de membresías y uso adecuado de los equipos.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="landing-footer animate-fade-in">
+        <div class="footer-content">
+            <div class="footer-logo">PULSE<span> GYM</span></div>
+            <p>&copy; 2026 Pulse GYM. Todos los derechos reservados. Desarrollado con alta tecnología.</p>
+        </div>
+    </footer>
+</div>

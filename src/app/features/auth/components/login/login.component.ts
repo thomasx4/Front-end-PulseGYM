@@ -58,6 +58,11 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.router.navigate(['/forgot-password']);
   }
 
+  // 👇 NUEVO MÉTODO: Navegar a la página principal
+  irAPaginaPrincipal(): void {
+    this.router.navigate(['/']);
+  }
+
   ngOnInit(): void {
     if (this.authService.isLoginGloballyLocked()) {
       this.startLockTimer();

@@ -14,6 +14,8 @@ import { MembershipModule } from './features/membership/membership.module';
 import { AttendanceModule } from './features/attendance/attendance.module';
 import { LoadingInterceptor } from './core/interceptors/loading.interceptor';
 import { ThemeInitializerService } from './core/services/theme-initializer.service';
+import { LandingPageComponent } from './features/landing/pages/landing-page/landing-page.component';
+import { PoliticasPageComponent } from './features/landing/pages/politicas-page/politicas-page.component';
 
 export function initializeTheme(themeInitializer: ThemeInitializerService) {
   return () => themeInitializer.initializeTheme();
@@ -22,6 +24,8 @@ export function initializeTheme(themeInitializer: ThemeInitializerService) {
 @NgModule({
   declarations: [
     AppComponent,
+    LandingPageComponent,
+    PoliticasPageComponent,
   ],
   imports: [
     BrowserModule,
