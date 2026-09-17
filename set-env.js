@@ -1,11 +1,16 @@
-require('dotenv').config();
+try {
+  require('dotenv').config();
+} catch (e) {
+  // Si dotenv no está instalado (como en Cloudflare Pages), omite el error y usa process.env directo
+}
 
 const fs = require('fs');
 const path = require('path');
 
-
+const dir = path.join(__dirname, 'src', 'environments');
+if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
-
+}
 
 const apiUrl = process.env.API_URL || "https://api.pulsegym.uk";
 const cloudName = process.env.CLOUDINARY_CLOUD_NAME || "";
