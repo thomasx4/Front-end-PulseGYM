@@ -1,21 +1,28 @@
+require('dotenv').config();
+
 const fs = require('fs');
 const path = require('path');
 
-const dir = './src/environments';
 
-if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
-}
+
+
+const apiUrl = process.env.API_URL || "https://api.pulsegym.uk";
+const cloudName = process.env.CLOUDINARY_CLOUD_NAME || "";
+const uploadPreset = process.env.CLOUDINARY_UPLOAD_PRESET || process.env.CLOUDINARY_UPLOAD_PRESE || "";
+const apiKey = process.env.CLOUDINARY_API_KEY || "";
+const apiSecret = process.env.CLOUDINARY_API_SECRET || "";
+const mercadoPagoKey = process.env.CLOUDINARY_MERCADOPAGO_PUBLIC_KEY || process.env.CLOUDINARY_MERCADOPAGO || "";
 
 const envConfigFile = `export const environment = {
   production: true,
-  apiUrl: '',
+  apiUrl: '${apiUrl}',
   cloudinary: {
-    cloudName: '${process.env.CLOUDINARY_CLOUD_NAME || process.env.CLOUDNAME_CLOUD_NAME || ""}',
-    uploadPreset: '${process.env.CLOUDINARY_UPLOAD_PRESET || ""}',
-    apiKey: '${process.env.CLOUDINARY_API_KEY || ""}',
-    apiSecret: '${process.env.CLOUDINARY_API_SECRET || ""}',
-    MERCADOPAGO_PUBLIC_KEY: '${process.env.CLOUDINARY_MERCADOPAGO_PUBLIC_KEY || ""}'
+    cloudName: '${cloudName}',
+    uploadPreset: '${uploadPreset}',
+    apiKey: '${apiKey}',
+    apiSecret: '${apiSecret}',
+    MERCADOPAGO_PUBLIC_KEY: '${mercadoPagoKey}'
   }
 };
 `;
@@ -23,4 +30,4 @@ const envConfigFile = `export const environment = {
 fs.writeFileSync(path.join(dir, 'environment.prod.ts'), envConfigFile);
 fs.writeFileSync(path.join(dir, 'environment.ts'), envConfigFile);
 
-console.log('✅ Archivos de environment generados correctamente.');
+console.log('✅ Archivos de environment generados.');
