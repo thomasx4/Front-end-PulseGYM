@@ -25,8 +25,8 @@ export class AdminPlantillasComponent implements OnInit {
   filtroTipo: string = '';
   filtroEstado: boolean | null = null;
   
-  ejemploNombre = '{{nombre}}';
-  ejemploEmail = '{{email}}';
+  ejemploNombre = '{nombre}';
+  ejemploEmail = '{email}';
 
   canalesDisponibles: EnumCanalNotificacion[] = ['EMAIL', 'WHATSAPP'];
   eventosDisponibles: EnumEventoAsociado[] = [

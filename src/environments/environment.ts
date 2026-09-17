@@ -1,11 +1,12 @@
 export const environment = {
-  production: true,
-  apiUrl: 'https://api.pulsegym.uk',
-  cloudinary: {
-    cloudName: '',
-    uploadPreset: '',
-    apiKey: '',
-    apiSecret: '',
-    MERCADOPAGO_PUBLIC_KEY: ''
-  }
+    production: false,
+    apiUrl: 'DEV',
+
+    cloudinary: {
+        cloudName: '',
+        uploadPreset: '',
+        apiKey: '',
+        apiSecret: '',
+        MERCADOPAGO_PUBLIC_KEY: ''
+    }
 };

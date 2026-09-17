@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AttendanceService } from '../../../../core/services/attendance.service';
-import { UserService, UsuarioPerfilResponseDTO } from '../../../../core/services/user.service';
+import { UserService } from '../../../../core/services/user.service';
 import { AsistenciaResponseDTO, PeakHour } from '../../models/attendance.model';
 import { FiltrosAsistencia } from '../../models/attendance-filter.model';
 
@@ -51,7 +51,6 @@ export class AttendanceListComponent implements OnInit {
   ngOnInit(): void {
     this.capacidadDiaria = this.attendanceService.capacidadDiaria;
     this.cargarAsistenciaHoy();
-    this.cargarMetaDiaria();
   }
 
   cargarAsistenciaHoy(): void {
@@ -71,22 +70,11 @@ export class AttendanceListComponent implements OnInit {
     });
   }
 
-  cargarMetaDiaria(): void {
-    this.attendanceService.getMetaDiaria(this.idSedeActual).subscribe({
-      next: (meta) => {
-        if (meta) {
-          this.metaDiariaGym = meta;
-        }
-      },
-      error: (err) => console.warn('Nose pudo obtenerla meta guardada, usando valor por defecto', err)
-    });
-  }
 
   abrirModalMeta(): void {
     this.nuevaMetaTemp = this.metaDiariaGym;
     this.errorModal = '';
     this.mostrarModalMeta = true;
-
   }
 
   cerrarModalMeta(): void {
@@ -159,7 +147,7 @@ export class AttendanceListComponent implements OnInit {
 
   get totalAsistenciaHoy(): number {
     return this.asistencias.length;
-  };
+  }
 
   get totalPaginas(): number {
     return Math.ceil(this.asistenciasFiltradas.length / this.itemsPorPagina) || 1;
@@ -206,13 +194,13 @@ export class AttendanceListComponent implements OnInit {
 
   procesarAsistencias(): void {
     this.asistenciasProcesadas = this.asistencias.map(a => {
-      const fecha = new Date(a.fechaHoraEntrada.endsWith('Z') ? a.fechaHoraEntrada : a.fechaHoraEntrada + 'Z');
+      const fecha = new Date(a.fechaHoraEntrada);
 
-      const itemTabla: AsistenciaTabla = {
+      return {
         idUsuario: a.idUsuario,
-        nombre: `Usuario #${a.idUsuario}`,
+        nombre: a.nombre || `Usuario #${a.idUsuario}`,
         apellido: '',
-        email: `socio${a.idUsuario}@pulsegym.com`,
+        email: a.email || `socio${a.idUsuario}@pulsegym.com`,
         nombreSede: a.nombreSede || 'Sede Principal',
         horaEntrada: fecha.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: true }),
         fechaEntrada: fecha.toLocaleDateString('es-ES', { month: 'short', day: 'numeric', year: 'numeric' }),
@@ -220,21 +208,6 @@ export class AttendanceListComponent implements OnInit {
         estadoAcceso: a.estadoAcceso === 'PERMITIDO' ? 'Permitido' : 'Denegado',
         statusClass: a.estadoAcceso === 'PERMITIDO' ? 'active' : 'cancelled'
       };
-
-      this.userService.obtenerPerfilPorId(a.idUsuario).subscribe({
-        next: (perfil: UsuarioPerfilResponseDTO | null) => {
-          if (perfil) {
-            const nombreCompleto = perfil.nombreCompleto || `${perfil.nombre || ''} ${perfil.apellido || ''}`.trim();
-            itemTabla.nombre = nombreCompleto || `Usuario #${a.idUsuario}`;
-            if (perfil.email) itemTabla.email = perfil.email;
-          }
-        },
-        error: (err) => {
-          console.warn(`No se pudo obtener el perfil para el usuario ID: ${a.idUsuario}`, err);
-        }
-      });
-
-      return itemTabla;
     });
   }
 
@@ -249,7 +222,7 @@ export class AttendanceListComponent implements OnInit {
     for (const a of asistencias) {
       if (!a.fechaHoraEntrada) continue;
 
-      const fecha = new Date(a.fechaHoraEntrada.endsWith('Z') ? a.fechaHoraEntrada : a.fechaHoraEntrada + 'Z');
+      const fecha = new Date(a.fechaHoraEntrada);
       const hora = fecha.getHours();
 
       const bloque = rangos.find(r => hora >= r.horaInicio && hora < r.horaFin);
@@ -270,7 +243,7 @@ export class AttendanceListComponent implements OnInit {
         next: () => {
           this.metaDiariaGym = valor;
         },
-        error: (err) => alert('Ocurrio un error al guardar la nueva meta')
+        error: (err) => alert('Ocurrió un error al guardar la nueva meta')
       });
     }
   }
@@ -296,13 +269,13 @@ export class AttendanceListComponent implements OnInit {
 
   formatearHora(fechaStr: string): string {
     if (!fechaStr) return '--:--';
-    const fecha = new Date(fechaStr.endsWith('Z') ? fechaStr : fechaStr + 'Z');
+    const fecha = new Date(fechaStr);
     return fecha.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: true });
   }
 
   formatearFecha(fechaStr: string): string {
     if (!fechaStr) return '';
-    const fecha = new Date(fechaStr.endsWith('Z') ? fechaStr : fechaStr + 'Z');
+    const fecha = new Date(fechaStr);
     return fecha.toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' });
   }
 
@@ -347,6 +320,3 @@ export class AttendanceListComponent implements OnInit {
     window.URL.revokeObjectURL(url);
   }
 }
-
-
-

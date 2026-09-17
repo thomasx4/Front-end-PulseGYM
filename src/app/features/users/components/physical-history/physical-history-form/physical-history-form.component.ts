@@ -501,7 +501,7 @@ export class PhysicalHistoryFormComponent implements OnInit {
     const payload: PhysicalHistoryRequest = {
       idSocio: Number(rawVal.idSocio),
       idRecepcionista: rawVal.idRecepcionista ? Number(rawVal.idRecepcionista) : undefined,
-      fechaMedicion: rawVal.fechaMedicion ? new Date(rawVal.fechaMedicion).toISOString() : undefined,
+      fechaMedicion: rawVal.fechaMedicion ? (rawVal.fechaMedicion.length === 16 ? rawVal.fechaMedicion + ':00' : rawVal.fechaMedicion) : undefined,
       pesoKg: Number(rawVal.pesoKg),
       alturaCm: rawVal.alturaCm ? Number(rawVal.alturaCm) : undefined,
       porcentajeGrasa: rawVal.porcentajeGrasa !== null && rawVal.porcentajeGrasa !== '' ? Number(rawVal.porcentajeGrasa) : 0,
