@@ -41,6 +41,8 @@
 
 
 .card-summary {
+  display: flex;
+  justify-content: center;
   background-color: #0b1d3a;
   color: #ffffff;
   position: relative;
@@ -74,15 +76,15 @@
     }
 
     .status-text {
-      font-size: 0.875rem;
-      font-weight: 500;
+      font-size: 1.2rem;
+      font-weight: 700;
       color: rgba(255, 255, 255, 0.8);
     }
   }
 
   .card-main-value {
     h2 {
-      font-size: 3.5rem;
+      font-size: 4.5rem;
       font-weight: 800;
       line-height: 1;
       margin: 0 0 1.5rem 0;
