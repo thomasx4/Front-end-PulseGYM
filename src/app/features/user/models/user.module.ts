@@ -37,9 +37,17 @@ export interface Estadisticas {
 }
 
 export interface DashboardSocioResponse {
+  idSocio: number;
   nombreSocio: string;
   rachaDiasEntrenando: number;
   porcentajeCumplimientoSemanal: number;
-  caloriasDiarias: number;
-  estadisticas: Estadisticas;
+  porcentajeCumplimientoSemanaAnterior: number;
+  diasEntrenadosSemana?: number[];
+  estadisticas?: {
+    totalSesiones?: number;
+    promedioDuracion?: number;
+    ultimaSesion?: string;
+    [key: string]: any;
+  };
+  evolucionEjercicios?: any[];
 }

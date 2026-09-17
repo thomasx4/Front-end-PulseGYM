@@ -16,6 +16,7 @@ import { LoadingInterceptor } from './core/interceptors/loading.interceptor';
 import { ThemeInitializerService } from './core/services/theme-initializer.service';
 import { LandingPageComponent } from './features/landing/pages/landing-page/landing-page.component';
 import { PoliticasPageComponent } from './features/landing/pages/politicas-page/politicas-page.component';
+import { MancuerIaComponent } from './features/mancuer-ia/mancuer-ia.component';
 
 export function initializeTheme(themeInitializer: ThemeInitializerService) {
   return () => themeInitializer.initializeTheme();

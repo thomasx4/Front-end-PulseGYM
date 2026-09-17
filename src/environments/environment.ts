@@ -1,6 +1,6 @@
 export const environment = {
     production: false,
-    apiUrl: 'DEV',
+    apiUrl: 'https://api.pulsegym.uk',
 
     cloudinary: {
         cloudName: '',

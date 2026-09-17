@@ -132,7 +132,33 @@ export class UserService {
         let rutina: any = null;
 
         if (Array.isArray(response) && response.length > 0) {
-          rutina = response[0];
+          const rutina = response[0];
+          const nombreRutina = rutina.nombre || 'Rutina sin nombre';
+          const detalles = rutina.detalles || [];
+
+          const ejercicios: Exercise[] = detalles.map((detalle: any) => ({
+            nombre: detalle.nombreEjercicio || 'Ejercicio',
+            sets:
+              (detalle.series || 0) +
+              ' x ' +
+              (detalle.repeticionesMin || 0) +
+              '-' +
+              (detalle.repeticionesMax || 0),
+            imageUrl: detalle.urlImagen || '',
+            grupoMuscular: detalle.grupoMuscular,
+            diaSemana: detalle.diaSemana,
+          }));
+
+          const today = new Date().getDay();
+          const diaActual = today === 0 ? 7 : today;
+
+          const ejerciciosHoy = ejercicios.filter(
+            (e) => e.diaSemana === diaActual,
+          );
+
+          const ejerciciosMostrar =
+            ejerciciosHoy.length > 0 ? ejerciciosHoy : ejercicios;
+          
         } else if (response && response.detalles) {
           rutina = response;
         } else if (response && response.data) {

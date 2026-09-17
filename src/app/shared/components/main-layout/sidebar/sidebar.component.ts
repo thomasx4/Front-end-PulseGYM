@@ -74,10 +74,7 @@ export class SidebarComponent implements OnInit {
 
     const historyIcon = this.sanitizer.bypassSecurityTrustHtml(`
       <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-        <g id="SVGRepo_iconCarrier"> 
-        <path d="M7 3V6M17 3V6M7.10002 20C7.56329 17.7178 9.58104 16 12 16C14.419 16 16.4367 17.7178 16.9 20M6.2 21H17.8C18.9201 21 19.4802 21 19.908 20.782C20.2843 20.5903 20.5903 20.2843 20.782 19.908C21 19.4802 21 18.9201 21 17.8V8.2C21 7.07989 21 6.51984 20.782 6.09202C20.5903 5.71569 20.2843 5.40973 19.908 5.21799C19.4802 5 18.9201 5 17.8 5H6.2C5.0799 5 4.51984 5 4.09202 5.21799C3.71569 5.40973 3.40973 5.71569 3.21799 6.09202C3 6.51984 3 7.07989 3 8.2V17.8C3 18.9201 3 19.4802 3.21799 19.908C3.40973 20.2843 3.71569 20.5903 4.09202 20.782C4.51984 21 5.07989 21 6.2 21ZM14 11C14 12.1046 13.1046 13 12 13C10.8954 13 10 12.1046 10 11C10 9.89543 10.8954 9 12 9C13.1046 9 14 9.89543 14 11Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g>
+        <path d="M7 3V6M17 3V6M7.10002 20C7.56329 17.7178 9.58104 16 12 16C14.419 16 16.4367 17.7178 16.9 20M6.2 21H17.8C18.9201 21 19.4802 21 19.908 20.782C20.2843 20.5903 20.5903 20.2843 20.782 19.908C21 19.4802 21 18.9201 21 17.8V8.2C21 7.07989 21 6.51984 20.782 6.09202C20.5903 5.71569 20.2843 5.40973 19.908 5.21799C19.4802 5 18.9201 5 17.8 5H6.2C5.0799 5 4.51984 5 4.09202 5.21799C3.71569 5.40973 3.40973 5.71569 3.21799 6.09202C3 6.51984 3 7.07989 3 8.2V17.8C3 18.9201 3 19.4802 3.21799 19.908C3.40973 20.2843 3.71569 20.5903 4.09202 20.782C4.51984 21 5.07989 21 6.2 21ZM14 11C14 12.1046 13.1046 13 12 13C10.8954 13 10 12.1046 10 11C10 9.89543 10.8954 9 12 9C13.1046 9 14 9.89543 14 11Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
       </svg>
     `);
 
@@ -255,7 +252,7 @@ export class SidebarComponent implements OnInit {
 
     this.menuItems = [
       {
-        label: 'Tablero', // Traducido de Dashboard
+        label: 'Tablero',
         route: '/dashboard-admin',
         exact: true,
         iconHtml: this.sanitizer.bypassSecurityTrustHtml(`
@@ -320,29 +317,47 @@ export class SidebarComponent implements OnInit {
 
   getAttendanceIcon(): SafeHtml {
     return this.sanitizer.bypassSecurityTrustHtml(`
-      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> 
-        <path d="M14 19.2857L15.8 21L20 17M4 21C4 17.134 7.13401 14 11 14C12.4872 14 13.8662 14.4638 15 15.2547M15 7C15 9.20914 13.2091 11 11 11C8.79086 11 7 9.20914 7 7C7 4.79086 8.79086 3 11 3C13.2091 3 15 4.79086 15 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g>
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M14 19.2857L15.8 21L20 17M4 21C4 17.134 7.13401 14 11 14C12.4872 14 13.8662 14.4638 15 15.2547M15 7C15 9.20914 13.2091 11 11 11C8.79086 11 7 9.20914 7 7C7 4.79086 8.79086 3 11 3C13.2091 3 15 4.79086 15 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
       </svg>
     `)
   }
 
   getEquipmentIcon(): SafeHtml {
     return this.sanitizer.bypassSecurityTrustHtml(`
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="sidebar__nav-icon">
-            <circle cx="6.27" cy="13.91" r="4.77" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
-            <circle cx="18.2" cy="16.3" r="2.39" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
-            <polyline points="6.27 13.91 8.18 13.91 18.68 13.91" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
-            <line x1="6.27" y1="18.68" x2="18.68" y2="18.68" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
-            <line x1="18.68" y1="6.27" x2="18.68" y2="13.91" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
-            <line x1="6.27" y1="2.45" x2="6.27" y2="9.14" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
-            <polyline points="0.55 1.5 2.46 1.5 10.09 4.36" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
-            <line x1="6.27" y1="18.68" x2="4.36" y2="22.5" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
-            <line x1="18.68" y1="18.68" x2="18.68" y2="22.5" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
-            <line x1="23.45" y1="22.5" x2="0.55" y2="22.5" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
-            <path d="M21.55,5.32h0a3.28,3.28,0,0,1-2.31.95H15.82" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
-            <circle cx="6.27" cy="13.91" r="0.95" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
-          </svg>
-        `)
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="sidebar__nav-icon">
+        <circle cx="6.27" cy="13.91" r="4.77" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
+        <circle cx="18.2" cy="16.3" r="2.39" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
+        <polyline points="6.27 13.91 8.18 13.91 18.68 13.91" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
+        <line x1="6.27" y1="18.68" x2="18.68" y2="18.68" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
+        <line x1="18.68" y1="6.27" x2="18.68" y2="13.91" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
+        <line x1="6.27" y1="2.45" x2="6.27" y2="9.14" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
+        <polyline points="0.55 1.5 2.46 1.5 10.09 4.36" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
+        <line x1="6.27" y1="18.68" x2="4.36" y2="22.5" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
+        <line x1="18.68" y1="18.68" x2="18.68" y2="22.5" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
+        <line x1="23.45" y1="22.5" x2="0.55" y2="22.5" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
+        <path d="M21.55,5.32h0a3.28,3.28,0,0,1-2.31.95H15.82" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
+        <circle cx="6.27" cy="13.91" r="0.95" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
+      </svg>
+    `)
+  }
+
+  getMancuerIaIcon(): SafeHtml {
+    return this.sanitizer.bypassSecurityTrustHtml(`
+      <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" class="sidebar__nav-icon">
+        <!-- Barra central -->
+        <rect x="7" y="11" width="10" height="2" rx="1" />
+        <!-- Extremos de la barra -->
+        <rect x="2" y="10.5" width="2" height="3" rx="1" />
+        <rect x="20" y="10.5" width="2" height="3" rx="1" />
+        <!-- Discos internos (más delgados) -->
+        <rect x="4.5" y="8" width="1.5" height="8" rx="0.75" />
+        <rect x="18" y="8" width="1.5" height="8" rx="0.75" />
+        <!-- Discos externos (más altos/largos con bordes redondeados) -->
+        <rect x="7.5" y="5" width="2.5" height="14" rx="1.25" />
+        <rect x="14" y="5" width="2.5" height="14" rx="1.25" />
+      </svg>
+    `);
   }
 
   isMembershipActive(): boolean {
@@ -392,10 +407,6 @@ export class SidebarComponent implements OnInit {
 
   goToEquipmentList(): void {
     this.router.navigate(['/dashboard-admin/equipments'])
-  }
-
-  onLogout() {
-    console.log('Logout');
   }
 
   logout(): void {

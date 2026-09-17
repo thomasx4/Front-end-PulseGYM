@@ -130,7 +130,7 @@
             </div>
         </div>
 
-        <!-- ITEM CON SUBMENÚ (NOTIFICACIONES - AÑADIDO) -->
+        <!-- ITEM CON SUBMENÚ (NOTIFICACIONES) -->
         <div class="sidebar__nav-item--parent" [class.open]="isNotificationsOpen"
             (mouseenter)="isNotificationsOpen = true" (mouseleave)="isNotificationsOpen = false">
 
@@ -153,6 +153,12 @@
                 </a>
             </div>
         </div>
+
+        <!-- MANCUERIA (DIRECTO SIN SUBMENÚ) -->
+        <a routerLink="/dashboard-admin/mancuer-ia" routerLinkActive="sidebar__nav-item--active" class="sidebar__nav-item">
+            <span [innerHTML]="getMancuerIaIcon()" class="sidebar__icon-wrapper"></span>
+            <span>MancuerIA</span>
+        </a>
     </nav>
 
     <button class="sidebar__logout" (click)="logout()">
