@@ -7,6 +7,7 @@ import {
   RutinaDelDia,
   DetalleRutina
 } from '../../../../core/services/asistencia.service';
+import { AuthService } from '../../../../core/services/auth.service';
 
 interface EjercicioFormulario {
   idDetalleRutina: number;
@@ -42,17 +43,17 @@ export class AsistenciaComponent implements OnInit, OnDestroy {
   public isLoading: boolean = true;
   public isRegistrando: boolean = false;
 
+  public userId: number = 0;
+
   public rutina: RutinaDelDia | null = null;
   public ejercicios: EjercicioFormulario[] = [];
 
   public duracionMinutos: number = 60;
   public observaciones: string = '';
 
-  // Bloqueo por dia
   public sesionYaRegistradaHoy: boolean = false;
   public fechaUltimoRegistro: string = '';
 
-  // Modales
   public showSuccessModal: boolean = false;
   public showErrorModal: boolean = false;
   public showNoRutinaModal: boolean = false;
@@ -71,19 +72,58 @@ export class AsistenciaComponent implements OnInit, OnDestroy {
 
   constructor(
     private router: Router,
-    private asistenciaService: AsistenciaService
+    private asistenciaService: AsistenciaService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
-    this.verificarSesionDelDia();
-    this.programarCambioDeDia();
-    this.cargarRutinaDelDia();
+    this.cargarUsuario();
   }
 
   ngOnDestroy(): void {
     if (this.midnightTimeoutId) {
       clearTimeout(this.midnightTimeoutId);
     }
+  }
+
+  // ==========================================
+  // Cargar usuario actual
+  // ==========================================
+  cargarUsuario(): void {
+    this.authService.getCurrentUser().subscribe({
+      next: (user: any) => {
+        if (user) {
+          const nuevoUserId = typeof user.id === 'string' ? parseInt(user.id, 10) : (user.id || 0);
+
+          const registroGuardado = localStorage.getItem(this.STORAGE_SESION_REGISTRADA);
+          if (registroGuardado) {
+            try {
+              const reg = JSON.parse(registroGuardado);
+              if (Number(reg.idUsuario) !== Number(nuevoUserId)) {
+                console.log('Cambio de usuario detectado. Limpiando storage.');
+                localStorage.removeItem(this.STORAGE_SESION_REGISTRADA);
+                localStorage.removeItem(this.STORAGE_PROGRESO);
+              }
+            } catch (e) {
+              localStorage.removeItem(this.STORAGE_SESION_REGISTRADA);
+            }
+          }
+
+          this.userId = nuevoUserId;
+        }
+        console.log('Usuario actual:', this.userId);
+
+        this.verificarSesionDelDia();
+        this.programarCambioDeDia();
+        this.cargarRutinaDelDia();
+      },
+      error: (err) => {
+        console.warn('No se pudo obtener el usuario:', err);
+        this.verificarSesionDelDia();
+        this.programarCambioDeDia();
+        this.cargarRutinaDelDia();
+      }
+    });
   }
 
   // ==========================================
@@ -134,7 +174,7 @@ export class AsistenciaComponent implements OnInit, OnDestroy {
   }
 
   // ==========================================
-  // Verifica si ya se registró la sesión hoy
+  // Verifica si ya se registro la sesion hoy
   // ==========================================
   verificarSesionDelDia(): void {
     const data = localStorage.getItem(this.STORAGE_SESION_REGISTRADA);
@@ -147,11 +187,27 @@ export class AsistenciaComponent implements OnInit, OnDestroy {
       const registro = JSON.parse(data);
       const hoy = this.getFechaHoy();
 
-      if (registro.fecha === hoy) {
+      const mismoDia = registro.fecha === hoy;
+      const mismoUsuario = Number(registro.idUsuario) === Number(this.userId);
+
+      console.log('Verificando sesion:', {
+        fechaRegistro: registro.fecha,
+        fechaHoy: hoy,
+        idUsuarioRegistro: registro.idUsuario,
+        idUsuarioActual: this.userId,
+        mismoDia,
+        mismoUsuario
+      });
+
+      if (mismoDia && mismoUsuario) {
         this.sesionYaRegistradaHoy = true;
         this.fechaUltimoRegistro = registro.fecha;
       } else {
-        localStorage.removeItem(this.STORAGE_SESION_REGISTRADA);
+        if (!mismoUsuario) {
+          console.log('Sesion de otro usuario. Limpiando localStorage.');
+          localStorage.removeItem(this.STORAGE_SESION_REGISTRADA);
+          localStorage.removeItem(this.STORAGE_PROGRESO);
+        }
         this.sesionYaRegistradaHoy = false;
       }
     } catch {
@@ -161,76 +217,76 @@ export class AsistenciaComponent implements OnInit, OnDestroy {
   }
 
   // ==========================================
-  // Cargar rutina del día
+  // Cargar rutina del dia
   // ==========================================
   cargarRutinaDelDia(): void {
-  this.isLoading = true;
+    this.isLoading = true;
 
-  this.asistenciaService.getUltimaRutina().subscribe({
-    next: (rutina: RutinaDelDia) => {
-      console.log('=== CARGANDO RUTINA ===');
-      console.log('Rutina recibida:', rutina);
+    this.asistenciaService.getUltimaRutina().subscribe({
+      next: (rutina: RutinaDelDia) => {
+        console.log('=== CARGANDO RUTINA ===');
+        console.log('Rutina recibida:', rutina);
 
-      if (!rutina || !rutina.detalles || rutina.detalles.length === 0) {
+        if (!rutina || !rutina.detalles || rutina.detalles.length === 0) {
+          this.isLoading = false;
+          this.abrirModalNoRutina();
+          return;
+        }
+
+        const today = new Date().getDay();
+        const diaActual = today === 0 ? 7 : today;
+
+        const detallesHoy = rutina.detalles.filter(d => d.diaSemana === diaActual);
+        const detallesMostrar = detallesHoy.length > 0 ? detallesHoy : rutina.detalles;
+
+        this.rutina = rutina;
+        this.ejercicios = detallesMostrar.map((d: DetalleRutina) => ({
+          idDetalleRutina: d.idDetalle,
+          nombreEjercicio: d.nombreEjercicio,
+          grupoMuscular: d.grupoMuscular || 'General',
+          seriesObjetivo: d.series || 3,
+          repeticionesMin: d.repeticionesMin || 8,
+          repeticionesMax: d.repeticionesMax || 12,
+          pesoSugerido: d.pesoSugerido || 0,
+          seriesCompletadas: d.series || 3,
+          repeticionesRealizadas: d.repeticionesMax || 12,
+          pesoUsado: d.pesoSugerido || 0,
+          estado: 'COMPLETADO',
+          observaciones: '',
+          expandido: false
+        }));
+
+        console.log('Ejercicios recien creados (todos COMPLETADO):',
+          this.ejercicios.map(e => ({ id: e.idDetalleRutina, estado: e.estado })));
+
+        this.restaurarProgreso();
+
+        console.log('Ejercicios despues de restaurar:',
+          this.ejercicios.map(e => ({ id: e.idDetalleRutina, estado: e.estado })));
+
         this.isLoading = false;
-        this.abrirModalNoRutina();
-        return;
+        this.verificarSesionDelDia();
+      },
+      error: (error: any) => {
+        console.error('Error al cargar rutina:', error);
+        this.isLoading = false;
+
+        if (error.status === 404) {
+          this.abrirModalNoRutina();
+        } else if (error.status === 401) {
+          this.mostrarError(
+            'Sesion expirada',
+            'Tu sesion ha expirado. Por favor, inicia sesion nuevamente.'
+          );
+        } else {
+          this.mostrarError(
+            'No se pudo cargar',
+            error.error?.message || 'Error al cargar la rutina del dia. Por favor, intenta de nuevo.'
+          );
+        }
       }
-
-      const today = new Date().getDay();
-      const diaActual = today === 0 ? 7 : today;
-
-      const detallesHoy = rutina.detalles.filter(d => d.diaSemana === diaActual);
-      const detallesMostrar = detallesHoy.length > 0 ? detallesHoy : rutina.detalles;
-
-      this.rutina = rutina;
-      this.ejercicios = detallesMostrar.map((d: DetalleRutina) => ({
-        idDetalleRutina: d.idDetalle,
-        nombreEjercicio: d.nombreEjercicio,
-        grupoMuscular: d.grupoMuscular || 'General',
-        seriesObjetivo: d.series || 3,
-        repeticionesMin: d.repeticionesMin || 8,
-        repeticionesMax: d.repeticionesMax || 12,
-        pesoSugerido: d.pesoSugerido || 0,
-        seriesCompletadas: d.series || 3,
-        repeticionesRealizadas: d.repeticionesMax || 12,
-        pesoUsado: d.pesoSugerido || 0,
-        estado: 'COMPLETADO',
-        observaciones: '',
-        expandido: false
-      }));
-
-      console.log('Ejercicios recién creados (todos COMPLETADO):',
-        this.ejercicios.map(e => ({ id: e.idDetalleRutina, estado: e.estado })));
-
-      this.restaurarProgreso();
-
-      console.log('Ejercicios después de restaurar:',
-        this.ejercicios.map(e => ({ id: e.idDetalleRutina, estado: e.estado })));
-
-      this.isLoading = false;
-      this.verificarSesionDelDia();
-    },
-    error: (error: any) => {
-      console.error('Error al cargar rutina:', error);
-      this.isLoading = false;
-
-      if (error.status === 404) {
-        this.abrirModalNoRutina();
-      } else if (error.status === 401) {
-        this.mostrarError(
-          'Sesion expirada',
-          'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.'
-        );
-      } else {
-        this.mostrarError(
-          'No se pudo cargar',
-          error.error?.message || 'Error al cargar la rutina del día. Por favor, intenta de nuevo.'
-        );
-      }
-    }
-  });
-}
+    });
+  }
 
   // ==========================================
   // Modales
@@ -276,71 +332,70 @@ export class AsistenciaComponent implements OnInit, OnDestroy {
   }
 
   restaurarProgreso(): void {
-  const data = localStorage.getItem(this.STORAGE_PROGRESO);
-  if (!data) {
-    console.log('No hay progreso guardado en localStorage');
-    return;
-  }
-
-  try {
-    const progreso: ProgresoGuardado = JSON.parse(data);
-    const hoy = this.getFechaHoy();
-
-    console.log('=== RESTAURANDO PROGRESO ===');
-    console.log('Progreso guardado:', progreso);
-    console.log('Fecha progreso:', progreso.fecha, '| Fecha hoy:', hoy);
-
-    if (progreso.fecha !== hoy) {
-      console.log('Progreso es de otro día, se descarta');
-      localStorage.removeItem(this.STORAGE_PROGRESO);
+    const data = localStorage.getItem(this.STORAGE_PROGRESO);
+    if (!data) {
+      console.log('No hay progreso guardado en localStorage');
       return;
     }
 
-    if (this.rutina && progreso.idRutina !== this.rutina.idRutina) {
-      console.log('Progreso es de otra rutina, se descarta');
-      return;
-    }
+    try {
+      const progreso: ProgresoGuardado = JSON.parse(data);
+      const hoy = this.getFechaHoy();
 
-    this.duracionMinutos = progreso.duracionMinutos ?? 60;
-    if (this.duracionMinutos < 30) {
-      this.duracionMinutos = 30;
-    }
-    this.observaciones = progreso.observaciones ?? '';
+      console.log('=== RESTAURANDO PROGRESO ===');
+      console.log('Progreso guardado:', progreso);
+      console.log('Fecha progreso:', progreso.fecha, '| Fecha hoy:', hoy);
 
-    console.log('Ejercicios guardados:',
-      progreso.ejercicios.map(e => ({ id: e.idDetalleRutina, estado: e.estado })));
-
-    // ✅ RECORREMOS LOS EJERCICIOS ACTUALES Y BUSCAMOS POR ID
-    let encontrados = 0;
-    let noEncontrados = 0;
-
-    this.ejercicios.forEach(ejActual => {
-      const guardado = progreso.ejercicios.find(
-        g => g.idDetalleRutina === ejActual.idDetalleRutina
-      );
-
-      if (guardado) {
-        ejActual.seriesCompletadas = guardado.seriesCompletadas;
-        ejActual.repeticionesRealizadas = guardado.repeticionesRealizadas;
-        ejActual.pesoUsado = guardado.pesoUsado;
-        ejActual.estado = guardado.estado;
-        ejActual.observaciones = guardado.observaciones;
-        ejActual.expandido = guardado.expandido;
-        encontrados++;
-      } else {
-        noEncontrados++;
-        console.warn(`No se encontró progreso guardado para idDetalleRutina=${ejActual.idDetalleRutina}`);
+      if (progreso.fecha !== hoy) {
+        console.log('Progreso es de otro dia, se descarta');
+        localStorage.removeItem(this.STORAGE_PROGRESO);
+        return;
       }
-    });
 
-    console.log(`Restauración: ${encontrados} encontrados, ${noEncontrados} no encontrados`);
-  } catch (e) {
-    console.warn('Error al restaurar progreso:', e);
+      if (this.rutina && progreso.idRutina !== this.rutina.idRutina) {
+        console.log('Progreso es de otra rutina, se descarta');
+        return;
+      }
+
+      this.duracionMinutos = progreso.duracionMinutos ?? 60;
+      if (this.duracionMinutos < 30) {
+        this.duracionMinutos = 30;
+      }
+      this.observaciones = progreso.observaciones ?? '';
+
+      console.log('Ejercicios guardados:',
+        progreso.ejercicios.map(e => ({ id: e.idDetalleRutina, estado: e.estado })));
+
+      let encontrados = 0;
+      let noEncontrados = 0;
+
+      this.ejercicios.forEach(ejActual => {
+        const guardado = progreso.ejercicios.find(
+          g => g.idDetalleRutina === ejActual.idDetalleRutina
+        );
+
+        if (guardado) {
+          ejActual.seriesCompletadas = guardado.seriesCompletadas;
+          ejActual.repeticionesRealizadas = guardado.repeticionesRealizadas;
+          ejActual.pesoUsado = guardado.pesoUsado;
+          ejActual.estado = guardado.estado;
+          ejActual.observaciones = guardado.observaciones;
+          ejActual.expandido = guardado.expandido;
+          encontrados++;
+        } else {
+          noEncontrados++;
+          console.warn(`No se encontro progreso guardado para idDetalleRutina=${ejActual.idDetalleRutina}`);
+        }
+      });
+
+      console.log(`Restauracion: ${encontrados} encontrados, ${noEncontrados} no encontrados`);
+    } catch (e) {
+      console.warn('Error al restaurar progreso:', e);
+    }
   }
-}
 
   // ==========================================
-  // Duración de la sesión
+  // Duracion de la sesion
   // ==========================================
   incrementarDuracion(): void {
     if (this.duracionMinutos < 300) {
@@ -362,7 +417,7 @@ export class AsistenciaComponent implements OnInit, OnDestroy {
   onDuracionChange(): void {
     if (!this.duracionMinutos || this.duracionMinutos < 30) {
       this.duracionMinutos = 30;
-      this.mostrarError('Duracion invalida', 'La duración mínima de la sesión es de 30 minutos.');
+      this.mostrarError('Duracion invalida', 'La duracion minima de la sesion es de 30 minutos.');
     }
     if (this.duracionMinutos > 300) {
       this.duracionMinutos = 300;
@@ -432,7 +487,7 @@ export class AsistenciaComponent implements OnInit, OnDestroy {
   }
 
   // ==========================================
-  // Estadísticas
+  // Estadisticas
   // ==========================================
   get totalCompletados(): number {
     return this.ejercicios.filter(e => e.estado === 'COMPLETADO').length;
@@ -452,11 +507,11 @@ export class AsistenciaComponent implements OnInit, OnDestroy {
   }
 
   // ==========================================
-  // Registrar sesión
+  // Registrar sesion
   // ==========================================
   registrarSesion(): void {
     if (this.sesionYaRegistradaHoy) {
-      this.mostrarError('Sesion ya registrada', 'Ya registraste tu sesión de hoy. Vuelve mañana.');
+      this.mostrarError('Sesion ya registrada', 'Ya registraste tu sesion de hoy. Vuelve manana.');
       return;
     }
 
@@ -466,7 +521,7 @@ export class AsistenciaComponent implements OnInit, OnDestroy {
     }
 
     if (!this.duracionMinutos || this.duracionMinutos < 30) {
-      this.mostrarError('Duracion invalida', 'La duración mínima de la sesión es de 30 minutos.');
+      this.mostrarError('Duracion invalida', 'La duracion minima de la sesion es de 30 minutos.');
       return;
     }
 
@@ -475,7 +530,7 @@ export class AsistenciaComponent implements OnInit, OnDestroy {
       if (ej.estado === 'COMPLETADO' && ej.seriesCompletadas === 0) {
         this.mostrarError(
           'Datos incompletos',
-          `El ejercicio "${ej.nombreEjercicio}" está marcado como COMPLETADO pero tiene 0 series.`
+          `El ejercicio "${ej.nombreEjercicio}" esta marcado como COMPLETADO pero tiene 0 series.`
         );
         return;
       }
@@ -499,14 +554,18 @@ export class AsistenciaComponent implements OnInit, OnDestroy {
       detalles: detalles
     };
 
-    console.log('Enviando payload de sesión:', JSON.stringify(payload, null, 2));
+    console.log('Enviando payload de sesion:', JSON.stringify(payload, null, 2));
 
     this.asistenciaService.registrarSesion(payload).subscribe({
       next: (response: any) => {
-        console.log('Sesión registrada:', response);
+        console.log('Sesion registrada:', response);
         this.isRegistrando = false;
 
-        const registro = { fecha: this.getFechaHoy(), timestamp: Date.now() };
+        const registro = {
+          fecha: this.getFechaHoy(),
+          idUsuario: this.userId,
+          timestamp: Date.now()
+        };
         localStorage.setItem(this.STORAGE_SESION_REGISTRADA, JSON.stringify(registro));
         localStorage.removeItem(this.STORAGE_PROGRESO);
         this.sesionYaRegistradaHoy = true;
@@ -515,18 +574,39 @@ export class AsistenciaComponent implements OnInit, OnDestroy {
         this.showSuccessModal = true;
       },
       error: (error: any) => {
-        console.error('Error al registrar sesión:', error);
+        console.error('Error al registrar sesion:', error);
         this.isRegistrando = false;
 
         let titulo = 'Error al registrar';
-        let mensaje = 'Error al registrar la sesión. Por favor, intenta de nuevo.';
+        let mensaje = 'Error al registrar la sesion. Por favor, intenta de nuevo.';
 
         if (error.status === 401) {
           titulo = 'Sesion expirada';
-          mensaje = 'Tu sesión ha expirado. Inicia sesión nuevamente.';
+          mensaje = 'Tu sesion ha expirado. Inicia sesion nuevamente.';
         } else if (error.status === 400) {
-          titulo = 'Datos invalidos';
-          mensaje = error.error?.message || 'Datos inválidos. Verifica la información.';
+          const mensajeBackend = error.error?.message || '';
+
+          if (mensajeBackend.toLowerCase().includes('ya has registrado') ||
+              mensajeBackend.toLowerCase().includes('dia de hoy') ||
+              mensajeBackend.toLowerCase().includes('día de hoy')) {
+
+            titulo = 'Sesion ya registrada';
+            mensaje = mensajeBackend;
+
+            const registro = {
+              fecha: this.getFechaHoy(),
+              idUsuario: this.userId,
+              timestamp: Date.now()
+            };
+            localStorage.setItem(this.STORAGE_SESION_REGISTRADA, JSON.stringify(registro));
+            this.sesionYaRegistradaHoy = true;
+            this.fechaUltimoRegistro = registro.fecha;
+
+            console.log('Backend indica sesion ya registrada. UI bloqueada.');
+          } else {
+            titulo = 'Datos invalidos';
+            mensaje = mensajeBackend || 'Datos invalidos. Verifica la informacion.';
+          }
         } else if (error.error?.message) {
           mensaje = error.error.message;
         }

@@ -29,7 +29,7 @@
             </div>
             <div class="kpi-info">
               <span class="kpi-label">Calorias Diarias</span>
-              <div class="kpi-value">{{ caloriasDiarias || 0 | number }} <small>kcal</small></div>
+              <div class="kpi-value">{{ caloriasDiarias | number }} <small>kcal</small></div>
             </div>
           </div>
 
@@ -159,7 +159,6 @@
                 </svg>
               </div>
               <p class="empty-routine__text">{{ todayRoutine.nombre || 'No tienes rutina para hoy' }}</p>
-              <button class="btn-primary" (click)="irACrearRutina()">Agregar rutina para hoy</button>
             </div>
           </ng-template>
         </div>
