@@ -298,7 +298,8 @@
 
 .msg-row {
     display: flex;
-    margin-bottom: 6px;
+    margin-bottom: 12px;
+    width: 100%;
 
     &.user {
         justify-content: flex-end;
@@ -310,7 +311,8 @@
     }
 
     .msg-bubble {
-        max-width: 75%;
+        max-width: 90%;
+        width: fit-content;
         padding: 14px 18px;
         border-radius: var(--radius, 12px);
         font-size: 14px;
@@ -505,7 +507,7 @@
         border: none;
         transition: all 0.2s ease;
         text-align: left;
-        box-shadow: var(--shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.04));
+        box-shadow: var(#0f172a, 0 1px 3px rgba(0, 0, 0, 0.04));
 
         svg {
             width: 16px;
@@ -569,22 +571,24 @@
     }
 }
 
-/* Estilos profesionales para Tablas Markdown dentro de las burbujas */
+/* Estilos profesionales y scroll horizontal para Tablas Markdown dentro de las burbujas */
 .msg-bubble {
     ::ng-deep {
         table {
+            display: block;
             width: 100%;
+            overflow-x: auto;
+            white-space: nowrap;
             border-collapse: collapse;
             margin: 10px 0;
             font-size: 13.5px;
             background-color: #ffffff;
             border-radius: 8px;
-            overflow: hidden;
             border: 1px solid var(--color-border, #e2e8f0);
 
             th,
             td {
-                padding: 8px 12px;
+                padding: 10px 14px;
                 text-align: left;
                 border-bottom: 1px solid var(--color-border, #e2e8f0);
             }
@@ -613,4 +617,66 @@
             color: var(--color-text-primary, #0f172a);
         }
     }
+}
+
+/* ──────── BARRA DE BLOQUEO INFERIOR (CANDADO Y CRONÓMETRO) ──────── */
+.rate-limit-footer-banner {
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    border: 1px solid #fecaca;
+    border-radius: var(--radius, 12px);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: inset 0 1px 2px rgba(239, 68, 68, 0.05);
+
+    .lock-icon-wrap {
+        width: 36px;
+        height: 36px;
+        background: #fee2e2;
+        border: 1px solid #fca5a5;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+
+        svg {
+            width: 18px;
+            height: 18px;
+            stroke: #dc2626;
+        }
+    }
+
+    .lock-info {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 8px;
+
+        span {
+            font-size: 13px;
+            font-weight: 500;
+            color: #7f1d1d;
+        }
+
+        .timer-badge {
+            background: #dc2626;
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 20px;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 6px rgba(220, 38, 38, 0.3);
+        }
+    }
+}
+
+.disabled-card {
+    opacity: 0.4;
+    cursor: not-allowed !important;
+    pointer-events: none;
 }

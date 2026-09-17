@@ -58,21 +58,7 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadUserInfo();
-    this.initWeekDays();
-  }
-
-  initWeekDays(): void {
-    const days = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'];
-    const todayIndex = new Date().getDay() === 0 ? 6 : new Date().getDay() - 1;
-
-    this.weekDays = days.map((name, index) => {
-      const isActive = index <= todayIndex && index >= todayIndex - 4;
-      return {
-        name: name,
-        active: isActive,
-        dayNumber: index + 1
-      };
-    });
+    this.updateWeekDaysFromBackend([]);
   }
 
   loadUserInfo(): void {
@@ -107,7 +93,9 @@ export class DashboardComponent implements OnInit {
         }
 
         this.bestStreak = data.rachaDiasEntrenando || 0;
-        this.updateWeekDays(this.bestStreak);
+        
+        this.updateWeekDaysFromBackend(data.diasEntrenadosSemana || []);
+        
         this.updateWeeklySummary(data);
 
         this.isLoading = false;
@@ -117,8 +105,8 @@ export class DashboardComponent implements OnInit {
         console.error('Error al cargar dashboard:', err);
         this.isLoading = false;
         this.bestStreak = 0;
-        this.updateWeekDays(0);
-        this.mostrarErrorModal('Ocurrio un error al cargar tu panel. Por favor, intenta de nuevo.');
+        this.updateWeekDaysFromBackend([]);
+        this.mostrarErrorModal('Ocurrió un error al cargar tu panel. Por favor, intenta de nuevo.');
         this.loadTodayRoutine(); 
       }
     });
@@ -127,7 +115,7 @@ export class DashboardComponent implements OnInit {
   loadTodayRoutine(): void {
     this.userService.getLastRoutine().subscribe({
       next: (routine) => {
-        console.log('Ultima rutina recibida:', routine);
+        console.log('Última rutina recibida:', routine);
         if (routine) {
           this.todayRoutine = routine;
         } else {
@@ -153,52 +141,54 @@ export class DashboardComponent implements OnInit {
 
   getTodayDateStr(): string {
     const today = new Date();
-    const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'];
+    const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
     const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
     return `${diasSemana[today.getDay()]} ${today.getDate()} de ${meses[today.getMonth()]}`;
   }
 
-  updateWeekDays(racha: number): void {
-    const today = new Date().getDay();
-    const todayIndex = today === 0 ? 6 : today - 1;
+  updateWeekDaysFromBackend(diasEntrenados: number[]): void {
     const days = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'];
 
     this.weekDays = days.map((name, index) => {
-      const isActive = racha > 0 && index <= todayIndex && index >= todayIndex - racha + 1;
+      const dayNumber = index + 1;
+      const isActive = diasEntrenados.includes(dayNumber);
+      
       return {
         name: name,
         active: isActive,
-        dayNumber: index + 1
+        dayNumber: dayNumber
       };
     });
   }
 
   updateWeeklySummary(data: DashboardSocioResponse): void {
-    const estadisticas = data.estadisticas;
+    const estadisticas = data.estadisticas || {};
     const porcentajeSemanal = data.porcentajeCumplimientoSemanal || 0;
 
-    const totalMinutos = estadisticas?.totalSesiones * (estadisticas?.promedioDuracion || 0);
+    const totalSesiones = (estadisticas as any)['totalSesiones'] || 0;
+    const promedioDuracion = (estadisticas as any)['promedioDuracion'] || 0;
+
+    const totalMinutos = totalSesiones * promedioDuracion;
     const horas = Math.floor(totalMinutos / 60);
     const minutos = Math.round(totalMinutos % 60);
-    const tiempoTotal = horas + 'h ' + minutos + 'm';
+    const tiempoTotal = `${horas}h ${minutos}m`;
 
     const metaMinutos = 300;
     const timeProgress = Math.min(Math.round((totalMinutos / metaMinutos) * 100), 100);
 
     const metaCalorias = 2500;
-    const caloriasQuemadas = Math.round(estadisticas?.totalSesiones * 350);
+    const caloriasQuemadas = Math.round(totalSesiones * 350);
     const caloriesProgress = Math.min(Math.round((caloriasQuemadas / metaCalorias) * 100), 100);
 
-    const metaEntrenamientos = 5;
-    const workouts = estadisticas?.totalSesiones || 0;
-    const workoutsProgress = Math.min(Math.round((workouts / metaEntrenamientos) * 100), 100);
+    const metaEntrenamientos = 3;
+    const workoutsProgress = Math.min(Math.round((totalSesiones / metaEntrenamientos) * 100), 100);
 
     this.weeklySummary = {
       totalTime: tiempoTotal || '0h 0m',
       timeProgress: timeProgress,
       caloriesBurned: caloriasQuemadas,
       caloriesProgress: caloriesProgress,
-      workouts: workouts,
+      workouts: totalSesiones,
       workoutsProgress: workoutsProgress,
       weeklyCalories: caloriasQuemadas,
       weeklyCaloriesGoal: metaCalorias,

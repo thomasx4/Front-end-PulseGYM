@@ -97,18 +97,16 @@ export class UserService {
     );
   }
 
-  //  Obtiene la ultima rutina generada
+  // Obtiene la ultima rutina generada
   getLastRoutine(): Observable<Routine> {
     const url = `${this.apiUrl}/pg-ms-users/api/v1/rutinas/ultima`;
     return this.http.get<any>(url, { headers: this.getHeaders() }).pipe(
       map((response) => {
         if (Array.isArray(response) && response.length > 0) {
-          // Tomar la primera rutina (la mas reciente)
           const rutina = response[0];
           const nombreRutina = rutina.nombre || 'Rutina sin nombre';
           const detalles = rutina.detalles || [];
 
-          // Mapear ejercicios
           const ejercicios: Exercise[] = detalles.map((detalle: any) => ({
             nombre: detalle.nombreEjercicio || 'Ejercicio',
             sets:
@@ -122,16 +120,13 @@ export class UserService {
             diaSemana: detalle.diaSemana,
           }));
 
-          // Obtener dia actual (1=Lunes, 7=Domingo)
           const today = new Date().getDay();
           const diaActual = today === 0 ? 7 : today;
 
-          // Filtrar ejercicios del dia actual
           const ejerciciosHoy = ejercicios.filter(
             (e) => e.diaSemana === diaActual,
           );
 
-          // Si hay ejercicios para hoy, mostrarlos; si no, mostrar todos
           const ejerciciosMostrar =
             ejerciciosHoy.length > 0 ? ejerciciosHoy : ejercicios;
 
@@ -193,8 +188,6 @@ export class UserService {
   getTodayRoutine(): Observable<Routine> {
     const today = new Date().getDay();
     const diaSemana = today === 0 ? 7 : today;
-
-    console.log('Dia de la semana:', diaSemana);
 
     return this.getMisRutinas().pipe(
       map((response) => {
@@ -399,10 +392,6 @@ export class UserService {
       );
   }
 
-  /**
-   * Obtiene todos los equipos del gimnasio
-   * GET /pg-ms-operation/api/equipos/todos
-   */
   getEquipos(): Observable<any> {
     const url = `${this.apiUrl}/pg-ms-operation/api/equipos/todos`;
     return this.http.get<any>(url, { headers: this.getHeaders() }).pipe(

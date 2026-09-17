@@ -48,7 +48,6 @@
             </div>
 
             <!-- Mensajes del Chat -->
-            <!-- Mensajes del Chat -->
             <div *ngFor="let msg of messages" class="msg-row animate-slide-up" [ngClass]="msg.role">
                 <div class="msg-bubble">
                     <div class="msg-text markdown-body" *ngIf="msg.content !== 'Pensando...'"
@@ -71,9 +70,25 @@
 
         </div>
 
-        <!-- COMPOSER / INPUT DE TEXTO -->
+        <!-- COMPOSER / INPUT DE TEXTO O BLOQUEO CON CANDADO -->
         <div class="composer-box">
-            <div class="input-wrapper">
+            
+            <!-- SI ESTÁ BLOQUEADO: Muestra el candado y el cronómetro aquí abajo -->
+            <div class="rate-limit-footer-banner animate-slide-up" *ngIf="isRateLimited">
+                <div class="lock-icon-wrap">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                </div>
+                <div class="lock-info">
+                    <span>Chat bloqueado temporalmente. Podrás escribir de nuevo en:</span>
+                    <span class="timer-badge">{{ countdownDisplay }}</span>
+                </div>
+            </div>
+
+            <!-- SI NO ESTÁ BLOQUEADO: Muestra el input normal -->
+            <div class="input-wrapper" *ngIf="!isRateLimited">
                 <svg class="input-icon-sparkle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path
                         d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z">
@@ -81,7 +96,7 @@
                 </svg>
                 <textarea [(ngModel)]="userInput" (keydown.enter)="$event.preventDefault(); send()"
                     placeholder="Escriba su consulta o instrucción operativa..." rows="1" [disabled]="isBusy">
-        </textarea>
+                </textarea>
                 <button class="send-btn" (click)="send()" [disabled]="isBusy || !userInput.trim()"
                     title="Enviar mensaje">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -101,15 +116,7 @@
         <div class="panel-group">
             <h4 class="group-title">Acciones del Sistema</h4>
 
-            <button class="action-btn primary" (click)="checkStatus()">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="23 4 23 10 17 10"></polyline>
-                    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
-                </svg>
-                Refrescar estado
-            </button>
-
-            <button class="action-btn secondary" (click)="clearHistory()">
+            <button class="action-btn primary" (click)="clearHistory()">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="3 6 5 6 21 6"></polyline>
                     <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -117,41 +124,33 @@
                 Limpiar historial
             </button>
 
-            <button class="action-btn secondary" (click)="exportConversation()">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                    <polyline points="7 10 12 15 17 10"></polyline>
-                    <line x1="12" y1="15" x2="12" y2="3"></line>
-                </svg>
-                Exportar conversación
-            </button>
         </div>
 
         <!-- SUGERENCIAS -->
         <div class="panel-group">
             <h4 class="group-title">Consultas Sugeridas</h4>
 
-            <button class="suggestion-card" (click)="send('¿Cuántos equipos operativos hay?')">
+            <button class="suggestion-card" [disabled]="isRateLimited" [class.disabled-card]="isRateLimited" (click)="send('¿Cuántos equipos operativos hay?')">
                 ¿Cuántos equipos operativos hay?
             </button>
 
-            <button class="suggestion-card" (click)="send('Lista todos los equipos')">
+            <button class="suggestion-card" [disabled]="isRateLimited" [class.disabled-card]="isRateLimited" (click)="send('Lista todos los equipos')">
                 Lista todos los equipos
             </button>
 
-            <button class="suggestion-card" (click)="send('Asistencias de hoy')">
+            <button class="suggestion-card" [disabled]="isRateLimited" [class.disabled-card]="isRateLimited" (click)="send('Asistencias de hoy')">
                 Asistencias de hoy
             </button>
 
-            <button class="suggestion-card" (click)="send('Lista los proveedores')">
+            <button class="suggestion-card" [disabled]="isRateLimited" [class.disabled-card]="isRateLimited" (click)="send('Lista los proveedores')">
                 Lista los proveedores
             </button>
 
-            <button class="suggestion-card" (click)="send('Reportar falla crítica')">
+            <button class="suggestion-card" [disabled]="isRateLimited" [class.disabled-card]="isRateLimited" (click)="send('Reportar falla crítica')">
                 Reportar falla crítica
             </button>
 
-            <button class="suggestion-card" (click)="send('Equipos en mantenimiento')">
+            <button class="suggestion-card" [disabled]="isRateLimited" [class.disabled-card]="isRateLimited" (click)="send('Equipos en mantenimiento')">
                 Equipos en mantenimiento
             </button>
         </div>

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
 import { MancuerIaService, ChatMessage } from './services/mancuer-ia.service';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import Swal from 'sweetalert2';
@@ -9,7 +9,7 @@ import { marked } from 'marked';
   templateUrl: './mancuer-ia.component.html',
   styleUrls: ['./mancuer-ia.component.scss']
 })
-export class MancuerIaComponent implements OnInit, AfterViewChecked {
+export class MancuerIaComponent implements OnInit, OnDestroy, AfterViewChecked {
   @ViewChild('chatScroll') private chatScroll!: ElementRef;
 
   messages: ChatMessage[] = [];
@@ -20,6 +20,12 @@ export class MancuerIaComponent implements OnInit, AfterViewChecked {
   llmModel: string = '—';
   showLogs: boolean = false;
   logs: { time: string; text: string; type: string }[] = [];
+
+  // Variables para el bloqueo por Rate Limit y Cronómetro
+  isRateLimited: boolean = false;
+  remainingSeconds: number = 0;
+  countdownDisplay: string = '';
+  private timerInterval: any = null;
 
   faqs = [
     { text: '¿Qué plan nutricional es ideal para un principiante?', query: '¿Qué plan nutricional es ideal para un principiante?' },
@@ -37,6 +43,11 @@ export class MancuerIaComponent implements OnInit, AfterViewChecked {
   ngOnInit(): void {
     this.checkStatus();
     this.loadHistory();
+    this.checkStoredRateLimit();
+  }
+
+  ngOnDestroy(): void {
+    this.clearTimer();
   }
 
   ngAfterViewChecked(): void {
@@ -88,7 +99,65 @@ export class MancuerIaComponent implements OnInit, AfterViewChecked {
     });
   }
 
+  checkStoredRateLimit() {
+    const storedUnblockTime = localStorage.getItem('mancueria_unblock_time');
+    if (storedUnblockTime) {
+      const unblockTime = parseInt(storedUnblockTime, 10);
+      const now = Date.now();
+      const diffSecs = Math.ceil((unblockTime - now) / 1000);
+
+      if (diffSecs > 0) {
+        this.startCountdown(diffSecs, false);
+      } else {
+        localStorage.removeItem('mancueria_unblock_time');
+      }
+    }
+  }
+
+  startCountdown(totalSeconds: number, saveToStorage: boolean = true) {
+    this.isRateLimited = true;
+    this.remainingSeconds = totalSeconds;
+
+    if (saveToStorage) {
+      const unblockTime = Date.now() + (totalSeconds * 1000);
+      localStorage.setItem('mancueria_unblock_time', unblockTime.toString());
+    }
+
+    this.updateCountdownDisplay();
+    this.clearTimer();
+
+    this.timerInterval = setInterval(() => {
+      this.remainingSeconds--;
+      if (this.remainingSeconds <= 0) {
+        this.clearTimer();
+        this.isRateLimited = false;
+        localStorage.removeItem('mancueria_unblock_time');
+      } else {
+        this.updateCountdownDisplay();
+      }
+    }, 1000);
+  }
+
+  clearTimer() {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+      this.timerInterval = null;
+    }
+  }
+
+  updateCountdownDisplay() {
+    const mins = Math.floor(this.remainingSeconds / 60);
+    const secs = this.remainingSeconds % 60;
+    if (mins > 0) {
+      this.countdownDisplay = `${mins}m ${secs < 10 ? '0' : ''}${secs}s`;
+    } else {
+      this.countdownDisplay = `${secs} segundo${secs !== 1 ? 's' : ''}`;
+    }
+  }
+
   send(text?: string) {
+    if (this.isRateLimited) return;
+
     const messageToSend = text || this.userInput;
     if (!messageToSend.trim() || this.isBusy) return;
 
@@ -115,15 +184,66 @@ export class MancuerIaComponent implements OnInit, AfterViewChecked {
       },
       error: (err) => {
         this.messages.pop();
-        const errorMsg: ChatMessage = { role: 'error', content: 'Error al comunicarse con MancuerIA: ' + err.message, ts: Date.now() };
-        this.messages.push(errorMsg);
         this.isBusy = false;
-        this.logMessage(`✗ Error en petición: ${err.message}`, 'err');
+
+        const errorObj = err.error || {};
+        const errorText = errorObj.error || err.message || '';
+        const isRateLimit = err.status === 429 || errorText.includes('RATE_LIMIT_EXCEEDED') || errorText.includes('rate_limit_exceeded');
+
+        if (isRateLimit) {
+          const minMatch = errorText.match(/try again in (\d+)m([\d\.]+)s/);
+          const secMatch = errorText.match(/try again in ([\d\.]+)s/);
+
+          let totalSeconds = 30; // fallback por defecto
+          let timeMsgDetail = 'unos momentos';
+
+          if (minMatch) {
+            const minutes = parseInt(minMatch[1], 10);
+            const seconds = Math.ceil(parseFloat(minMatch[2]));
+            totalSeconds = (minutes * 60) + seconds;
+            timeMsgDetail = `${minutes} minuto${minutes > 1 ? 's' : ''} y ${seconds} segundo${seconds !== 1 ? 's' : ''}`;
+          } else if (secMatch) {
+            const seconds = Math.ceil(parseFloat(secMatch[1]));
+            totalSeconds = seconds;
+            timeMsgDetail = `${seconds} segundo${seconds !== 1 ? 's' : ''}`;
+          }
+
+          // Activa el bloqueo inferior y persistencia
+          this.startCountdown(totalSeconds, true);
+
+          // Alerta SweetAlert detallada con el tiempo que indicó la IA
+          Swal.fire({
+            title: '¡Límite de uso alcanzado!',
+            html: `
+              <p style="color: #475569; font-size: 14px; margin-bottom: 12px; line-height: 1.5;">
+                Has alcanzado el límite de peticiones de la IA. El chat ha sido bloqueado temporalmente.
+              </p>
+              <div style="background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px; text-align: center;">
+                <span style="font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase;">Tiempo de espera requerido</span>
+                <span style="display: block; font-size: 18px; font-weight: 800; color: #0f1c3f; margin-top: 4px;">${timeMsgDetail}</span>
+              </div>
+            `,
+            icon: 'warning',
+            confirmButtonText: 'Entendido',
+            customClass: {
+              popup: 'custom-swal-popup',
+              confirmButton: 'custom-swal-confirm-btn'
+            },
+            buttonsStyling: false
+          });
+        } else {
+          const errorMsg: ChatMessage = { role: 'error', content: 'Error al comunicarse con MancuerIA: ' + errorText, ts: Date.now() };
+          this.messages.push(errorMsg);
+        }
+
+        this.logMessage(`✗ Error en petición: ${errorText}`, 'err');
       }
     });
   }
 
   clearHistory() {
+    if (this.isRateLimited) return;
+
     Swal.fire({
       title: '¿Limpiar historial?',
       text: '¿Deseas limpiar el historial de la conversación actual?',
