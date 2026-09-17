@@ -85,23 +85,52 @@ export class UserService {
     return this.http.get<any[]>(url, { headers: this.getHeaders() });
   }
 
+  // ==========================================
+  // Calorias diarias
+  // ==========================================
   getCaloriasDiarias(): Observable<number> {
     return this.getMisPlanesNutricionales().pipe(
       map((planes) => {
-        if (planes && planes.length > 0) {
-          const planActual = planes[0];
-          return planActual.calorias_diarias || 0;
+        if (!planes || planes.length === 0) {
+          console.log('No hay planes nutricionales registrados');
+          return 0;
         }
-        return 0;
+
+        const planActual = planes[0];
+        console.log('Plan nutricional actual:', planActual);
+
+        const calorias =
+          planActual.caloriasDiarias ||
+          planActual.calorias_diarias ||
+          planActual.calorias ||
+          planActual.totalCalorias ||
+          0;
+
+        console.log('Calorias del plan:', calorias);
+        return calorias;
+      }),
+      catchError((error) => {
+        console.error('Error al obtener calorias diarias:', error);
+        return of(0);
       }),
     );
   }
 
-  // Obtiene la ultima rutina generada
+  // ==========================================
+  // Ultima rutina generada
+  // ==========================================
   getLastRoutine(): Observable<Routine> {
     const url = `${this.apiUrl}/pg-ms-users/api/v1/rutinas/ultima`;
     return this.http.get<any>(url, { headers: this.getHeaders() }).pipe(
       map((response) => {
+        console.log('Respuesta cruda de /rutinas/ultima:', response);
+
+        // La respuesta puede venir como:
+        // 1. Array: [{ idRutina, nombre, detalles: [...] }]
+        // 2. Objeto directo: { idRutina, nombre, detalles: [...] }
+        // 3. Envuelto: { data: { idRutina, nombre, detalles: [...] } }
+        let rutina: any = null;
+
         if (Array.isArray(response) && response.length > 0) {
           const rutina = response[0];
           const nombreRutina = rutina.nombre || 'Rutina sin nombre';
@@ -129,20 +158,86 @@ export class UserService {
 
           const ejerciciosMostrar =
             ejerciciosHoy.length > 0 ? ejerciciosHoy : ejercicios;
+          
+        } else if (response && response.detalles) {
+          rutina = response;
+        } else if (response && response.data) {
+          rutina = Array.isArray(response.data) ? response.data[0] : response.data;
+        }
 
+        if (!rutina) {
+          console.warn('No se encontro rutina en la respuesta');
           return {
-            nombre: nombreRutina,
-            duracion: '60 - 75 min',
+            nombre: 'Sin rutina generada',
+            duracion: '--',
             dateStr: this.getTodayDateStr(),
-            ejercicios: ejerciciosMostrar,
+            ejercicios: [],
           };
         }
 
+        const nombreRutina = rutina.nombre || 'Rutina sin nombre';
+        const detalles = rutina.detalles || [];
+
+        console.log('Rutina:', nombreRutina);
+        console.log('Total detalles:', detalles.length);
+
+        // Mapear ejercicios
+        const ejercicios: Exercise[] = detalles.map((detalle: any) => ({
+          nombre: detalle.nombreEjercicio || 'Ejercicio',
+          sets:
+            (detalle.series || 0) +
+            ' x ' +
+            (detalle.repeticionesMin || 0) +
+            '-' +
+            (detalle.repeticionesMax || 0),
+          imageUrl: detalle.urlImagen || '',
+          grupoMuscular: detalle.grupoMuscular,
+          diaSemana: detalle.diaSemana,
+        }));
+
+        // JS devuelve: 0=Dom, 1=Lun, 2=Mar, ..., 6=Sab
+        // Backend devuelve: 1=Lun, 2=Mar, ..., 6=Sab (sin Domingo)
+        const today = new Date().getDay();
+        const diaActual = today;
+
+        console.log('Dia actual JS:', today, '(0=Dom, 1=Lun, ..., 6=Sab)');
+
+        // Filtrar ejercicios del dia actual (excepto domingo)
+        let ejerciciosHoy: Exercise[] = [];
+
+        if (diaActual !== 0) {
+          ejerciciosHoy = ejercicios.filter(e => e.diaSemana === diaActual);
+        }
+
+        let ejerciciosMostrar: Exercise[] = ejerciciosHoy;
+
+        // Si no hay ejercicios hoy (o es domingo), buscar el proximo dia
+        if (ejerciciosHoy.length === 0) {
+          console.log('No hay ejercicios para hoy. Buscando proximo dia...');
+
+          const diaInicio = diaActual === 0 ? 1 : diaActual;
+
+          for (let i = 1; i <= 6; i++) {
+            let diaBuscar = diaInicio + i;
+            if (diaBuscar > 6) diaBuscar = 1;
+
+            const ejerciciosDia = ejercicios.filter(e => e.diaSemana === diaBuscar);
+
+            if (ejerciciosDia.length > 0) {
+              console.log('Proximo dia con ejercicios: dia', diaBuscar, '(', ejerciciosDia.length, 'ejercicios)');
+              ejerciciosMostrar = ejerciciosDia;
+              break;
+            }
+          }
+        } else {
+          console.log('Ejercicios para hoy:', ejerciciosHoy.length);
+        }
+
         return {
-          nombre: 'Sin rutina generada',
-          duracion: '--',
+          nombre: nombreRutina,
+          duracion: '60 - 75 min',
           dateStr: this.getTodayDateStr(),
-          ejercicios: [],
+          ejercicios: ejerciciosMostrar,
         };
       }),
       catchError((error) => {

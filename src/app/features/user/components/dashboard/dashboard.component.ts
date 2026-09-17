@@ -59,6 +59,38 @@ export class DashboardComponent implements OnInit {
   ngOnInit(): void {
     this.loadUserInfo();
     this.updateWeekDaysFromBackend([]);
+    this.initWeekDays();
+    this.cargarCaloriasDiarias();
+  }
+
+  initWeekDays(): void {
+    const days = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'];
+    const todayIndex = new Date().getDay() === 0 ? 6 : new Date().getDay() - 1;
+
+    this.weekDays = days.map((name, index) => {
+      const isActive = index <= todayIndex && index >= todayIndex - 4;
+      return {
+        name: name,
+        active: isActive,
+        dayNumber: index + 1
+      };
+    });
+  }
+
+  // ==========================================
+  // Cargar calorias diarias
+  // ==========================================
+  cargarCaloriasDiarias(): void {
+    this.userService.getCaloriasDiarias().subscribe({
+      next: (calorias) => {
+        console.log('Calorias diarias recibidas:', calorias);
+        this.caloriasDiarias = calorias || 0;
+      },
+      error: (err) => {
+        console.error('Error al cargar calorias diarias:', err);
+        this.caloriasDiarias = 0;
+      }
+    });
   }
 
   loadUserInfo(): void {
@@ -115,7 +147,14 @@ export class DashboardComponent implements OnInit {
   loadTodayRoutine(): void {
     this.userService.getLastRoutine().subscribe({
       next: (routine) => {
-        console.log('Última rutina recibida:', routine);
+        console.log('Ultima rutina recibida:', routine);
+        console.log('Nombre:', routine?.nombre);
+        console.log('Ejercicios:', routine?.ejercicios?.length || 0);
+
+        if (routine && routine.ejercicios && routine.ejercicios.length > 0) {
+          console.log('Primer ejercicio:', routine.ejercicios[0]);
+        }
+
         if (routine) {
           this.todayRoutine = routine;
         } else {
@@ -206,12 +245,9 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  irACrearRutina(): void {
-    this.router.navigate(['/user/rutinas/crear-ia']);
-  }
-
   refreshData(): void {
     this.loadDashboardData();
+    this.cargarCaloriasDiarias();
   }
 
   mostrarErrorModal(mensaje: string): void {
@@ -226,5 +262,6 @@ export class DashboardComponent implements OnInit {
   recargarDatos(): void {
     this.mostrarModalError = false;
     this.loadDashboardData();
+    this.cargarCaloriasDiarias();
   }
 }
