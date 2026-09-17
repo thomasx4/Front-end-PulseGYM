@@ -59,6 +59,7 @@ export class DashboardComponent implements OnInit {
   ngOnInit(): void {
     this.loadUserInfo();
     this.initWeekDays();
+    this.cargarCaloriasDiarias();
   }
 
   initWeekDays(): void {
@@ -72,6 +73,22 @@ export class DashboardComponent implements OnInit {
         active: isActive,
         dayNumber: index + 1
       };
+    });
+  }
+
+  // ==========================================
+  // Cargar calorias diarias
+  // ==========================================
+  cargarCaloriasDiarias(): void {
+    this.userService.getCaloriasDiarias().subscribe({
+      next: (calorias) => {
+        console.log('Calorias diarias recibidas:', calorias);
+        this.caloriasDiarias = calorias || 0;
+      },
+      error: (err) => {
+        console.error('Error al cargar calorias diarias:', err);
+        this.caloriasDiarias = 0;
+      }
     });
   }
 
@@ -119,7 +136,7 @@ export class DashboardComponent implements OnInit {
         this.bestStreak = 0;
         this.updateWeekDays(0);
         this.mostrarErrorModal('Ocurrio un error al cargar tu panel. Por favor, intenta de nuevo.');
-        this.loadTodayRoutine(); 
+        this.loadTodayRoutine();
       }
     });
   }
@@ -128,6 +145,13 @@ export class DashboardComponent implements OnInit {
     this.userService.getLastRoutine().subscribe({
       next: (routine) => {
         console.log('Ultima rutina recibida:', routine);
+        console.log('Nombre:', routine?.nombre);
+        console.log('Ejercicios:', routine?.ejercicios?.length || 0);
+
+        if (routine && routine.ejercicios && routine.ejercicios.length > 0) {
+          console.log('Primer ejercicio:', routine.ejercicios[0]);
+        }
+
         if (routine) {
           this.todayRoutine = routine;
         } else {
@@ -177,7 +201,7 @@ export class DashboardComponent implements OnInit {
     const estadisticas = data.estadisticas;
     const porcentajeSemanal = data.porcentajeCumplimientoSemanal || 0;
 
-    const totalMinutos = estadisticas?.totalSesiones * (estadisticas?.promedioDuracion || 0);
+    const totalMinutos = (estadisticas?.totalSesiones || 0) * (estadisticas?.promedioDuracion || 0);
     const horas = Math.floor(totalMinutos / 60);
     const minutos = Math.round(totalMinutos % 60);
     const tiempoTotal = horas + 'h ' + minutos + 'm';
@@ -186,7 +210,7 @@ export class DashboardComponent implements OnInit {
     const timeProgress = Math.min(Math.round((totalMinutos / metaMinutos) * 100), 100);
 
     const metaCalorias = 2500;
-    const caloriasQuemadas = Math.round(estadisticas?.totalSesiones * 350);
+    const caloriasQuemadas = Math.round((estadisticas?.totalSesiones || 0) * 350);
     const caloriesProgress = Math.min(Math.round((caloriasQuemadas / metaCalorias) * 100), 100);
 
     const metaEntrenamientos = 5;
@@ -216,12 +240,9 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  irACrearRutina(): void {
-    this.router.navigate(['/user/rutinas/crear-ia']);
-  }
-
   refreshData(): void {
     this.loadDashboardData();
+    this.cargarCaloriasDiarias();
   }
 
   mostrarErrorModal(mensaje: string): void {
@@ -236,5 +257,6 @@ export class DashboardComponent implements OnInit {
   recargarDatos(): void {
     this.mostrarModalError = false;
     this.loadDashboardData();
+    this.cargarCaloriasDiarias();
   }
 }
