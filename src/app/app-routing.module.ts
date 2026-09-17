@@ -91,6 +91,11 @@ const routes: Routes = [
                     import('./features/payments/payments/payments.module').then((m) => m.PaymentsModule),
             },
             {
+                path: 'mancuer-ia',
+                loadChildren: () =>
+                    import('./features/mancuer-ia/mancuer-ia.module').then((m) => m.MancuerIaModule),
+            },
+            {
                 path: 'notifications',
                 loadChildren: () =>
                     import('./features/notifications/notification.routes').then((m) => m.NOTIFICATION_ROUTES),

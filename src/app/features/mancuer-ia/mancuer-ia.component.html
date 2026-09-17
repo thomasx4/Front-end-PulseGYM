@@ -1,0 +1,161 @@
+<div class="mancuer-container animate-fade-in-up">
+
+    <!-- CONTENIDO PRINCIPAL (CHAT AMPLIADO) -->
+    <div class="main-content">
+
+        <!-- HEADER / BANNER SUPERIOR ESTILO LANDING -->
+        <div class="ai-banner animate-header">
+            <div class="banner-text">
+                <div class="title-row">
+                    <h1>Mancuer<span>IA</span></h1>
+                    <span class="badge-tag animate-pop-in" [ngClass]="isOnline ? 'on' : 'off'">
+                        <span class="ind"></span> {{ isOnline ? 'Sistema Conectado' : 'Sin Conexión' }}
+                    </span>
+                </div>
+                <p class="subtitle">Asistente inteligente y analítica avanzada para Pulse GYM</p>
+            </div>
+
+            <div class="header-icon-container animate-float">
+                <div class="glow-effect animate-pulse-glow"></div>
+                <svg class="header-svg-robot" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path
+                        d="M12 2a2 2 0 0 1 2 2v2h3a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h3V4a2 2 0 0 1 2-2z">
+                    </path>
+                    <path d="M9 12h6"></path>
+                    <path d="M10 16h4"></path>
+                    <circle cx="9" cy="10" r="1" fill="currentColor"></circle>
+                    <circle cx="15" cy="10" r="1" fill="currentColor"></circle>
+                </svg>
+            </div>
+        </div>
+
+        <!-- AREA DE CHAT EXPANDIDA -->
+        <div class="chat-section" #chatScroll>
+
+            <!-- Estado vacío inicial profesional -->
+            <div class="empty-chat animate-slide-up" *ngIf="messages.length === 0">
+                <div class="welcome-card">
+                    <div class="welcome-icon-wrap">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3>Centro de Inteligencia Operativa</h3>
+                        <p>Selecciona una sugerencia lateral o escribe una consulta personalizada para comenzar.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mensajes del Chat -->
+            <!-- Mensajes del Chat -->
+            <div *ngFor="let msg of messages" class="msg-row animate-slide-up" [ngClass]="msg.role">
+                <div class="msg-bubble">
+                    <div class="msg-text markdown-body" *ngIf="msg.content !== 'Pensando...'"
+                        [innerHTML]="renderMarkdown(msg.content)"></div>
+
+                    <!-- Animación elegante de "Pensando..." -->
+                    <div class="typing-indicator" *ngIf="msg.content === 'Pensando...'">
+                        <span>MancuerIA está procesando</span>
+                        <div class="dots">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </div>
+
+                    <div class="msg-meta" *ngIf="msg.ts && msg.content !== 'Pensando...'">{{ msg.ts | date:'shortTime'
+                        }}</div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- COMPOSER / INPUT DE TEXTO -->
+        <div class="composer-box">
+            <div class="input-wrapper">
+                <svg class="input-icon-sparkle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path
+                        d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z">
+                    </path>
+                </svg>
+                <textarea [(ngModel)]="userInput" (keydown.enter)="$event.preventDefault(); send()"
+                    placeholder="Escriba su consulta o instrucción operativa..." rows="1" [disabled]="isBusy">
+        </textarea>
+                <button class="send-btn" (click)="send()" [disabled]="isBusy || !userInput.trim()"
+                    title="Enviar mensaje">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- PANEL LATERAL DERECHO (ACCIONES Y SUGERENCIAS) -->
+    <div class="side-panel">
+
+        <!-- ACCIONES -->
+        <div class="panel-group">
+            <h4 class="group-title">Acciones del Sistema</h4>
+
+            <button class="action-btn primary" (click)="checkStatus()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="23 4 23 10 17 10"></polyline>
+                    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                </svg>
+                Refrescar estado
+            </button>
+
+            <button class="action-btn secondary" (click)="clearHistory()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+                Limpiar historial
+            </button>
+
+            <button class="action-btn secondary" (click)="exportConversation()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                Exportar conversación
+            </button>
+        </div>
+
+        <!-- SUGERENCIAS -->
+        <div class="panel-group">
+            <h4 class="group-title">Consultas Sugeridas</h4>
+
+            <button class="suggestion-card" (click)="send('¿Cuántos equipos operativos hay?')">
+                ¿Cuántos equipos operativos hay?
+            </button>
+
+            <button class="suggestion-card" (click)="send('Lista todos los equipos')">
+                Lista todos los equipos
+            </button>
+
+            <button class="suggestion-card" (click)="send('Asistencias de hoy')">
+                Asistencias de hoy
+            </button>
+
+            <button class="suggestion-card" (click)="send('Lista los proveedores')">
+                Lista los proveedores
+            </button>
+
+            <button class="suggestion-card" (click)="send('Reportar falla crítica')">
+                Reportar falla crítica
+            </button>
+
+            <button class="suggestion-card" (click)="send('Equipos en mantenimiento')">
+                Equipos en mantenimiento
+            </button>
+        </div>
+
+    </div>
+
+</div>
