@@ -85,9 +85,7 @@ export class UserService {
     return this.http.get<any[]>(url, { headers: this.getHeaders() });
   }
 
-  // ==========================================
   // Calorias diarias
-  // ==========================================
   getCaloriasDiarias(): Observable<number> {
     return this.getMisPlanesNutricionales().pipe(
       map((planes) => {
@@ -116,49 +114,17 @@ export class UserService {
     );
   }
 
-  // ==========================================
   // Ultima rutina generada
-  // ==========================================
   getLastRoutine(): Observable<Routine> {
     const url = `${this.apiUrl}/pg-ms-users/api/v1/rutinas/ultima`;
     return this.http.get<any>(url, { headers: this.getHeaders() }).pipe(
       map((response) => {
         console.log('Respuesta cruda de /rutinas/ultima:', response);
 
-        // La respuesta puede venir como:
-        // 1. Array: [{ idRutina, nombre, detalles: [...] }]
-        // 2. Objeto directo: { idRutina, nombre, detalles: [...] }
-        // 3. Envuelto: { data: { idRutina, nombre, detalles: [...] } }
         let rutina: any = null;
 
         if (Array.isArray(response) && response.length > 0) {
-          const rutina = response[0];
-          const nombreRutina = rutina.nombre || 'Rutina sin nombre';
-          const detalles = rutina.detalles || [];
-
-          const ejercicios: Exercise[] = detalles.map((detalle: any) => ({
-            nombre: detalle.nombreEjercicio || 'Ejercicio',
-            sets:
-              (detalle.series || 0) +
-              ' x ' +
-              (detalle.repeticionesMin || 0) +
-              '-' +
-              (detalle.repeticionesMax || 0),
-            imageUrl: detalle.urlImagen || '',
-            grupoMuscular: detalle.grupoMuscular,
-            diaSemana: detalle.diaSemana,
-          }));
-
-          const today = new Date().getDay();
-          const diaActual = today === 0 ? 7 : today;
-
-          const ejerciciosHoy = ejercicios.filter(
-            (e) => e.diaSemana === diaActual,
-          );
-
-          const ejerciciosMostrar =
-            ejerciciosHoy.length > 0 ? ejerciciosHoy : ejercicios;
-          
+          rutina = response[0];
         } else if (response && response.detalles) {
           rutina = response;
         } else if (response && response.data) {
@@ -181,7 +147,6 @@ export class UserService {
         console.log('Rutina:', nombreRutina);
         console.log('Total detalles:', detalles.length);
 
-        // Mapear ejercicios
         const ejercicios: Exercise[] = detalles.map((detalle: any) => ({
           nombre: detalle.nombreEjercicio || 'Ejercicio',
           sets:
@@ -195,14 +160,11 @@ export class UserService {
           diaSemana: detalle.diaSemana,
         }));
 
-        // JS devuelve: 0=Dom, 1=Lun, 2=Mar, ..., 6=Sab
-        // Backend devuelve: 1=Lun, 2=Mar, ..., 6=Sab (sin Domingo)
         const today = new Date().getDay();
         const diaActual = today;
 
         console.log('Dia actual JS:', today, '(0=Dom, 1=Lun, ..., 6=Sab)');
 
-        // Filtrar ejercicios del dia actual (excepto domingo)
         let ejerciciosHoy: Exercise[] = [];
 
         if (diaActual !== 0) {
@@ -211,7 +173,6 @@ export class UserService {
 
         let ejerciciosMostrar: Exercise[] = ejerciciosHoy;
 
-        // Si no hay ejercicios hoy (o es domingo), buscar el proximo dia
         if (ejerciciosHoy.length === 0) {
           console.log('No hay ejercicios para hoy. Buscando proximo dia...');
 
@@ -396,9 +357,10 @@ export class UserService {
   getHistorialFisico(): Observable<any> {
     const url = `${this.apiUrl}/pg-ms-users/api/v1/usuarios/historial-fisico/mi-historial`;
     return this.http.get<any>(url, { headers: this.getHeaders() }).pipe(
+      tap((response) => console.log('✅ Respuesta historial físico:', response)),
       catchError((error: HttpErrorResponse) => {
-        console.error('Error en getHistorialFisico:', error);
-        return of(null);
+        console.error('❌ Error en getHistorialFisico:', error);
+        return of([]);
       }),
     );
   }
@@ -406,9 +368,14 @@ export class UserService {
   getEvolucion(): Observable<any> {
     const url = `${this.apiUrl}/pg-ms-users/api/v1/usuarios/historial-fisico/mi-evolucion`;
     return this.http.get<any>(url, { headers: this.getHeaders() }).pipe(
+      tap((response) => console.log('✅ Respuesta evolución:', response)),
       catchError((error: HttpErrorResponse) => {
-        console.error('Error en getEvolucion:', error);
-        return of(null);
+        console.error('❌ Error en getEvolucion:', error);
+        return of({
+          evolucionPeso: [],
+          evolucionGrasa: [],
+          evolucionMusculo: []
+        });
       }),
     );
   }

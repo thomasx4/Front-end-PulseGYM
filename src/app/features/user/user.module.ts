@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core'; // <-- 1. Importa CUSTOM_ELEMENTS_SCHEMA
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { UserRoutingModule } from './user-routing.module';
@@ -59,6 +59,7 @@ import { EquiposComponent } from './components/equipos/equipos.component';
     FormsModule,
     UserRoutingModule,
     SharedModule
-  ]
+  ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA] // <-- 2. Añade esta propiedad aquí exactamente igual que en el módulo de admin
 })
 export class UserModule { }

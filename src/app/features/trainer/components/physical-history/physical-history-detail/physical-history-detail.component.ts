@@ -16,6 +16,7 @@ Chart.register(...registerables);
 })
 export class PhysicalHistoryDetailComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('chartCanvas') chartCanvas!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('chartScrollContainer') chartScrollContainer!: ElementRef<HTMLDivElement>;
   @ViewChild('modelViewer') modelViewer!: ElementRef;
   chartInstance: Chart | null = null;
 
@@ -30,6 +31,8 @@ export class PhysicalHistoryDetailComponent implements OnInit, OnDestroy, AfterV
   selectedTimeframe: string = '6M';
 
   avatarError: boolean = false;
+  chartWidthStyle: string = '100%';
+
 
   medidasSilueta = {
     cuello: 0,
@@ -155,8 +158,28 @@ export class PhysicalHistoryDetailComponent implements OnInit, OnDestroy, AfterV
     this.physicalHistoryService.getEvolucionBySocio(idSocio).subscribe({
       next: (data) => {
         this.evolutionData = data;
+
+        // Calcular ancho proporcional para que quepan exactamente 4 elementos visibles y el resto haga scroll
+        const totalPoints = data.evolucionPeso?.length || 0;
+        if (totalPoints > 4) {
+          // Cada punto ocupa una proporción, asegurando que se vea el equivalente a 4 por vista
+          const ratio = totalPoints / 4;
+          this.chartWidthStyle = `${ratio * 100}%`;
+        } else {
+          this.chartWidthStyle = '100%';
+        }
+
         this.ngZone.runOutsideAngular(() => {
-          requestAnimationFrame(() => this.renderChart());
+          requestAnimationFrame(() => {
+            this.renderChart();
+            // Posicionar el scroll al extremo derecho (últimas mediciones) por defecto
+            setTimeout(() => {
+              if (this.chartScrollContainer) {
+                const el = this.chartScrollContainer.nativeElement;
+                el.scrollLeft = el.scrollWidth;
+              }
+            }, 100);
+          });
         });
       },
       error: (err) => {
@@ -164,7 +187,6 @@ export class PhysicalHistoryDetailComponent implements OnInit, OnDestroy, AfterV
       }
     });
   }
-
   cargarPerfilSocio(idSocio: number): void {
     this.userService.obtenerPerfilPorId(idSocio).subscribe({
       next: (data) => {
@@ -390,7 +412,7 @@ export class PhysicalHistoryDetailComponent implements OnInit, OnDestroy, AfterV
     return parts.length >= 2 ? `${parts[0][0]}${parts[1][0]}`.toUpperCase() : name.slice(0, 2).toUpperCase();
   }
 
-onBack(): void {
+  onBack(): void {
     this.router.navigate(['/trainer/physical-history']);
   }
 
