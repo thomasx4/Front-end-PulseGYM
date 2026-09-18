@@ -162,6 +162,14 @@
     justify-content: center;
     font-weight: 800;
     font-size: 1rem;
+    overflow: hidden;
+    flex-shrink: 0;
+
+    &__img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
 }
 
 .socio-info {
@@ -327,6 +335,7 @@
     grid-template-columns: 1.8fr 1fr;
     gap: 1.5rem;
     margin-bottom: 1.5rem;
+    align-items: start;
 
     &__left {
         display: flex;
@@ -335,12 +344,14 @@
     }
 }
 
-// TARJETA DE GRÁFICA DE EVOLUCIÓN
+// TARJETA DE GRÁFICA DE EVOLUCIÓN CON SCROLL HORIZONTAL AISLADO
 .chart-card {
     background-color: #ffffff;
     border-radius: 12px;
     border: 1px solid #e2e8f0;
     padding: 1.25rem 1.5rem;
+    position: relative;
+    overflow: hidden;
 
     &__header {
         display: flex;
@@ -359,10 +370,51 @@
     margin: 0;
 }
 
+.chart-scroll-hint {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #64748b;
+    background-color: #f1f5f9;
+    padding: 0.2rem 0.6rem;
+    border-radius: 6px;
+}
+
+.chart-scroll-container {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 8px;
+    -webkit-overflow-scrolling: touch;
+
+    &::-webkit-scrollbar {
+        height: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 4px;
+
+        &:hover {
+            background: #94a3b8;
+        }
+    }
+}
+
 .chart-container-wrapper {
     position: relative;
-    width: 100%;
     height: 280px;
+    min-width: 650px;
+
+    canvas {
+        width: 100% !important;
+        height: 280px !important;
+        display: block;
+    }
 }
 
 // TARJETA UNIFICADA (ÚLTIMAS MEDICIONES + COMPARACIÓN GENERAL)
@@ -559,9 +611,10 @@
     border-radius: 12px;
     border: 1px solid #e2e8f0;
     padding: 1.25rem 1.5rem;
-    height: 100%;
     display: flex;
     flex-direction: column;
+    position: sticky;
+    top: 1.5rem;
 
     &__header {
         display: flex;
@@ -604,10 +657,8 @@
 .silhouette-body-3d {
     position: relative;
     width: 100%;
-    height: 360px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    height: 380px;
+    display: block;
     border-radius: 10px;
     overflow: hidden;
     border: 1px dashed #e2e8f0;
@@ -660,9 +711,7 @@
             }
         }
 
-        // Colores exclusivos para los títulos e iconos de cada categoría
         &--purple {
-
             .s-group-header svg,
             .s-group-title {
                 color: #9333ea;
@@ -670,7 +719,6 @@
         }
 
         &--orange {
-
             .s-group-header svg,
             .s-group-title {
                 color: #f97316;
@@ -678,7 +726,6 @@
         }
 
         &--green {
-
             .s-group-header svg,
             .s-group-title {
                 color: #16a34a;
@@ -686,7 +733,6 @@
         }
 
         &--blue {
-
             .s-group-header svg,
             .s-group-title {
                 color: #0284c7;
@@ -703,14 +749,13 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            font-size: 0.9rem; // Tamaño de texto incrementado
+            font-size: 0.9rem;
 
             .s-label {
                 color: #64748b;
                 font-weight: 600;
             }
 
-            // Medidas con color neutro (oscuro normal)
             .s-val {
                 font-weight: 800;
                 color: #0f172a !important;
@@ -719,7 +764,6 @@
     }
 }
 
-// Clases de color base (fallback estándar neutro)
 .text-purple,
 .text-orange,
 .text-green,
@@ -758,6 +802,7 @@
     display: grid;
     grid-template-columns: 1fr;
     gap: 1.5rem;
+    margin-top: 1.5rem;
 }
 
 .bottom-card {
@@ -886,6 +931,10 @@
         grid-template-columns: 1fr;
     }
 
+    .silhouette-card {
+        position: static;
+    }
+
     .kpi-grid-detail,
     .comparison-grid {
         grid-template-columns: repeat(3, 1fr);
@@ -893,7 +942,6 @@
 }
 
 @media (max-width: 640px) {
-
     .kpi-grid-detail,
     .comparison-grid,
     .pro-measurements-grid {
@@ -904,26 +952,5 @@
         flex-direction: column;
         align-items: flex-start;
         gap: 1rem;
-    }
-}
-
-.avatar-circle {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background-color: #0d1b3e;
-    color: #ffffff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 800;
-    font-size: 1rem;
-    overflow: hidden;
-    flex-shrink: 0;
-
-    &__img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
     }
 }

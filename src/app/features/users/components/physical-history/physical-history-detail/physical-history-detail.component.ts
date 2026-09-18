@@ -16,6 +16,7 @@ Chart.register(...registerables);
 })
 export class PhysicalHistoryDetailComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('chartCanvas') chartCanvas!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('chartScrollContainer') chartScrollContainer!: ElementRef<HTMLDivElement>;
   @ViewChild('modelViewer') modelViewer!: ElementRef;
   chartInstance: Chart | null = null;
 
@@ -28,8 +29,8 @@ export class PhysicalHistoryDetailComponent implements OnInit, OnDestroy, AfterV
   errorMensaje: string = '';
 
   selectedTimeframe: string = '6M';
-
   avatarError: boolean = false;
+  chartWidthStyle: string = '100%';
 
   medidasSilueta = {
     cuello: 0,
@@ -151,12 +152,29 @@ export class PhysicalHistoryDetailComponent implements OnInit, OnDestroy, AfterV
     };
   }
 
-  cargarEvolucion(idSocio: number): void {
+cargarEvolucion(idSocio: number): void {
     this.physicalHistoryService.getEvolucionBySocio(idSocio).subscribe({
       next: (data) => {
         this.evolutionData = data;
+        
+        const totalPoints = data.evolucionPeso?.length || 0;
+        if (totalPoints > 4) {
+          const ratio = totalPoints / 4;
+          this.chartWidthStyle = `${ratio * 100}%`;
+        } else {
+          this.chartWidthStyle = '100%';
+        }
+
         this.ngZone.runOutsideAngular(() => {
-          requestAnimationFrame(() => this.renderChart());
+          requestAnimationFrame(() => {
+            this.renderChart();
+            setTimeout(() => {
+              if (this.chartScrollContainer) {
+                const el = this.chartScrollContainer.nativeElement;
+                el.scrollLeft = el.scrollWidth;
+              }
+            }, 100);
+          });
         });
       },
       error: (err) => {

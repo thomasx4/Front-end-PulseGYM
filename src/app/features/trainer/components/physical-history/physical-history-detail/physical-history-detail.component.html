@@ -183,16 +183,21 @@
   <!-- MAIN CONTENT GRID -->
   <div class="main-detail-grid">
     <div class="main-detail-grid__left">
-      <!-- GRÁFICA DE EVOLUCIÓN -->
+      <!-- GRÁFICA DE EVOLUCIÓN CON SCROLL HORIZONTAL -->
       <div class="chart-card">
         <div class="chart-card__header">
           <div class="chart-title-group">
             <h3 class="chart-title">Evolución del Progreso</h3>
           </div>
+          <span class="chart-scroll-hint" *ngIf="evolutionData && evolutionData.evolucionPeso.length > 4">
+            ← Desliza para ver más historial →
+          </span>
         </div>
 
-        <div class="chart-container-wrapper">
-          <canvas #chartCanvas></canvas>
+        <div class="chart-scroll-container" #chartScrollContainer>
+          <div class="chart-container-wrapper" [ngStyle]="{'width': chartWidthStyle}">
+            <canvas #chartCanvas></canvas>
+          </div>
         </div>
       </div>
 
