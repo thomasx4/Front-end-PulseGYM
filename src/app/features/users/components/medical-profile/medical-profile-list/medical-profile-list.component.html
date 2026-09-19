@@ -17,6 +17,21 @@
         </div>
     </div>
 
+    <!-- BARRA DE ACCIONES EN LOTE PARA ELIMINAR -->
+    <div class="bulk-actions-bar" *ngIf="idsSeleccionados.size > 0">
+        <div class="bulk-info">
+            <span class="selected-count">{{ idsSeleccionados.size }}</span> perfil(es) médico(s) seleccionado(s)
+        </div>
+        <div class="bulk-buttons">
+            <button type="button" class="btn-bulk btn-bulk--delete" (click)="eliminarSeleccionados()">
+                Eliminar Seleccionados
+            </button>
+            <button type="button" class="btn-bulk btn-bulk--clear" (click)="limpiarSeleccion()">
+                Cancelar
+            </button>
+        </div>
+    </div>
+
     <!-- TARJETAS DE MÉTRICAS SUPERIORES -->
     <div class="metrics-grid">
         <div class="metric-card">
@@ -84,6 +99,12 @@
         <table class="data-table">
             <thead>
                 <tr>
+                    <th class="th-checkbox">
+                        <label class="custom-checkbox">
+                            <input type="checkbox" [checked]="isAllSelected" [indeterminate]="isSomeSelected" (change)="toggleSelectAll($event)">
+                            <span class="checkmark"></span>
+                        </label>
+                    </th>
                     <th>SOCIO</th>
                     <th>PESO (KG)</th>
                     <th>ESTATURA (CM)</th>
@@ -96,14 +117,20 @@
             <tbody>
                 <!-- Fila de carga -->
                 <tr *ngIf="loading">
-                    <td colspan="7" class="empty-table-msg">
+                    <td colspan="8" class="empty-table-msg">
                         Cargando perfiles médicos...
                     </td>
                 </tr>
 
                 <!-- Datos de perfiles -->
                 <ng-container *ngIf="!loading">
-                    <tr *ngFor="let perfil of perfiles">
+                    <tr *ngFor="let perfil of perfiles" [class.selected-row]="isSeleccionado(perfil.idSocio)">
+                        <td class="td-checkbox">
+                            <label class="custom-checkbox">
+                                <input type="checkbox" [checked]="isSeleccionado(perfil.idSocio)" (change)="toggleSeleccionItem(perfil.idSocio)">
+                                <span class="checkmark"></span>
+                            </label>
+                        </td>
                         <td>
                             <div class="partner-cell">
                                 <div class="partner-table-avatar">
@@ -165,7 +192,7 @@
                         </td>
                     </tr>
                     <tr *ngIf="perfiles.length === 0">
-                        <td colspan="7" class="empty-table-msg">
+                        <td colspan="8" class="empty-table-msg">
                             No se encontraron perfiles médicos registrados.
                         </td>
                     </tr>

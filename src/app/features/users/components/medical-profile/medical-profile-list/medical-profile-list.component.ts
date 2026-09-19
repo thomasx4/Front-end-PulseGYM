@@ -26,6 +26,9 @@ export class MedicalProfileListComponent implements OnInit {
   countConAlergias: number = 0;
   countConCondiciones: number = 0;
 
+  // ⭐ Propiedades para selección múltiple
+  idsSeleccionados: Set<number> = new Set<number>();
+
   constructor(private http: HttpClient, private router: Router) { }
 
   ngOnInit(): void {
@@ -34,6 +37,8 @@ export class MedicalProfileListComponent implements OnInit {
 
   cargarPerfiles(): void {
     this.loading = true;
+    this.limpiarSeleccion();
+
     let params = new HttpParams()
       .set('page', this.pageIndex.toString())
       .set('size', this.pageSize.toString());
@@ -55,6 +60,86 @@ export class MedicalProfileListComponent implements OnInit {
         console.error('Error al cargar perfiles médicos:', err);
         this.loading = false;
         this.perfiles = [];
+      }
+    });
+  }
+
+  isSeleccionado(id: number): boolean {
+    return this.idsSeleccionados.has(id);
+  }
+
+  toggleSeleccionItem(id: number): void {
+    if (this.idsSeleccionados.has(id)) {
+      this.idsSeleccionados.delete(id);
+    } else {
+      this.idsSeleccionados.add(id);
+    }
+  }
+
+  toggleSelectAll(event: any): void {
+    const checked = event.target.checked;
+    if (checked) {
+      this.perfiles.forEach(item => {
+        if (item.idSocio !== undefined && item.idSocio !== null) {
+          this.idsSeleccionados.add(item.idSocio);
+        }
+      });
+    } else {
+      this.limpiarSeleccion();
+    }
+  }
+
+  limpiarSeleccion(): void {
+    this.idsSeleccionados.clear();
+  }
+
+  get isAllSelected(): boolean {
+    if (this.perfiles.length === 0) return false;
+    return this.perfiles.every(item => item.idSocio !== undefined && item.idSocio !== null && this.idsSeleccionados.has(item.idSocio));
+  }
+
+  get isSomeSelected(): boolean {
+    if (this.perfiles.length === 0) return false;
+    const count = this.perfiles.filter(item => item.idSocio !== undefined && item.idSocio !== null && this.idsSeleccionados.has(item.idSocio)).length;
+    return count > 0 && !this.isAllSelected;
+  }
+
+  eliminarSeleccionados(): void {
+    const ids: number[] = Array.from(this.idsSeleccionados);
+    if (ids.length === 0) return;
+
+    Swal.fire({
+      title: '¿Eliminar perfiles médicos?',
+      text: `¿Estás seguro de que deseas eliminar los ${ids.length} perfil(es) médico(s) seleccionado(s)?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#dc2626',
+      cancelButtonColor: '#9ca3af'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        let completados = 0;
+        ids.forEach(id => {
+          this.http.delete(`${this.apiUrl}/${id}`).subscribe({
+            next: () => {
+              completados++;
+              if (completados === ids.length) {
+                this.limpiarSeleccion();
+                this.cargarPerfiles();
+                Swal.fire({
+                  icon: 'success',
+                  title: 'Perfiles eliminados',
+                  text: 'Los perfiles médicos seleccionados han sido eliminados correctamente.',
+                  confirmButtonColor: '#0f1c3f'
+                });
+              }
+            },
+            error: (err) => {
+              console.error(`Error al eliminar perfil médico ID ${id}:`, err);
+            }
+          });
+        });
       }
     });
   }
