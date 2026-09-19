@@ -25,6 +25,9 @@ export class DocumentsListComponent implements OnInit {
   filtroTipo: string = 'todos';
   filtroEstado: string = 'todos';
 
+  // ⭐ Propiedades para selección múltiple
+  idsSeleccionados: Set<number> = new Set<number>();
+
   constructor(
     private documentService: DocumentService,
     private router: Router
@@ -61,6 +64,7 @@ export class DocumentsListComponent implements OnInit {
   cargarDocumentos(): void {
     this.loading = true;
     this.errorMensaje = '';
+    this.limpiarSeleccion();
 
     const filtros: FiltrosDocumentos = {
       pagina: this.numeroPagina,
@@ -100,6 +104,87 @@ export class DocumentsListComponent implements OnInit {
         this.totalElementos = 0;
         this.totalPaginas = 0;
         this.loading = false;
+      }
+    });
+  }
+
+  isSeleccionado(id: number): boolean {
+    return this.idsSeleccionados.has(id);
+  }
+
+  toggleSeleccionItem(id: number): void {
+    if (this.idsSeleccionados.has(id)) {
+      this.idsSeleccionados.delete(id);
+    } else {
+      this.idsSeleccionados.add(id);
+    }
+  }
+
+  toggleSelectAll(event: any): void {
+    const checked = event.target.checked;
+    if (checked) {
+      this.documentos.forEach(item => {
+        if (item.idDocumento !== undefined && item.idDocumento !== null) {
+          this.idsSeleccionados.add(item.idDocumento);
+        }
+      });
+    } else {
+      this.limpiarSeleccion();
+    }
+  }
+
+  limpiarSeleccion(): void {
+    this.idsSeleccionados.clear();
+  }
+
+  get isAllSelected(): boolean {
+    if (this.documentos.length === 0) return false;
+    return this.documentos.every(item => item.idDocumento !== undefined && item.idDocumento !== null && this.idsSeleccionados.has(item.idDocumento));
+  }
+
+  get isSomeSelected(): boolean {
+    if (this.documentos.length === 0) return false;
+    const count = this.documentos.filter(item => item.idDocumento !== undefined && item.idDocumento !== null && this.idsSeleccionados.has(item.idDocumento)).length;
+    return count > 0 && !this.isAllSelected;
+  }
+
+  eliminarSeleccionados(): void {
+    const ids: number[] = Array.from(this.idsSeleccionados);
+    if (ids.length === 0) return;
+
+    Swal.fire({
+      title: '¿Eliminar documentos?',
+      text: `¿Estás seguro de que deseas eliminar los ${ids.length} documento(s) seleccionado(s)?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#dc2626',
+      cancelButtonColor: '#9ca3af'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        let completados = 0;
+        ids.forEach(id => {
+          this.documentService.eliminarDocumento(id).subscribe({
+            next: () => {
+              completados++;
+              if (completados === ids.length) {
+                this.limpiarSeleccion();
+                this.cargarDocumentos();
+                this.cargarMetricas();
+                Swal.fire({
+                  icon: 'success',
+                  title: 'Documentos eliminados',
+                  text: 'Los documentos seleccionados han sido eliminados correctamente.',
+                  confirmButtonColor: '#0f1c3f'
+                });
+              }
+            },
+            error: (err) => {
+              console.error(`Error al eliminar documento ID ${id}:`, err);
+            }
+          });
+        });
       }
     });
   }
@@ -197,6 +282,7 @@ export class DocumentsListComponent implements OnInit {
               confirmButtonColor: '#0f1c3f'
             });
             this.cargarDocumentos();
+            this.cargarMetricas();
           },
           error: (error) => {
             Swal.fire({

@@ -13,6 +13,21 @@
         </button>
     </header>
 
+    <!-- BARRA DE ACCIONES EN LOTE PARA ELIMINAR -->
+    <div class="bulk-actions-bar" *ngIf="idsSeleccionados.size > 0">
+        <div class="bulk-info">
+            <span class="selected-count">{{ idsSeleccionados.size }}</span> documento(s) seleccionado(s)
+        </div>
+        <div class="bulk-buttons">
+            <button type="button" class="btn-bulk btn-bulk--delete" (click)="eliminarSeleccionados()">
+                Eliminar Seleccionados
+            </button>
+            <button type="button" class="btn-bulk btn-bulk--clear" (click)="limpiarSeleccion()">
+                Cancelar
+            </button>
+        </div>
+    </div>
+
     <div class="metrics-grid">
         <div class="metric-card metric-card--activos">
             <div class="metric-icon">
@@ -89,6 +104,12 @@
             <table class="custom-table">
                 <thead>
                     <tr>
+                        <th class="th-checkbox">
+                            <label class="custom-checkbox">
+                                <input type="checkbox" [checked]="isAllSelected" [indeterminate]="isSomeSelected" (change)="toggleSelectAll($event)">
+                                <span class="checkmark"></span>
+                            </label>
+                        </th>
                         <th>USUARIO</th>
                         <th>TIPO DE DOCUMENTO</th>
                         <th>FECHA DE FIRMA</th>
@@ -97,7 +118,13 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let doc of documentos">
+                    <tr *ngFor="let doc of documentos" [class.selected-row]="isSeleccionado(doc.idDocumento)">
+                        <td class="td-checkbox">
+                            <label class="custom-checkbox">
+                                <input type="checkbox" [checked]="isSeleccionado(doc.idDocumento)" (change)="toggleSeleccionItem(doc.idDocumento)">
+                                <span class="checkmark"></span>
+                            </label>
+                        </td>
                         <td>
                             <div class="doc-name">
                                 <div class="pdf-icon-badge">
@@ -154,7 +181,7 @@
             <span>Prueba ajustando los filtros o crea un nuevo documento.</span>
         </div>
 
-        <!-- PAGINACIÓN CON FORMATO EXACTO A USUARIOS -->
+        <!-- PAGINACIÓN -->
         <footer *ngIf="totalPaginas > 0" class="table-footer">
             <div class="showing-text">
                 Mostrando <strong>{{ inicio }}</strong> a <strong>{{ fin }}</strong> de <strong>{{ totalElementos }}</strong> documentos
