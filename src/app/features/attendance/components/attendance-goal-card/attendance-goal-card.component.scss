@@ -1,10 +1,9 @@
-
 .goal-card-container {
-  background-color: #ffffff;
+  background-color: var(--color-bg-card);
   border-radius: 16px;
   padding: 24px;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -30,11 +29,11 @@
 }
 
 .radial-track {
-  stroke: #f1f5f9;
+  stroke: var(--color-bg-hover);
 }
 
 .radial-bar {
-  stroke: #1e1b4b;
+  stroke: var(--color-primary);
   transition: stroke-dasharray 0.5s ease-in-out;
 }
 
@@ -48,14 +47,14 @@
   .percentage {
     font-size: 28px;
     font-weight: 800;
-    color: #0f172a;
+    color: var(--color-text-primary);
     line-height: 1;
   }
 
   .label {
     font-size: 10px;
     font-weight: 700;
-    color: #94a3b8;
+    color: var(--color-text-muted);
     letter-spacing: 0.5px;
     margin-top: 4px;
   }
@@ -67,19 +66,19 @@
   .goal-title {
     font-size: 14px;
     font-weight: 700;
-    color: #1e293b;
+    color: var(--color-text-primary);
     margin: 0 0 6px 0;
   }
 
   .goal-description {
     font-size: 12px;
-    color: #94a3b8;
+    color: var(--color-text-muted);
     margin: 0;
     line-height: 1.4;
     max-width: 200px;
 
     strong {
-      color: #334155;
+      color: var(--color-text-secondary);
       font-weight: 600;
     }
   }

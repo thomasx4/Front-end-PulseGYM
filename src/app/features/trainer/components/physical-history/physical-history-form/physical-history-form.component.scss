@@ -1,11 +1,12 @@
 .form-container {
     padding: 1.5rem 2rem;
-    background-color: #f8fafc;
+    background-color: var(--color-bg-main);
     min-height: 100vh;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     margin-left: 260px;
     width: calc(100% - 260px);
     box-sizing: border-box;
+    transition: background-color 0.3s ease;
 
     @media (max-width: 1024px) {
         margin-left: 0;
@@ -38,18 +39,16 @@
     align-items: center;
     gap: 0.5rem;
     font-size: 0.85rem;
-    color: #94a3b8;
+    color: var(--color-text-muted);
     font-weight: 500;
     margin-bottom: 0.5rem;
 
-    .active {
-        color: #64748b;
-    }
+    .active { color: var(--color-text-secondary); }
 
     .back-btn {
         background: transparent;
         border: none;
-        color: #0e3b72;
+        color: var(--color-primary);
         cursor: pointer;
         display: flex;
         align-items: center;
@@ -60,13 +59,13 @@
 .form-title {
     font-size: 1.6rem;
     font-weight: 800;
-    color: #0f172a;
+    color: var(--color-text-primary);
     margin: 0;
 }
 
 .form-subtitle {
     font-size: 0.875rem;
-    color: #64748b;
+    color: var(--color-text-secondary);
     margin: 0.25rem 0 0 0;
 }
 
@@ -83,37 +82,33 @@
     transition: all 0.2s ease;
 
     &--primary {
-        background-color: #0e3b72;
+        background-color: var(--color-primary);
         color: #ffffff;
         border: none;
-        box-shadow: 0 4px 12px rgba(14, 59, 114, 0.2);
+        box-shadow: var(--shadow-sm);
 
         &:hover:not(:disabled) {
-            background-color: #0a2c56;
+            background-color: var(--color-primary-hover);
             transform: translateY(-1px);
         }
 
-        &:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
+        &:disabled { opacity: 0.6; cursor: not-allowed; }
     }
 
     &--secondary {
-        background-color: #ffffff;
-        color: #475569;
-        border: 1px solid #e2e8f0;
+        background-color: var(--color-bg-card);
+        color: var(--color-text-secondary);
+        border: 1px solid var(--color-border);
 
-        &:hover {
-            background-color: #f1f5f9;
-        }
+        &:hover { background-color: var(--color-bg-hover); }
     }
 }
 
-// META BANNER MODO EDICIÓN
+// META BANNER
+/* ✅ Semántico (azul) */
 .meta-banner {
-    background-color: #f0f6ff;
-    border: 1px solid #dbeafe;
+    background-color: var(--color-info-bg);
+    border: 1px solid var(--color-info);
     border-radius: 12px;
     padding: 1rem 1.25rem;
     display: flex;
@@ -122,7 +117,7 @@
     margin-bottom: 1.5rem;
 
     &__icon {
-        color: #2563eb;
+        color: var(--color-info);
         display: flex;
         align-items: center;
     }
@@ -135,24 +130,25 @@
     &__title {
         font-size: 0.95rem;
         font-weight: 800;
-        color: #1e3a8a;
+        color: var(--color-info);
     }
 
     &__subtitle {
         font-size: 0.8rem;
-        color: #3b82f6;
+        color: var(--color-info);
         font-weight: 500;
     }
 }
 
 // TARJETA DE FORMULARIO
 .form-card {
-    background-color: #ffffff;
+    background-color: var(--color-bg-card);
     border-radius: 14px;
-    border: 1px solid #f1f5f9;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-sm);
     padding: 2rem;
     margin-bottom: 1.5rem;
+    transition: background-color 0.3s ease;
 }
 
 .form-section {
@@ -161,7 +157,7 @@
     .section-title {
         font-size: 1rem;
         font-weight: 800;
-        color: #0e3b72;
+        color: var(--color-primary);
         margin: 0 0 1.25rem 0;
     }
 }
@@ -170,21 +166,11 @@
     display: grid;
     gap: 1.25rem;
 
-    &--2-col {
-        grid-template-columns: repeat(2, 1fr);
-    }
+    &--2-col { grid-template-columns: repeat(2, 1fr); }
+    &--3-col { grid-template-columns: repeat(3, 1fr); }
+    &--4-col { grid-template-columns: repeat(4, 1fr); }
 
-    &--3-col {
-        grid-template-columns: repeat(3, 1fr);
-    }
-
-    &--4-col {
-        grid-template-columns: repeat(4, 1fr);
-    }
-
-    &.margin-top {
-        margin-top: 1.25rem;
-    }
+    &.margin-top { margin-top: 1.25rem; }
 }
 
 .form-group {
@@ -196,60 +182,55 @@
 .form-label {
     font-size: 0.8rem;
     font-weight: 700;
-    color: #475569;
+    color: var(--color-text-secondary);
 
-    .required {
-        color: #ef4444;
-    }
+    .required { color: var(--color-error); }
 }
 
 .form-control {
     width: 100%;
-    background-color: #ffffff;
-    border: 1px solid #e2e8f0;
+    background-color: var(--color-bg-input);
+    border: 1px solid var(--color-border);
     border-radius: 10px;
     padding: 0.65rem 1rem;
     font-size: 0.875rem;
-    color: #0f172a;
+    color: var(--color-text-primary);
     font-weight: 500;
+    transition: all 0.2s ease;
 
-    &::placeholder {
-        color: #cbd5e1;
-    }
+    &::placeholder { color: var(--color-text-muted); }
 
     &:focus {
         outline: none;
-        border-color: #0e3b72;
+        border-color: var(--color-primary);
     }
 }
 
 .form-error {
     font-size: 0.78rem;
-    color: #ef4444;
+    color: var(--color-error);
     margin-top: 4px;
 }
 
-/* ESTILOS DE PLACEHOLDER Y TARJETA SELECCIONADA */
+// PLACEHOLDER Y TARJETA SELECCIONADA
 .assign-partner-placeholder {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 12px 16px;
-    background: #f8fafc;
-    border: 1.5px dashed #cbd5e1;
+    background: var(--color-bg-hover);
+    border: 1.5px dashed var(--color-border);
     border-radius: 12px;
 
     .placeholder-text {
         display: flex;
         align-items: center;
         gap: 10px;
-        color: #64748b;
+        color: var(--color-text-secondary);
         font-size: 0.85rem;
         font-weight: 500;
 
-        svg {
-            stroke: #94a3b8;
-        }
+        svg { stroke: var(--color-text-muted); }
     }
 
     .btn-open-modal-partner {
@@ -257,7 +238,7 @@
         align-items: center;
         gap: 6px;
         padding: 8px 14px;
-        background: #0e3b72;
+        background: var(--color-primary);
         color: #ffffff;
         border: none;
         border-radius: 8px;
@@ -267,19 +248,20 @@
         transition: all 0.2s ease;
 
         &:hover {
-            background: #0a2c56;
+            background: var(--color-primary-hover);
             transform: translateY(-1px);
         }
     }
 }
 
+/* ✅ Semántico (azul claro) */
 .partner-selected-card {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 12px 16px;
-    background: #f0f9ff;
-    border: 1.5px solid #bae6fd;
+    background: var(--color-info-bg);
+    border: 1.5px solid var(--color-info);
     border-radius: 12px;
 
     .partner-info {
@@ -299,18 +281,18 @@
 
             .partner-name {
                 font-weight: 700;
-                color: #0f172a;
+                color: var(--color-text-primary);
                 font-size: 0.9rem;
             }
 
             .partner-email {
                 font-size: 0.78rem;
-                color: #64748b;
+                color: var(--color-text-secondary);
             }
 
             .partner-phone {
                 font-size: 0.75rem;
-                color: #0284c7;
+                color: var(--color-info);
                 font-weight: 500;
             }
         }
@@ -323,36 +305,32 @@
 
         .btn-change-partner {
             padding: 5px 12px;
-            background: #ffffff;
-            border: 1px solid #cbd5e1;
+            background: var(--color-bg-card);
+            border: 1px solid var(--color-border);
             border-radius: 6px;
             font-size: 0.78rem;
             font-weight: 600;
-            color: #475569;
+            color: var(--color-text-secondary);
             cursor: pointer;
 
-            &:hover {
-                background: #f1f5f9;
-            }
+            &:hover { background: var(--color-bg-hover); }
         }
 
         .btn-remove-partner {
             background: transparent;
             border: none;
-            color: #94a3b8;
+            color: var(--color-text-muted);
             cursor: pointer;
             padding: 6px;
             display: flex;
             align-items: center;
 
-            &:hover {
-                color: #ef4444;
-            }
+            &:hover { color: var(--color-error); }
         }
     }
 }
 
-/* AVATARES E IMÁGENES CIRCULARES CLOUDINARY */
+/* AVATARES */
 .partner-avatar,
 .partner-table-avatar {
     position: relative;
@@ -361,7 +339,7 @@
     justify-content: center;
     border-radius: 50%;
     overflow: hidden;
-    background: linear-gradient(135deg, #1e293b, #0f172a);
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
     color: #ffffff;
     font-weight: 700;
     flex-shrink: 0;
@@ -379,19 +357,10 @@
     }
 }
 
-.partner-avatar {
-    width: 44px;
-    height: 44px;
-    font-size: 0.9rem;
-}
+.partner-avatar { width: 44px; height: 44px; font-size: 0.9rem; }
+.partner-table-avatar { width: 36px; height: 36px; font-size: 0.75rem; }
 
-.partner-table-avatar {
-    width: 36px;
-    height: 36px;
-    font-size: 0.75rem;
-}
-
-/* BADGES DE ROLES PROFESIONALES */
+/* ✅ Semánticos (colores por rol) */
 .role-badge {
     display: inline-flex;
     align-items: center;
@@ -403,49 +372,45 @@
     letter-spacing: 0.025em;
     line-height: 1;
     border: 1px solid transparent;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    box-shadow: var(--shadow-sm);
     transition: all 0.2s ease;
 
-    // SOCIO / CLIENTE: Tono Esmeralda Elegante
     &.rol-socio {
         background-color: #ecfdf5;
         color: #047857;
         border-color: #a7f3d0;
     }
 
-    // RECEPCIÓN: Tono Azul Cobalto Profesional
     &.rol-recepcion {
         background-color: #eff6ff;
         color: #1d4ed8;
         border-color: #bfdbfe;
     }
 
-    // ENTRENADOR: Tono Ámbar Cálido / Premium
     &.rol-entrenador {
         background-color: #fffbeb;
         color: #b45309;
         border-color: #fde68a;
     }
 
-    // ADMIN: Tono Índigo / Púrpura Corporativo
     &.rol-admin {
         background-color: #f5f3ff;
         color: #6d28d9;
         border-color: #ddd6fe;
     }
 
-    // DEFAULT / OTRO: Slate Neutro
     &.rol-default {
-        background-color: #f1f5f9;
-        color: #475569;
-        border-color: #cbd5e1;
+        background-color: var(--color-bg-hover);
+        color: var(--color-text-secondary);
+        border-color: var(--color-border);
     }
 }
 
-// BANNERS INFORMATIVOS INFERIORES
+// BANNERS INFORMATIVOS
+/* ✅ Semánticos (azul/verde) */
 .info-banner {
-    background-color: #eff6ff;
-    border: 1px solid #bfdbfe;
+    background-color: var(--color-info-bg);
+    border: 1px solid var(--color-info);
     border-radius: 10px;
     padding: 0.85rem 1.25rem;
     display: flex;
@@ -453,7 +418,7 @@
     gap: 0.75rem;
 
     &__icon {
-        color: #2563eb;
+        color: var(--color-info);
         display: flex;
         align-items: center;
     }
@@ -461,24 +426,19 @@
     &__text {
         font-size: 0.85rem;
         font-weight: 600;
-        color: #1e40af;
+        color: var(--color-info);
     }
 
     &--success {
-        background-color: #f0fdf4;
-        border-color: #bbf7d0;
+        background-color: var(--color-success-bg);
+        border-color: var(--color-success);
 
-        .info-banner__icon {
-            color: #16a34a;
-        }
-
-        .info-banner__text {
-            color: #15803d;
-        }
+        .info-banner__icon { color: var(--color-success); }
+        .info-banner__text { color: var(--color-success); }
     }
 }
 
-/* MODALES DE SELECCIÓN */
+/* MODALES */
 .modal-overlay {
     position: fixed;
     inset: 0;
@@ -491,15 +451,16 @@
 }
 
 .modal-partner-container {
-    background: #ffffff;
+    background: var(--color-bg-card);
     border-radius: 16px;
     width: 680px;
     max-width: 92%;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    box-shadow: var(--shadow-lg);
     padding: 24px;
     display: flex;
     flex-direction: column;
     gap: 18px;
+    transition: background-color 0.3s ease;
 }
 
 .modal-partner-header {
@@ -510,20 +471,18 @@
     h2 {
         font-size: 1.25rem;
         font-weight: 800;
-        color: #0f172a;
+        color: var(--color-text-primary);
         margin: 0;
     }
 
     .modal-close-btn {
         background: none;
         border: none;
-        color: #94a3b8;
+        color: var(--color-text-muted);
         cursor: pointer;
         padding: 4px;
 
-        &:hover {
-            color: #0f172a;
-        }
+        &:hover { color: var(--color-text-primary); }
     }
 }
 
@@ -534,15 +493,16 @@
         input {
             width: 100%;
             padding: 10px 16px 10px 42px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid var(--color-border);
             border-radius: 10px;
             font-size: 0.875rem;
             outline: none;
             box-sizing: border-box;
+            background: var(--color-bg-input);
+            color: var(--color-text-primary);
 
-            &:focus {
-                border-color: #0e3b72;
-            }
+            &:focus { border-color: var(--color-primary); }
+            &::placeholder { color: var(--color-text-muted); }
         }
 
         .search-icon {
@@ -550,7 +510,7 @@
             left: 14px;
             top: 50%;
             transform: translateY(-50%);
-            stroke: #94a3b8;
+            stroke: var(--color-text-muted);
         }
     }
 }
@@ -565,12 +525,12 @@
     border-collapse: collapse;
 
     thead tr {
-        border-bottom: 1px solid #f1f5f9;
+        border-bottom: 1px solid var(--color-border-light);
 
         th {
             font-size: 0.7rem;
             font-weight: 700;
-            color: #94a3b8;
+            color: var(--color-text-muted);
             text-transform: uppercase;
             padding: 8px 12px;
             text-align: left;
@@ -578,15 +538,14 @@
     }
 
     tbody tr {
-        border-bottom: 1px solid #f8fafc;
+        border-bottom: 1px solid var(--color-border-light);
 
-        &:hover {
-            background: #fafbfc;
-        }
+        &:hover { background: var(--color-bg-hover); }
 
         td {
             padding: 10px 12px;
             vertical-align: middle;
+            color: var(--color-text-primary);
         }
     }
 }
@@ -599,35 +558,36 @@
     .partner-table-name {
         font-weight: 600;
         font-size: 0.875rem;
-        color: #0f172a;
+        color: var(--color-text-primary);
     }
 }
 
 .partner-table-contact {
     font-size: 0.8rem;
-    color: #64748b;
+    color: var(--color-text-secondary);
 }
 
 .btn-assign-row {
     padding: 6px 16px;
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
     border-radius: 8px;
     font-size: 0.8rem;
     font-weight: 600;
-    color: #0e3b72;
+    color: var(--color-primary);
     cursor: pointer;
+    transition: all 0.2s ease;
 
     &:hover {
-        background: #0e3b72;
+        background: var(--color-primary);
         color: #ffffff;
-        border-color: #0e3b72;
+        border-color: var(--color-primary);
     }
 }
 
 .empty-table-msg {
     text-align: center;
-    color: #94a3b8;
+    color: var(--color-text-muted);
     padding: 24px;
     font-size: 0.85rem;
 }
@@ -651,15 +611,13 @@
             border-radius: 6px;
             font-size: 0.8rem;
             font-weight: 600;
-            color: #64748b;
+            color: var(--color-text-secondary);
             cursor: pointer;
 
-            &:hover:not(:disabled) {
-                background: #f1f5f9;
-            }
+            &:hover:not(:disabled) { background: var(--color-bg-hover); }
 
             &.active {
-                background: #0e3b72;
+                background: var(--color-primary);
                 color: #ffffff;
             }
 
@@ -671,6 +629,4 @@
     }
 }
 
-.text-right {
-    text-align: right;
-}
+.text-right { text-align: right; }

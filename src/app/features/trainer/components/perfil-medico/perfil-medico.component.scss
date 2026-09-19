@@ -1,7 +1,7 @@
 :host {
     display: block;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    color: #0f172a;
+    color: var(--color-text-primary);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
@@ -9,7 +9,8 @@
 .perfil-medico-layout {
     display: flex;
     min-height: 100vh;
-    background: #f8fafc;
+    background: var(--color-bg-main);
+    transition: background-color 0.3s ease;
 }
 
 .perfil-medico-main {
@@ -29,9 +30,7 @@
     box-sizing: border-box;
 }
 
-/* ============================================
-   HEADER
-   ============================================ */
+/* HEADER */
 .page-header {
     display: flex;
     justify-content: space-between;
@@ -46,13 +45,13 @@
             font-weight: 800;
             letter-spacing: -0.3px;
             margin: 0;
-            color: #0f172a;
+            color: var(--color-text-primary);
         }
 
         .subtitle {
             font-size: 14px;
             font-weight: 400;
-            color: #64748b;
+            color: var(--color-text-secondary);
             margin: 6px 0 0;
         }
     }
@@ -68,18 +67,16 @@
     display: inline-flex;
     align-items: center;
     padding: 8px 16px;
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
     border-radius: 20px;
     font-size: 13px;
     font-weight: 700;
-    color: #0f172a;
-    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+    color: var(--color-text-primary);
+    box-shadow: var(--shadow-sm);
 }
 
-/* ============================================
-   BUSCADOR
-   ============================================ */
+/* BUSCADOR */
 .buscador-card {
     margin-bottom: 28px;
 }
@@ -89,19 +86,19 @@
     align-items: center;
     gap: 12px;
     padding: 12px 18px;
-    background: #ffffff;
-    border: 1.5px solid #e2e8f0;
+    background: var(--color-bg-card);
+    border: 1.5px solid var(--color-border);
     border-radius: 12px;
     transition: all 0.2s ease;
-    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+    box-shadow: var(--shadow-sm);
 
     &:focus-within {
-        border-color: #0f1c3f;
+        border-color: var(--color-primary);
         box-shadow: 0 0 0 4px rgba(15, 28, 63, 0.08);
     }
 
     svg {
-        stroke: #94a3b8;
+        stroke: var(--color-text-muted);
         flex-shrink: 0;
     }
 
@@ -110,12 +107,12 @@
         border: none;
         background: transparent;
         font-size: 14.5px;
-        color: #0f172a;
+        color: var(--color-text-primary);
         font-family: inherit;
         font-weight: 500;
 
         &::placeholder {
-            color: #94a3b8;
+            color: var(--color-text-muted);
             font-weight: 400;
         }
 
@@ -131,37 +128,31 @@
         width: 24px;
         height: 24px;
         border: none;
-        background: #f1f5f9;
+        background: var(--color-bg-hover);
         border-radius: 50%;
         cursor: pointer;
         transition: all 0.15s ease;
         flex-shrink: 0;
 
-        &:hover {
-            background: #e2e8f0;
-        }
+        &:hover { background: var(--color-border); }
 
-        svg {
-            stroke: #64748b;
-        }
+        svg { stroke: var(--color-text-secondary); }
     }
 }
 
-/* ============================================
-   LOADER
-   ============================================ */
+/* LOADER */
 .state-container {
     padding: 80px 40px;
     text-align: center;
-    background: #ffffff;
+    background: var(--color-bg-card);
     border-radius: 16px;
-    border: 1px solid #edf0f5;
+    border: 1px solid var(--color-border);
 
     .spinner-border {
         width: 2.5rem;
         height: 2.5rem;
-        border: 3px solid #e2e8f0;
-        border-top-color: #0f1c3f;
+        border: 3px solid var(--color-border);
+        border-top-color: var(--color-primary);
         border-radius: 50%;
         animation: spin 0.8s linear infinite;
         margin: 0 auto 18px;
@@ -169,7 +160,7 @@
     }
 
     p {
-        color: #64748b;
+        color: var(--color-text-secondary);
         font-size: 14.5px;
         font-weight: 500;
         margin: 0;
@@ -177,14 +168,10 @@
 }
 
 @keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
+    to { transform: rotate(360deg); }
 }
 
-/* ============================================
-   GRID DE SOCIOS
-   ============================================ */
+/* GRID DE SOCIOS */
 .socios-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -192,28 +179,26 @@
 }
 
 .socio-card {
-    background: #ffffff;
-    border: 1px solid #edf0f5;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
     border-radius: 16px;
     overflow: hidden;
     cursor: pointer;
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     flex-direction: column;
-    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+    box-shadow: var(--shadow-sm);
 
     &:hover {
-        border-color: #cbd5e1;
-        box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+        border-color: var(--color-text-muted);
+        box-shadow: var(--shadow-lg);
         transform: translateY(-3px);
 
         .btn-ver-perfil {
-            background: #1a2b5c;
+            background: var(--color-primary-hover);
             color: #ffffff;
 
-            .arrow {
-                transform: translateX(4px);
-            }
+            .arrow { transform: translateX(4px); }
         }
     }
 
@@ -234,9 +219,7 @@
     }
 }
 
-/* ============================================
-   AVATAR
-   ============================================ */
+/* AVATAR */
 .socio-avatar {
     width: 72px;
     height: 72px;
@@ -244,12 +227,12 @@
     overflow: hidden;
     position: relative;
     flex-shrink: 0;
-    background: #ffffff;
+    background: var(--color-bg-card);
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 3px solid #ffffff;
-    box-shadow: 0 4px 12px rgba(15, 28, 63, 0.15);
+    border: 3px solid var(--color-bg-card);
+    box-shadow: var(--shadow-md);
 
     img {
         width: 100%;
@@ -266,13 +249,11 @@
     }
 
     &.avatar-fallback {
-        background: linear-gradient(135deg, #0f1c3f 100%);
+        background: linear-gradient(135deg, var(--color-primary) 100%);
     }
 }
 
-/* ============================================
-   STATUS BADGE
-   ============================================ */
+/* ✅ Semánticos */
 .socio-status {
     display: inline-flex;
     align-items: center;
@@ -294,28 +275,22 @@
         background: #dcfce7;
         color: #16a34a;
 
-        .dot {
-            background: #16a34a;
-        }
+        .dot { background: #16a34a; }
     }
 
     &.inactivo {
-        background: #f1f5f9;
-        color: #64748b;
+        background: var(--color-bg-hover);
+        color: var(--color-text-secondary);
 
-        .dot {
-            background: #94a3b8;
-        }
+        .dot { background: var(--color-text-muted); }
     }
 }
 
-/* ============================================
-   INFO DEL SOCIO
-   ============================================ */
+/* INFO DEL SOCIO */
 .socio-nombre {
     font-size: 17px;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--color-text-primary);
     margin: 0 0 4px;
     letter-spacing: -0.2px;
     line-height: 1.3;
@@ -324,7 +299,7 @@
 .socio-username {
     font-size: 13px;
     font-weight: 500;
-    color: #64748b;
+    color: var(--color-text-secondary);
     margin: 0 0 16px;
 }
 
@@ -340,11 +315,11 @@
     align-items: center;
     gap: 8px;
     font-size: 12.5px;
-    color: #475569;
+    color: var(--color-text-secondary);
     font-weight: 500;
 
     svg {
-        stroke: #94a3b8;
+        stroke: var(--color-text-muted);
         flex-shrink: 0;
     }
 
@@ -355,9 +330,7 @@
     }
 }
 
-/* ============================================
-   NIVEL DE EXPERIENCIA
-   ============================================ */
+/* ✅ Semánticos - NIVEL DE EXPERIENCIA */
 .socio-nivel {
     display: flex;
     align-items: center;
@@ -393,9 +366,7 @@
     }
 }
 
-/* ============================================
-   BOTÓN VER PERFIL
-   ============================================ */
+/* BOTÓN VER PERFIL */
 .btn-ver-perfil {
     width: 100%;
     display: flex;
@@ -403,9 +374,9 @@
     justify-content: center;
     gap: 8px;
     padding: 12px 16px;
-    background: #f8fafc;
-    color: #0f172a;
-    border: 1px solid #e2e8f0;
+    background: var(--color-bg-hover);
+    color: var(--color-text-primary);
+    border: 1px solid var(--color-border);
     border-radius: 10px;
     font-size: 13.5px;
     font-weight: 600;
@@ -419,42 +390,38 @@
         flex-shrink: 0;
     }
 
-    .arrow {
-        margin-left: auto;
-    }
+    .arrow { margin-left: auto; }
 }
 
-/* ============================================
-   EMPTY STATE
-   ============================================ */
+/* EMPTY STATE */
 .empty-state {
     text-align: center;
     padding: 80px 24px;
-    background: #ffffff;
-    border: 1px dashed #cbd5e1;
+    background: var(--color-bg-card);
+    border: 1px dashed var(--color-border);
     border-radius: 16px;
 
     .empty-icon {
-        color: #cbd5e1;
+        color: var(--color-text-muted);
         margin-bottom: 18px;
     }
 
     h3 {
         font-size: 17px;
         font-weight: 700;
-        color: #0f172a;
+        color: var(--color-text-primary);
         margin: 0 0 6px;
     }
 
     p {
         font-size: 14px;
-        color: #64748b;
+        color: var(--color-text-secondary);
         margin: 0 0 20px;
     }
 
     .btn-clear-search {
         padding: 10px 22px;
-        background: #0f1c3f;
+        background: var(--color-primary);
         color: #ffffff;
         border: none;
         border-radius: 10px;
@@ -463,15 +430,11 @@
         cursor: pointer;
         transition: all 0.2s ease;
 
-        &:hover {
-            background: #1a2b5c;
-        }
+        &:hover { background: var(--color-primary-hover); }
     }
 }
 
-/* ============================================
-   PAGINACIÓN
-   ============================================ */
+/* PAGINACIÓN */
 .paginacion {
     display: flex;
     justify-content: space-between;
@@ -479,15 +442,16 @@
     gap: 16px;
     margin-top: 32px;
     padding: 16px 20px;
-    background: #ffffff;
-    border: 1px solid #edf0f5;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
     border-radius: 14px;
     flex-wrap: wrap;
+    transition: background-color 0.3s ease;
 
     &__info {
         font-size: 13px;
         font-weight: 500;
-        color: #64748b;
+        color: var(--color-text-secondary);
     }
 
     &__controles {
@@ -504,19 +468,19 @@
     min-width: 36px;
     height: 36px;
     padding: 0 10px;
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
     border-radius: 8px;
     font-size: 13px;
     font-weight: 600;
-    color: #0f172a;
+    color: var(--color-text-primary);
     cursor: pointer;
     transition: all 0.15s ease;
     font-family: inherit;
 
     &:hover:not(:disabled):not(.pag-btn--active) {
-        background: #f8fafc;
-        border-color: #cbd5e1;
+        background: var(--color-bg-hover);
+        border-color: var(--color-text-muted);
     }
 
     &:disabled {
@@ -525,9 +489,9 @@
     }
 
     &--active {
-        background: #0f1c3f;
+        background: var(--color-primary);
         color: #ffffff;
-        border-color: #0f1c3f;
+        border-color: var(--color-primary);
         cursor: default;
     }
 
@@ -535,9 +499,7 @@
         padding: 0;
         width: 36px;
 
-        svg {
-            stroke: currentColor;
-        }
+        svg { stroke: currentColor; }
     }
 }
 
@@ -546,9 +508,7 @@
         flex-direction: column;
         align-items: stretch;
 
-        &__info {
-            text-align: center;
-        }
+        &__info { text-align: center; }
 
         &__controles {
             justify-content: center;
@@ -563,9 +523,7 @@
     }
 }
 
-/* ============================================
-   RESPONSIVE
-   ============================================ */
+/* RESPONSIVE */
 @media (max-width: 992px) {
     .perfil-medico-main {
         margin-left: 0;
@@ -584,9 +542,7 @@
     }
 
     .page-header {
-        &__title h1 {
-            font-size: 22px;
-        }
+        &__title h1 { font-size: 22px; }
     }
 
     .socios-grid {
@@ -596,34 +552,20 @@
 }
 
 @media (max-width: 480px) {
-    .page-header__title h1 {
-        font-size: 20px;
-    }
+    .page-header__title h1 { font-size: 20px; }
 
     .socio-card {
-        &__header {
-            padding: 20px 20px 0;
-        }
-
-        &__body {
-            padding: 14px 20px 18px;
-        }
-
-        &__footer {
-            padding: 0 16px 16px;
-        }
+        &__header { padding: 20px 20px 0; }
+        &__body { padding: 14px 20px 18px; }
+        &__footer { padding: 0 16px 16px; }
     }
 
     .socio-avatar {
         width: 64px;
         height: 64px;
 
-        .avatar-initials {
-            font-size: 20px;
-        }
+        .avatar-initials { font-size: 20px; }
     }
 
-    .socio-nombre {
-        font-size: 15.5px;
-    }
+    .socio-nombre { font-size: 15.5px; }
 }

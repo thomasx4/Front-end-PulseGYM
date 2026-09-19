@@ -1,18 +1,19 @@
 :host {
     display: block;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    color: #0f172a;
+    color: var(--color-text-primary);
     -webkit-font-smoothing: antialiased;
 }
 
 .detalle-progreso-page {
     margin-left: 260px;
     min-height: 100vh;
-    background-color: #f8fafc;
+    background-color: var(--color-bg-main);
     display: flex;
     flex-direction: column;
     width: calc(100% - 260px);
     box-sizing: border-box;
+    transition: background-color 0.3s ease;
 }
 
 .detalle-progreso-content {
@@ -44,13 +45,13 @@
         h1 {
             font-size: 1.75rem;
             font-weight: 800;
-            color: #051f42;
+            color: var(--color-text-primary);
             margin: 0;
         }
 
         .subtitle {
             font-size: 0.875rem;
-            color: #64748b;
+            color: var(--color-text-secondary);
             margin: 4px 0 0;
         }
     }
@@ -62,9 +63,9 @@
     gap: 6px;
     padding: 8px 14px;
     background: transparent;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--color-border);
     border-radius: 8px;
-    color: #475569;
+    color: var(--color-text-secondary);
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
@@ -73,9 +74,9 @@
     font-family: inherit;
 
     &:hover {
-        background: #f1f5f9;
-        color: #0f172a;
-        border-color: #0f1c3f;
+        background: var(--color-bg-hover);
+        color: var(--color-text-primary);
+        border-color: var(--color-primary);
     }
 
     svg { stroke: currentColor; }
@@ -87,37 +88,48 @@
 .state-container {
     padding: 80px 40px;
     text-align: center;
-    background: #ffffff;
+    background: var(--color-bg-card);
     border-radius: 16px;
-    border: 1px solid #edf0f5;
+    border: 1px solid var(--color-border);
+    transition: background-color 0.3s ease;
 
     .spinner-border {
         width: 2.5rem;
         height: 2.5rem;
-        border: 3px solid #e2e8f0;
-        border-top-color: #0f1c3f;
+        border: 3px solid var(--color-border);
+        border-top-color: var(--color-primary);
         border-radius: 50%;
         animation: spin 0.8s linear infinite;
         margin: 0 auto 18px;
         display: block;
     }
 
-    p { color: #64748b; font-size: 14.5px; font-weight: 500; margin: 0; }
+    p {
+        color: var(--color-text-secondary);
+        font-size: 14.5px;
+        font-weight: 500;
+        margin: 0;
+    }
 
+    /* ✅ Semántico (rojo) */
     &.error {
-        p { color: #b91c1c; margin-bottom: 20px; }
+        p {
+            color: var(--color-error);
+            margin-bottom: 20px;
+        }
 
         .btn-volver-error {
             padding: 10px 22px;
-            background: #0f1c3f;
+            background: var(--color-primary);
             color: #ffffff;
             border: none;
             border-radius: 10px;
             font-size: 13.5px;
             font-weight: 600;
             cursor: pointer;
+            transition: all 0.2s ease;
 
-            &:hover { background: #1a2b5c; }
+            &:hover { background: var(--color-primary-hover); }
         }
     }
 }
@@ -134,14 +146,15 @@
 }
 
 .kpi-card {
-    background: #ffffff;
-    border: 1px solid #edf0f5;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
     border-radius: 14px;
     padding: 20px;
     display: flex;
     align-items: center;
     gap: 16px;
-    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+    box-shadow: var(--shadow-sm);
+    transition: background-color 0.3s ease;
 
     .kpi-icon {
         width: 46px;
@@ -163,7 +176,7 @@
     .kpi-label {
         font-size: 0.75rem;
         font-weight: 700;
-        color: #64748b;
+        color: var(--color-text-secondary);
         text-transform: uppercase;
         letter-spacing: 0.3px;
     }
@@ -171,16 +184,17 @@
     .kpi-value {
         font-size: 1.5rem;
         font-weight: 800;
-        color: #051f42;
+        color: var(--color-text-primary);
         line-height: 1.1;
 
         small {
             font-size: 0.875rem;
             font-weight: 600;
-            color: #64748b;
+            color: var(--color-text-secondary);
         }
     }
 
+    /* ✅ Semánticos (colores por tipo de KPI) */
     &--blue .kpi-icon { background: #eff6ff; color: #2563eb; }
     &--green .kpi-icon { background: #f0fdf4; color: #16a34a; }
     &--purple .kpi-icon { background: #f5f3ff; color: #7c3aed; }
@@ -191,25 +205,26 @@
    CARDS
    ============================================ */
 .card {
-    background: #ffffff;
-    border: 1px solid #edf0f5;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
     border-radius: 16px;
-    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+    box-shadow: var(--shadow-sm);
     overflow: hidden;
+    transition: background-color 0.3s ease;
 
     .card-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
         padding: 20px 24px;
-        border-bottom: 1px solid #f1f5f9;
+        border-bottom: 1px solid var(--color-border-light);
         gap: 12px;
         flex-wrap: wrap;
 
         h3 {
             font-size: 1rem;
             font-weight: 800;
-            color: #051f42;
+            color: var(--color-text-primary);
             margin: 0;
         }
     }
@@ -217,8 +232,8 @@
     .card-count {
         font-size: 0.75rem;
         font-weight: 700;
-        color: #64748b;
-        background: #f1f5f9;
+        color: var(--color-text-secondary);
+        background: var(--color-bg-hover);
         padding: 4px 10px;
         border-radius: 12px;
     }
@@ -249,9 +264,10 @@
     .evolucion-nombre {
         font-size: 0.875rem;
         font-weight: 700;
-        color: #0f172a;
+        color: var(--color-text-primary);
     }
 
+    /* ✅ Semánticos (colores por estado de progreso) */
     .evolucion-estado {
         font-size: 0.675rem;
         font-weight: 800;
@@ -261,16 +277,17 @@
         &.progreso--positivo { color: #16a34a; }
         &.progreso--estancado { color: #d97706; }
         &.progreso--negativo { color: #dc2626; }
-        &.progreso--neutro { color: #64748b; }
+        &.progreso--neutro { color: var(--color-text-secondary); }
     }
 }
 
 .evolucion-bar {
-    background: #f1f5f9;
+    background: var(--color-bg-hover);
     height: 8px;
     border-radius: 4px;
     overflow: hidden;
 
+    /* ✅ Semánticos */
     .evolucion-fill {
         height: 100%;
         border-radius: 4px;
@@ -279,14 +296,14 @@
         &.progreso--positivo { background: #16a34a; }
         &.progreso--estancado { background: #d97706; }
         &.progreso--negativo { background: #dc2626; }
-        &.progreso--neutro { background: #64748b; }
+        &.progreso--neutro { background: var(--color-text-secondary); }
     }
 }
 
 .evolucion-porcentaje {
     font-size: 0.875rem;
     font-weight: 800;
-    color: #0f172a;
+    color: var(--color-text-primary);
     text-align: right;
     min-width: 50px;
 }
@@ -300,7 +317,7 @@
 
     p {
         font-size: 0.875rem;
-        color: #94a3b8;
+        color: var(--color-text-muted);
         margin: 0;
     }
 }
@@ -311,7 +328,7 @@
 }
 
 .sesion-item {
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid var(--color-border-light);
 
     &:last-child { border-bottom: none; }
 }
@@ -325,7 +342,7 @@
     cursor: pointer;
     transition: background 0.15s;
 
-    &:hover { background: #f8fafc; }
+    &:hover { background: var(--color-bg-hover); }
 }
 
 .sesion-info {
@@ -336,12 +353,13 @@
     min-width: 0;
 }
 
+/* ✅ Semántico (azul) */
 .sesion-icon {
     width: 40px;
     height: 40px;
     border-radius: 10px;
-    background: #eff6ff;
-    color: #2563eb;
+    background: var(--color-info-bg);
+    color: var(--color-info);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -357,12 +375,12 @@
     .sesion-nombre {
         font-size: 0.9rem;
         font-weight: 700;
-        color: #0f172a;
+        color: var(--color-text-primary);
     }
 
     .sesion-fecha {
         font-size: 0.75rem;
-        color: #64748b;
+        color: var(--color-text-secondary);
     }
 }
 
@@ -375,15 +393,15 @@
     .sesion-badge {
         font-size: 0.7rem;
         font-weight: 700;
-        color: #475569;
-        background: #f1f5f9;
+        color: var(--color-text-secondary);
+        background: var(--color-bg-hover);
         padding: 4px 10px;
         border-radius: 8px;
     }
 }
 
 .sesion-chevron {
-    stroke: #94a3b8;
+    stroke: var(--color-text-muted);
     transition: transform 0.25s ease;
     margin-left: 6px;
 
@@ -392,7 +410,7 @@
 
 .sesion-body {
     padding: 4px 24px 20px;
-    background: #f8fafc;
+    background: var(--color-bg-hover);
     animation: expandir 0.2s ease;
 }
 
@@ -407,7 +425,7 @@
     align-items: center;
     gap: 16px;
     padding: 12px 0;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid var(--color-border);
 
     &:last-of-type { border-bottom: none; }
 }
@@ -420,12 +438,12 @@
     .detalle-nombre {
         font-size: 0.825rem;
         font-weight: 700;
-        color: #0f172a;
+        color: var(--color-text-primary);
     }
 
     .detalle-grupo {
         font-size: 0.7rem;
-        color: #64748b;
+        color: var(--color-text-secondary);
         text-transform: uppercase;
         letter-spacing: 0.3px;
     }
@@ -438,15 +456,16 @@
 
     .detalle-stat {
         font-size: 0.775rem;
-        color: #475569;
+        color: var(--color-text-secondary);
 
         strong {
-            color: #0f172a;
+            color: var(--color-text-primary);
             font-weight: 800;
         }
     }
 }
 
+/* ✅ Semánticos */
 .detalle-estado {
     font-size: 0.7rem;
     font-weight: 800;
@@ -459,34 +478,36 @@
     &.estado--no-realizado { background: #fee2e2; color: #b91c1c; }
 }
 
+/* ✅ Semántico (azul) */
 .detalle-obs {
     font-size: 0.75rem;
-    color: #475569;
-    background: #eff6ff;
+    color: var(--color-text-secondary);
+    background: var(--color-info-bg);
     padding: 8px 12px;
     border-radius: 8px;
     margin: 8px 0 0;
-    border-left: 3px solid #2563eb;
+    border-left: 3px solid var(--color-info);
 
     strong {
-        color: #1e40af;
+        color: var(--color-info);
         font-weight: 700;
     }
 }
 
 /* ============================================
-   ESTADO VACÍO (sin progreso)
+   ESTADO VACÍO
    ============================================ */
 .state-container.empty {
     padding: 60px 40px;
     text-align: center;
 
+    /* ✅ Semántico (azul) */
     .empty-icon {
         width: 88px;
         height: 88px;
         border-radius: 50%;
-        background: #eff6ff;
-        color: #2563eb;
+        background: var(--color-info-bg);
+        color: var(--color-info);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -496,20 +517,20 @@
     .empty-title {
         font-size: 1.15rem;
         font-weight: 800;
-        color: #051f42;
+        color: var(--color-text-primary);
         margin: 0 0 8px;
     }
 
     .empty-subtitle {
         font-size: 0.9rem;
-        color: #64748b;
+        color: var(--color-text-secondary);
         margin: 0 0 24px;
         line-height: 1.5;
     }
 
     .btn-volver-error {
         padding: 11px 24px;
-        background: #0f1c3f;
+        background: var(--color-primary);
         color: #ffffff;
         border: none;
         border-radius: 10px;
@@ -519,8 +540,8 @@
         transition: all 0.2s ease;
 
         &:hover {
-            background: #1a2b5c;
-            box-shadow: 0 4px 12px rgba(15, 28, 63, 0.3);
+            background: var(--color-primary-hover);
+            box-shadow: var(--shadow-md);
         }
     }
 }

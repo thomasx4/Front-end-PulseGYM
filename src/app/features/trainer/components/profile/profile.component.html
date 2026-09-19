@@ -1,0 +1,399 @@
+<div class="dashboard-container">
+    <!-- Componente de la barra lateral / Menú de navegación -->
+    <app-navbar></app-navbar>
+
+    <div class="main-content-wrapper">
+        <!-- Cabecera superior global -->
+        <app-header></app-header>
+
+        <div class="profile-layout">
+            <div class="profile-main">
+                <div class="profile-wrapper">
+                    
+                    <!-- Barra superior para volver al Dashboard -->
+                    <div class="admin-top-bar">
+                        <button class="btn-back-admin" (click)="volverAlDashboard()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="19" y1="12" x2="5" y2="12"></line>
+                                <polyline points="12 19 5 12 12 5"></polyline>
+                            </svg>
+                            Volver al Tablero
+                        </button>
+                    </div>
+
+                    <div *ngIf="isLoading" class="state-container">
+                        <p>Cargando tu perfil...</p>
+                    </div>
+
+                    <div *ngIf="error && !isLoading" class="state-container error">
+                        <p>{{ error }}</p>
+                        <button (click)="refreshData()" class="btn-retry">Intentar de nuevo</button>
+                    </div>
+
+                    <!-- Mensaje de éxito -->
+                    <div *ngIf="mensajeExito" class="alert-success">
+                        {{ mensajeExito }}
+                    </div>
+
+                    <!-- ========== MODO EDICIÓN ========== -->
+                    <div *ngIf="editando && !isLoading">
+                        <header class="page-header">
+                            <h1>Editar Perfil de Administrador</h1>
+                            <p class="subtitle">Actualiza tu información personal y mantén tus datos de contacto al día.</p>
+                        </header>
+
+                        <div class="edit-container">
+                            <form (ngSubmit)="guardarCambios()" #profileForm="ngForm" class="edit-form">
+                                <!-- Foto de perfil centrada con Cloudinary -->
+                                <div class="form-avatar-section">
+                                    <div class="form-avatar-wrapper">
+                                        <div class="form-avatar">
+                                            <img *ngIf="imagePreview || userProfile.fotoUrl"
+                                                [src]="imagePreview || userProfile.fotoUrl" [alt]="userName"
+                                                class="avatar-image" />
+                                            <span *ngIf="!imagePreview && !userProfile.fotoUrl">
+                                                {{ getInitials(userProfile.nombre || userName) }}
+                                            </span>
+                                        </div>
+
+                                        <!-- Input oculto para seleccionar archivo -->
+                                        <input type="file" id="fileInput" accept="image/*" (change)="onFileSelected($event)"
+                                            style="display: none;" />
+
+                                        <div class="btn-group">
+                                            <button type="button" class="btn-upload-photo" (click)="openFileSelector()"
+                                                [disabled]="uploadingImage">
+                                                {{ userProfile.fotoUrl ? 'Cambiar foto' : 'Subir foto' }}
+                                            </button>
+                                            <button *ngIf="selectedFile" type="button" class="btn-upload-photo btn-remove"
+                                                (click)="selectedFile = null; imagePreview = null;">
+                                                Cancelar
+                                            </button>
+                                        </div>
+
+                                        <small class="text-muted" *ngIf="selectedFile">
+                                            Archivo seleccionado: {{ selectedFile?.name }}
+                                        </small>
+                                        <small class="text-muted" *ngIf="uploadingImage">
+                                            Subiendo imagen...
+                                        </small>
+                                    </div>
+                                </div>
+
+                                <!-- Nombre y Apellido -->
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="nombre">Nombre</label>
+                                        <input type="text" id="nombre" class="form-control" [(ngModel)]="userProfile.nombre"
+                                            name="nombre" placeholder="Tu nombre" required />
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="apellido">Apellido</label>
+                                        <input type="text" id="apellido" class="form-control" [(ngModel)]="userProfile.apellido"
+                                            name="apellido" placeholder="Tu apellido" />
+                                    </div>
+                                </div>
+
+                                <!-- Email y Teléfono -->
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="email">Correo electrónico</label>
+                                        <input type="email" id="email" class="form-control" [(ngModel)]="userProfile.email"
+                                            name="email" placeholder="correo@ejemplo.com" required disabled readonly />
+                                        <small class="text-muted">El correo electrónico no se puede modificar</small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="telefono">Teléfono</label>
+                                        <input type="tel" id="telefono" class="form-control" [(ngModel)]="userProfile.telefono"
+                                            name="telefono" placeholder="+57 300 000 0000" />
+                                    </div>
+                                </div>
+
+                                <!-- Fecha y Sexo -->
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="fechaNacimiento">Fecha de nacimiento</label>
+                                        <input type="date" id="fechaNacimiento" class="form-control"
+                                            [(ngModel)]="userProfile.fechaNacimiento" name="fechaNacimiento" />
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="sexo">Sexo</label>
+                                        <select id="sexo" class="form-control" [(ngModel)]="userProfile.sexo" name="sexo">
+                                            <option value="">Seleccionar</option>
+                                            <option value="MASCULINO">Masculino</option>
+                                            <option value="FEMENINO">Femenino</option>
+                                            <option value="OTRO">Otro</option>
+                                            <option value="PREFIERO NO DECIR">Prefiero no decir</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Documento de Identidad -->
+                                <div class="form-group">
+                                    <label for="documentoIdentidad">Documento de identidad</label>
+                                    <input type="text" id="documentoIdentidad" class="form-control"
+                                        [(ngModel)]="userProfile.documentoIdentidad" name="documentoIdentidad"
+                                        placeholder="Número de identificación" />
+                                </div>
+
+                                <!-- Contacto de Emergencia -->
+                                <div class="form-section">
+                                    <h4>Contacto de Emergencia</h4>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="contactoEmergenciaNombre">Nombre del contacto</label>
+                                            <input type="text" id="contactoEmergenciaNombre" class="form-control"
+                                                [(ngModel)]="userProfile.contactoEmergenciaNombre"
+                                                name="contactoEmergenciaNombre" placeholder="Nombre del contacto" />
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="contactoEmergenciaTelefono">Teléfono de emergencia</label>
+                                            <input type="tel" id="contactoEmergenciaTelefono" class="form-control"
+                                                [(ngModel)]="userProfile.contactoEmergenciaTelefono"
+                                                name="contactoEmergenciaTelefono" placeholder="+57 300 000 0000" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Botones de acción -->
+                                <div class="form-actions">
+                                    <button type="button" class="btn-secondary" (click)="cancelarEdicion()">Cancelar</button>
+                                    <button type="submit" class="btn-primary"
+                                        [disabled]="!profileForm.valid || guardando || uploadingImage">
+                                        {{ uploadingImage ? 'Subiendo imagen...' : guardando ? 'Guardando...' : 'Guardar cambios' }}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- ========== MODO VISUALIZACIÓN ========== -->
+                    <div *ngIf="!editando && !isLoading && !error">
+                        <!-- Tarjeta de Perfil Principal -->
+                        <div class="card profile-card">
+                            <div class="profile-top">
+                                <div class="profile-avatar-container">
+                                    <div class="profile-avatar">
+                                        <img *ngIf="avatarUrl" [src]="avatarUrl" [alt]="userName" class="avatar-image" />
+                                        <span *ngIf="!avatarUrl">{{ getInitials(userProfile.nombre || userName) }}</span>
+                                    </div>
+                                </div>
+
+                                <div class="profile-main-info">
+                                    <h2>{{ userProfile.nombreCompleto || userProfile.nombre || userName }}</h2>
+                                    <div class="profile-badges">
+                                        <span class="profile-badge">Entrnador</span>
+                                        <span class="profile-badge username">{{ '@' + (userProfile.username || 'admin') }}</span>
+                                    </div>
+                                </div>
+
+                                <!-- Botones de acción: Editar y Ajustes -->
+                                <div class="profile-actions">
+                                    <button class="btn-edit-profile" (click)="activarEdicion()">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M12 20h9" />
+                                            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                                        </svg>
+                                        Editar
+                                    </button>
+                                    <button class="btn-settings" (click)="irAjustes()" title="Ajustes">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="12" cy="12" r="3"/>
+                                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="profile-contact-row">
+                                <div class="contact-col">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                                        <polyline points="22,6 12,13 2,6" />
+                                    </svg>
+                                    <div>
+                                        <span class="contact-label">Correo electrónico</span>
+                                        <span class="contact-value">{{ userProfile.email || 'No registrado' }}</span>
+                                    </div>
+                                </div>
+
+                                <div class="contact-col">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                                    </svg>
+                                    <div>
+                                        <span class="contact-label">Teléfono</span>
+                                        <span class="contact-value">{{ userProfile.telefono || 'No registrado' }}</span>
+                                    </div>
+                                </div>
+
+                                <div class="contact-col">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                                        <line x1="16" y1="2" x2="16" y2="6" />
+                                        <line x1="8" y1="2" x2="8" y2="6" />
+                                        <line x1="3" y1="10" x2="21" y2="10" />
+                                    </svg>
+                                    <div>
+                                        <span class="contact-label">Edad</span>
+                                        <span class="contact-value">{{ userProfile.edad || 'No registrada' }} años</span>
+                                    </div>
+                                </div>
+
+                                <div class="contact-col">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                                        <circle cx="12" cy="10" r="3" />
+                                    </svg>
+                                    <div>
+                                        <span class="contact-label">Sede a Cargo</span>
+                                        <span class="contact-value">{{ sedeNombre || 'Cargando...' }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ===== GRID DE 2 COLUMNAS (ADMINISTRADOR) ===== -->
+                        <div class="profile-grid admin-grid">
+                            <!-- Columna 1: Información Personal y Corporativa -->
+                            <div class="card info-card">
+                                <div class="card-header">
+                                    <h3>Información Personal y del Sistema</h3>
+                                </div>
+                                <div class="info-list">
+                                    <div class="info-row">
+                                        <span class="info-label">Nombre completo</span>
+                                        <span class="info-value bold">{{ (userProfile.nombre || '') + ' ' + (userProfile.apellido || '') || userName }}</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label">Fecha de nacimiento</span>
+                                        <span class="info-value bold">{{ userProfile.fechaNacimiento || 'No registrada' }}</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label">Sexo</span>
+                                        <span class="info-value bold">{{ userProfile.sexo || 'No especificado' }}</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label">Teléfono</span>
+                                        <span class="info-value bold">{{ userProfile.telefono || 'No registrado' }}</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label">Correo electrónico</span>
+                                        <span class="info-value bold">{{ userProfile.email || 'No registrado' }}</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label">Documento</span>
+                                        <span class="info-value bold">{{ userProfile.documentoIdentidad || 'No registrado' }}</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label">Nivel de Acceso</span>
+                                        <span class="info-value bold">Control Total / Entrenador</span>
+                                    </div>
+                                </div>
+
+                                <div class="goal-banner">
+                                    <div class="goal-icon">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2">
+                                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                                            <path d="m9 12 2 2 4-4"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="goal-content">
+                                        <span class="goal-title">Permisos del Sistema</span>
+                                        <p class="goal-name">Gestión Global de Pulse Gym</p>
+                                        <p class="goal-sub">Acceso completo a pasarelas, sedes, usuarios y ajustes.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Columna 2: Contactos de Emergencia -->
+                            <div class="card contactos-card">
+                                <div class="card-header">
+                                    <h3>Contactos de Emergencia</h3>
+                                    <span class="badge-verificado">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                        Seguro y Activo
+                                    </span>
+                                </div>
+
+                                <div class="contactos-list">
+                                    <div *ngFor="let contacto of contactos" class="contacto-item">
+                                        <div class="contacto-icon">
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2">
+                                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                                            </svg>
+                                        </div>
+                                        <div class="contacto-details">
+                                            <div class="contacto-head">
+                                                <span class="contacto-nombre">{{ contacto.nombre || 'Sin contacto' }}</span>
+                                                <span class="tag-parentesco">{{ contacto.parentesco || '--' }}</span>
+                                            </div>
+                                            <span class="contacto-telefono">{{ contacto.telefono || 'No registrado' }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div *ngIf="contactos.length === 0" class="empty-message-box">
+                                    <div class="empty-icon-circle">
+                                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="1.5">
+                                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                                            <circle cx="9" cy="7" r="4"></circle>
+                                            <line x1="19" y1="8" x2="19" y2="14"></line>
+                                            <line x1="22" y1="11" x2="16" y2="11"></line>
+                                        </svg>
+                                    </div>
+                                    <p class="empty-title">Sin contacto de emergencia</p>
+                                    <p class="empty-subtitle">Agrega un número de confianza para mayor seguridad en el gimnasio.</p>
+                                </div>
+
+                                <div class="protocol-card">
+                                    <div class="protocol-header">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0f1c3f" stroke-width="2">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                                        </svg>
+                                        <span>Protocolo Pulse Gym</span>
+                                    </div>
+                                    <p class="protocol-desc">En caso de incidente en cualquiera de las sedes, el personal de gestión se comunicará de inmediato con el contacto registrado.</p>
+                                </div>
+
+                                <div class="security-banner">
+                                    <div class="shield-icon">
+                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2">
+                                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                                            <path d="m9 12 2 2 4-4" />
+                                        </svg>
+                                    </div>
+                                    <div class="security-text">
+                                        <strong>Tu seguridad es importante</strong>
+                                        <p>Asegúrate de mantener tus contactos de emergencia actualizados.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========== MODAL DE ERROR ========== -->
+<div class="modal-overlay" *ngIf="mostrarModalError" (click)="cerrarModalError()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-icon error-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+        </div>
+        <h3 class="modal-title">Error al actualizar</h3>
+        <p class="modal-message">{{ modalErrorMessage || 'Ocurrió un error al actualizar la foto de perfil' }}</p>
+        <div class="modal-actions">
+            <button class="modal-btn modal-btn-secondary" (click)="cerrarModalError()">Cancelar</button>
+            <button class="modal-btn modal-btn-primary" (click)="reintentarSubida()">Reintentar</button>
+        </div>
+    </div>
+</div>

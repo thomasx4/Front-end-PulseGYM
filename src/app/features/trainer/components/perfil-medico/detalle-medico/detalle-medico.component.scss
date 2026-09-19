@@ -1,7 +1,7 @@
 :host {
     display: block;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    color: #0f172a;
+    color: var(--color-text-primary);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
@@ -9,7 +9,8 @@
 .detalle-medico-layout {
     display: flex;
     min-height: 100vh;
-    background: #f8fafc;
+    background: var(--color-bg-main);
+    transition: background-color 0.3s ease;
 }
 
 .detalle-medico-main {
@@ -29,9 +30,7 @@
     box-sizing: border-box;
 }
 
-/* ============================================
-   HEADER
-   ============================================ */
+/* HEADER */
 .page-header {
     display: flex;
     justify-content: space-between;
@@ -51,13 +50,13 @@
             font-size: 28px;
             font-weight: 800;
             letter-spacing: -0.3px;
-            color: #0f172a;
+            color: var(--color-text-primary);
             margin: 0;
         }
 
         .subtitle {
             font-size: 14px;
-            color: #64748b;
+            color: var(--color-text-secondary);
             margin: 4px 0 0;
         }
     }
@@ -78,7 +77,7 @@
     background: transparent;
     border: none;
     border-radius: 8px;
-    color: #475569;
+    color: var(--color-text-secondary);
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
@@ -87,7 +86,7 @@
     font-family: inherit;
 
     &:hover:not(:disabled) {
-        color: #0f172a;
+        color: var(--color-text-primary);
     }
 
     &:disabled {
@@ -95,17 +94,15 @@
         cursor: not-allowed;
     }
 
-    svg {
-        stroke: currentColor;
-    }
+    svg { stroke: currentColor; }
 }
 
 .btn-volver {
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--color-border);
 
     &:hover:not(:disabled) {
-        background: #f1f5f9;
-        border-color: #0f1c3f;
+        background: var(--color-bg-hover);
+        border-color: var(--color-primary);
     }
 }
 
@@ -114,7 +111,7 @@
     align-items: center;
     gap: 8px;
     padding: 11px 20px;
-    background: #0f1c3f;
+    background: var(--color-primary);
     color: #ffffff;
     border: none;
     border-radius: 8px;
@@ -125,31 +122,27 @@
     font-family: inherit;
 
     &:hover {
-        background: #1a2b5c;
+        background: var(--color-primary-hover);
         transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(15, 28, 63, 0.3);
+        box-shadow: var(--shadow-md);
     }
 
-    svg {
-        stroke: currentColor;
-    }
+    svg { stroke: currentColor; }
 }
 
-/* ============================================
-   LOADER
-   ============================================ */
+/* LOADER */
 .state-container {
     padding: 80px 40px;
     text-align: center;
-    background: #ffffff;
+    background: var(--color-bg-card);
     border-radius: 16px;
-    border: 1px solid #edf0f5;
+    border: 1px solid var(--color-border);
 
     .spinner-border {
         width: 2.5rem;
         height: 2.5rem;
-        border: 3px solid #e2e8f0;
-        border-top-color: #0f1c3f;
+        border: 3px solid var(--color-border);
+        border-top-color: var(--color-primary);
         border-radius: 50%;
         animation: spin 0.8s linear infinite;
         margin: 0 auto 18px;
@@ -157,7 +150,7 @@
     }
 
     p {
-        color: #64748b;
+        color: var(--color-text-secondary);
         font-size: 14.5px;
         font-weight: 500;
         margin: 0;
@@ -168,16 +161,15 @@
     to { transform: rotate(360deg); }
 }
 
-/* ============================================
-   CARDS
-   ============================================ */
+/* CARDS */
 .card {
-    background: #ffffff;
-    border: 1px solid #edf0f5;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
     border-radius: 14px;
-    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+    box-shadow: var(--shadow-sm);
     width: 100%;
     box-sizing: border-box;
+    transition: background-color 0.3s ease;
 }
 
 .socio-card {
@@ -203,12 +195,12 @@
     overflow: hidden;
     position: relative;
     flex-shrink: 0;
-    background: linear-gradient(135deg, #0f1c3f 0%, #2563eb 100%);
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 3px solid #ffffff;
-    box-shadow: 0 4px 12px rgba(15, 28, 63, 0.15);
+    border: 3px solid var(--color-bg-card);
+    box-shadow: var(--shadow-md);
 
     img {
         width: 100%;
@@ -228,7 +220,7 @@
 .socio-nombre {
     font-size: 22px;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--color-text-primary);
     margin: 0;
 }
 
@@ -237,11 +229,11 @@
     align-items: center;
     gap: 8px;
     padding: 8px 16px;
-    background: #f1f5f9;
+    background: var(--color-bg-hover);
     border-radius: 20px;
     font-size: 13px;
     font-weight: 600;
-    color: #475569;
+    color: var(--color-text-secondary);
 
     svg {
         stroke: currentColor;
@@ -249,9 +241,7 @@
     }
 }
 
-/* ============================================
-   GRID INFO (vista)
-   ============================================ */
+/* GRID INFO */
 .info-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -268,7 +258,7 @@
         h3 {
             font-size: 17px;
             font-weight: 700;
-            color: #0f172a;
+            color: var(--color-text-primary);
             margin: 0;
         }
     }
@@ -284,7 +274,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 16px 0;
-    border-bottom: 1px solid #eef2f7;
+    border-bottom: 1px solid var(--color-border-light);
     gap: 16px;
 
     &:last-child {
@@ -299,43 +289,40 @@
 
 .info-label {
     font-size: 14px;
-    color: #64748b;
+    color: var(--color-text-secondary);
     font-weight: 500;
 }
 
 .info-value {
     font-size: 15px;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--color-text-primary);
     text-align: right;
     word-break: break-word;
 }
 
-/* ============================================
-   BANNER
-   ============================================ */
+/* BANNER */
+/* ✅ Semántico (azul) */
 .banner-card {
     display: flex;
     align-items: center;
     gap: 16px;
     padding: 20px 28px;
-    background: #eff6ff;
-    border-color: #dbeafe;
+    background: var(--color-info-bg);
+    border-color: var(--color-info);
 }
 
 .banner-icon {
     width: 44px;
     height: 44px;
     border-radius: 50%;
-    background: #dbeafe;
+    background: var(--color-info-bg);
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
 
-    svg {
-        stroke: #2563eb;
-    }
+    svg { stroke: var(--color-info); }
 }
 
 .banner-text {
@@ -343,27 +330,26 @@
         display: block;
         font-size: 14px;
         font-weight: 700;
-        color: #0f172a;
+        color: var(--color-text-primary);
         margin-bottom: 4px;
     }
 
     p {
         margin: 0;
         font-size: 13px;
-        color: #64748b;
+        color: var(--color-text-secondary);
         line-height: 1.5;
     }
 }
 
-/* ============================================
-   MODO EDICIÓN - Formulario
-   ============================================ */
+/* MODO EDICIÓN - Formulario */
 .form-card {
-    background: #ffffff;
-    border: 1px solid #edf0f5;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
     border-radius: 14px;
     padding: 32px 36px;
-    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+    box-shadow: var(--shadow-sm);
+    transition: background-color 0.3s ease;
 }
 
 .form-grid {
@@ -380,11 +366,11 @@
     label {
         font-size: 13.5px;
         font-weight: 700;
-        color: #0f172a;
+        color: var(--color-text-primary);
         letter-spacing: -0.1px;
 
         .required {
-            color: #dc2626;
+            color: var(--color-error);
             margin-left: 2px;
             font-weight: 700;
         }
@@ -395,28 +381,27 @@
     input:not([type]) {
         width: 100%;
         padding: 11px 14px;
-        border: 1.5px solid #e2e8f0;
+        border: 1.5px solid var(--color-border);
         border-radius: 9px;
         font-size: 14px;
-        color: #0f172a;
-        background: #ffffff;
+        color: var(--color-text-primary);
+        background: var(--color-bg-input);
         font-family: inherit;
         transition: all 0.2s ease;
         box-sizing: border-box;
 
         &::placeholder {
-            color: #94a3b8;
+            color: var(--color-text-muted);
         }
 
         &:focus {
             outline: none;
-            border-color: #0f1c3f;
+            border-color: var(--color-primary);
             box-shadow: 0 0 0 3px rgba(15, 28, 63, 0.1);
         }
     }
 }
 
-/* Input con sufijo (kg, cm, %) */
 .input-with-suffix {
     position: relative;
     display: flex;
@@ -424,23 +409,23 @@
 
     input {
         width: 100%;
-        padding: 11px 60px 11px 14px;  // espacio a la derecha para el sufijo
-        border: 1.5px solid #e2e8f0;
+        padding: 11px 60px 11px 14px;
+        border: 1.5px solid var(--color-border);
         border-radius: 9px;
         font-size: 14px;
-        color: #0f172a;
-        background: #ffffff;
+        color: var(--color-text-primary);
+        background: var(--color-bg-input);
         font-family: inherit;
         transition: all 0.2s ease;
         box-sizing: border-box;
 
         &::placeholder {
-            color: #94a3b8;
+            color: var(--color-text-muted);
         }
 
         &:focus {
             outline: none;
-            border-color: #0f1c3f;
+            border-color: var(--color-primary);
             box-shadow: 0 0 0 3px rgba(15, 28, 63, 0.1);
         }
     }
@@ -450,15 +435,13 @@
         right: 14px;
         font-size: 13px;
         font-weight: 500;
-        color: #94a3b8;
+        color: var(--color-text-muted);
         pointer-events: none;
         user-select: none;
     }
 }
 
-/* ============================================
-   BOTONES
-   ============================================ */
+/* BOTONES */
 .btn-primary,
 .btn-secondary {
     display: inline-flex;
@@ -489,36 +472,34 @@
 }
 
 .btn-primary {
-    background: #0f1c3f;
+    background: var(--color-primary);
     color: #ffffff;
 
     &:hover:not(:disabled) {
-        background: #1a2b5c;
-        box-shadow: 0 4px 12px rgba(15, 28, 63, 0.3);
+        background: var(--color-primary-hover);
+        box-shadow: var(--shadow-md);
     }
 }
 
 .btn-secondary {
-    background: #ffffff;
-    color: #0f172a;
-    border: 1.5px solid #e2e8f0;
+    background: var(--color-bg-card);
+    color: var(--color-text-primary);
+    border: 1.5px solid var(--color-border);
 
     &:hover:not(:disabled) {
-        background: #f1f5f9;
+        background: var(--color-bg-hover);
     }
 }
 
-/* ============================================
-   ALERTAS
-   ============================================ */
+/* ✅ Semánticos */
 .alert-success {
     display: flex;
     align-items: center;
     gap: 10px;
     padding: 14px 20px;
-    background: #dcfce7;
-    border: 1px solid #86efac;
-    color: #166534;
+    background: var(--color-success-bg);
+    border: 1px solid var(--color-success);
+    color: var(--color-success);
     border-radius: 10px;
     font-size: 14px;
     font-weight: 600;
@@ -533,9 +514,9 @@
 
 .alert-error {
     padding: 14px 20px;
-    background: #fef2f2;
-    border: 1px solid #fecaca;
-    color: #b91c1c;
+    background: var(--color-error-bg);
+    border: 1px solid var(--color-error);
+    color: var(--color-error);
     border-radius: 10px;
     font-size: 14px;
     font-weight: 600;
@@ -548,9 +529,7 @@
     to { opacity: 1; }
 }
 
-/* ============================================
-   MODAL
-   ============================================ */
+/* MODAL */
 .modal-overlay {
     position: fixed;
     inset: 0;
@@ -564,16 +543,17 @@
 }
 
 .modal-content {
-    background: #ffffff;
+    background: var(--color-bg-card);
     border-radius: 16px;
     padding: 40px 48px 32px;
     max-width: 420px;
     width: 90%;
     text-align: center;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    box-shadow: var(--shadow-lg);
     animation: slideUp 0.3s ease;
 }
 
+/* ✅ Semántico (rojo) */
 .modal-icon {
     width: 64px;
     height: 64px;
@@ -584,25 +564,23 @@
     margin: 0 auto 16px;
 
     &.error-icon {
-        background: #fef2f2;
-        color: #dc2626;
+        background: var(--color-error-bg);
+        color: var(--color-error);
 
-        svg {
-            stroke: #dc2626;
-        }
+        svg { stroke: var(--color-error); }
     }
 }
 
 .modal-title {
     font-size: 18px;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--color-text-primary);
     margin: 0 0 8px;
 }
 
 .modal-message {
     font-size: 14px;
-    color: #64748b;
+    color: var(--color-text-secondary);
     margin: 0 0 24px;
     line-height: 1.6;
 }
@@ -624,30 +602,22 @@
     font-family: inherit;
 
     &.modal-btn-primary {
-        background: #0f1c3f;
+        background: var(--color-primary);
         color: #ffffff;
 
         &:hover {
-            background: #1a2b5c;
-            box-shadow: 0 4px 12px rgba(15, 28, 63, 0.3);
+            background: var(--color-primary-hover);
+            box-shadow: var(--shadow-md);
         }
     }
 }
 
 @keyframes slideUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px) scale(0.95);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
+    from { opacity: 0; transform: translateY(20px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-/* ============================================
-   RESPONSIVE
-   ============================================ */
+/* RESPONSIVE */
 @media (max-width: 992px) {
     .detalle-medico-main {
         margin-left: 0;
@@ -655,36 +625,26 @@
         max-width: 100%;
     }
 
-    .detalle-medico-wrapper {
-        padding: 20px;
-    }
+    .detalle-medico-wrapper { padding: 20px; }
 
-    .info-grid {
-        grid-template-columns: 1fr;
-    }
+    .info-grid { grid-template-columns: 1fr; }
 
     .socio-card {
         flex-direction: column;
         align-items: flex-start;
     }
 
-    .form-grid {
-        grid-template-columns: 1fr;
-    }
+    .form-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 768px) {
-    .detalle-medico-wrapper {
-        padding: 16px;
-    }
+    .detalle-medico-wrapper { padding: 16px; }
 
     .page-header {
         flex-direction: column;
         align-items: stretch;
 
-        &__title h1 {
-            font-size: 22px;
-        }
+        &__title h1 { font-size: 22px; }
 
         &__right {
             width: 100%;
@@ -696,36 +656,22 @@
         }
     }
 
-    .socio-card {
-        padding: 20px;
-    }
-
-    .info-card {
-        padding: 20px;
-    }
-
-    .form-card {
-        padding: 20px;
-    }
+    .socio-card { padding: 20px; }
+    .info-card { padding: 20px; }
+    .form-card { padding: 20px; }
 }
 
 @media (max-width: 480px) {
-    .detalle-medico-wrapper {
-        padding: 12px;
-    }
+    .detalle-medico-wrapper { padding: 12px; }
 
     .socio-avatar {
         width: 52px;
         height: 52px;
 
-        .avatar-initials {
-            font-size: 20px;
-        }
+        .avatar-initials { font-size: 20px; }
     }
 
-    .socio-nombre {
-        font-size: 18px;
-    }
+    .socio-nombre { font-size: 18px; }
 
     .fecha-badge {
         font-size: 11px;
@@ -735,9 +681,7 @@
     .info-card {
         padding: 16px;
 
-        .card-header h3 {
-            font-size: 15px;
-        }
+        .card-header h3 { font-size: 15px; }
     }
 
     .info-row {
@@ -746,17 +690,11 @@
         gap: 4px;
     }
 
-    .info-value {
-        text-align: left;
-    }
+    .info-value { text-align: left; }
 
     .page-header--edit {
-        &__right {
-            flex-direction: column-reverse;
-        }
+        &__right { flex-direction: column-reverse; }
     }
 
-    .modal-content {
-        padding: 24px 20px 20px;
-    }
+    .modal-content { padding: 24px 20px 20px; }
 }

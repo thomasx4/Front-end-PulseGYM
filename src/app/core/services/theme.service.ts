@@ -12,13 +12,15 @@ export class ThemeService {
   public currentTheme$ = this.currentThemeSubject.asObservable();
   private currentUserId: string | null = null;
 
-  constructor() {}
+  constructor() {
+    const savedGlobalTheme = (localStorage.getItem('theme_default') as Theme) || 'light';
+    this.setTheme(savedGlobalTheme, false);
+  }
 
-  // 👈 Inicializar el tema cuando el usuario inicia sesión
   initializeThemeForUser(userId: string): void {
     this.currentUserId = userId;
     const storageKey = `theme_${userId}`;
-    const savedTheme = localStorage.getItem(storageKey) as Theme || 'light';
+    const savedTheme = (localStorage.getItem(storageKey) as Theme) || (localStorage.getItem('theme_default') as Theme) || 'light';
     this.setTheme(savedTheme, false);
   }
 
@@ -26,18 +28,26 @@ export class ThemeService {
     document.body.classList.remove('light-mode', 'dark-mode');
     document.body.classList.add(theme === 'dark' ? 'dark-mode' : 'light-mode');
     
-    if (saveToStorage && this.currentUserId) {
-      const storageKey = `theme_${this.currentUserId}`;
-      localStorage.setItem(storageKey, theme);
+    if (theme === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    } else {
+      document.documentElement.setAttribute('data-theme', 'light');
+    }
+
+    if (saveToStorage) {
+      if (this.currentUserId) {
+        localStorage.setItem(`theme_${this.currentUserId}`, theme);
+      }
+      localStorage.setItem('theme_default', theme);
     }
     
     this.currentThemeSubject.next(theme);
-    console.log('Tema aplicado para usuario', this.currentUserId, ':', theme);
   }
 
   toggleTheme(): void {
     const current = this.currentThemeSubject.getValue();
-    this.setTheme(current === 'light' ? 'dark' : 'light');
+    const newTheme: Theme = current === 'light' ? 'dark' : 'light';
+    this.setTheme(newTheme, true);
   }
 
   getCurrentTheme(): Theme {

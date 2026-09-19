@@ -1,24 +1,23 @@
-$navy-dark: #0b192c;
-$border-light: #e2e8f0;
-
 .payment-reports-page {
   display: flex;
   flex-direction: column;
   gap: 24px;
   padding: 24px;
+  background-color: var(--color-bg-main);
+  transition: background-color 0.3s ease;
 }
 
 .page-header {
   .page-title {
     font-size: 1.6rem;
     font-weight: 800;
-    color: $navy-dark;
+    color: var(--color-text-primary);
     margin: 0;
   }
 
   .page-subtitle {
     font-size: 0.85rem;
-    color: #64748b;
+    color: var(--color-text-secondary);
     margin: 4px 0 0 0;
   }
 }
@@ -30,22 +29,24 @@ $border-light: #e2e8f0;
 }
 
 .report-card {
-  background: #ffffff;
+  background: var(--color-bg-card);
   border-radius: 18px;
-  border: 1px solid $border-light;
+  border: 1px solid var(--color-border);
   padding: 24px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+  box-shadow: var(--shadow-sm);
+  transition: background-color 0.3s ease;
 
   .card-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
     padding-bottom: 18px;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid var(--color-border-light);
 
+    /* ✅ Semánticos */
     .badge-tag {
       font-size: 0.675rem;
       font-weight: 800;
@@ -60,7 +61,7 @@ $border-light: #e2e8f0;
     h3 {
       font-size: 1.15rem;
       font-weight: 800;
-      color: $navy-dark;
+      color: var(--color-text-primary);
       margin: 6px 0 0 0;
     }
   }
@@ -77,23 +78,25 @@ $border-light: #e2e8f0;
       label {
         font-size: 0.7rem;
         font-weight: 700;
-        color: #64748b;
+        color: var(--color-text-secondary);
       }
     }
   }
 
   .control-input {
     padding: 8px 12px;
-    border: 1px solid $border-light;
+    border: 1px solid var(--color-border);
     border-radius: 10px;
     font-size: 0.825rem;
     font-weight: 600;
-    color: $navy-dark;
+    color: var(--color-text-primary);
+    background: var(--color-bg-input);
     outline: none;
-    background: #ffffff;
+    transition: all 0.2s ease;
 
     &:focus {
-      border-color: $navy-dark;
+      border-color: var(--color-primary);
+      background: var(--color-bg-card);
     }
   }
 
@@ -107,15 +110,15 @@ $border-light: #e2e8f0;
     gap: 16px;
 
     .kpi-box {
-      background: #f8fafc;
+      background: var(--color-bg-hover);
       padding: 16px;
       border-radius: 14px;
-      border: 1px solid #f1f5f9;
+      border: 1px solid var(--color-border-light);
 
       .kpi-label {
         font-size: 0.725rem;
         font-weight: 800;
-        color: #64748b;
+        color: var(--color-text-secondary);
         display: block;
         margin-bottom: 4px;
       }
@@ -123,15 +126,16 @@ $border-light: #e2e8f0;
       .kpi-value {
         font-size: 1.5rem;
         font-weight: 800;
-        color: $navy-dark;
+        color: var(--color-text-primary);
         margin: 0;
 
+        /* ✅ Semánticos */
         &.text-emerald { color: #059669; }
         &.text-indigo { color: #4f46e5; }
 
         small {
           font-size: 0.75rem;
-          color: #94a3b8;
+          color: var(--color-text-muted);
           font-weight: 600;
         }
       }
@@ -140,7 +144,7 @@ $border-light: #e2e8f0;
 
   .card-footer {
     padding-top: 18px;
-    border-top: 1px solid #f1f5f9;
+    border-top: 1px solid var(--color-border-light);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -148,7 +152,7 @@ $border-light: #e2e8f0;
     .footer-label {
       font-size: 0.8rem;
       font-weight: 600;
-      color: #64748b;
+      color: var(--color-text-secondary);
     }
 
     .action-buttons {
@@ -158,6 +162,7 @@ $border-light: #e2e8f0;
   }
 }
 
+/* ✅ Semánticos (PDF rojo / Excel verde) */
 .btn-export {
   display: flex;
   align-items: center;

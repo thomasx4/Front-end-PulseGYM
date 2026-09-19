@@ -112,37 +112,14 @@
     animation: staggerList 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-.animate-stagger-list li:nth-child(1) {
-    animation-delay: 0.05s;
-}
-
-.animate-stagger-list li:nth-child(2) {
-    animation-delay: 0.1s;
-}
-
-.animate-stagger-list li:nth-child(3) {
-    animation-delay: 0.15s;
-}
-
-.animate-stagger-list li:nth-child(4) {
-    animation-delay: 0.2s;
-}
-
-.animate-stagger-list li:nth-child(5) {
-    animation-delay: 0.25s;
-}
-
-.animate-stagger-list li:nth-child(6) {
-    animation-delay: 0.3s;
-}
-
-.animate-stagger-list li:nth-child(7) {
-    animation-delay: 0.35s;
-}
-
-.animate-stagger-list li:nth-child(8) {
-    animation-delay: 0.4s;
-}
+.animate-stagger-list li:nth-child(1) { animation-delay: 0.05s; }
+.animate-stagger-list li:nth-child(2) { animation-delay: 0.1s; }
+.animate-stagger-list li:nth-child(3) { animation-delay: 0.15s; }
+.animate-stagger-list li:nth-child(4) { animation-delay: 0.2s; }
+.animate-stagger-list li:nth-child(5) { animation-delay: 0.25s; }
+.animate-stagger-list li:nth-child(6) { animation-delay: 0.3s; }
+.animate-stagger-list li:nth-child(7) { animation-delay: 0.35s; }
+.animate-stagger-list li:nth-child(8) { animation-delay: 0.4s; }
 
 .politicas-header {
     position: sticky;
@@ -387,6 +364,7 @@
     }
 }
 
+/* ✅ Link a la web: usa variables CSS */
 .link-item {
     display: flex;
     align-items: center;
@@ -394,12 +372,12 @@
     gap: 8px;
     padding: 12px 0;
     font-size: 15px;
-    color: #4a5568;
+    color: var(--color-text-secondary);
     list-style: none;
 }
 
 .link-label {
-    color: #718096;
+    color: var(--color-text-muted);
     font-weight: 500;
 }
 
@@ -407,7 +385,7 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    color: #1e4a75;
+    color: var(--color-primary);
     font-weight: 700;
     text-decoration: none;
     padding: 4px 8px;
@@ -422,15 +400,15 @@
         left: 8px;
         right: 8px;
         height: 2px;
-        background: linear-gradient(90deg, #1e4a75, #7eb3ff);
+        background: linear-gradient(90deg, var(--color-primary), var(--color-info));
         transform: scaleX(0);
         transform-origin: left;
         transition: transform 0.3s ease;
     }
 
     &:hover {
-        background: rgba(30, 74, 117, 0.08);
-        color: #0a2a4a;
+        background: var(--color-primary-light);
+        color: var(--color-primary);
 
         &::after {
             transform: scaleX(1);
@@ -458,26 +436,11 @@
             max-width: 1000px;
             padding: 60px;
 
-            h1 {
-                font-size: 2.1rem;
-            }
-
-            h2 {
-                font-size: 1.6rem;
-            }
-
-            h3 {
-                font-size: 1.25rem;
-            }
-
-            h4 {
-                font-size: 1.05rem;
-            }
-
-            p,
-            li {
-                font-size: 1rem;
-            }
+            h1 { font-size: 2.1rem; }
+            h2 { font-size: 1.6rem; }
+            h3 { font-size: 1.25rem; }
+            h4 { font-size: 1.05rem; }
+            p, li { font-size: 1rem; }
         }
     }
 }
@@ -494,17 +457,9 @@
             max-width: 860px;
             padding: 45px;
 
-            h1 {
-                font-size: 1.7rem;
-            }
-
-            h2 {
-                font-size: 1.35rem;
-            }
-
-            h3 {
-                font-size: 1.1rem;
-            }
+            h1 { font-size: 1.7rem; }
+            h2 { font-size: 1.35rem; }
+            h3 { font-size: 1.1rem; }
         }
     }
 }
@@ -537,26 +492,11 @@
         .documento-wrapper {
             padding: 40px;
 
-            h1 {
-                font-size: 1.55rem;
-            }
-
-            h2 {
-                font-size: 1.25rem;
-            }
-
-            h3 {
-                font-size: 1.05rem;
-            }
-
-            h4 {
-                font-size: 0.98rem;
-            }
-
-            p,
-            li {
-                font-size: 0.92rem;
-            }
+            h1 { font-size: 1.55rem; }
+            h2 { font-size: 1.25rem; }
+            h3 { font-size: 1.05rem; }
+            h4 { font-size: 0.98rem; }
+            p, li { font-size: 0.92rem; }
         }
     }
 }
@@ -574,34 +514,12 @@
             padding: 35px;
             border-radius: 14px;
 
-            h1 {
-                font-size: 1.4rem;
-                padding-bottom: 12px;
-                margin-bottom: 25px;
-            }
-
-            h2 {
-                font-size: 1.15rem;
-                margin-top: 32px;
-            }
-
-            h3 {
-                font-size: 1rem;
-                margin-top: 22px;
-            }
-
-            h4 {
-                font-size: 0.95rem;
-            }
-
-            p,
-            li {
-                font-size: 0.9rem;
-            }
-
-            hr {
-                margin: 40px 0;
-            }
+            h1 { font-size: 1.4rem; padding-bottom: 12px; margin-bottom: 25px; }
+            h2 { font-size: 1.15rem; margin-top: 32px; }
+            h3 { font-size: 1rem; margin-top: 22px; }
+            h4 { font-size: 0.95rem; }
+            p, li { font-size: 0.9rem; }
+            hr { margin: 40px 0; }
         }
     }
 }
@@ -619,22 +537,14 @@
             padding: 8px 14px;
             font-size: 0.8rem;
 
-            span {
-                font-size: 0.8rem;
-            }
+            span { font-size: 0.8rem; }
         }
 
         .logo-container {
             gap: 8px;
 
-            .brand-logo {
-                width: 28px;
-                height: 28px;
-            }
-
-            .brand-title .pulse-text {
-                font-size: 1rem;
-            }
+            .brand-logo { width: 28px; height: 28px; }
+            .brand-title .pulse-text { font-size: 1rem; }
         }
     }
 
@@ -646,36 +556,11 @@
             border-radius: 12px;
             box-shadow: var(--shadow-sm);
 
-            h1 {
-                font-size: 1.2rem;
-                line-height: 1.35;
-                padding-bottom: 10px;
-                margin-bottom: 20px;
-                border-bottom-width: 1.5px;
-            }
-
-            h2 {
-                font-size: 1.05rem;
-                margin-top: 28px;
-                margin-bottom: 12px;
-            }
-
-            h3 {
-                font-size: 0.95rem;
-                margin-top: 20px;
-                margin-bottom: 8px;
-            }
-
-            h4 {
-                font-size: 0.9rem;
-                margin-top: 16px;
-            }
-
-            p {
-                font-size: 0.86rem;
-                margin-bottom: 12px;
-                line-height: 1.65;
-            }
+            h1 { font-size: 1.2rem; line-height: 1.35; padding-bottom: 10px; margin-bottom: 20px; border-bottom-width: 1.5px; }
+            h2 { font-size: 1.05rem; margin-top: 28px; margin-bottom: 12px; }
+            h3 { font-size: 0.95rem; margin-top: 20px; margin-bottom: 8px; }
+            h4 { font-size: 0.9rem; margin-top: 16px; }
+            p { font-size: 0.86rem; margin-bottom: 12px; line-height: 1.65; }
 
             ul {
                 padding-left: 18px;
@@ -686,9 +571,7 @@
                     margin-bottom: 6px;
                     line-height: 1.55;
 
-                    &:hover {
-                        transform: none;
-                    }
+                    &:hover { transform: none; }
                 }
             }
 
@@ -696,15 +579,10 @@
                 font-size: 0.82rem;
                 min-width: 480px;
 
-                th,
-                td {
-                    padding: 10px 12px;
-                }
+                th, td { padding: 10px 12px; }
             }
 
-            hr {
-                margin: 32px 0;
-            }
+            hr { margin: 32px 0; }
         }
     }
 
@@ -716,9 +594,7 @@
         align-items: flex-start;
     }
 
-    .link-web {
-        font-size: 0.85rem;
-    }
+    .link-web { font-size: 0.85rem; }
 }
 
 @media (max-width: 576px) {
@@ -731,26 +607,13 @@
             font-size: 0.75rem;
             border-radius: 6px;
 
-            svg {
-                width: 14px;
-                height: 14px;
-            }
-
-            span {
-                font-size: 0.75rem;
-            }
+            svg { width: 14px; height: 14px; }
+            span { font-size: 0.75rem; }
         }
 
         .logo-container {
-            .brand-logo {
-                width: 26px;
-                height: 26px;
-                border-radius: 5px;
-            }
-
-            .brand-title .pulse-text {
-                font-size: 0.95rem;
-            }
+            .brand-logo { width: 26px; height: 26px; border-radius: 5px; }
+            .brand-title .pulse-text { font-size: 0.95rem; }
         }
     }
 
@@ -761,59 +624,21 @@
             padding: 22px 18px;
             border-radius: 10px;
 
-            h1 {
-                font-size: 1.05rem;
-                line-height: 1.4;
-                padding-bottom: 10px;
-                margin-bottom: 18px;
-            }
-
-            h2 {
-                font-size: 0.95rem;
-                margin-top: 24px;
-                margin-bottom: 10px;
-            }
-
-            h3 {
-                font-size: 0.88rem;
-                margin-top: 18px;
-            }
-
-            h4 {
-                font-size: 0.85rem;
-                margin-top: 14px;
-            }
-
-            p {
-                font-size: 0.8rem;
-                margin-bottom: 10px;
-                line-height: 1.6;
-            }
+            h1 { font-size: 1.05rem; line-height: 1.4; padding-bottom: 10px; margin-bottom: 18px; }
+            h2 { font-size: 0.95rem; margin-top: 24px; margin-bottom: 10px; }
+            h3 { font-size: 0.88rem; margin-top: 18px; }
+            h4 { font-size: 0.85rem; margin-top: 14px; }
+            p { font-size: 0.8rem; margin-bottom: 10px; line-height: 1.6; }
 
             ul {
                 padding-left: 16px;
                 margin-bottom: 14px;
 
-                li {
-                    font-size: 0.8rem;
-                    margin-bottom: 5px;
-                    line-height: 1.5;
-                }
+                li { font-size: 0.8rem; margin-bottom: 5px; line-height: 1.5; }
             }
 
-            table {
-                font-size: 0.78rem;
-                min-width: 420px;
-
-                th,
-                td {
-                    padding: 8px 10px;
-                }
-            }
-
-            hr {
-                margin: 26px 0;
-            }
+            table { font-size: 0.78rem; min-width: 420px; th, td { padding: 8px 10px; } }
+            hr { margin: 26px 0; }
         }
     }
 }
@@ -824,55 +649,28 @@
             padding: 6px 10px;
             font-size: 0.7rem;
 
-            svg {
-                width: 12px;
-                height: 12px;
-            }
-
-            span {
-                display: none;
-            }
-
+            svg { width: 12px; height: 12px; }
+            span { display: none; }
         }
 
         .logo-container {
-            .brand-logo {
-                width: 24px;
-                height: 24px;
-            }
-
-            .brand-title .pulse-text {
-                font-size: 0.9rem;
-            }
+            .brand-logo { width: 24px; height: 24px; }
+            .brand-title .pulse-text { font-size: 0.9rem; }
         }
     }
 
     .politicas-content .documento-wrapper {
         padding: 18px 14px;
 
-        h1 {
-            font-size: 0.95rem;
-        }
-
-        h2 {
-            font-size: 0.9rem;
-        }
-
-        h3 {
-            font-size: 0.85rem;
-        }
-
-        p,
-        li {
-            font-size: 0.78rem;
-        }
+        h1 { font-size: 0.95rem; }
+        h2 { font-size: 0.9rem; }
+        h3 { font-size: 0.85rem; }
+        p, li { font-size: 0.78rem; }
     }
 }
 
 @media print {
-    .politicas-header {
-        display: none;
-    }
+    .politicas-header { display: none; }
 
     .politicas-content {
         padding: 0;
@@ -892,10 +690,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-
-    *,
-    *::before,
-    *::after {
+    *, *::before, *::after {
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;

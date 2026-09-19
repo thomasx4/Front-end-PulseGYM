@@ -20,6 +20,8 @@ import { EquipmentDetailComponent } from './components/equipments/equipment-deta
 import { FaultReportsComponent } from './components/equipments/fault-reports/fault-reports.component';
 import { ProgresoComponent } from './components/progreso/progreso.component';
 import { DetalleProgresoComponent } from './components/progreso/detalle-progreso/detalle-progreso.component';
+import { AjustesComponent } from './components/ajustes/ajustes.component';
+import { ProfileComponent } from './components/profile/profile.component'; 
 
 @NgModule({
   declarations: [
@@ -38,6 +40,8 @@ import { DetalleProgresoComponent } from './components/progreso/detalle-progreso
     FaultReportsComponent,
     ProgresoComponent,
     DetalleProgresoComponent,
+    AjustesComponent,
+    ProfileComponent 
   ],
   imports: [
     CommonModule,

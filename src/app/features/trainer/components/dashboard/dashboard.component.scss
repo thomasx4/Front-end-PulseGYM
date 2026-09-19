@@ -4,10 +4,11 @@
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    background-color: #f5f6fa;
+    background-color: var(--color-bg-main);
     box-sizing: border-box;
     max-width: 100vw;
     overflow-x: hidden;
+    transition: background-color 0.3s ease;
 
     @media (max-width: 1024px) {
         margin-left: 0;
@@ -49,16 +50,17 @@
 }
 
 .stat-card {
-    background: #ffffff;
+    background: var(--color-bg-card);
     border-radius: 12px;
     padding: 20px;
     display: flex;
     align-items: center;
     gap: 16px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--shadow-sm);
     box-sizing: border-box;
     width: 100%;
     min-width: 0;
+    transition: background-color 0.3s ease;
 
     &__icon {
         width: 48px;
@@ -69,6 +71,7 @@
         justify-content: center;
         flex-shrink: 0;
 
+        /* ✅ Semánticos (azul/púrpura/gris) */
         &--blue {
             background: #d6e3ff;
             color: #00254f;
@@ -102,7 +105,7 @@
     &__value {
         font-size: 22px;
         font-weight: 700;
-        color: #1a1a2e;
+        color: var(--color-text-primary);
         line-height: 1.2;
         white-space: nowrap;
         overflow: hidden;
@@ -111,7 +114,7 @@
 
     &__label {
         font-size: 12.5px;
-        color: #8898aa;
+        color: var(--color-text-muted);
         font-weight: 500;
         white-space: nowrap;
         overflow: hidden;
@@ -134,10 +137,10 @@
 }
 
 .info-card {
-    background: #ffffff;
+    background: var(--color-bg-card);
     border-radius: 20px;
     padding: 24px 20px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+    box-shadow: var(--shadow-md);
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -145,6 +148,7 @@
     width: 100%;
     min-width: 0;
     overflow: hidden;
+    transition: background-color 0.3s ease;
 
     @media (max-width: 768px) {
         padding: 16px 12px;
@@ -172,7 +176,7 @@
         h3 {
             font-size: 16px;
             font-weight: 800;
-            color: #0b192c;
+            color: var(--color-text-primary);
             margin: 0;
             white-space: nowrap;
             overflow: hidden;
@@ -184,11 +188,12 @@
         }
     }
 
+    /* ✅ Semántico (azul) */
     &__subtitle-highlight {
         font-size: 12px;
         font-weight: 700;
-        color: #2563eb;
-        background: #eff6ff;
+        color: var(--color-info);
+        background: var(--color-info-bg);
         padding: 4px 8px;
         border-radius: 6px;
         flex-shrink: 0;
@@ -204,9 +209,9 @@
 }
 
 .select-top-right {
-    background-color: #eff6ff;
-    color: #1e3a8a;
-    border: 1px solid #bfdbfe;
+    background-color: var(--color-info-bg);
+    color: var(--color-info);
+    border: 1px solid var(--color-info);
     padding: 6px 10px;
     border-radius: 8px;
     font-size: 11.5px;
@@ -224,8 +229,8 @@
 
     &:hover,
     &:focus {
-        background-color: #dbeafe;
-        border-color: #3b82f6;
+        background-color: var(--color-info);
+        color: #ffffff;
     }
 }
 
@@ -263,8 +268,8 @@
             .point-dot {
                 width: 9px;
                 height: 9px;
-                background-color: #2563eb;
-                border: 2px solid #ffffff;
+                background-color: var(--color-info);
+                border: 2px solid var(--color-bg-card);
                 border-radius: 50%;
                 box-shadow: 0 2px 4px rgba(37, 99, 235, 0.4);
             }
@@ -272,7 +277,7 @@
             .point-tooltip {
                 position: absolute;
                 bottom: 16px;
-                background: #0f172a;
+                background: var(--color-primary);
                 color: #ffffff;
                 font-size: 10px;
                 font-weight: 700;
@@ -292,7 +297,7 @@
                 margin-top: 6px;
                 font-size: 10px;
                 font-weight: 700;
-                color: #475569;
+                color: var(--color-text-secondary);
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
@@ -376,13 +381,13 @@
             h4 {
                 font-size: 15px;
                 font-weight: 800;
-                color: #0b192c;
+                color: var(--color-text-primary);
                 margin: 0 0 2px 0;
             }
 
             p {
                 font-size: 12px;
-                color: #64748b;
+                color: var(--color-text-secondary);
                 margin: 0;
                 line-height: 1.3;
             }
@@ -392,7 +397,7 @@
     .banner-divider {
         width: 1px;
         height: 45px;
-        background-color: #edf2f7;
+        background-color: var(--color-border);
 
         @media (max-width: 992px) {
             display: none;
@@ -416,7 +421,7 @@
     box-sizing: border-box;
 
     &--pill-dark {
-        background-color: #0a2a4a;
+        background-color: var(--color-primary);
         color: #ffffff;
         border-radius: 20px;
         padding: 5px 12px;
@@ -424,19 +429,19 @@
         font-size: 12px;
 
         &:hover {
-            background-color: #1e4a75;
+            background-color: var(--color-primary-hover);
         }
     }
 
     &--primary-dark {
-        background-color: #0a2a4a;
+        background-color: var(--color-primary);
         color: #ffffff;
         font-weight: 700;
         padding: 8px 16px;
         border-radius: 8px;
 
         &:hover {
-            background-color: #1e4a75;
+            background-color: var(--color-primary-hover);
         }
     }
 }
@@ -457,13 +462,13 @@
     td {
         padding: 10px 12px;
         text-align: left;
-        border-bottom: 1px solid #f1f5f9;
+        border-bottom: 1px solid var(--color-border-light);
         white-space: nowrap;
     }
 
     th {
-        background-color: #f8fafc;
-        color: #475569;
+        background-color: var(--color-bg-hover);
+        color: var(--color-text-secondary);
         font-weight: 700;
         text-transform: uppercase;
         font-size: 10.5px;
@@ -471,18 +476,19 @@
     }
 
     td {
-        color: #334155;
+        color: var(--color-text-primary);
     }
 
     tr {
         transition: background-color 0.15s;
 
         &:hover {
-            background-color: #f8fafc;
+            background-color: var(--color-bg-hover);
         }
 
+        /* ✅ Semántico (azul claro) */
         &.selected-row {
-            background-color: #eff6ff !important;
+            background-color: var(--color-info-bg) !important;
         }
     }
 }
@@ -500,7 +506,7 @@
         margin: 0;
         font-size: 12.5px;
         font-weight: 600;
-        color: #64748b;
+        color: var(--color-text-secondary);
     }
 }
 
@@ -524,19 +530,19 @@
 
             .comp-title {
                 font-weight: 700;
-                color: #334155;
+                color: var(--color-text-secondary);
             }
 
             .comp-val {
                 font-weight: 800;
-                color: #0f172a;
+                color: var(--color-text-primary);
             }
         }
 
         .comp-track {
             width: 100%;
             height: 9px;
-            background-color: #f1f5f9;
+            background-color: var(--color-bg-hover);
             border-radius: 4px;
             overflow: hidden;
 
@@ -545,6 +551,7 @@
                 border-radius: 4px;
                 transition: width 0.6s ease;
 
+                /* ✅ Gradientes semánticos (púrpura/azul) */
                 &--purple {
                     background: linear-gradient(90deg, #818cf8 0%, #4f46e5 100%);
                 }
@@ -557,6 +564,7 @@
     }
 }
 
+/* ✅ Semántico (amarillo) - alertas */
 .alerts-panel-container {
     display: flex;
     flex-direction: column;
@@ -599,16 +607,17 @@
     }
 }
 
+/* ✅ Semántico (azul) - tip */
 .quick-tip-card {
     display: flex;
     align-items: center;
     gap: 8px;
-    background: #eff6ff;
-    border: 1px solid #bfdbfe;
+    background: var(--color-info-bg);
+    border: 1px solid var(--color-info);
     padding: 10px 12px;
     border-radius: 10px;
     font-size: 12px;
-    color: #1e40af;
+    color: var(--color-info);
     font-weight: 600;
     margin-top: auto;
     box-sizing: border-box;

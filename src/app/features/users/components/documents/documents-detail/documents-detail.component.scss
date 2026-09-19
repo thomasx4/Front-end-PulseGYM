@@ -3,6 +3,8 @@
     max-width: 1100px;
     margin: 0 auto;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: var(--color-bg-main);
+    transition: background-color 0.3s ease;
 }
 
 /* HEADER & BREADCRUMB */
@@ -12,27 +14,27 @@
     justify-content: space-between;
     margin-bottom: 24px;
     padding-bottom: 16px;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid var(--color-border);
 
     .breadcrumb {
         display: flex;
         align-items: center;
         gap: 8px;
         font-size: 0.85rem;
-        color: #64748b;
+        color: var(--color-text-secondary);
         margin-bottom: 6px;
 
         .crumb-link {
             cursor: pointer;
 
             &:hover {
-                color: #0f1c3f;
+                color: var(--color-primary);
                 text-decoration: underline;
             }
         }
 
         .crumb-current {
-            color: #0f1c3f;
+            color: var(--color-primary);
             font-weight: 600;
         }
     }
@@ -40,7 +42,7 @@
     .detail-title {
         font-size: 1.6rem;
         font-weight: 800;
-        color: #0f1c3f;
+        color: var(--color-text-primary);
         margin: 0;
     }
 }
@@ -53,33 +55,36 @@
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        background: #ffffff;
-        border: 1px solid #cbd5e1;
+        background: var(--color-bg-card);
+        border: 1px solid var(--color-border);
         border-radius: 8px;
         padding: 8px 16px;
-        color: #475569;
+        color: var(--color-text-secondary);
         font-weight: 600;
         cursor: pointer;
+        transition: all 0.2s ease;
 
         &:hover {
-            background: #f1f5f9;
+            background: var(--color-bg-hover);
         }
     }
 
+    /* ✅ Semántico (rojo) */
     .btn-delete {
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        background: #ef4444;
+        background: var(--color-error);
         color: #ffffff;
         border: none;
         border-radius: 8px;
         padding: 8px 18px;
         font-weight: 600;
         cursor: pointer;
+        transition: all 0.2s ease;
 
         &:hover {
-            background: #dc2626;
+            background: #b91c1c;
         }
     }
 }
@@ -99,21 +104,23 @@
 }
 
 .document-banner-card {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
     border-radius: 16px;
     padding: 24px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    box-shadow: var(--shadow-sm);
+    transition: background-color 0.3s ease;
 
     .banner-top {
         display: flex;
         gap: 18px;
         margin-bottom: 20px;
 
+        /* ✅ Semántico (rojo - PDF) */
         .pdf-icon-badge {
             width: 56px;
             height: 56px;
-            background: #fef2f2;
+            background: var(--color-error-bg);
             border-radius: 12px;
             display: flex;
             align-items: center;
@@ -133,7 +140,7 @@
                 h2 {
                     font-size: 1.35rem;
                     font-weight: 800;
-                    color: #0b1a30;
+                    color: var(--color-text-primary);
                     margin: 0;
                 }
             }
@@ -144,9 +151,10 @@
                 gap: 10px;
                 margin-top: 8px;
 
+                /* ✅ Semántico (azul) */
                 .category-tag {
-                    background: #e0f2fe;
-                    color: #0369a1;
+                    background: var(--color-info-bg);
+                    color: var(--color-info);
                     font-size: 0.75rem;
                     font-weight: 700;
                     padding: 2px 10px;
@@ -155,7 +163,7 @@
 
                 .doc-id-tag {
                     font-size: 0.8rem;
-                    color: #94a3b8;
+                    color: var(--color-text-muted);
                     font-weight: 500;
                 }
             }
@@ -167,29 +175,27 @@
         grid-template-columns: 1fr 1fr;
         gap: 16px;
         padding-top: 16px;
-        border-top: 1px solid #f1f5f9;
+        border-top: 1px solid var(--color-border-light);
 
         .meta-box {
             display: flex;
             align-items: center;
             gap: 12px;
-            background: #fafbfc;
+            background: var(--color-bg-hover);
             padding: 12px 16px;
             border-radius: 10px;
 
-            svg {
-                stroke: #64748b;
-            }
+            svg { stroke: var(--color-text-secondary); }
 
             .meta-label {
                 font-size: 0.75rem;
-                color: #94a3b8;
+                color: var(--color-text-muted);
                 display: block;
             }
 
             .meta-value {
                 font-size: 0.9rem;
-                color: #0b1a30;
+                color: var(--color-text-primary);
             }
         }
     }
@@ -197,11 +203,12 @@
 
 /* CARD VISOR PDF */
 .pdf-viewer-card {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
     border-radius: 16px;
     padding: 20px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    box-shadow: var(--shadow-sm);
+    transition: background-color 0.3s ease;
 
     .card-header {
         display: flex;
@@ -212,30 +219,29 @@
         h3 {
             font-size: 1rem;
             font-weight: 700;
-            color: #0b1a30;
+            color: var(--color-text-primary);
             margin: 0;
         }
 
+        /* ✅ Semántico (azul) */
         .btn-external-link {
             display: inline-flex;
             align-items: center;
             gap: 6px;
             font-size: 0.8rem;
             font-weight: 600;
-            color: #0284c7;
+            color: var(--color-info);
             text-decoration: none;
 
-            &:hover {
-                text-decoration: underline;
-            }
+            &:hover { text-decoration: underline; }
         }
     }
 
     .viewer-container {
         border-radius: 10px;
         overflow: hidden;
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
+        background: var(--color-bg-hover);
+        border: 1px solid var(--color-border);
 
         iframe {
             border: none;
@@ -249,7 +255,7 @@
             justify-content: center;
             padding: 60px 20px;
             gap: 12px;
-            color: #94a3b8;
+            color: var(--color-text-muted);
             font-size: 0.9rem;
         }
     }
@@ -258,19 +264,20 @@
 /* COLUMNA LATERAL */
 .side-column {
     .info-sidebar-card {
-        background: #ffffff;
-        border: 1px solid #e2e8f0;
+        background: var(--color-bg-card);
+        border: 1px solid var(--color-border);
         border-radius: 16px;
         padding: 20px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        box-shadow: var(--shadow-sm);
+        transition: background-color 0.3s ease;
 
         h3 {
             font-size: 1rem;
             font-weight: 700;
-            color: #0b1a30;
+            color: var(--color-text-primary);
             margin: 0 0 16px 0;
             padding-bottom: 10px;
-            border-bottom: 1px solid #f1f5f9;
+            border-bottom: 1px solid var(--color-border-light);
         }
 
         .info-list {
@@ -285,22 +292,21 @@
 
                 .info-label {
                     font-size: 0.825rem;
-                    color: #64748b;
+                    color: var(--color-text-secondary);
                 }
 
                 .info-value {
                     font-size: 0.875rem;
-                    color: #0b1a30;
+                    color: var(--color-text-primary);
                 }
             }
         }
 
         .sidebar-divider {
             height: 1px;
-            background: #f1f5f9;
+            background: var(--color-border-light);
             margin: 20px 0;
         }
-
 
         .btn-download-pdf {
             display: flex;
@@ -309,7 +315,7 @@
             gap: 8px;
             width: 100%;
             padding: 12px;
-            background: #0f1c3f;
+            background: var(--color-primary);
             color: #ffffff;
             border: none;
             border-radius: 10px;
@@ -318,9 +324,7 @@
             cursor: pointer;
             transition: background 0.2s;
 
-            &:hover:not(:disabled) {
-                background: #1a2b5c;
-            }
+            &:hover:not(:disabled) { background: var(--color-primary-hover); }
 
             &:disabled {
                 opacity: 0.7;
@@ -330,7 +334,7 @@
     }
 }
 
-/* BADGES DE ESTADO */
+/* ✅ Semánticos (verde/rojo/gris) */
 .badge-status {
     padding: 4px 12px;
     border-radius: 12px;
@@ -348,14 +352,12 @@
     }
 
     &.estado-default {
-        background: #f1f5f9;
-        color: #64748b;
+        background: var(--color-bg-hover);
+        color: var(--color-text-secondary);
     }
 }
 
 /* RESPONSIVE */
 @media (max-width: 868px) {
-    .detail-grid {
-        grid-template-columns: 1fr;
-    }
+    .detail-grid { grid-template-columns: 1fr; }
 }

@@ -1,18 +1,15 @@
-$navy-dark: #061c32;
-$border-light: #e2e8f0;
-$bg-light: #f4f6fa;
-
 /* ============================================
    LAYOUT PRINCIPAL
    ============================================ */
 .fault-page {
     margin-left: 260px;
     min-height: 100vh;
-    background-color: $bg-light;
+    background-color: var(--color-bg-main);
     display: flex;
     flex-direction: column;
     width: calc(100% - 260px);
     box-sizing: border-box;
+    transition: background-color 0.3s ease;
 }
 
 .fault-content {
@@ -31,13 +28,13 @@ $bg-light: #f4f6fa;
     .page-title {
         font-size: 1.6rem;
         font-weight: 800;
-        color: $navy-dark;
+        color: var(--color-text-primary);
         margin: 0;
     }
 
     .page-subtitle {
         font-size: 0.85rem;
-        color: #64748b;
+        color: var(--color-text-secondary);
         margin: 4px 0 0 0;
     }
 }
@@ -62,22 +59,27 @@ $bg-light: #f4f6fa;
         left: 14px;
         top: 50%;
         transform: translateY(-50%);
-        color: #94a3b8;
+        color: var(--color-text-muted);
     }
 
     .search-input {
         width: 100%;
         padding: 10px 14px 10px 40px;
-        background: #ffffff;
-        border: 1px solid $border-light;
+        background: var(--color-bg-input);
+        border: 1px solid var(--color-border);
         border-radius: 12px;
         font-size: 0.85rem;
+        color: var(--color-text-primary);
         outline: none;
         transition: border-color 0.2s;
         box-sizing: border-box;
 
         &:focus {
-            border-color: $navy-dark;
+            border-color: var(--color-primary);
+        }
+
+        &::placeholder {
+            color: var(--color-text-muted);
         }
     }
 }
@@ -90,16 +92,17 @@ $bg-light: #f4f6fa;
         align-items: center;
         gap: 8px;
         padding: 10px 18px;
-        background: #ffffff;
-        border: 1.5px solid #dddddd;
-        color: $navy-dark;
+        background: var(--color-bg-card);
+        border: 1.5px solid var(--color-border);
+        color: var(--color-text-primary);
         border-radius: 12px;
         font-weight: 700;
         font-size: 0.85rem;
         cursor: pointer;
+        transition: all 0.2s ease;
 
         &.active {
-            background: $navy-dark;
+            background: var(--color-primary);
             color: #ffffff;
         }
     }
@@ -109,15 +112,16 @@ $bg-light: #f4f6fa;
         right: 0;
         top: calc(100% + 8px);
         width: 280px;
-        background: #ffffff;
+        background: var(--color-bg-card);
         border-radius: 16px;
         padding: 18px;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-        border: 1px solid $border-light;
+        box-shadow: var(--shadow-lg);
+        border: 1px solid var(--color-border);
         z-index: 100;
         display: flex;
         flex-direction: column;
         gap: 12px;
+        transition: background-color 0.3s ease;
 
         .filter-field {
             display: flex;
@@ -127,15 +131,19 @@ $bg-light: #f4f6fa;
             label {
                 font-size: 0.75rem;
                 font-weight: 700;
-                color: #475569;
+                color: var(--color-text-secondary);
             }
 
             .popover-input {
                 padding: 8px 10px;
-                border: 1px solid $border-light;
+                border: 1px solid var(--color-border);
                 border-radius: 8px;
                 font-size: 0.825rem;
                 outline: none;
+                background: var(--color-bg-input);
+                color: var(--color-text-primary);
+
+                &:focus { border-color: var(--color-primary); }
             }
         }
 
@@ -146,18 +154,18 @@ $bg-light: #f4f6fa;
             margin-top: 6px;
 
             .btn-popover-clear {
-                background: #f1f5f9;
+                background: var(--color-bg-hover);
                 border: none;
                 padding: 6px 12px;
                 border-radius: 8px;
                 font-size: 0.8rem;
                 font-weight: 600;
-                color: #64748b;
+                color: var(--color-text-secondary);
                 cursor: pointer;
             }
 
             .btn-popover-apply {
-                background: $navy-dark;
+                background: var(--color-primary);
                 border: none;
                 padding: 6px 14px;
                 border-radius: 8px;
@@ -174,11 +182,12 @@ $bg-light: #f4f6fa;
    TABLA
    ============================================ */
 .table-card {
-    background: #ffffff;
+    background: var(--color-bg-card);
     border-radius: 18px;
-    border: 1px solid $border-light;
+    border: 1px solid var(--color-border);
     overflow: hidden;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+    box-shadow: var(--shadow-sm);
+    transition: background-color 0.3s ease;
 }
 
 .pulse-table {
@@ -187,33 +196,29 @@ $bg-light: #f4f6fa;
     text-align: left;
 
     thead {
-        background: #f8fafc;
-        border-bottom: 1px solid $border-light;
+        background: var(--color-bg-hover);
+        border-bottom: 1px solid var(--color-border);
 
         th {
             padding: 14px 20px;
             font-size: 0.725rem;
             font-weight: 800;
-            color: #64748b;
+            color: var(--color-text-secondary);
             letter-spacing: 0.05em;
         }
     }
 
     tbody tr {
-        border-bottom: 1px solid #f1f5f9;
+        border-bottom: 1px solid var(--color-border-light);
         transition: background 0.15s;
 
-        &:hover {
-            background: #f8fafc;
-        }
-
-        &:last-child {
-            border-bottom: none;
-        }
+        &:hover { background: var(--color-bg-hover); }
+        &:last-child { border-bottom: none; }
 
         td {
             padding: 14px 20px;
             vertical-align: middle;
+            color: var(--color-text-primary);
         }
     }
 }
@@ -224,28 +229,29 @@ $bg-light: #f4f6fa;
 
     .equipment-name {
         font-size: 0.875rem;
-        color: $navy-dark;
+        color: var(--color-text-primary);
         font-weight: 700;
     }
 
     .equipment-meta {
         font-size: 0.75rem;
-        color: #94a3b8;
+        color: var(--color-text-muted);
     }
 }
 
 .location-text {
     font-size: 0.825rem;
     font-weight: 600;
-    color: #475569;
+    color: var(--color-text-secondary);
 }
 
 .description-cell {
     font-size: 0.825rem;
-    color: #334155;
+    color: var(--color-text-secondary);
     max-width: 280px;
 }
 
+/* ✅ Semánticos */
 .badge-urgency {
     display: inline-block;
     padding: 4px 10px;
@@ -264,11 +270,12 @@ $bg-light: #f4f6fa;
     }
 
     &--baja {
-        background: #f1f5f9;
-        color: #475569;
+        background: var(--color-bg-hover);
+        color: var(--color-text-secondary);
     }
 }
 
+/* ✅ Semánticos */
 .status-select {
     padding: 6px 12px;
     border-radius: 8px;
@@ -301,15 +308,15 @@ $bg-light: #f4f6fa;
 
 .table-footer {
     padding: 16px 20px;
-    background: #ffffff;
-    border-top: 1px solid $border-light;
+    background: var(--color-bg-card);
+    border-top: 1px solid var(--color-border);
     display: flex;
     justify-content: space-between;
     align-items: center;
 
     .showing-text {
         font-size: 0.8rem;
-        color: #64748b;
+        color: var(--color-text-secondary);
     }
 
     .pagination {
@@ -320,17 +327,18 @@ $bg-light: #f4f6fa;
             min-width: 32px;
             height: 32px;
             border-radius: 8px;
-            border: 1px solid $border-light;
-            background: #ffffff;
+            border: 1px solid var(--color-border);
+            background: var(--color-bg-card);
             font-size: 0.8rem;
             font-weight: 700;
-            color: $navy-dark;
+            color: var(--color-text-primary);
             cursor: pointer;
+            transition: all 0.15s ease;
 
             &.active {
-                background: $navy-dark;
+                background: var(--color-primary);
                 color: #ffffff;
-                border-color: $navy-dark;
+                border-color: var(--color-primary);
             }
 
             &:disabled {
@@ -346,7 +354,7 @@ $bg-light: #f4f6fa;
     padding: 40px;
     text-align: center;
     font-size: 0.875rem;
-    color: #64748b;
+    color: var(--color-text-secondary);
 }
 
 /* ============================================
@@ -356,9 +364,9 @@ $bg-light: #f4f6fa;
     display: flex;
     align-items: center;
     gap: 6px;
-    background: #f1f5f9;
-    border: 1px solid #cbd5e1;
-    color: #0b192c;
+    background: var(--color-bg-hover);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-primary);
     padding: 6px 12px;
     border-radius: 8px;
     font-size: 0.775rem;
@@ -367,9 +375,9 @@ $bg-light: #f4f6fa;
     transition: all 0.2s;
 
     &:hover {
-        background: #0b192c;
+        background: var(--color-primary);
         color: #ffffff;
-        border-color: #0b192c;
+        border-color: var(--color-primary);
     }
 }
 
@@ -388,21 +396,48 @@ $bg-light: #f4f6fa;
 }
 
 .modal-card {
-    background: #ffffff;
+    background: var(--color-bg-card);
     border-radius: 16px;
     width: 90%;
     max-width: 500px;
     padding: 24px;
+    box-shadow: var(--shadow-lg);
+    transition: background-color 0.3s ease;
 
     .modal-header {
         display: flex;
         justify-content: space-between;
         margin-bottom: 16px;
 
-        .modal-tag { font-size: 0.7rem; font-weight: 800; color: #4338ca; }
-        .modal-title { font-size: 1.2rem; font-weight: 800; color: #0b192c; margin: 2px 0 0 0; }
-        .modal-subtitle { font-size: 0.8rem; color: #64748b; margin-top: 2px; }
-        .btn-close { background: none; border: none; font-size: 1.4rem; color: #94a3b8; cursor: pointer; }
+        /* ✅ Semántico (índigo) */
+        .modal-tag {
+            font-size: 0.7rem;
+            font-weight: 800;
+            color: #4338ca;
+        }
+
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--color-text-primary);
+            margin: 2px 0 0 0;
+        }
+
+        .modal-subtitle {
+            font-size: 0.8rem;
+            color: var(--color-text-secondary);
+            margin-top: 2px;
+        }
+
+        .btn-close {
+            background: none;
+            border: none;
+            font-size: 1.4rem;
+            color: var(--color-text-muted);
+            cursor: pointer;
+
+            &:hover { color: var(--color-text-primary); }
+        }
     }
 }
 
@@ -422,16 +457,19 @@ $bg-light: #f4f6fa;
     label {
         font-size: 0.775rem;
         font-weight: 700;
-        color: #334155;
+        color: var(--color-text-secondary);
     }
 
     .form-input {
         padding: 8px 12px;
-        border: 1px solid #e2e8f0;
+        border: 1px solid var(--color-border);
         border-radius: 8px;
         font-size: 0.85rem;
         outline: none;
-        background: #ffffff;
+        background: var(--color-bg-input);
+        color: var(--color-text-primary);
+
+        &:focus { border-color: var(--color-primary); }
     }
 }
 
@@ -441,21 +479,23 @@ $bg-light: #f4f6fa;
     justify-content: flex-end;
     gap: 8px;
     padding-top: 14px;
-    border-top: 1px solid #f1f5f9;
+    border-top: 1px solid var(--color-border-light);
 
     .btn-secondary {
         background: transparent;
-        border: 1px solid #cbd5e1;
+        border: 1px solid var(--color-border);
         padding: 8px 16px;
         border-radius: 8px;
         font-size: 0.8rem;
         font-weight: 600;
-        color: #64748b;
+        color: var(--color-text-secondary);
         cursor: pointer;
+
+        &:hover { background: var(--color-bg-hover); }
     }
 
     .btn-primary {
-        background: #0b192c;
+        background: var(--color-primary);
         border: none;
         padding: 8px 18px;
         border-radius: 8px;
@@ -463,6 +503,8 @@ $bg-light: #f4f6fa;
         font-weight: 700;
         color: #ffffff;
         cursor: pointer;
+
+        &:hover { background: var(--color-primary-hover); }
     }
 }
 
@@ -470,27 +512,22 @@ $bg-light: #f4f6fa;
    MODALES DE ESTADO (error / éxito)
    ============================================ */
 .modal-content-state {
-    background: #ffffff;
+    background: var(--color-bg-card);
     border-radius: 16px;
     padding: 40px 48px 32px;
     max-width: 420px;
     width: 90%;
     text-align: center;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    box-shadow: var(--shadow-lg);
     animation: slideUpState 0.3s ease;
 }
 
 @keyframes slideUpState {
-    from {
-        opacity: 0;
-        transform: translateY(20px) scale(0.95);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
+    from { opacity: 0; transform: translateY(20px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
+/* ✅ Semánticos */
 .modal-state-icon {
     width: 64px;
     height: 64px;
@@ -501,28 +538,26 @@ $bg-light: #f4f6fa;
     margin: 0 auto 16px;
 
     &.error-icon {
-        background: #fef2f2;
-
-        svg { stroke: #dc2626; }
+        background: var(--color-error-bg);
+        svg { stroke: var(--color-error); }
     }
 
     &.success-icon {
-        background: #dcfce7;
-
-        svg { stroke: #16a34a; }
+        background: var(--color-success-bg);
+        svg { stroke: var(--color-success); }
     }
 }
 
 .modal-state-title {
     font-size: 18px;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--color-text-primary);
     margin: 0 0 8px;
 }
 
 .modal-state-message {
     font-size: 14px;
-    color: #64748b;
+    color: var(--color-text-secondary);
     margin: 0 0 24px;
     line-height: 1.6;
 }
@@ -544,12 +579,12 @@ $bg-light: #f4f6fa;
     font-family: inherit;
 
     &--primary {
-        background: #0f1c3f;
+        background: var(--color-primary);
         color: #ffffff;
 
         &:hover {
-            background: #1a2b5c;
-            box-shadow: 0 4px 12px rgba(15, 28, 63, 0.3);
+            background: var(--color-primary-hover);
+            box-shadow: var(--shadow-md);
         }
     }
 }

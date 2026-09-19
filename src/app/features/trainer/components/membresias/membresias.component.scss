@@ -1,7 +1,7 @@
 :host {
     display: block;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    color: #0f172a;
+    color: var(--color-text-primary);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
@@ -9,7 +9,8 @@
 .membresias-layout {
     display: flex;
     min-height: 100vh;
-    background: #f8fafc;
+    background: var(--color-bg-main);
+    transition: background-color 0.3s ease;
 }
 
 .membresias-main {
@@ -29,9 +30,7 @@
     box-sizing: border-box;
 }
 
-/* ============================================
-   HEADER
-   ============================================ */
+/* HEADER */
 .page-header {
     display: flex;
     justify-content: space-between;
@@ -46,12 +45,12 @@
             font-weight: 800;
             letter-spacing: -0.3px;
             margin: 0;
-            color: #0f172a;
+            color: var(--color-text-primary);
         }
 
         .subtitle {
             font-size: 14px;
-            color: #64748b;
+            color: var(--color-text-secondary);
             margin: 6px 0 0;
         }
     }
@@ -62,9 +61,7 @@
     }
 }
 
-/* ============================================
-   BREADCRUMB
-   ============================================ */
+/* BREADCRUMB */
 .breadcrumb {
     display: flex;
     align-items: center;
@@ -73,40 +70,38 @@
     font-size: 13px;
 
     &-item {
-        color: #94a3b8;
+        color: var(--color-text-muted);
         font-weight: 500;
         cursor: pointer;
 
         &:hover {
-            color: #0f1c3f;
+            color: var(--color-primary);
         }
 
         &.active {
-            color: #0f172a;
+            color: var(--color-text-primary);
             font-weight: 600;
             cursor: default;
 
-            &:hover { color: #0f172a; }
+            &:hover { color: var(--color-text-primary); }
         }
     }
 
     &-sep {
-        color: #cbd5e1;
+        color: var(--color-border);
     }
 }
 
-/* ============================================
-   BOTÓN VOLVER
-   ============================================ */
+/* BOTÓN VOLVER */
 .btn-volver {
     display: inline-flex;
     align-items: center;
     gap: 8px;
     padding: 11px 20px;
-    background: #ffffff;
-    border: 1.5px solid #e2e8f0;
+    background: var(--color-bg-card);
+    border: 1.5px solid var(--color-border);
     border-radius: 10px;
-    color: #475569;
+    color: var(--color-text-secondary);
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
@@ -114,28 +109,24 @@
     font-family: inherit;
 
     &:hover {
-        background: #f1f5f9;
-        color: #0f172a;
-        border-color: #cbd5e1;
+        background: var(--color-bg-hover);
+        color: var(--color-text-primary);
+        border-color: var(--color-text-muted);
     }
 
     svg { stroke: currentColor; }
 }
 
-/* ============================================
-   SECCIÓN
-   ============================================ */
+/* SECCIÓN */
 .section-title {
     font-size: 18px;
     font-weight: 800;
-    color: #0f172a;
+    color: var(--color-text-primary);
     margin: 0 0 20px;
     letter-spacing: -0.2px;
 }
 
-/* ============================================
-   GRID DE MEMBRESÍAS (LISTA)
-   ============================================ */
+/* GRID DE MEMBRESÍAS */
 .membresias-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -143,18 +134,18 @@
 }
 
 .membresia-card {
-    background: #ffffff;
-    border: 1px solid #edf0f5;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
     border-radius: 16px;
     padding: 26px 28px 24px;
     display: flex;
     flex-direction: column;
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+    box-shadow: var(--shadow-sm);
 
     &:hover {
-        border-color: #cbd5e1;
-        box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+        border-color: var(--color-text-muted);
+        box-shadow: var(--shadow-lg);
         transform: translateY(-3px);
     }
 
@@ -168,7 +159,7 @@
     &__price {
         font-size: 32px;
         font-weight: 800;
-        color: #0f172a;
+        color: var(--color-text-primary);
         letter-spacing: -1px;
         margin-bottom: 16px;
         line-height: 1;
@@ -179,6 +170,7 @@
     }
 }
 
+/* ✅ Semánticos */
 .badge-tipo {
     display: inline-block;
     padding: 5px 12px;
@@ -199,7 +191,7 @@
 .duracion-text {
     font-size: 12px;
     font-weight: 700;
-    color: #64748b;
+    color: var(--color-text-secondary);
     text-transform: uppercase;
     letter-spacing: 0.4px;
 }
@@ -207,8 +199,8 @@
 .badge-flexible {
     display: inline-block;
     padding: 4px 12px;
-    background: #f1f5f9;
-    color: #475569;
+    background: var(--color-bg-hover);
+    color: var(--color-text-secondary);
     font-size: 11px;
     font-weight: 700;
     border-radius: 8px;
@@ -228,11 +220,11 @@
         align-items: flex-start;
         gap: 10px;
         font-size: 13.5px;
-        color: #334155;
+        color: var(--color-text-secondary);
         line-height: 1.5;
 
         svg {
-            stroke: #16a34a;
+            stroke: var(--color-success);
             flex-shrink: 0;
             margin-top: 3px;
         }
@@ -240,7 +232,7 @@
         span { flex: 1; }
 
         &.empty-text {
-            color: #94a3b8;
+            color: var(--color-text-muted);
             font-style: italic;
         }
     }
@@ -249,7 +241,7 @@
 .btn-ver-detalle {
     width: 100%;
     padding: 13px 20px;
-    background: #0f1c3f;
+    background: var(--color-primary);
     color: #ffffff;
     border: none;
     border-radius: 10px;
@@ -261,27 +253,26 @@
     margin-top: auto;
 
     &:hover {
-        background: #1a2b5c;
+        background: var(--color-primary-hover);
         transform: translateY(-1px);
-        box-shadow: 0 6px 16px rgba(15, 28, 63, 0.25);
+        box-shadow: var(--shadow-md);
     }
 }
 
-/* ============================================
-   ESTADOS (loader / error / empty)
-   ============================================ */
+/* ESTADOS */
 .state-container {
     padding: 80px 40px;
     text-align: center;
-    background: #ffffff;
+    background: var(--color-bg-card);
     border-radius: 16px;
-    border: 1px solid #edf0f5;
+    border: 1px solid var(--color-border);
+    transition: background-color 0.3s ease;
 
     .spinner-border {
         width: 2.5rem;
         height: 2.5rem;
-        border: 3px solid #e2e8f0;
-        border-top-color: #0f1c3f;
+        border: 3px solid var(--color-border);
+        border-top-color: var(--color-primary);
         border-radius: 50%;
         animation: spin 0.8s linear infinite;
         margin: 0 auto 18px;
@@ -289,7 +280,7 @@
     }
 
     p {
-        color: #64748b;
+        color: var(--color-text-secondary);
         font-size: 14.5px;
         font-weight: 500;
         margin: 0;
@@ -297,13 +288,13 @@
 
     &.error {
         p {
-            color: #b91c1c;
+            color: var(--color-error);
             margin-bottom: 20px;
         }
 
         .btn-volver-error {
             padding: 10px 22px;
-            background: #0f1c3f;
+            background: var(--color-primary);
             color: #ffffff;
             border: none;
             border-radius: 10px;
@@ -312,9 +303,7 @@
             cursor: pointer;
             transition: all 0.2s ease;
 
-            &:hover {
-                background: #1a2b5c;
-            }
+            &:hover { background: var(--color-primary-hover); }
         }
     }
 }
@@ -326,32 +315,30 @@
 .empty-state {
     text-align: center;
     padding: 80px 24px;
-    background: #ffffff;
-    border: 1px dashed #cbd5e1;
+    background: var(--color-bg-card);
+    border: 1px dashed var(--color-border);
     border-radius: 16px;
 
     .empty-icon {
-        color: #cbd5e1;
+        color: var(--color-text-muted);
         margin-bottom: 18px;
     }
 
     h3 {
         font-size: 17px;
         font-weight: 700;
-        color: #0f172a;
+        color: var(--color-text-primary);
         margin: 0 0 6px;
     }
 
     p {
         font-size: 14px;
-        color: #64748b;
+        color: var(--color-text-secondary);
         margin: 0;
     }
 }
 
-/* ============================================
-   DETALLE - Grid principal
-   ============================================ */
+/* DETALLE - Grid principal */
 .detalle-grid {
     display: grid;
     grid-template-columns: 1fr 380px;
@@ -373,12 +360,13 @@
 
 /* Cards base del detalle */
 .card {
-    background: #ffffff;
-    border: 1px solid #edf0f5;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
     border-radius: 14px;
-    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+    box-shadow: var(--shadow-sm);
     width: 100%;
     box-sizing: border-box;
+    transition: background-color 0.3s ease;
 }
 
 .info-card {
@@ -390,7 +378,7 @@
         h3 {
             font-size: 16px;
             font-weight: 800;
-            color: #0f172a;
+            color: var(--color-text-primary);
             margin: 0;
             letter-spacing: -0.2px;
         }
@@ -412,20 +400,21 @@
     .info-label {
         font-size: 11px;
         font-weight: 700;
-        color: #94a3b8;
+        color: var(--color-text-muted);
         letter-spacing: 0.5px;
         text-transform: uppercase;
     }
 
     .info-value {
         font-size: 15px;
-        color: #0f172a;
+        color: var(--color-text-primary);
         font-weight: 500;
 
         &.bold { font-weight: 700; }
     }
 }
 
+/* ✅ Semánticos */
 .badge-estado {
     display: inline-block;
     padding: 4px 12px;
@@ -440,21 +429,19 @@
     }
 
     &.inactivo {
-        background: #f1f5f9;
-        color: #64748b;
+        background: var(--color-bg-hover);
+        color: var(--color-text-secondary);
     }
 }
 
 .descripcion-text {
     font-size: 14px;
-    color: #475569;
+    color: var(--color-text-secondary);
     line-height: 1.6;
     margin: 0;
 }
 
-/* ============================================
-   DETALLE - Card Información Adicional (blanca)
-   ============================================ */
+/* Card Información Adicional */
 .info-adicional-card {
     padding: 24px 28px;
 
@@ -464,7 +451,7 @@
         h3 {
             font-size: 16px;
             font-weight: 800;
-            color: #0f172a;
+            color: var(--color-text-primary);
             margin: 0;
             letter-spacing: -0.2px;
         }
@@ -484,24 +471,22 @@
 
     .info-adicional-label {
         font-size: 13px;
-        color: #64748b;
+        color: var(--color-text-secondary);
         font-weight: 500;
     }
 
     .info-adicional-value {
         font-size: 13px;
-        color: #0f172a;
+        color: var(--color-text-primary);
         font-weight: 700;
         text-align: right;
     }
 }
 
-/* ============================================
-   DETALLE - Card Configuración Adicional (oscura)
-   ============================================ */
+/* Card Configuración Adicional (oscura) */
 .config-dark-card {
-    background: #0f1c3f;
-    border-color: #0f1c3f;
+    background: var(--color-primary);
+    border-color: var(--color-primary);
     padding: 24px 28px;
     color: #ffffff;
 
@@ -555,7 +540,7 @@
 
     &.activo {
         background: rgba(255, 255, 255, 0.95);
-        color: #0f1c3f;
+        color: var(--color-primary);
     }
 
     &.inactivo {
@@ -564,9 +549,7 @@
     }
 }
 
-/* ============================================
-   RESPONSIVE
-   ============================================ */
+/* RESPONSIVE */
 @media (max-width: 1100px) {
     .detalle-grid {
         grid-template-columns: 1fr;

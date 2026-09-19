@@ -1,7 +1,8 @@
 .payments-page {
     padding: 1.5rem 2rem;
-    background-color: #f8fafc;
+    background-color: var(--color-bg-main);
     min-height: 100vh;
+    transition: background-color 0.3s ease;
 }
 
 .page-header {
@@ -13,13 +14,13 @@
     &__title {
         font-size: 1.5rem;
         font-weight: 800;
-        color: #0f172a;
+        color: var(--color-text-primary);
         margin: 0;
     }
 
     &__subtitle {
         font-size: 0.85rem;
-        color: #64748b;
+        color: var(--color-text-secondary);
         margin: 0.2rem 0 0 0;
     }
 
@@ -30,8 +31,8 @@
     }
 
     &__icon-wrapper {
-        background: #e0f2fe;
-        color: #0284c7;
+        background: var(--color-info-bg);
+        color: var(--color-info);
         padding: 0.6rem;
         border-radius: 10px;
         display: flex;
@@ -47,35 +48,36 @@
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    background-color: #dcfce7;
-    color: #16a34a;
+    background-color: var(--color-success-bg);
+    color: var(--color-success);
     padding: 0.85rem 1.25rem;
     border-radius: 12px;
     font-size: 0.875rem;
     font-weight: 600;
     margin-bottom: 1.5rem;
-    border: 1px solid #bbf7d0;
+    border: 1px solid var(--color-success);
 }
 
 .config-card {
-    background: #ffffff;
+    background: var(--color-bg-card);
     border-radius: 16px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--color-border);
     margin-bottom: 1.25rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.01);
+    box-shadow: var(--shadow-sm);
     overflow: hidden;
+    transition: background-color 0.3s ease;
 
     &__header {
         display: flex;
         gap: 0.75rem;
         align-items: center;
         padding: 1.25rem 1.5rem;
-        border-bottom: 1px solid #f1f5f9;
-        background: #f8fafc;
+        border-bottom: 1px solid var(--color-border-light);
+        background: var(--color-bg-hover);
 
         .config-card__icon {
-            background: #e0f2fe;
-            color: #0284c7;
+            background: var(--color-info-bg);
+            color: var(--color-info);
             padding: 0.5rem;
             border-radius: 8px;
             display: flex;
@@ -84,13 +86,13 @@
         .config-card__title {
             font-size: 1rem;
             font-weight: 800;
-            color: #0f172a;
+            color: var(--color-text-primary);
             margin: 0;
         }
 
         .config-card__subtitle {
             font-size: 0.75rem;
-            color: #64748b;
+            color: var(--color-text-secondary);
             margin: 0.1rem 0 0 0;
         }
     }
@@ -118,31 +120,31 @@
     .form-label {
         font-size: 0.75rem;
         font-weight: 700;
-        color: #64748b;
+        color: var(--color-text-secondary);
         text-transform: uppercase;
     }
 
     .form-control-custom {
-        background: #f8fafc;
-        border: 1px solid #cbd5e1;
+        background: var(--color-bg-input);
+        border: 1px solid var(--color-border);
         border-radius: 8px;
         padding: 0.6rem 0.75rem;
         font-size: 0.85rem;
-        color: #1e293b;
+        color: var(--color-text-primary);
         width: 100%;
         outline: none;
         transition: all 0.2s ease;
 
         &:focus {
-            border-color: #0e3b72;
-            background: #ffffff;
+            border-color: var(--color-primary);
+            background: var(--color-bg-card);
             box-shadow: 0 0 0 3px rgba(14, 59, 114, 0.1);
         }
     }
 
     .form-hint {
         font-size: 0.72rem;
-        color: #94a3b8;
+        color: var(--color-text-muted);
     }
 }
 
@@ -170,7 +172,7 @@
         .channel-name {
             font-size: 0.85rem;
             font-weight: 600;
-            color: #334155;
+            color: var(--color-text-secondary);
         }
     }
 }
@@ -188,7 +190,7 @@
         height: 0;
 
         &:checked + .slider {
-            background-color: #0e3b72;
+            background-color: var(--color-primary);
 
             &:before {
                 transform: translateX(18px);
@@ -205,7 +207,7 @@
         position: absolute;
         cursor: pointer;
         top: 0; left: 0; right: 0; bottom: 0;
-        background-color: #cbd5e1;
+        background-color: var(--color-border);
         transition: .3s;
         border-radius: 22px;
 
@@ -232,29 +234,30 @@
     .status-pill {
         font-size: 0.75rem;
         font-weight: 700;
-        color: #16a34a;
+        color: var(--color-success);
     }
 
     .status-desc {
         font-size: 0.75rem;
-        color: #64748b;
+        color: var(--color-text-secondary);
         margin: 0;
     }
 }
 
 .info-card-footer {
-    background: #ffffff;
+    background: var(--color-bg-card);
     border-radius: 16px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--color-border);
     padding: 1.25rem 1.5rem;
     display: flex;
     gap: 1rem;
     align-items: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.01);
+    box-shadow: var(--shadow-sm);
+    transition: background-color 0.3s ease;
 
     &__icon {
-        background: #f1f5f9;
-        color: #64748b;
+        background: var(--color-bg-hover);
+        color: var(--color-text-secondary);
         padding: 0.6rem;
         border-radius: 10px;
         display: flex;
@@ -263,13 +266,13 @@
     .info-title {
         font-size: 0.85rem;
         font-weight: 700;
-        color: #0f172a;
+        color: var(--color-text-primary);
         margin: 0;
     }
 
     .info-text {
         font-size: 0.75rem;
-        color: #64748b;
+        color: var(--color-text-secondary);
         margin: 0.1rem 0 0 0;
     }
 }
@@ -286,13 +289,13 @@
     transition: all 0.2s ease;
 
     &--primary {
-        background: #0e3b72;
+        background: var(--color-primary);
         color: white;
         border: none;
-        box-shadow: 0 2px 4px rgba(14, 59, 114, 0.15);
+        box-shadow: var(--shadow-sm);
 
         &:hover {
-            background: #154c8f;
+            background: var(--color-primary-hover);
         }
     }
 }

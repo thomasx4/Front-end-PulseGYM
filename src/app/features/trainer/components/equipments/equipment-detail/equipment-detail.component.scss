@@ -1,9 +1,3 @@
-$primary-navy: #051f42;
-$button-navy: #0b192c;
-$text-dark: #0f172a;
-$text-muted: #64748b;
-$border-light: #e2e8f0;
-
 .modal-backdrop {
     position: fixed;
     inset: 0;
@@ -17,28 +11,22 @@ $border-light: #e2e8f0;
 }
 
 .modal-dialog {
-    background: #ffffff;
+    background: var(--color-bg-card);
     border-radius: 18px;
     width: 100%;
     max-width: 540px;
     max-height: 88vh;
     display: flex;
     flex-direction: column;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-lg);
     overflow: hidden;
     animation: modalFadeIn 0.2s ease-out;
+    transition: background-color 0.3s ease;
 }
 
 @keyframes modalFadeIn {
-    from {
-        opacity: 0;
-        transform: scale(0.96);
-    }
-
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
+    from { opacity: 0; transform: scale(0.96); }
+    to { opacity: 1; transform: scale(1); }
 }
 
 .modal-header {
@@ -47,7 +35,7 @@ $border-light: #e2e8f0;
     align-items: flex-start;
     justify-content: space-between;
     padding: 20px 24px;
-    border-bottom: 1px solid $border-light;
+    border-bottom: 1px solid var(--color-border);
 
     &__title-group {
         display: flex;
@@ -55,6 +43,7 @@ $border-light: #e2e8f0;
         gap: 2px;
     }
 
+    /* ✅ Semántico (índigo) */
     .equipment-id {
         font-size: 0.75rem;
         font-weight: 800;
@@ -65,7 +54,7 @@ $border-light: #e2e8f0;
     .modal-title {
         font-size: 1.25rem;
         font-weight: 800;
-        color: $primary-navy;
+        color: var(--color-text-primary);
         margin: 0;
     }
 
@@ -73,13 +62,14 @@ $border-light: #e2e8f0;
         background: transparent;
         border: none;
         cursor: pointer;
-        color: #94a3b8;
+        color: var(--color-text-muted);
         padding: 4px;
         border-radius: 8px;
+        transition: all 0.2s ease;
 
         &:hover {
-            background: #f1f5f9;
-            color: $primary-navy;
+            background: var(--color-bg-hover);
+            color: var(--color-text-primary);
         }
     }
 }
@@ -94,6 +84,7 @@ $border-light: #e2e8f0;
 }
 
 
+/* ✅ Semánticos (verde/amarillo/rojo) */
 .status-banner {
     padding: 14px 18px;
     border-radius: 12px;
@@ -151,32 +142,29 @@ $border-light: #e2e8f0;
 }
 
 .detail-card {
-    background: #f8fafc;
-    border: 1px solid $border-light;
+    background: var(--color-bg-hover);
+    border: 1px solid var(--color-border);
     padding: 12px 14px;
     border-radius: 10px;
+    transition: background-color 0.3s ease;
 
     &--full {
         grid-column: 1 / -1;
     }
 
+    /* ✅ Semántico (rojo) */
     &--falla {
         background: #fff1f2;
         border-color: #fecdd3;
 
-        .detail-card__label {
-            color: #e11d48;
-        }
-
-        .detail-card__value {
-            color: #9f1239;
-        }
+        .detail-card__label { color: #e11d48; }
+        .detail-card__value { color: #9f1239; }
     }
 
     &__label {
         font-size: 0.7rem;
         font-weight: 800;
-        color: $text-muted;
+        color: var(--color-text-muted);
         display: block;
         margin-bottom: 2px;
     }
@@ -184,14 +172,14 @@ $border-light: #e2e8f0;
     &__value {
         font-size: 0.875rem;
         font-weight: 700;
-        color: $text-dark;
+        color: var(--color-text-primary);
         margin: 0;
 
         &--serial {
             font-family: monospace;
             font-size: 0.95rem;
             letter-spacing: 0.5px;
-            color: $button-navy;
+            color: var(--color-primary);
         }
     }
 
@@ -208,21 +196,22 @@ $border-light: #e2e8f0;
     align-items: center;
     justify-content: flex-end;
     padding: 14px 24px;
-    border-top: 1px solid $border-light;
-    background: #ffffff;
+    border-top: 1px solid var(--color-border);
+    background: var(--color-bg-card);
 
     .btn-primary {
         padding: 10px 24px;
-        background-color: $button-navy;
+        background-color: var(--color-primary);
         color: #ffffff;
         border: none;
         border-radius: 10px;
         font-size: 0.875rem;
         font-weight: 600;
         cursor: pointer;
+        transition: background-color 0.2s ease;
 
         &:hover {
-            background-color: lighten($button-navy, 8%);
+            background-color: var(--color-primary-hover);
         }
     }
 }
@@ -234,6 +223,7 @@ $border-light: #e2e8f0;
     margin-bottom: 6px;
 }
 
+/* ✅ Semántico (rojo) */
 .btn-report-toggle {
     background: transparent;
     border: 1px solid #e11d48;
@@ -252,7 +242,7 @@ $border-light: #e2e8f0;
 }
 
 .text-gray {
-    color: #94a3b8 !important;
+    color: var(--color-text-muted) !important;
 }
 
 .falla-form {
@@ -261,7 +251,7 @@ $border-light: #e2e8f0;
     gap: 8px;
     margin-top: 8px;
     padding-top: 8px;
-    border-top: 1px stroke #fecdd3;
+    border-top: 1px solid #fecdd3;
 
     .form-row {
         display: flex;
@@ -283,8 +273,8 @@ $border-light: #e2e8f0;
         border-radius: 8px;
         font-size: 0.8rem;
         outline: none;
-        background: #ffffff;
-        color: #0f172a;
+        background: var(--color-bg-input);
+        color: var(--color-text-primary);
 
         &:focus {
             border-color: #e11d48;
@@ -306,14 +296,8 @@ $border-light: #e2e8f0;
         font-weight: 700;
         cursor: pointer;
 
-        &:hover:not(:disabled) {
-            background: #be123c;
-        }
-
-        &:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
+        &:hover:not(:disabled) { background: #be123c; }
+        &:disabled { opacity: 0.6; cursor: not-allowed; }
     }
 }
 
@@ -321,7 +305,7 @@ $border-light: #e2e8f0;
 .maintenance-section {
     margin-top: 8px;
     padding-top: 14px;
-    border-top: 1px dashed $border-light;
+    border-top: 1px dashed var(--color-border);
 
     &__header {
         display: flex;
@@ -332,8 +316,8 @@ $border-light: #e2e8f0;
         .maint-count {
             font-size: 0.725rem;
             font-weight: 700;
-            color: $text-muted;
-            background: #f1f5f9;
+            color: var(--color-text-muted);
+            background: var(--color-bg-hover);
             padding: 2px 8px;
             border-radius: 12px;
         }
@@ -347,8 +331,8 @@ $border-light: #e2e8f0;
 }
 
 .maint-card {
-    background: #f8fafc;
-    border: 1px solid $border-light;
+    background: var(--color-bg-hover);
+    border: 1px solid var(--color-border);
     border-radius: 10px;
     padding: 12px;
     display: flex;
@@ -363,13 +347,13 @@ $border-light: #e2e8f0;
         .maint-date {
             font-size: 0.75rem;
             font-weight: 700;
-            color: $text-muted;
+            color: var(--color-text-muted);
         }
     }
 
     &__desc {
         font-size: 0.8rem;
-        color: #334155;
+        color: var(--color-text-secondary);
         margin: 0;
         line-height: 1.35;
     }
@@ -378,27 +362,27 @@ $border-light: #e2e8f0;
         display: flex;
         justify-content: space-between;
         font-size: 0.75rem;
-        color: #475569;
+        color: var(--color-text-secondary);
         margin-top: 2px;
 
-        strong {
-            color: $button-navy;
-        }
+        strong { color: var(--color-primary); }
     }
 
+    /* ✅ Semántico (azul) */
     &__next {
         display: flex;
         align-items: center;
         gap: 6px;
         font-size: 0.725rem;
         color: #2563eb;
-        background: #eff6ff;
+        background: var(--color-info-bg);
         padding: 4px 8px;
         border-radius: 6px;
         margin-top: 4px;
     }
 }
 
+/* ✅ Semánticos */
 .maint-badge {
     font-size: 0.675rem;
     font-weight: 800;
@@ -419,7 +403,7 @@ $border-light: #e2e8f0;
 .maint-state-text,
 .maint-empty {
     font-size: 0.8rem;
-    color: #94a3b8;
+    color: var(--color-text-muted);
     text-align: center;
     padding: 16px 0;
 }
@@ -446,27 +430,22 @@ $border-light: #e2e8f0;
 }
 
 @keyframes slideUpNested {
-    from {
-        opacity: 0;
-        transform: translateY(20px) scale(0.95);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
+    from { opacity: 0; transform: translateY(20px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .modal-content-nested {
-    background: #ffffff;
+    background: var(--color-bg-card);
     border-radius: 16px;
     padding: 40px 48px 32px;
     max-width: 420px;
     width: 100%;
     text-align: center;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    box-shadow: var(--shadow-lg);
     animation: slideUpNested 0.3s ease;
 }
 
+/* ✅ Semánticos */
 .modal-icon {
     width: 64px;
     height: 64px;
@@ -477,28 +456,26 @@ $border-light: #e2e8f0;
     margin: 0 auto 16px;
 
     &.error-icon {
-        background: #fef2f2;
-
-        svg { stroke: #dc2626; }
+        background: var(--color-error-bg);
+        svg { stroke: var(--color-error); }
     }
 
     &.success-icon {
-        background: #dcfce7;
-
-        svg { stroke: #16a34a; }
+        background: var(--color-success-bg);
+        svg { stroke: var(--color-success); }
     }
 }
 
 .modal-title-nested {
     font-size: 18px;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--color-text-primary);
     margin: 0 0 8px;
 }
 
 .modal-message-nested {
     font-size: 14px;
-    color: #64748b;
+    color: var(--color-text-secondary);
     margin: 0 0 24px;
     line-height: 1.6;
 }
@@ -520,12 +497,12 @@ $border-light: #e2e8f0;
     font-family: inherit;
 
     &--primary {
-        background: #0f1c3f;
+        background: var(--color-primary);
         color: #ffffff;
 
         &:hover {
-            background: #1a2b5c;
-            box-shadow: 0 4px 12px rgba(15, 28, 63, 0.3);
+            background: var(--color-primary-hover);
+            box-shadow: var(--shadow-md);
         }
     }
 }
