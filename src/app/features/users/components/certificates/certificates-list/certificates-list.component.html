@@ -14,6 +14,21 @@
         </button>
     </header>
 
+    <!-- BARRA DE ACCIONES EN LOTE PARA ELIMINAR -->
+    <div class="bulk-actions-bar" *ngIf="idsSeleccionados.size > 0">
+        <div class="bulk-info">
+            <span class="selected-count">{{ idsSeleccionados.size }}</span> certificación(es) seleccionada(s)
+        </div>
+        <div class="bulk-buttons">
+            <button type="button" class="btn-bulk btn-bulk--delete" (click)="eliminarSeleccionados()">
+                Eliminar Seleccionadas
+            </button>
+            <button type="button" class="btn-bulk btn-bulk--clear" (click)="limpiarSeleccion()">
+                Cancelar
+            </button>
+        </div>
+    </div>
+
     <!-- MÉTRICAS ORGANIZADAS EN 2 COLUMNAS -->
     <div class="metrics-grid">
         <div class="metric-card metric-card--total">
@@ -74,6 +89,12 @@
             <table class="custom-table">
                 <thead>
                     <tr>
+                        <th class="th-checkbox">
+                            <label class="custom-checkbox">
+                                <input type="checkbox" [checked]="isAllSelected" [indeterminate]="isSomeSelected" (change)="toggleSelectAll($event)">
+                                <span class="checkmark"></span>
+                            </label>
+                        </th>
                         <th>CERTIFICACIÓN</th>
                         <th>ENTRENADOR</th>
                         <th>FECHA SUBIDA</th>
@@ -81,7 +102,13 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let cert of certificaciones">
+                    <tr *ngFor="let cert of certificaciones" [class.selected-row]="isSeleccionado(cert.idCertificacion)">
+                        <td class="td-checkbox">
+                            <label class="custom-checkbox">
+                                <input type="checkbox" [checked]="isSeleccionado(cert.idCertificacion)" (change)="toggleSeleccionItem(cert.idCertificacion)">
+                                <span class="checkmark"></span>
+                            </label>
+                        </td>
                         <td>
                             <div class="cert-name-cell">
                                 <div class="pdf-icon-badge">

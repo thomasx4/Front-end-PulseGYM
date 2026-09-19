@@ -25,6 +25,9 @@ class CertificatesListComponent implements OnInit {
     certificacion: 'todos'
   };
 
+  // ⭐ Propiedades para selección múltiple
+  idsSeleccionados: Set<number> = new Set<number>();
+
   constructor(
     private certificateService: CertificateService,
     private router: Router
@@ -44,6 +47,7 @@ class CertificatesListComponent implements OnInit {
 
   cargarDatos(): void {
     this.loading = true;
+    this.limpiarSeleccion();
     
     this.certificateService.obtenerCertificacionesPaginadas({ pagina: 0, tamanio: 1000 }).subscribe({
       next: (response: any) => {
@@ -66,6 +70,87 @@ class CertificatesListComponent implements OnInit {
         this.totalElementos = 0;
         this.totalPaginas = 0;
         this.loading = false;
+      }
+    });
+  }
+
+  isSeleccionado(id: number): boolean {
+    return this.idsSeleccionados.has(id);
+  }
+
+  toggleSeleccionItem(id: number): void {
+    if (this.idsSeleccionados.has(id)) {
+      this.idsSeleccionados.delete(id);
+    } else {
+      this.idsSeleccionados.add(id);
+    }
+  }
+
+  toggleSelectAll(event: any): void {
+    const checked = event.target.checked;
+    if (checked) {
+      this.certificaciones.forEach(item => {
+        if (item.idCertificacion !== undefined && item.idCertificacion !== null) {
+          this.idsSeleccionados.add(item.idCertificacion);
+        }
+      });
+    } else {
+      this.limpiarSeleccion();
+    }
+  }
+
+  limpiarSeleccion(): void {
+    this.idsSeleccionados.clear();
+  }
+
+  get isAllSelected(): boolean {
+    if (this.certificaciones.length === 0) return false;
+    return this.certificaciones.every(item => item.idCertificacion !== undefined && item.idCertificacion !== null && this.idsSeleccionados.has(item.idCertificacion));
+  }
+
+  get isSomeSelected(): boolean {
+    if (this.certificaciones.length === 0) return false;
+    const count = this.certificaciones.filter(item => item.idCertificacion !== undefined && item.idCertificacion !== null && this.idsSeleccionados.has(item.idCertificacion)).length;
+    return count > 0 && !this.isAllSelected;
+  }
+
+  eliminarSeleccionados(): void {
+    const ids: number[] = Array.from(this.idsSeleccionados);
+    if (ids.length === 0) return;
+
+    Swal.fire({
+      title: '¿Eliminar certificaciones?',
+      text: `¿Estás seguro de que deseas eliminar las ${ids.length} certificación(es) seleccionada(s)?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#dc2626',
+      cancelButtonColor: '#9ca3af'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        let completados = 0;
+        ids.forEach(id => {
+          this.certificateService.eliminarCertificacion(id).subscribe({
+            next: () => {
+              completados++;
+              if (completados === ids.length) {
+                this.limpiarSeleccion();
+                this.cargarDatos();
+                this.cargarMetricas();
+                Swal.fire({
+                  icon: 'success',
+                  title: 'Certificaciones eliminadas',
+                  text: 'Las certificaciones seleccionadas han sido eliminadas correctamente.',
+                  confirmButtonColor: '#0f1c3f'
+                });
+              }
+            },
+            error: (err) => {
+              console.error(`Error al eliminar certificación ID ${id}:`, err);
+            }
+          });
+        });
       }
     });
   }
