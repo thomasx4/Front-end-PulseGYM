@@ -12,7 +12,22 @@
         </button>
     </div>
 
-    <!-- FILTROS PARA PLANES CON TÍTULOS -->
+    <!-- BARRA DE ACCIONES EN LOTE PARA ELIMINAR PLANES -->
+    <div class="bulk-actions-bar" *ngIf="planesSeleccionadosCount > 0">
+        <div class="bulk-info">
+            <span class="selected-count">{{ planesSeleccionadosCount }}</span> plan(es) seleccionado(s)
+        </div>
+        <div class="bulk-buttons">
+            <button type="button" class="btn-bulk btn-bulk--delete" (click)="eliminarPlanesSeleccionados()">
+                Eliminar Seleccionados
+            </button>
+            <button type="button" class="btn-bulk btn-bulk--clear" (click)="limpiarSeleccionPlanes()">
+                Cancelar
+            </button>
+        </div>
+    </div>
+
+    <!-- FILTROS PARA PLANES -->
     <div class="filters-plans">
         <div class="filters-plans__row">
             <div class="filter-group">
@@ -48,12 +63,34 @@
         </div>
     </div>
 
+    <!-- SELECTOR GENERAL DE TARJETAS (ESTILO SEDES) -->
+    <div class="select-all-bar" *ngIf="!loadingPlanes && planes.length > 0">
+        <label class="custom-checkbox select-all-label">
+            <input type="checkbox" [checked]="isAllPlanesSelected" [indeterminate]="isSomePlanesSelected" (change)="toggleSelectAllPlanes($event)">
+            <span class="checkmark"></span>
+            <span class="select-all-text">Seleccionar todos los planes</span>
+        </label>
+        <span class="select-counter">{{ planesSeleccionadosCount }} de {{ planes.length }} seleccionados</span>
+    </div>
+
     <!-- PLAN CARDS CON PAGINACIÓN EN FRONTEND -->
     <div class="plans-section">
-        <h2 class="section-subtitle">Planes Disponibles</h2>
+        <div class="loading-state" *ngIf="loadingPlanes">
+            <div class="spinner"></div>
+            <p>Cargando planes...</p>
+        </div>
 
         <div class="plans-grid" *ngIf="!loadingPlanes && planes.length > 0">
-            <div class="plan-card" *ngFor="let plan of planes">
+            <div class="plan-card" *ngFor="let plan of planes" [class.selected-card]="plan.selected">
+                
+                <!-- Checkbox personalizado de selección individual -->
+                <div class="plan-card__select" style="position: absolute; top: 16px; right: 16px;">
+                    <label class="custom-checkbox">
+                        <input type="checkbox" [(ngModel)]="plan.selected">
+                        <span class="checkmark"></span>
+                    </label>
+                </div>
+
                 <div class="plan-card__header">
                     <span class="plan-card__badge" [class]="plan.badgeClass">
                         {{ plan.badge }}
@@ -81,6 +118,9 @@
                     </button>
                     <button class="btn-outline" (click)="editarPlan(plan)">
                         Editar Plan
+                    </button>
+                    <button class="btn-delete" (click)="eliminarPlan(plan)">
+                        Eliminar Plan
                     </button>
                 </div>
             </div>

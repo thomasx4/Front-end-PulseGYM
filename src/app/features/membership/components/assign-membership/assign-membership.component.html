@@ -50,7 +50,8 @@
                     </div>
                     <div class="user-details">
                         <span class="user-name">{{ item.nombreSocio || item.nombre }}</span>
-                        <span class="user-membership">{{ item.tipoMembresia || item.nombreMembresia || 'Plan Activo' }}</span>
+                        <span class="user-membership">{{ item.tipoMembresia || item.nombreMembresia || 'Plan Activo'
+                            }}</span>
                     </div>
                 </div>
                 <div class="por-vencer-card__right">
@@ -226,6 +227,31 @@
         <div class="assigned-section">
             <h2 class="assigned-section__title">Socios asignados</h2>
 
+            <!-- BARRA DE ACCIONES EN LOTE -->
+            <div class="bulk-actions-bar" *ngIf="sociosSeleccionadosCount > 0">
+                <div class="bulk-info">
+                    <span class="selected-count">{{ sociosSeleccionadosCount }}</span> socio(s) seleccionado(s)
+                </div>
+                <div class="bulk-buttons">
+                    <button type="button" class="btn-bulk btn-bulk--renovar" (click)="renovarSociosSeleccionados()"
+                        [disabled]="loading || accionEnProceso">
+                        Renovar seleccionados
+                    </button>
+                    <button type="button" class="btn-bulk btn-bulk--suspender" (click)="suspenderSociosSeleccionados()"
+                        [disabled]="loading || accionEnProceso">
+                        Suspender seleccionados
+                    </button>
+                    <button type="button" class="btn-bulk btn-bulk--delete" (click)="cancelarSociosSeleccionados()"
+                        [disabled]="loading || accionEnProceso">
+                        Cancelar seleccionados
+                    </button>
+                    <button type="button" class="btn-bulk btn-bulk--clear" (click)="limpiarSeleccionSocios()"
+                        [disabled]="loading || accionEnProceso">
+                        Limpiar selección
+                    </button>
+                </div>
+            </div>
+
             <div class="assigned-section__toolbar">
                 <div class="search-box">
                     <input type="text" placeholder="Buscar socio..." aria-label="Buscar socio asignado"
@@ -237,10 +263,23 @@
                 </div>
             </div>
 
+            <!-- SELECTOR GENERAL DE SOCIOS -->
+            <div class="select-all-bar" *ngIf="sociosAsignados.length > 0">
+                <label class="custom-checkbox select-all-label">
+                    <input type="checkbox" [checked]="isAllSociosSelected" [indeterminate]="isSomeSociosSelected"
+                        (change)="toggleSelectAllSocios($event)">
+                    <span class="checkmark"></span>
+                    <span class="select-all-text">Seleccionar todos los socios de la página</span>
+                </label>
+                <span class="select-counter">{{ sociosSeleccionadosCount }} de {{ sociosAsignados.length }}
+                    seleccionados</span>
+            </div>
+
             <div class="assigned-table-card">
                 <table class="assigned-table">
                     <thead>
                         <tr>
+                            <th style="width: 40px;"></th>
                             <th>MIEMBRO</th>
                             <th>CONTACTO</th>
                             <th>PRECIO TOTAL</th>
@@ -250,7 +289,14 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let socio of sociosAsignados; trackBy: trackBySocioId">
+                        <tr *ngFor="let socio of sociosAsignados; trackBy: trackBySocioId"
+                            [class.selected-row]="socio.selected">
+                            <td style="width: 40px;">
+                                <label class="custom-checkbox">
+                                    <input type="checkbox" [(ngModel)]="socio.selected">
+                                    <span class="checkmark"></span>
+                                </label>
+                            </td>
                             <td>
                                 <div class="user-profile">
                                     <div class="avatar-container">
@@ -302,7 +348,7 @@
                             </td>
                         </tr>
                         <tr *ngIf="sociosAsignados.length === 0">
-                            <td colspan="6" class="empty-state">No hay socios asignados.</td>
+                            <td colspan="7" class="empty-state">No hay socios asignados.</td>
                         </tr>
                     </tbody>
                 </table>

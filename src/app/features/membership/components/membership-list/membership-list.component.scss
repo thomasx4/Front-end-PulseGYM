@@ -19,7 +19,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 32px;
+    margin-bottom: 24px;
 
     .page-title {
         font-size: 30px;
@@ -68,6 +68,175 @@
     letter-spacing: -0.3px;
 }
 
+/* ─── BARRA DE ACCIONES EN LOTE (ELIMINAR) ─── */
+.bulk-actions-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #0f1c3f;
+    color: #ffffff;
+    padding: 12px 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: 0 10px 25px -5px rgba(15, 28, 63, 0.3);
+    animation: slideDown 0.2s ease-in-out;
+
+    .bulk-info {
+        font-size: 0.9rem;
+        font-weight: 500;
+
+        .selected-count {
+            font-weight: 700;
+            background: #ef4444;
+            color: #ffffff;
+            padding: 2px 8px;
+            border-radius: 6px;
+            margin-right: 4px;
+        }
+    }
+
+    .bulk-buttons {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+
+        .btn-bulk {
+            border: none;
+            border-radius: 8px;
+            padding: 7px 14px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+
+            &--delete {
+                background-color: #fca5a5;
+                color: #7f1d1d;
+                &:hover { background-color: #f87171; color: #fff; }
+            }
+
+            &--clear {
+                background-color: #334155;
+                color: #f8fafc;
+                &:hover { background-color: #475569; }
+            }
+        }
+    }
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── BARRA SUPERIOR SELECCIONAR TODAS (ESTILO SEDES) ─── */
+.select-all-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    padding: 14px 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-sm);
+
+    .select-all-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--color-text-primary);
+        cursor: pointer;
+
+        .select-all-text {
+            white-space: nowrap;
+        }
+    }
+
+    .select-counter {
+        font-size: 0.825rem;
+        font-weight: 600;
+        color: var(--color-text-secondary);
+        background: var(--color-bg-hover);
+        padding: 5px 12px;
+        border-radius: 6px;
+    }
+}
+
+/* ─── CHECKBOX CON CHULO PERFECTAMENTE ALINEADO ─── */
+.custom-checkbox {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+
+    input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+        position: absolute;
+
+        &:checked ~ .checkmark {
+            background-color: var(--color-primary);
+            border-color: var(--color-primary);
+
+            &:after {
+                display: block;
+            }
+        }
+
+        &:indeterminate ~ .checkmark {
+            background-color: var(--color-primary);
+            border-color: var(--color-primary);
+
+            &:after {
+                display: block;
+                width: 10px;
+                height: 2px;
+                border: solid white;
+                border-width: 0 0 2px 0;
+                left: 3px;
+                top: 7px;
+                transform: none;
+                border-radius: 0;
+            }
+        }
+    }
+
+    .checkmark {
+        display: inline-block;
+        position: relative;
+        height: 20px;
+        width: 20px;
+        min-width: 20px;
+        background-color: var(--color-bg-card);
+        border: 2px solid var(--color-border);
+        border-radius: 6px;
+        transition: all 0.2s ease;
+
+        &:after {
+            content: "";
+            position: absolute;
+            display: none;
+            left: 5px;
+            top: 1px;
+            width: 5px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+    }
+
+    &:hover input ~ .checkmark {
+        border-color: var(--color-primary);
+    }
+}
+
 .plans-section { margin-bottom: 40px; }
 
 .plans-grid {
@@ -95,14 +264,19 @@
         border-color: var(--color-primary);
     }
 
+    &.selected-card {
+        border-color: var(--color-primary);
+        background-color: rgba(239, 68, 68, 0.02);
+    }
+
     &__header {
         display: flex;
         align-items: center;
         justify-content: space-between;
         margin-bottom: 12px;
+        padding-right: 28px;
     }
 
-    /* ✅ Semánticos */
     &__badge {
         font-size: 10px;
         font-weight: 800;
@@ -203,7 +377,8 @@
         margin-top: auto;
 
         .btn-detail,
-        .btn-outline {
+        .btn-outline,
+        .btn-delete {
             width: 100%;
             padding: 10px 16px;
             border-radius: var(--radius-sm);
@@ -234,6 +409,17 @@
             &:hover {
                 background: var(--color-border);
                 color: var(--color-text-primary);
+            }
+        }
+
+        .btn-delete {
+            border: 1px solid #fecdd3;
+            background: #fff1f2;
+            color: #e11d48;
+
+            &:hover {
+                background: #ffe4e6;
+                color: #be123c;
             }
         }
     }
@@ -311,7 +497,6 @@
     }
 }
 
-// MEMBERS TABLE SECTION
 .members-table-section {
     background: var(--color-bg-card);
     border-radius: var(--radius-lg);
@@ -479,7 +664,6 @@
     }
 }
 
-/* ✅ Semánticos */
 .plan-tier {
     font-weight: 700;
     font-size: 11px;
@@ -527,7 +711,6 @@
     }
 }
 
-/* ✅ Semánticos */
 .days-badge {
     display: inline-block;
     padding: 4px 12px;

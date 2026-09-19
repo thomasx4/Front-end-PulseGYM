@@ -19,6 +19,9 @@ export class HeadquartersListComponent implements OnInit {
   mostrarModal: boolean = false;
   sedeSeleccionada: Sede | null = null;
 
+  // ⭐ Propiedades para selección múltiple
+  idsSeleccionados: Set<number> = new Set<number>();
+
   constructor(private headquarterService: HeadquarterService) {}
 
   ngOnInit(): void {
@@ -27,6 +30,7 @@ export class HeadquartersListComponent implements OnInit {
 
   cargarSedes(): void {
     this.errorMensaje = '';
+    this.limpiarSeleccion();
 
     if (this.filtroNombre.trim()) {
       this.headquarterService.buscarPorNombre(this.filtroNombre.trim()).subscribe({
@@ -56,6 +60,88 @@ export class HeadquartersListComponent implements OnInit {
         this.cargando = false;
       },
       error: (err) => this.handleError('No se pudo obtener el listado de sedes', err)
+    });
+  }
+
+  isSeleccionado(id: number | undefined): boolean {
+    if (id === undefined) return false;
+    return this.idsSeleccionados.has(id);
+  }
+
+  toggleSeleccionItem(id: number | undefined): void {
+    if (id === undefined) return;
+    if (this.idsSeleccionados.has(id)) {
+      this.idsSeleccionados.delete(id);
+    } else {
+      this.idsSeleccionados.add(id);
+    }
+  }
+
+  toggleSelectAll(event: any): void {
+    const checked = event.target.checked;
+    if (checked) {
+      this.sedes.forEach(item => {
+        if (item.idSede !== undefined && item.idSede !== null) {
+          this.idsSeleccionados.add(item.idSede);
+        }
+      });
+    } else {
+      this.limpiarSeleccion();
+    }
+  }
+
+  limpiarSeleccion(): void {
+    this.idsSeleccionados.clear();
+  }
+
+  get isAllSelected(): boolean {
+    if (this.sedes.length === 0) return false;
+    return this.sedes.every(item => item.idSede !== undefined && item.idSede !== null && this.idsSeleccionados.has(item.idSede));
+  }
+
+  get isSomeSelected(): boolean {
+    if (this.sedes.length === 0) return false;
+    const count = this.sedes.filter(item => item.idSede !== undefined && item.idSede !== null && this.idsSeleccionados.has(item.idSede)).length;
+    return count > 0 && !this.isAllSelected;
+  }
+
+  eliminarSeleccionados(): void {
+    const ids: number[] = Array.from(this.idsSeleccionados);
+    if (ids.length === 0) return;
+
+    Swal.fire({
+      title: '¿Eliminar sedes?',
+      html: `¿Estás seguro de que deseas eliminar las <b>${ids.length}</b> sede(s) seleccionada(s)? Esta acción no se puede deshacer.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#e11d48',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        let completados = 0;
+        ids.forEach(id => {
+          this.headquarterService.eliminarSede(id).subscribe({
+            next: () => {
+              completados++;
+              if (completados === ids.length) {
+                this.limpiarSeleccion();
+                this.cargarSedes();
+                Swal.fire({
+                  icon: 'success',
+                  title: '¡Sedes eliminadas!',
+                  text: 'Las sedes seleccionadas han sido eliminadas correctamente.',
+                  confirmButtonColor: '#0f1c3f'
+                });
+              }
+            },
+            error: (err) => {
+              console.error(`Error al eliminar sede ID ${id}:`, err);
+            }
+          });
+        });
+      }
     });
   }
 

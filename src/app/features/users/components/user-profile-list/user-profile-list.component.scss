@@ -28,6 +28,158 @@
     }
 }
 
+/* ─── BARRA DE ACCIONES EN LOTE CON ALTO CONTRASTE ─── */
+.bulk-actions-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #0f1c3f;
+    color: #ffffff;
+    padding: 12px 20px;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    box-shadow: 0 10px 25px -5px rgba(15, 28, 63, 0.3);
+    animation: slideDown 0.2s ease-in-out;
+
+    .bulk-info {
+        font-size: 0.9rem;
+        font-weight: 500;
+
+        .selected-count {
+            font-weight: 700;
+            background: #3b82f6;
+            color: #ffffff;
+            padding: 2px 8px;
+            border-radius: 6px;
+            margin-right: 4px;
+        }
+    }
+
+    .bulk-buttons {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+
+        .btn-bulk {
+            border: none;
+            border-radius: 8px;
+            padding: 7px 14px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+
+            &--deactivate {
+                background-color: #fca5a5;
+                color: #7f1d1d;
+                &:hover { background-color: #f87171; color: #fff; }
+            }
+
+            &--activate {
+                background-color: #86efac;
+                color: #14532d;
+                &:hover { background-color: #4ade80; color: #fff; }
+            }
+
+            &--clear {
+                background-color: #334155;
+                color: #f8fafc;
+                &:hover { background-color: #475569; }
+            }
+        }
+    }
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.th-checkbox, .td-checkbox {
+    width: 40px;
+    text-align: center;
+    padding-left: 16px !important;
+    padding-right: 0 !important;
+}
+
+/* ─── CHECKBOX CON CHULO PERFECTAMENTE CENTRADO ─── */
+.custom-checkbox {
+    display: inline-block;
+    position: relative;
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+    user-select: none;
+    vertical-align: middle;
+
+    input {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+        height: 0;
+        width: 0;
+
+        &:checked ~ .checkmark {
+            background-color: var(--color-primary);
+            border-color: var(--color-primary);
+
+            &:after {
+                display: block;
+            }
+        }
+
+        &:indeterminate ~ .checkmark {
+            background-color: var(--color-primary);
+            border-color: var(--color-primary);
+
+            &:after {
+                display: block;
+                width: 10px;
+                height: 2px;
+                border: solid white;
+                border-width: 0 0 2px 0;
+                left: 3px;
+                top: 7px;
+                transform: none;
+                border-radius: 0;
+            }
+        }
+    }
+
+    .checkmark {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 20px;
+        width: 20px;
+        background-color: var(--color-bg-card);
+        border: 2px solid var(--color-border);
+        border-radius: 6px;
+        transition: all 0.2s ease;
+
+        &:after {
+            content: "";
+            position: absolute;
+            display: none;
+            left: 6px;
+            top: 2px;
+            width: 5px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+    }
+
+    &:hover input ~ .checkmark {
+        border-color: var(--color-primary);
+    }
+}
+
+.custom-table tbody tr.selected-row {
+    background-color: rgba(59, 130, 246, 0.04);
+}
+
 .btn-primary {
     display: inline-flex;
     align-items: center;

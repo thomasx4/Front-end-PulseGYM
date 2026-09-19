@@ -4,6 +4,7 @@ import { FiltrosSociosMembresias, MembershipService, PageResponse, SocioAsignado
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { UserService } from '../../../../core/services/user.service';
+import Swal from 'sweetalert2';
 
 export interface Plan {
   id: number;
@@ -16,6 +17,7 @@ export interface Plan {
   incluyeIA: boolean;
   esFlexible: boolean;
   totalSociosAsignados: number;
+  selected?: boolean;
 }
 
 export interface Miembro {
@@ -48,40 +50,33 @@ export interface Miembro {
   styleUrls: ['./membership-list.component.scss']
 })
 export class MembershipListComponent implements OnInit {
-  // Datos Planes
   todosLosPlanes: Plan[] = [];
   planesFiltrados: Plan[] = [];
   planes: Plan[] = [];
 
-  // Miembros
   miembros: Miembro[] = [];
 
   loadingPlanes: boolean = false;
   loadingTabla: boolean = false;
 
-  // Filtros Planes
   searchTermPlan: string = '';
   filtroPlanTipo: string = 'todos';
   filtroPlanFlexible: string = 'todos';
 
-  // Paginación Planes
   paginaPlanesActual: number = 0;
   itemsPorPaginaPlanes: number = 6;
   totalPaginasPlanes: number = 1;
 
-  // Filtros Socios
   searchTerm: string = '';
   filtroIA: string = 'todos';
   filtroFlexible: string = 'todos';
   filtroMembresia: string = 'todos';
 
-  // Paginación Socios
   paginaActual: number = 0;
   itemsPorPagina: number = 6;
   totalPaginas: number = 1;
   totalElementos: number = 0;
 
-  // 👇 AGREGADO PARA AVATARES
   avatarErrors: Set<number> = new Set<number>();
 
   constructor(
@@ -117,7 +112,8 @@ export class MembershipListComponent implements OnInit {
           accion: 'Ver Detalle',
           incluyeIA: !!item.incluyeIA,
           esFlexible: !!item.esFlexible,
-          totalSociosAsignados: item.sociosAsignados?.length || item.totalSociosAsignados || 0
+          totalSociosAsignados: item.sociosAsignados?.length || item.totalSociosAsignados || 0,
+          selected: false
         }));
 
         this.aplicarFiltrosPlanes();
@@ -201,83 +197,142 @@ export class MembershipListComponent implements OnInit {
     return Array.from({ length: this.totalPaginasPlanes }, (_, i) => i);
   }
 
-cargarTablaMiembros(): void {
-  this.loadingTabla = true;
+  // Selección múltiple de planes con estilos tipo sedes
+  get isAllPlanesSelected(): boolean {
+    if (this.planes.length === 0) return false;
+    return this.planes.every(p => p.selected);
+  }
 
-  const filtros: FiltrosSociosMembresias = {
-    pagina: this.paginaActual,
-    tamanio: this.itemsPorPagina,
-    busqueda: this.searchTerm.trim() || undefined,
-    incluyeIA: this.filtroIA === 'conIA' ? true : (this.filtroIA === 'sinIA' ? false : undefined),
-    esFlexible: this.filtroFlexible === 'flexible' ? true : (this.filtroFlexible === 'noFlexible' ? false : undefined),
-    idMembresia: this.filtroMembresia !== 'todos' ? Number(this.filtroMembresia) : undefined
-  };
+  get isSomePlanesSelected(): boolean {
+    if (this.planes.length === 0) return false;
+    const count = this.planes.filter(p => p.selected).length;
+    return count > 0 && !this.isAllPlanesSelected;
+  }
 
-  forkJoin({
-    socios: this.membershipService.getSociosActivosPaginadosServer(filtros),
-    usuarios: this.userService.listarPerfilesPaginados({ tamanio: 100 }).pipe(catchError(() => of({ content: [] })))
-  }).subscribe({
-    next: ({ socios, usuarios }) => {
-      const listaUsuarios = usuarios?.content || [];
+  toggleSelectAllPlanes(event: any): void {
+    const checked = event.target.checked;
+    this.planes.forEach(p => p.selected = checked);
+  }
 
-      const fotosMap = new Map<number, string>();
-      if (Array.isArray(listaUsuarios)) {
-        listaUsuarios.forEach((u: any) => {
-          const id = Number(u.idUsuario || u.id);
-          const foto = u.fotoUrl || u.fotoPerfil || u.foto || u.avatar;
-          if (id && foto) {
-            fotosMap.set(id, foto);
+  limpiarSeleccionPlanes(): void {
+    this.planes.forEach(p => p.selected = false);
+  }
+
+  get planesSeleccionadosCount(): number {
+    return this.planes.filter(p => p.selected).length;
+  }
+
+  eliminarPlanesSeleccionados(): void {
+    const planesSeleccionados = this.planes.filter(p => p.selected);
+    if (planesSeleccionados.length === 0) return;
+
+    Swal.fire({
+      title: '¿Eliminar planes seleccionados?',
+      text: `Estás a punto de eliminar ${planesSeleccionados.length} plan(es) seleccionado(s). Esta acción es irreversible.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#e11d48',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.loadingPlanes = true;
+        const peticiones = planesSeleccionados.map(p => this.membershipService.eliminarMembresia(p.id));
+        
+        forkJoin(peticiones).subscribe({
+          next: () => {
+            this.loadingPlanes = false;
+            Swal.fire('¡Eliminados!', 'Los planes seleccionados han sido eliminados correctamente.', 'success');
+            this.cargarPlanes();
+            this.cargarTablaMiembros();
+          },
+          error: (err) => {
+            this.loadingPlanes = false;
+            console.error('Error al eliminar planes en lote:', err);
+            Swal.fire('Error', 'No se pudieron eliminar algunos de los planes seleccionados.', 'error');
+            this.cargarPlanes();
           }
         });
       }
+    });
+  }
 
-      this.totalPaginas = socios.totalPages || 1;
-      this.totalElementos = socios.totalElements || 0;
-      this.paginaActual = socios.number || 0;
+  cargarTablaMiembros(): void {
+    this.loadingTabla = true;
 
-      this.miembros = socios.content.map((socio: SocioAsignado) => {
-        const membresia = socio.membresia || socio as any;
-        const dias = socio.diasRestantes ?? 0;
-        
-        const idSocioNum = Number(socio.idSocio);
-        const fotoUrlFinal = fotosMap.get(idSocioNum) || socio.fotoUrl || null;
-        
-        return {
-          id: idSocioNum,
-          nombre: socio.nombreCompleto?.split(' ')[0] || 'Usuario',
-          apellido: socio.nombreCompleto?.split(' ').slice(1).join(' ') || '',
-          email: socio.email || 'Sin correo',
-          telefono: socio.telefono || 'N/A',
-          plan: membresia?.nombre || socio.tipoMembresiaDescripcion || 'Sin plan',
-          planClass: membresia?.incluyeIA ? 'tier-elite' : 'tier-essential',
-          joinDate: socio.fechaInicio ? new Date(socio.fechaInicio).toLocaleDateString('es-ES', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A',
-          status: socio.estado === 'ACTIVA' ? 'Activa' : 'Inactiva',
-          statusClass: socio.estado === 'ACTIVA' ? 'active' : 'cancelled',
-          nextBilling: socio.fechaVencimiento ? new Date(socio.fechaVencimiento).toLocaleDateString('es-ES', { month: 'short', day: 'numeric', year: 'numeric' }) : '--',
-          nombreMembresia: membresia?.nombre || socio.tipoMembresiaDescripcion,
-          fechaInicio: socio.fechaInicio,
-          fechaFin: socio.fechaVencimiento,
-          estado: socio.estado === 'ACTIVA' ? 'Activo' : 'Inactivo',
-          diasRestantes: dias,
-          diasClass: dias <= 3 ? 'urgente' : (dias <= 7 ? 'alerta' : ''),
-          incluyeIA: !!membresia?.incluyeIA,
-          esFlexible: !!membresia?.esFlexible || socio.esFlexible || false,
-          idMembresia: membresia?.idMembresia || 0,
-          fotoUrl: fotoUrlFinal
-        };
-      });
+    const filtros: FiltrosSociosMembresias = {
+      pagina: this.paginaActual,
+      tamanio: this.itemsPorPagina,
+      busqueda: this.searchTerm.trim() || undefined,
+      incluyeIA: this.filtroIA === 'conIA' ? true : (this.filtroIA === 'sinIA' ? false : undefined),
+      esFlexible: this.filtroFlexible === 'flexible' ? true : (this.filtroFlexible === 'noFlexible' ? false : undefined),
+      idMembresia: this.filtroMembresia !== 'todos' ? Number(this.filtroMembresia) : undefined
+    };
 
-      this.loadingTabla = false;
-    },
-    error: (err) => {
-      console.error('Error al cargar socios paginados:', err);
-      this.miembros = [];
-      this.totalElementos = 0;
-      this.totalPaginas = 0;
-      this.loadingTabla = false;
-    }
-  });
-}
+    forkJoin({
+      socios: this.membershipService.getSociosActivosPaginadosServer(filtros),
+      usuarios: this.userService.listarPerfilesPaginados({ tamanio: 100 }).pipe(catchError(() => of({ content: [] })))
+    }).subscribe({
+      next: ({ socios, usuarios }) => {
+        const listaUsuarios = usuarios?.content || [];
+        const fotosMap = new Map<number, string>();
+        if (Array.isArray(listaUsuarios)) {
+          listaUsuarios.forEach((u: any) => {
+            const id = Number(u.idUsuario || u.id);
+            const foto = u.fotoUrl || u.fotoPerfil || u.foto || u.avatar;
+            if (id && foto) {
+              fotosMap.set(id, foto);
+            }
+          });
+        }
+
+        this.totalPaginas = socios.totalPages || 1;
+        this.totalElementos = socios.totalElements || 0;
+        this.paginaActual = socios.number || 0;
+
+        this.miembros = socios.content.map((socio: SocioAsignado) => {
+          const membresia = socio.membresia || socio as any;
+          const dias = socio.diasRestantes ?? 0;
+          const idSocioNum = Number(socio.idSocio);
+          const fotoUrlFinal = fotosMap.get(idSocioNum) || socio.fotoUrl || null;
+          
+          return {
+            id: idSocioNum,
+            nombre: socio.nombreCompleto?.split(' ')[0] || 'Usuario',
+            apellido: socio.nombreCompleto?.split(' ').slice(1).join(' ') || '',
+            email: socio.email || 'Sin correo',
+            telefono: socio.telefono || 'N/A',
+            plan: membresia?.nombre || socio.tipoMembresiaDescripcion || 'Sin plan',
+            planClass: membresia?.incluyeIA ? 'tier-elite' : 'tier-essential',
+            joinDate: socio.fechaInicio ? new Date(socio.fechaInicio).toLocaleDateString('es-ES', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A',
+            status: socio.estado === 'ACTIVA' ? 'Activa' : 'Inactiva',
+            statusClass: socio.estado === 'ACTIVA' ? 'active' : 'cancelled',
+            nextBilling: socio.fechaVencimiento ? new Date(socio.fechaVencimiento).toLocaleDateString('es-ES', { month: 'short', day: 'numeric', year: 'numeric' }) : '--',
+            nombreMembresia: membresia?.nombre || socio.tipoMembresiaDescripcion,
+            fechaInicio: socio.fechaInicio,
+            fechaFin: socio.fechaVencimiento,
+            estado: socio.estado === 'ACTIVA' ? 'Activo' : 'Inactivo',
+            diasRestantes: dias,
+            diasClass: dias <= 3 ? 'urgente' : (dias <= 7 ? 'alerta' : ''),
+            incluyeIA: !!membresia?.incluyeIA,
+            esFlexible: !!membresia?.esFlexible || socio.esFlexible || false,
+            idMembresia: membresia?.idMembresia || 0,
+            fotoUrl: fotoUrlFinal
+          };
+        });
+
+        this.loadingTabla = false;
+      },
+      error: (err) => {
+        console.error('Error al cargar socios paginados:', err);
+        this.miembros = [];
+        this.totalElementos = 0;
+        this.totalPaginas = 0;
+        this.loadingTabla = false;
+      }
+    });
+  }
 
   aplicarFiltrosTabla(): void {
     this.paginaActual = 0;
@@ -365,5 +420,159 @@ cargarTablaMiembros(): void {
     this.router.navigate(['/dashboard-admin/memberships/detail', plan.id]);
   }
 
-  
+  eliminarPlan(plan: Plan): void {
+    Swal.fire({
+      title: 'Verificando información...',
+      text: 'Comprobando socios vinculados al plan',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
+    this.membershipService.getMembresiaConSociosActivos(plan.id).subscribe({
+      next: (sociosData: any) => {
+        const socios = sociosData?.sociosAsignados || sociosData?.data || [];
+        const totalSocios = socios.length;
+
+        Swal.fire({
+          title: '¿Confirmar eliminación de membresía?',
+          html: `
+            <p style="color: #64748b; font-size: 14px;">
+              Esta acción es irreversible y afectará a todos los socios vinculados a este plan.
+            </p>
+            <div style="background: #f8fafc; border-radius: 12px; padding: 16px; margin: 16px 0;">
+              <table style="width: 100%; text-align: left; font-size: 14px;">
+                <tr>
+                  <th style="padding: 6px 8px; color: #94a3b8; font-weight: 600;">Nombre del Plan</th>
+                  <th style="padding: 6px 8px; color: #94a3b8; font-weight: 600;">Precio Total</th>
+                  <th style="padding: 6px 8px; color: #94a3b8; font-weight: 600;">Socios Activos</th>
+                </tr>
+                <tr>
+                  <td style="padding: 6px 8px; font-weight: 600;">${this.escapeHtml(plan.nombre)}</td>
+                  <td style="padding: 6px 8px;">${this.formatearPrecio(plan.precio)}</td>
+                  <td style="padding: 6px 8px; text-align: center;">${totalSocios}</td>
+                </tr>
+              </table>
+            </div>
+            <div style="text-align: left; font-size: 13px; color: #64748b; padding: 8px 0;">
+              <p>1. Al eliminar esta membresía, los <strong>${totalSocios} socios activos</strong> pasarán a no tener membresías asignadas.</p>
+              <p>2. El plan "<strong>${this.escapeHtml(plan.nombre)}</strong>" dejará de estar disponible de forma permanente.</p>
+            </div>
+          `,
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#ef4444',
+          cancelButtonColor: '#64748b',
+          confirmButtonText: 'Eliminar Definitivamente',
+          cancelButtonText: 'Cancelar',
+        }).then((result) => {
+          if (result.isConfirmed) {
+            this.loadingPlanes = true;
+            this.membershipService.eliminarMembresia(plan.id).subscribe({
+              next: () => {
+                this.loadingPlanes = false;
+                Swal.fire({
+                  icon: 'success',
+                  title: '¡Membresía Eliminada!',
+                  text: `El plan "${plan.nombre}" ha sido eliminado correctamente.`,
+                });
+                this.cargarPlanes();
+                this.cargarTablaMiembros();
+              },
+              error: (error: any) => {
+                this.loadingPlanes = false;
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Error',
+                  text: error.error?.message || 'No se pudo eliminar la membresía.',
+                });
+              }
+            });
+          }
+        });
+      },
+      error: () => {
+        Swal.close();
+        this.ejecutarAlertaEliminacionSimple(plan, 0);
+      }
+    });
+  }
+
+  private ejecutarAlertaEliminacionSimple(plan: Plan, totalSocios: number): void {
+    Swal.fire({
+      title: '¿Confirmar eliminación de membresía?',
+      html: `
+        <p style="color: #64748b; font-size: 14px;">
+          Esta acción es irreversible y afectará a todos los socios vinculados a este plan.
+        </p>
+        <div style="background: #f8fafc; border-radius: 12px; padding: 16px; margin: 16px 0;">
+          <table style="width: 100%; text-align: left; font-size: 14px;">
+            <tr>
+              <th style="padding: 6px 8px; color: #94a3b8; font-weight: 600;">Nombre del Plan</th>
+              <th style="padding: 6px 8px; color: #94a3b8; font-weight: 600;">Precio Total</th>
+              <th style="padding: 6px 8px; color: #94a3b8; font-weight: 600;">Socios Activos</th>
+            </tr>
+            <tr>
+              <td style="padding: 6px 8px; font-weight: 600;">${this.escapeHtml(plan.nombre)}</td>
+              <td style="padding: 6px 8px;">${this.formatearPrecio(plan.precio)}</td>
+              <td style="padding: 6px 8px; text-align: center;">${totalSocios}</td>
+            </tr>
+          </table>
+        </div>
+        <div style="text-align: left; font-size: 13px; color: #64748b; padding: 8px 0;">
+          <p>1. Al eliminar esta membresía, los <strong>${totalSocios} socios activos</strong> pasarán a no tener membresías asignadas.</p>
+          <p>2. El plan "<strong>${this.escapeHtml(plan.nombre)}</strong>" dejará de estar disponible de forma permanente.</p>
+        </div>
+      `,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Eliminar Definitivamente',
+      cancelButtonText: 'Cancelar',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.loadingPlanes = true;
+        this.membershipService.eliminarMembresia(plan.id).subscribe({
+          next: () => {
+            this.loadingPlanes = false;
+            Swal.fire({
+              icon: 'success',
+              title: '¡Membresía Eliminada!',
+              text: `El plan "${plan.nombre}" ha sido eliminado correctamente.`,
+            });
+            this.cargarPlanes();
+            this.cargarTablaMiembros();
+          },
+          error: (error: any) => {
+            this.loadingPlanes = false;
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: error.error?.message || 'No se pudo eliminar la membresía.',
+            });
+          }
+        });
+      }
+    });
+  }
+
+  formatearPrecio(precio: number): string {
+    return new Intl.NumberFormat('es-CO', {
+      style: 'currency',
+      currency: 'COP',
+      minimumFractionDigits: 0,
+    }).format(precio || 0);
+  }
+
+  private escapeHtml(text: string): string {
+    if (!text) return '';
+    return text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
 }
