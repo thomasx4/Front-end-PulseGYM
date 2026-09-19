@@ -40,8 +40,183 @@
     }
 }
 
+/* ─── BARRA DE ACCIONES EN LOTE (ELIMINAR / CANCELAR) ─── */
+.bulk-actions-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #0f1c3f;
+    color: #ffffff;
+    padding: 12px 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: 0 10px 25px -5px rgba(15, 28, 63, 0.3);
+    animation: slideDown 0.2s ease-in-out;
+
+    .bulk-info {
+        font-size: 0.9rem;
+        font-weight: 500;
+
+        .selected-count {
+            font-weight: 700;
+            background: #ef4444;
+            color: #ffffff;
+            padding: 2px 8px;
+            border-radius: 6px;
+            margin-right: 4px;
+        }
+    }
+
+.bulk-buttons {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+
+        .btn-bulk {
+            border: none;
+            border-radius: 8px;
+            padding: 7px 14px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+
+            &--renovar {
+                background-color: #dbeafe;
+                color: #1e40af;
+                &:hover { background-color: #bfdbfe; }
+            }
+
+            &--suspender {
+                background-color: #fef3c7;
+                color: #92400e;
+                &:hover { background-color: #fde68a; }
+            }
+
+            &--delete {
+                background-color: #fca5a5;
+                color: #7f1d1d;
+                &:hover { background-color: #f87171; color: #fff; }
+            }
+
+            &--clear {
+                background-color: #334155;
+                color: #f8fafc;
+                &:hover { background-color: #475569; }
+            }
+        }
+    }
+}
+
+/* ─── BARRA SUPERIOR SELECCIONAR TODAS ─── */
+.select-all-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    padding: 14px 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-sm);
+
+    .select-all-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--color-text-primary);
+        cursor: pointer;
+
+        .select-all-text {
+            white-space: nowrap;
+        }
+    }
+
+    .select-counter {
+        font-size: 0.825rem;
+        font-weight: 600;
+        color: var(--color-text-secondary);
+        background: var(--color-bg-hover);
+        padding: 5px 12px;
+        border-radius: 6px;
+    }
+}
+
+/* ─── CHECKBOX CON CHULO PERFECTAMENTE ALINEADO ─── */
+.custom-checkbox {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+
+    input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+        position: absolute;
+
+        &:checked ~ .checkmark {
+            background-color: var(--color-primary);
+            border-color: var(--color-primary);
+
+            &:after {
+                display: block;
+            }
+        }
+
+        &:indeterminate ~ .checkmark {
+            background-color: var(--color-primary);
+            border-color: var(--color-primary);
+
+            &:after {
+                display: block;
+                width: 10px;
+                height: 2px;
+                border: solid white;
+                border-width: 0 0 2px 0;
+                left: 3px;
+                top: 7px;
+                transform: none;
+                border-radius: 0;
+            }
+        }
+    }
+
+    .checkmark {
+        display: inline-block;
+        position: relative;
+        height: 20px;
+        width: 20px;
+        min-width: 20px;
+        background-color: var(--color-bg-card);
+        border: 2px solid var(--color-border);
+        border-radius: 6px;
+        transition: all 0.2s ease;
+
+        &:after {
+            content: "";
+            position: absolute;
+            display: none;
+            left: 5px;
+            top: 1px;
+            width: 5px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+    }
+
+    &:hover input ~ .checkmark {
+        border-color: var(--color-primary);
+    }
+}
+
 // SECCIÓN POR VENCER
-/* ✅ Semántico (amarillo) - se mantiene */
 .por-vencer-container {
     background: var(--color-bg-card);
     border: 1px solid rgba(245, 158, 11, 0.25);
@@ -164,7 +339,6 @@
         align-items: center;
         gap: 12px;
 
-        /* ✅ Semánticos (rojo/amarillo) */
         .days-badge {
             display: inline-flex;
             align-items: center;
@@ -207,48 +381,6 @@
 
             &:active { transform: scale(0.98); }
         }
-    }
-}
-
-// Estilos de la Paginación
-.por-vencer-pagination {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    margin-top: 18px;
-
-    .btn-page {
-        width: 32px;
-        height: 32px;
-        border-radius: 8px;
-        border: 1px solid var(--color-border);
-        background: var(--color-bg-card);
-        color: var(--color-text-primary);
-        font-size: 18px;
-        font-weight: 700;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.2s ease;
-
-        &:hover:not(:disabled) {
-            background: var(--color-bg-hover);
-            border-color: var(--color-primary);
-        }
-
-        &:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            border-color: var(--color-border);
-        }
-    }
-
-    .page-indicator {
-        font-size: 13px;
-        font-weight: 600;
-        color: var(--color-text-secondary);
     }
 }
 
@@ -297,13 +429,6 @@
             color: var(--color-text-primary);
             line-height: 1;
         }
-
-        .price-period {
-            font-size: 15px;
-            font-weight: 600;
-            color: var(--color-text-muted);
-            margin-left: 4px;
-        }
     }
 
     &__benefits {
@@ -328,14 +453,6 @@
                 color: var(--color-text-secondary);
                 flex-shrink: 0;
             }
-        }
-
-        .benefit-ia,
-        .benefit-flexible {
-            border-radius: 6px;
-            margin: 2px 0;
-
-            svg, span { font-weight: 600; }
         }
     }
 
@@ -402,7 +519,6 @@
     justify-content: flex-end;
 }
 
-/* ✅ Semánticos (azul/amarillo/rojo) */
 .btn-accion {
     width: 32px;
     height: 32px;
@@ -465,7 +581,6 @@
     }
 }
 
-/* ✅ Semánticos */
 .alert-success {
     background: var(--color-success-bg);
     color: var(--color-success);
@@ -540,11 +655,6 @@
             align-items: baseline;
 
             .price-val { font-size: 42px; font-weight: 800; line-height: 1; }
-            .price-per {
-                font-size: 15px;
-                color: rgba(255, 255, 255, 0.6);
-                margin-left: 4px;
-            }
         }
     }
 
@@ -570,22 +680,6 @@
                     height: 18px;
                     color: rgba(255, 255, 255, 0.6);
                     flex-shrink: 0;
-                }
-
-                &.benefit-ia {
-                    background: rgba(219, 234, 254, 0.2);
-                    border-radius: 6px;
-                    padding: 4px 10px;
-
-                    svg, span { color: rgba(255, 255, 255, 0.8); }
-                }
-
-                &.benefit-flexible {
-                    background: rgba(254, 243, 199, 0.2);
-                    border-radius: 6px;
-                    padding: 4px 10px;
-
-                    svg, span { color: rgba(255, 255, 255, 0.8); }
                 }
             }
         }
@@ -706,6 +800,16 @@
         border-bottom: 1px solid var(--color-border-light);
         vertical-align: middle;
         color: var(--color-text-primary);
+    }
+
+    tbody tr {
+        transition: background-color 0.2s ease;
+
+        &:hover { background-color: var(--color-bg-hover); }
+
+        &.selected-row {
+            background-color: rgba(239, 68, 68, 0.03);
+        }
     }
 
     .text-right { text-align: right; }
@@ -1033,31 +1137,6 @@
     textarea.form-control {
         resize: vertical;
         font-family: inherit;
-    }
-}
-
-// SPINNER DE CARGA
-.loading-overlay {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 40px;
-    gap: 16px;
-
-    .spinner {
-        width: 40px;
-        height: 40px;
-        border: 4px solid var(--color-border);
-        border-top-color: var(--color-primary);
-        border-radius: 50%;
-        animation: spin 0.8s linear infinite;
-    }
-
-    span {
-        font-size: 14px;
-        color: var(--color-text-secondary);
-        font-weight: 600;
     }
 }
 

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Subject } from 'rxjs';
+import { Subject, forkJoin } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import {
   MembershipService,
@@ -40,6 +40,7 @@ export interface SocioUI {
   fotoUrl?: string | null;
   estado: string;
   rol?: any;
+  selected?: boolean;
 }
 
 @Component({
@@ -261,13 +262,13 @@ export class AssignMembershipComponent implements OnInit {
                 const usuarioEncontrado = listaUsuarios.find((u: any) => Number(u.idUsuario || u.id) === idSocioReal);
 
                 const fotoSocio = usuarioEncontrado?.fotoUrl 
-                                || s.fotoUrl 
-                                || s.avatarUrl 
-                                || s.fotoPerfil 
-                                || s.foto 
-                                || s.avatar 
-                                || s.usuario?.fotoUrl 
-                                || null;
+                            || s.fotoUrl 
+                            || s.avatarUrl 
+                            || s.fotoPerfil 
+                            || s.foto 
+                            || s.avatar 
+                            || s.usuario?.fotoUrl 
+                            || null;
 
                 return {
                   id: idSocioReal,
@@ -280,6 +281,7 @@ export class AssignMembershipComponent implements OnInit {
                   fechaVencimiento: this.formatearFecha(s.fechaVencimiento),
                   fotoUrl: fotoSocio,
                   estado: s.estado || 'ACTIVA',
+                  selected: false
                 };
               });
 
@@ -301,6 +303,7 @@ export class AssignMembershipComponent implements OnInit {
                 fechaVencimiento: this.formatearFecha(s.fechaVencimiento),
                 fotoUrl: s.fotoUrl || s.avatarUrl || null,
                 estado: s.estado || 'ACTIVA',
+                selected: false
               }));
 
               this.membresiaSeleccionada!.sociosActivos = this.totalSociosAsignadosBackend;
@@ -324,6 +327,73 @@ export class AssignMembershipComponent implements OnInit {
           confirmButtonColor: '#0f1c3f',
         });
       },
+    });
+  }
+
+  get isAllSociosSelected(): boolean {
+    if (this.sociosAsignados.length === 0) return false;
+    return this.sociosAsignados.every(s => s.selected);
+  }
+
+  get isSomeSociosSelected(): boolean {
+    if (this.sociosAsignados.length === 0) return false;
+    const count = this.sociosAsignados.filter(s => s.selected).length;
+    return count > 0 && !this.isAllSociosSelected;
+  }
+
+  toggleSelectAllSocios(event: any): void {
+    const checked = event.target.checked;
+    this.sociosAsignados.forEach(s => s.selected = checked);
+  }
+
+  limpiarSeleccionSocios(): void {
+    this.sociosAsignados.forEach(s => s.selected = false);
+  }
+
+  get sociosSeleccionadosCount(): number {
+    return this.sociosAsignados.filter(s => s.selected).length;
+  }
+
+  cancelarSociosSeleccionados(): void {
+    const seleccionados = this.sociosAsignados.filter(s => s.selected);
+    if (seleccionados.length === 0) return;
+
+    Swal.fire({
+      title: '¿Cancelar membresías seleccionadas?',
+      text: `Estás a punto de cancelar la membresía de ${seleccionados.length} socio(s) seleccionado(s).`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Sí, cancelar',
+      cancelButtonText: 'Volver'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.loading = true;
+        const peticiones = seleccionados.map(s => this.membershipService.cancelaMembresia({
+          idSocioMembresia: s.idSocioMembresia!,
+          motivo: 'Cancelación en lote desde panel admin'
+        }));
+
+        forkJoin(peticiones).subscribe({
+          next: () => {
+            this.loading = false;
+            Swal.fire('¡Canceladas!', 'Las membresías seleccionadas han sido canceladas correctamente.', 'success');
+            if (this.membresiaSeleccionada) {
+              this.verSocios(this.membresiaSeleccionada.id, this.sociosPaginaActual);
+            }
+            this.cargarDashboard(this.paginaMembresiasActual, this.paginaPorVencerActual - 1, true);
+          },
+          error: (err) => {
+            this.loading = false;
+            console.error('Error al cancelar en lote:', err);
+            Swal.fire('Error', 'No se pudieron cancelar algunas de las membresías seleccionadas.', 'error');
+            if (this.membresiaSeleccionada) {
+              this.verSocios(this.membresiaSeleccionada.id, this.sociosPaginaActual);
+            }
+          }
+        });
+      }
     });
   }
 
@@ -974,5 +1044,117 @@ export class AssignMembershipComponent implements OnInit {
 
   trackByIndex(index: number): number {
     return index;
+  }
+
+  async renovarSociosSeleccionados(): Promise<void> {
+    const seleccionados = this.sociosAsignados.filter(s => s.selected);
+    if (seleccionados.length === 0) return;
+
+    const esFlexible = this.membresiaSeleccionada?.esFlexible ?? false;
+    let cantidadDias: number | undefined;
+
+    if (esFlexible) {
+      const { value: diasIngresados, isConfirmed } = await Swal.fire({
+        title: 'Renovar Membresías Flexibles',
+        text: `Ingrese la cantidad de días a renovar para los ${seleccionados.length} socios seleccionados:`,
+        input: 'number',
+        inputValue: 15,
+        showCancelButton: true,
+        confirmButtonText: 'Renovar todos',
+        cancelButtonText: 'Cancelar',
+        inputValidator: (value) => {
+          if (!value || Number(value) <= 0) {
+            return 'Debe ingresar una cantidad de días válida mayor a 0';
+          }
+          return null;
+        },
+      });
+
+      if (!isConfirmed) return;
+      cantidadDias = parseInt(diasIngresados, 10);
+    }
+
+    const result = await Swal.fire({
+      title: '¿Renovar membresías seleccionadas?',
+      text: `Estás a punto de renovar el periodo de ${seleccionados.length} socio(s) seleccionado(s).`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#1e40af',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Sí, renovar todos',
+      cancelButtonText: 'Volver'
+    });
+
+    if (result.isConfirmed) {
+      this.loading = true;
+      const peticiones = seleccionados.map(s => this.membershipService.renovarMembresia({
+        idSocioMembresia: s.idSocioMembresia!,
+        ...(cantidadDias && { cantidadDias }),
+        observaciones: 'Renovación en lote desde panel admin'
+      }));
+
+      forkJoin(peticiones).subscribe({
+        next: () => {
+          this.loading = false;
+          Swal.fire('¡Renovadas!', 'Las membresías seleccionadas han sido renovadas correctamente.', 'success');
+          if (this.membresiaSeleccionada) {
+            this.verSocios(this.membresiaSeleccionada.id, this.sociosPaginaActual);
+          }
+          this.cargarDashboard(this.paginaMembresiasActual, this.paginaPorVencerActual - 1, true);
+        },
+        error: (err) => {
+          this.loading = false;
+          console.error('Error al renovar en lote:', err);
+          Swal.fire('Error', 'No se pudieron renovar algunas de las membresías seleccionadas.', 'error');
+          if (this.membresiaSeleccionada) {
+            this.verSocios(this.membresiaSeleccionada.id, this.sociosPaginaActual);
+          }
+        }
+      });
+    }
+  }
+
+  async suspenderSociosSeleccionados(): Promise<void> {
+    const seleccionados = this.sociosAsignados.filter(s => s.selected);
+    if (seleccionados.length === 0) return;
+
+    const { value: motivo, isConfirmed } = await Swal.fire({
+      title: '¿Suspender membresías seleccionadas?',
+      text: `Estás a punto de suspender temporalmente a ${seleccionados.length} socio(s) seleccionado(s).`,
+      input: 'textarea',
+      inputPlaceholder: 'Escribe el motivo de la suspensión...',
+      showCancelButton: true,
+      confirmButtonColor: '#92400e',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Sí, suspender todos',
+      cancelButtonText: 'Cancelar'
+    });
+
+    if (isConfirmed) {
+      this.loading = true;
+      const peticiones = seleccionados.map(s => this.membershipService.suspenderMembresia({
+        idSocioMembresia: s.idSocioMembresia!,
+        motivo: motivo || 'Suspensión en lote desde panel admin'
+      }));
+
+      forkJoin(peticiones).subscribe({
+        next: () => {
+          this.loading = false;
+          Swal.fire('¡Suspendidas!', 'Las membresías seleccionadas han sido suspendidas correctamente.', 'success');
+          if (this.membresiaSeleccionada) {
+            this.verSocios(this.membresiaSeleccionada.id, this.sociosPaginaActual);
+          }
+          this.cargarDashboard(this.paginaMembresiasActual, this.paginaPorVencerActual - 1, true);
+        },
+        error: (err) => {
+          this.loading = false;
+          console.error('Error al suspender en lote:', err);
+          Swal.fire('Error', 'No se pudieron suspender algunas de las membresías seleccionadas.', 'error');
+          if (this.membresiaSeleccionada) {
+            this.verSocios(this.membresiaSeleccionada.id, this.sociosPaginaActual);
+          }
+        }
+      });
+    }
   }
 }
