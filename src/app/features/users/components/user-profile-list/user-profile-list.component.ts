@@ -47,6 +47,9 @@ export class UserProfileListComponent implements OnInit {
   filtroRol: string = 'todos';
   filtroEstado: string = 'todos';
 
+  // ⭐ Propiedades para selección múltiple
+  idsSeleccionados: Set<number> = new Set<number>();
+
   constructor(
     private userService: UserService,
     private router: Router
@@ -59,6 +62,7 @@ export class UserProfileListComponent implements OnInit {
   cargarPerfiles(): void {
     this.loading = true;
     this.errorMensaje = '';
+    this.limpiarSeleccion();
 
     const rolFiltro = this.filtroRol !== 'todos' ? this.filtroRol.toLowerCase() : undefined;
     const estadoFiltro = this.filtroEstado !== 'todos' ? this.filtroEstado.toUpperCase() : undefined;
@@ -95,6 +99,83 @@ export class UserProfileListComponent implements OnInit {
         console.error('Error al cargar perfiles:', error);
         this.errorMensaje = error.error?.message || 'No se pudieron cargar los perfiles.';
         this.loading = false;
+      }
+    });
+  }
+
+  isSeleccionado(id: number): boolean {
+    return this.idsSeleccionados.has(id);
+  }
+
+  toggleSeleccionItem(id: number): void {
+    if (this.idsSeleccionados.has(id)) {
+      this.idsSeleccionados.delete(id);
+    } else {
+      this.idsSeleccionados.add(id);
+    }
+  }
+
+  toggleSelectAll(event: any): void {
+    const checked = event.target.checked;
+    if (checked) {
+      this.perfiles.forEach(item => {
+        if (item.idUsuario !== undefined && item.idUsuario !== null) {
+          this.idsSeleccionados.add(item.idUsuario);
+        }
+      });
+    } else {
+      this.limpiarSeleccion();
+    }
+  }
+
+  limpiarSeleccion(): void {
+    this.idsSeleccionados.clear();
+  }
+
+  get isAllSelected(): boolean {
+    if (this.perfiles.length === 0) return false;
+    return this.perfiles.every(item => item.idUsuario !== undefined && item.idUsuario !== null && this.idsSeleccionados.has(item.idUsuario));
+  }
+
+  get isSomeSelected(): boolean {
+    if (this.perfiles.length === 0) return false;
+    const count = this.perfiles.filter(item => item.idUsuario !== undefined && item.idUsuario !== null && this.idsSeleccionados.has(item.idUsuario)).length;
+    return count > 0 && !this.isAllSelected;
+  }
+
+  cambiarEstadoSeleccionados(nuevoEstado: 'ACTIVO' | 'INACTIVO'): void {
+    const ids: number[] = Array.from(this.idsSeleccionados);
+    if (ids.length === 0) return;
+
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: `Vas a ${nuevoEstado === 'ACTIVO' ? 'activar' : 'desactivar'} ${ids.length} usuario(s) seleccionado(s).`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#0f1c3f',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, continuar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        let completados = 0;
+        ids.forEach(id => {
+          this.userService.cambiarEstadoPerfil(id, nuevoEstado).subscribe({
+            next: () => {
+              completados++;
+              const perfil = this.perfiles.find(p => p.idUsuario === id);
+              if (perfil) perfil.estado = nuevoEstado;
+
+              if (completados === ids.length) {
+                this.limpiarSeleccion();
+                Swal.fire('¡Actualizado!', 'Los estados de los perfiles han sido modificados correctamente.', 'success');
+              }
+            },
+            error: (err) => {
+              console.error(`Error al cambiar estado para perfil ID ${id}:`, err);
+            }
+          });
+        });
       }
     });
   }

@@ -14,6 +14,24 @@
         </button>
     </header>
 
+    <!-- BARRA DE ACCIONES EN LOTE (ACTIVAR / DESACTIVAR MASIVO) -->
+    <div class="bulk-actions-bar" *ngIf="idsSeleccionados.size > 0">
+        <div class="bulk-info">
+            <span class="selected-count">{{ idsSeleccionados.size }}</span> usuario(s) seleccionado(s)
+        </div>
+        <div class="bulk-buttons">
+            <button type="button" class="btn-bulk btn-bulk--deactivate" (click)="cambiarEstadoSeleccionados('INACTIVO')">
+                Desactivar
+            </button>
+            <button type="button" class="btn-bulk btn-bulk--activate" (click)="cambiarEstadoSeleccionados('ACTIVO')">
+                Activar
+            </button>
+            <button type="button" class="btn-bulk btn-bulk--clear" (click)="limpiarSeleccion()">
+                Cancelar
+            </button>
+        </div>
+    </div>
+
     <div class="filters-section" *ngIf="!loading">
         <div class="filters-row">
             <div class="search-box-wrapper">
@@ -71,6 +89,12 @@
             <table class="custom-table">
                 <thead>
                     <tr>
+                        <th class="th-checkbox">
+                            <label class="custom-checkbox">
+                                <input type="checkbox" [checked]="isAllSelected" [indeterminate]="isSomeSelected" (change)="toggleSelectAll($event)">
+                                <span class="checkmark"></span>
+                            </label>
+                        </th>
                         <th>USUARIO</th>
                         <th>ROL</th>
                         <th>ESTADO</th>
@@ -79,7 +103,13 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let perfil of perfiles">
+                    <tr *ngFor="let perfil of perfiles" [class.selected-row]="isSeleccionado(perfil.idUsuario)">
+                        <td class="td-checkbox">
+                            <label class="custom-checkbox">
+                                <input type="checkbox" [checked]="isSeleccionado(perfil.idUsuario)" (change)="toggleSeleccionItem(perfil.idUsuario)">
+                                <span class="checkmark"></span>
+                            </label>
+                        </td>
                         <td>
                             <div class="user-cell">
                                 <div class="avatar-circle">
