@@ -4,11 +4,12 @@ import { MainLayoutComponent } from './shared/components/main-layout/main-layout
 import { CredentialsListComponent } from './features/auth/components/credentials-list/credentials-list.component';
 import { LoginComponent } from './features/auth/components/login/login.component';
 import { ForgotComponent } from '../app/features/auth/components/forgot/forgot.component';
-import { DashboardComponent } from './features/user/components/dashboard/dashboard.component';
 import { AuthGuard } from '../app/core/guards/auth.guard';
 import { PaymentDetailComponent } from './features/payments/components/payment-detail/payment-detail.component';
 import { LandingPageComponent } from './features/landing/pages/landing-page/landing-page.component';
 import { PoliticasPageComponent } from './features/landing/pages/politicas-page/politicas-page.component';
+import { AjustesComponent } from './features/ajustes/ajustes.component';
+import { ProfileComponent } from './features/profile/profile.component';
 
 const routes: Routes = [
     { path: '', component: LandingPageComponent },
@@ -30,6 +31,10 @@ const routes: Routes = [
                 path: '',
                 loadChildren: () =>
                     import('./features/admin/admin.module').then((m) => m.AdminModule),
+            },
+            {
+                path: 'profile',
+                component: ProfileComponent
             },
             {
                 path: 'users',
@@ -99,6 +104,10 @@ const routes: Routes = [
                 path: 'notifications',
                 loadChildren: () =>
                     import('./features/notifications/notification.routes').then((m) => m.NOTIFICATION_ROUTES),
+            },
+            {
+                path: 'ajustes',
+                component: AjustesComponent,
             }
         ],
     },

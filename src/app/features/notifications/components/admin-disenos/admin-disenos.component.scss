@@ -1,7 +1,8 @@
 .payments-page {
   padding: 1.5rem 2rem;
-  background-color: #f8fafc;
+  background-color: var(--color-bg-main);
   min-height: 100vh;
+  transition: background-color 0.3s ease;
 }
 
 .page-header {
@@ -13,13 +14,13 @@
   &__title {
     font-size: 1.5rem;
     font-weight: 800;
-    color: #0f172a;
+    color: var(--color-text-primary);
     margin: 0;
   }
 
   &__subtitle {
     font-size: 0.85rem;
-    color: #64748b;
+    color: var(--color-text-secondary);
     margin: 0.2rem 0 0 0;
   }
 
@@ -30,8 +31,8 @@
   }
 
   &__icon-wrapper {
-    background: #e0f2fe;
-    color: #0284c7;
+    background: var(--color-info-bg);
+    color: var(--color-info);
     padding: 0.6rem;
     border-radius: 10px;
     display: flex;
@@ -44,16 +45,17 @@
 }
 
 .filters-card {
-  background: #ffffff;
+  background: var(--color-bg-card);
   border-radius: 12px;
   padding: 0.85rem 1.25rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--color-border);
   margin-bottom: 1.5rem;
   gap: 1rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.01);
+  box-shadow: var(--shadow-sm);
+  transition: background-color 0.3s ease;
 
   &__search {
     position: relative;
@@ -65,25 +67,27 @@
       left: 0.75rem;
       top: 50%;
       transform: translateY(-50%);
-      color: #94a3b8;
+      color: var(--color-text-muted);
     }
 
     input {
       width: 100%;
-      background: #f8fafc;
-      border: 1px solid #cbd5e1;
+      background: var(--color-bg-input);
+      border: 1px solid var(--color-border);
       border-radius: 8px;
       padding: 0.5rem 0.75rem 0.5rem 2.25rem;
       font-size: 0.85rem;
-      color: #1e293b;
+      color: var(--color-text-primary);
       transition: all 0.2s ease;
 
       &:focus {
         outline: none;
-        border-color: #0e3b72;
-        background: #ffffff;
+        border-color: var(--color-primary);
+        background: var(--color-bg-card);
         box-shadow: 0 0 0 3px rgba(14, 59, 114, 0.1);
       }
+
+      &::placeholder { color: var(--color-text-muted); }
     }
   }
 
@@ -101,26 +105,26 @@
       label {
         font-size: 0.65rem;
         font-weight: 700;
-        color: #64748b;
+        color: var(--color-text-secondary);
         text-transform: uppercase;
         letter-spacing: 0.03em;
       }
 
       select {
-        background: #f8fafc;
-        border: 1px solid #cbd5e1;
+        background: var(--color-bg-input);
+        border: 1px solid var(--color-border);
         border-radius: 8px;
         padding: 0.45rem 0.75rem;
         font-size: 0.8rem;
         font-weight: 600;
-        color: #334155;
+        color: var(--color-text-primary);
         cursor: pointer;
         transition: all 0.2s ease;
 
         &:focus {
           outline: none;
-          border-color: #0e3b72;
-          background: #ffffff;
+          border-color: var(--color-primary);
+          background: var(--color-bg-card);
           box-shadow: 0 0 0 3px rgba(14, 59, 114, 0.1);
         }
       }
@@ -132,21 +136,21 @@
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  background: #f8fafc;
-  border: 1px solid #cbd5e1;
+  background: var(--color-bg-hover);
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   padding: 0.5rem 0.85rem;
   font-size: 0.8rem;
   font-weight: 600;
-  color: #475569;
+  color: var(--color-text-secondary);
   cursor: pointer;
   margin-top: 1rem;
   transition: all 0.2s ease;
 
   &:hover {
-    background: #f1f5f9;
-    color: #0f172a;
-    border-color: #94a3b8;
+    background: var(--color-border);
+    color: var(--color-text-primary);
+    border-color: var(--color-text-muted);
   }
 }
 
@@ -157,28 +161,23 @@
   gap: 1.25rem;
   margin-bottom: 2rem;
 
-  @media (max-width: 1024px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  @media (max-width: 640px) {
-    grid-template-columns: 1fr;
-  }
+  @media (max-width: 1024px) { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 640px) { grid-template-columns: 1fr; }
 }
 
 .design-card {
-  background: #ffffff;
+  background: var(--color-bg-card);
   border-radius: 16px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--color-border);
   overflow: hidden;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.01);
+  box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.3s ease;
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--shadow-md);
   }
 
   &__preview {
@@ -222,7 +221,7 @@
 
     .design-name {
       font-weight: 700;
-      color: #0f172a;
+      color: var(--color-text-primary);
       font-size: 0.95rem;
     }
   }
@@ -234,15 +233,16 @@
   flex-wrap: wrap;
 
   .plan-badge {
-    background: #f1f5f9;
-    color: #334155;
+    background: var(--color-bg-hover);
+    color: var(--color-text-secondary);
     padding: 0.25rem 0.6rem;
     border-radius: 6px;
     font-size: 0.7rem;
     font-weight: 600;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--color-border);
   }
 
+  /* ✅ Semántico (púrpura) */
   .method-tag {
     background: #f3e8ff;
     color: #7e22ce;
@@ -257,22 +257,22 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-top: 1px solid #f1f5f9;
+  border-top: 1px solid var(--color-border-light);
   padding-top: 0.85rem;
   margin-top: auto;
 
   .design-date {
     font-size: 0.75rem;
-    color: #64748b;
+    color: var(--color-text-secondary);
     font-weight: 500;
   }
 }
 
 .empty-state-card {
   grid-column: span 3;
-  background: #ffffff;
+  background: var(--color-bg-card);
   border-radius: 16px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--color-border);
   padding: 3rem;
   text-align: center;
 
@@ -281,7 +281,7 @@
     flex-direction: column;
     align-items: center;
     gap: 0.75rem;
-    color: #64748b;
+    color: var(--color-text-secondary);
     font-weight: 600;
     font-size: 0.9rem;
   }
@@ -294,9 +294,9 @@
 }
 
 .action-btn {
-  background: #f8fafc;
-  border: 1px solid #cbd5e1;
-  color: #475569;
+  background: var(--color-bg-hover);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
   width: 32px;
   height: 32px;
   border-radius: 8px;
@@ -307,9 +307,9 @@
   transition: all 0.2s ease;
 
   &:hover {
-    background: #eff6ff;
-    border-color: #93c5fd;
-    color: #2563eb;
+    background: var(--color-info-bg);
+    border-color: var(--color-info);
+    color: var(--color-info);
   }
 }
 
@@ -325,40 +325,36 @@
   transition: all 0.2s ease;
 
   &--primary {
-    background: #0e3b72;
+    background: var(--color-primary);
     color: white;
     border: none;
-    box-shadow: 0 2px 4px rgba(14, 59, 114, 0.15);
+    box-shadow: var(--shadow-sm);
 
-    &:hover {
-      background: #154c8f;
-    }
+    &:hover { background: var(--color-primary-hover); }
   }
 
   &--outline-dark {
-    background: white;
-    border: 1px solid #cbd5e1;
-    color: #0f172a;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-primary);
     width: 100%;
     justify-content: center;
     padding: 0.65rem;
     font-weight: 700;
 
     &:hover {
-      background: #f8fafc;
-      border-color: #0e3b72;
-      color: #0e3b72;
+      background: var(--color-bg-hover);
+      border-color: var(--color-primary);
+      color: var(--color-primary);
     }
   }
 }
 
-/* Modal Estilos basados en Payment List */
+/* Modal Estilos */
 .modal-backdrop {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
   background-color: rgba(15, 23, 42, 0.6);
   backdrop-filter: blur(4px);
   display: flex;
@@ -369,16 +365,17 @@
 }
 
 .modal-container-custom {
-  background: #ffffff;
+  background: var(--color-bg-card);
   border-radius: 16px;
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--color-border);
   width: 100%;
   max-width: 550px;
   display: flex;
   flex-direction: column;
   padding: 1.5rem;
   max-height: 90vh;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-lg);
+  transition: background-color 0.3s ease;
 
   .detail-header {
     display: flex;
@@ -389,27 +386,27 @@
     h3 {
       font-size: 1.15rem;
       font-weight: 800;
-      color: #0f172a;
+      color: var(--color-text-primary);
       margin: 0;
     }
 
     .close-btn {
-      background: #f1f5f9;
+      background: var(--color-bg-hover);
       border: none;
       width: 28px;
       height: 28px;
       border-radius: 50%;
       font-size: 0.85rem;
       cursor: pointer;
-      color: #64748b;
+      color: var(--color-text-secondary);
       display: flex;
       align-items: center;
       justify-content: center;
       transition: all 0.2s ease;
 
       &:hover {
-        background: #e2e8f0;
-        color: #0f172a;
+        background: var(--color-border);
+        color: var(--color-text-primary);
       }
     }
   }
@@ -432,7 +429,7 @@
         .form-label {
           font-size: 0.75rem;
           font-weight: 700;
-          color: #64748b;
+          color: var(--color-text-secondary);
           text-transform: uppercase;
         }
       }
@@ -444,19 +441,19 @@
       }
 
       .form-control-custom {
-        background: #f8fafc;
-        border: 1px solid #cbd5e1;
+        background: var(--color-bg-input);
+        border: 1px solid var(--color-border);
         border-radius: 8px;
         padding: 0.6rem 0.75rem;
         font-size: 0.85rem;
-        color: #1e293b;
+        color: var(--color-text-primary);
         width: 100%;
         outline: none;
         transition: all 0.2s ease;
 
         &:focus {
-          border-color: #0e3b72;
-          background: #ffffff;
+          border-color: var(--color-primary);
+          background: var(--color-bg-card);
           box-shadow: 0 0 0 3px rgba(14, 59, 114, 0.1);
         }
       }
@@ -475,12 +472,9 @@
           cursor: pointer;
           background: none;
 
-          &::-webkit-color-swatch-wrapper {
-            padding: 0;
-          }
-
+          &::-webkit-color-swatch-wrapper { padding: 0; }
           &::-webkit-color-swatch {
-            border: 1px solid #cbd5e1;
+            border: 1px solid var(--color-border);
             border-radius: 8px;
           }
         }
@@ -491,7 +485,7 @@
   .modal-footer-custom {
     margin-top: 1.5rem;
     padding-top: 1rem;
-    border-top: 1px solid #f1f5f9;
+    border-top: 1px solid var(--color-border-light);
     display: flex;
     justify-content: flex-end;
     gap: 0.75rem;

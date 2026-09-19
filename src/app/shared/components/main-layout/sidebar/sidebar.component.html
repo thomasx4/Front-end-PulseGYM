@@ -17,11 +17,16 @@
             </a>
         </ng-container>
 
+        <!-- MI PERFIL (ENLACE DIRECTO APARTE PARA EL ADMIN) -->
+        <a routerLink="/dashboard-admin/profile" routerLinkActive="sidebar__nav-item--active" [routerLinkActiveOptions]="{ exact: true }" class="sidebar__nav-item">
+            <span [innerHTML]="getMiPerfilIcon()" class="sidebar__icon-wrapper"></span>
+            <span>Mi Perfil</span>
+        </a>
+
         <!-- ITEM CON SUBMENÚ (MEMBRESÍAS) -->
         <div class="sidebar__nav-item--parent" [class.open]="isMembershipOpen" (mouseenter)="isMembershipOpen = true"
             (mouseleave)="isMembershipOpen = false">
 
-            <!-- EL PADRE AHORA ES UN BOTÓN QUE NAVEGA A LISTA -->
             <div class="sidebar__nav-item" [class.sidebar__nav-item--active]="isMembershipActive()"
                 (click)="goToMembershipList()">
                 <span [innerHTML]="getMembershipIcon()" class="sidebar__icon-wrapper"></span>
@@ -43,7 +48,7 @@
             </div>
         </div>
 
-        <!-- ITEM CON SUBMENÚ (USUARIOS) -->
+        <!-- GESTIÓN GENERAL DE USUARIOS (TODOS LOS PERFILES Y CREDENCIALES) -->
         <div class="sidebar__nav-item--parent" [class.open]="isUsersOpen" (mouseenter)="isUsersOpen = true"
             (mouseleave)="isUsersOpen = false">
             <div class="sidebar__nav-item" [class.sidebar__nav-item--active]="isUsersActive()">
@@ -66,6 +71,7 @@
             </div>
         </div>
 
+        <!-- ASISTENCIA -->
         <div class="sidebar__nav-item--parent" [class.open]="isAttendanceOpen" (mouseenter)="isAttendanceOpen = true"
             (mouseleave)="isAttendanceOpen = false">
 
@@ -87,6 +93,8 @@
                 </a>
             </div>
         </div>
+
+        <!-- EQUIPOS -->
         <div class="sidebar__nav-item--parent" [class.open]="isEquipmentOpen" (mouseenter)="isEquipmentOpen = true"
             (mouseleave)="isEquipmentOpen = false">
 
@@ -108,6 +116,8 @@
                 </a>
             </div>
         </div>
+
+        <!-- PAGOS -->
         <div class="sidebar__nav-item--parent" [class.open]="isPaymentsOpen" (mouseenter)="isPaymentsOpen = true"
             (mouseleave)="isPaymentsOpen = false">
 
@@ -130,7 +140,7 @@
             </div>
         </div>
 
-        <!-- ITEM CON SUBMENÚ (NOTIFICACIONES) -->
+        <!-- NOTIFICACIONES -->
         <div class="sidebar__nav-item--parent" [class.open]="isNotificationsOpen"
             (mouseenter)="isNotificationsOpen = true" (mouseleave)="isNotificationsOpen = false">
 
@@ -154,10 +164,16 @@
             </div>
         </div>
 
-        <!-- MANCUERIA (DIRECTO SIN SUBMENÚ) -->
+        <!-- MANCUERIA -->
         <a routerLink="/dashboard-admin/mancuer-ia" routerLinkActive="sidebar__nav-item--active" class="sidebar__nav-item">
             <span [innerHTML]="getMancuerIaIcon()" class="sidebar__icon-wrapper"></span>
             <span>MancuerIA</span>
+        </a>
+
+        <!-- AJUSTES -->
+        <a routerLink="/dashboard-admin/ajustes" routerLinkActive="sidebar__nav-item--active" class="sidebar__nav-item">
+            <span [innerHTML]="getAjustesIcon()" class="sidebar__icon-wrapper"></span>
+            <span>Ajustes</span>
         </a>
     </nav>
 

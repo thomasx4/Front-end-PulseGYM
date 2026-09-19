@@ -13,13 +13,13 @@
   &__title {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #0b192c;
+    color: var(--color-text-primary);
     margin: 0;
   }
 
   &__subtitle {
     font-size: 0.875rem;
-    color: #64748b;
+    color: var(--color-text-secondary);
     margin-top: 0.25rem;
   }
 
@@ -30,10 +30,10 @@
   }
 
   &__card {
-    background: #ffffff;
+    background: var(--color-bg-card);
     border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(11, 25, 44, 0.05);
-    border: 1px solid #e2e8f0;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--color-border);
     overflow: hidden;
   }
 
@@ -42,22 +42,22 @@
     justify-content: space-between;
     align-items: center;
     padding: 1rem 1.5rem;
-    border-top: 1px solid #e2e8f0;
+    border-top: 1px solid var(--color-border);
     font-size: 0.875rem;
-    color: #64748b;
+    color: var(--color-text-secondary);
   }
 }
 
 
 .kpi-card {
-  background: #ffffff;
+  background: var(--color-bg-card);
   padding: 1.25rem;
   border-radius: 12px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--color-border);
   display: flex;
   align-items: center;
   gap: 1rem;
-  box-shadow: 0 2px 6px rgba(11, 25, 44, 0.03);
+  box-shadow: var(--shadow-sm);
 
   &__icon {
     width: 48px;
@@ -67,6 +67,7 @@
     align-items: center;
     justify-content: center;
 
+    /* ✅ Colores semánticos (no cambian con el tema) */
     &--blue {
       background: #e0f2fe;
       color: #0284c7;
@@ -85,7 +86,7 @@
 
   &__label {
     font-size: 0.75rem;
-    color: #64748b;
+    color: var(--color-text-secondary);
     text-transform: uppercase;
     font-weight: 600;
   }
@@ -93,13 +94,13 @@
   &__value {
     font-size: 1.25rem;
     font-weight: 700;
-    color: #0b192c;
+    color: var(--color-text-primary);
     margin: 0;
 
     small {
       font-size: 0.875rem;
       font-weight: 400;
-      color: #64748b;
+      color: var(--color-text-secondary);
     }
   }
 }
@@ -115,35 +116,35 @@
   text-align: left;
 
   th {
-    background: #f8fafc;
+    background: var(--color-bg-hover);
     padding: 0.875rem 1.25rem;
     font-size: 0.75rem;
     font-weight: 600;
-    color: #475569;
+    color: var(--color-text-secondary);
     text-transform: uppercase;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid var(--color-border);
   }
 
   td {
     padding: 1rem 1.25rem;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid var(--color-border-light);
     font-size: 0.875rem;
-    color: #1e293b;
+    color: var(--color-text-primary);
   }
 
   &__date {
     font-weight: 500;
-    color: #475569;
+    color: var(--color-text-secondary);
   }
 
   &__motivo {
-    color: #64748b;
+    color: var(--color-text-secondary);
   }
 
   &__empty {
     text-align: center;
     padding: 3rem;
-    color: #94a3b8;
+    color: var(--color-text-muted);
   }
 }
 
@@ -152,15 +153,15 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px 24px;
-  border-top: 1px solid #edf2f7;
-  background: #ffffff;
+  border-top: 1px solid var(--color-border-light);
+  background: var(--color-bg-card);
 
   .showing-text {
     font-size: 0.825rem;
-    color: #94a3b8;
+    color: var(--color-text-muted);
 
     strong {
-      color: #334155;
+      color: var(--color-text-secondary);
     }
   }
 
@@ -171,7 +172,7 @@
 
     .pagination-ellipsis {
       font-size: 0.85rem;
-      color: #94a3b8;
+      color: var(--color-text-muted);
       padding: 0 4px;
     }
 
@@ -184,7 +185,7 @@
       background: transparent;
       font-size: 0.85rem;
       font-weight: 600;
-      color: #64748b;
+      color: var(--color-text-secondary);
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -192,12 +193,12 @@
       transition: all 0.15s ease;
 
       &:hover:not(:disabled) {
-        background-color: #f1f5f9;
-        color: #0f172a;
+        background-color: var(--color-bg-hover);
+        color: var(--color-text-primary);
       }
 
       &.active {
-        background-color: #051f42;
+        background-color: var(--color-primary);
         color: #ffffff;
       }
 
@@ -218,7 +219,7 @@
     width: 34px;
     height: 34px;
     border-radius: 50%;
-    background: #253874;
+    background: var(--color-primary);
     color: #ffffff;
     display: flex;
     align-items: center;
@@ -229,12 +230,12 @@
 
   &__name {
     display: block;
-    color: #0b192c;
+    color: var(--color-text-primary);
   }
 
   &__id {
     font-size: 0.75rem;
-    color: #94a3b8;
+    color: var(--color-text-muted);
   }
 }
 
@@ -246,9 +247,10 @@
   font-size: 0.75rem;
   font-weight: 600;
 
+  /* ✅ Colores semánticos */
   &--type {
-    background: #f1f5f9;
-    color: #475569;
+    background: var(--color-bg-hover);
+    color: var(--color-text-secondary);
   }
 
   &--success {
@@ -275,19 +277,20 @@
   border: none;
 
   &--secondary {
-    background: #f1f5f9;
-    color: #334155;
+    background: var(--color-bg-hover);
+    color: var(--color-text-secondary);
 
     &:hover {
-      background: #e2e8f0;
+      background: var(--color-border);
     }
   }
 }
 
 .btn-page {
   padding: 0.375rem 0.75rem;
-  border: 1px solid #cbd5e1;
-  background: #ffffff;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-card);
+  color: var(--color-text-primary);
   border-radius: 6px;
   font-size: 0.875rem;
   cursor: pointer;
@@ -305,18 +308,18 @@
   justify-content: center;
   padding: 4rem;
   gap: 1rem;
-  color: #64748b;
+  color: var(--color-text-secondary);
 
   &--error {
-    color: #dc2626;
+    color: var(--color-error);
   }
 }
 
 .spinner {
   width: 32px;
   height: 32px;
-  border: 3px solid #e2e8f0;
-  border-top-color: #253874;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-primary);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -331,7 +334,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  background: #253874;
+  background: var(--color-primary);
   color: #ffffff;
   padding: 10px 18px;
   border-radius: 10px;
@@ -341,7 +344,7 @@
   transition: background 0.2s;
 
   &:hover {
-    background: #1e293b;
+    background: var(--color-primary-hover);
   }
 }
 
@@ -357,12 +360,12 @@
 }
 
 .modal-card {
-  background: #ffffff;
+  background: var(--color-bg-card);
   border-radius: 16px;
   width: 90%;
   max-width: 440px;
   padding: 24px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-lg);
 
   .modal-header {
     display: flex;
@@ -373,13 +376,13 @@
     .modal-title {
       font-size: 1.15rem;
       font-weight: 700;
-      color: #0b192c;
+      color: var(--color-text-primary);
       margin: 0;
     }
 
     .modal-subtitle {
       font-size: 0.8rem;
-      color: #64748b;
+      color: var(--color-text-secondary);
       margin: 4px 0 0 0;
     }
 
@@ -387,14 +390,14 @@
       background: none;
       border: none;
       font-size: 1.4rem;
-      color: #94a3b8;
+      color: var(--color-text-muted);
       cursor: pointer;
       padding: 0;
       line-height: 1;
       transition: color 0.2s;
 
       &:hover {
-        color: #0b192c;
+        color: var(--color-text-primary);
       }
     }
   }
@@ -408,27 +411,28 @@
   .form-label {
     font-size: 0.825rem;
     font-weight: 600;
-    color: #334155;
+    color: var(--color-text-secondary);
   }
 
   .form-input {
     width: 100%;
     padding: 10px 12px;
-    border: 1px solid #cbd5e1;
+    border: 1px solid var(--color-border);
     border-radius: 8px;
     font-size: 0.875rem;
-    color: #0b192c;
+    color: var(--color-text-primary);
+    background-color: var(--color-bg-input);
     outline: none;
     transition: border-color 0.2s;
 
     &:focus {
-      border-color: #0b192c;
+      border-color: var(--color-primary);
     }
   }
 
   .helper-text {
     font-size: 0.75rem;
-    color: #64748b;
+    color: var(--color-text-secondary);
     margin-top: 2px;
   }
 }
@@ -436,7 +440,7 @@
 .lapso-toggle {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  background: #f1f5f9;
+  background: var(--color-bg-hover);
   padding: 3px;
   border-radius: 8px;
   gap: 4px;
@@ -448,14 +452,14 @@
     border-radius: 6px;
     font-weight: 600;
     font-size: 0.825rem;
-    color: #64748b;
+    color: var(--color-text-secondary);
     cursor: pointer;
     transition: all 0.2s;
 
     &.active {
-      background: #253874;
+      background: var(--color-primary);
       color: #ffffff;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+      box-shadow: var(--shadow-sm);
     }
   }
 }
@@ -478,6 +482,7 @@
     border: 1px solid transparent;
     transition: all 0.2s;
 
+    /* ✅ Colores semánticos PDF (rojo) / Excel (verde) */
     &--pdf {
       background: #fef2f2;
       color: #991b1b;
@@ -511,12 +516,12 @@
   display: flex;
   justify-content: flex-end;
   padding-top: 16px;
-  border-top: 1px solid #f1f5f9;
+  border-top: 1px solid var(--color-border-light);
 
   .btn-cancel {
     background: transparent;
-    border: 1px solid #cbd5e1;
-    color: #64748b;
+    border: 1px solid var(--color-border);
+    color: var(--color-text-secondary);
     padding: 8px 18px;
     border-radius: 8px;
     font-size: 0.825rem;
@@ -525,9 +530,9 @@
     transition: all 0.2s;
 
     &:hover:not(:disabled) {
-      background: #f8fafc;
-      color: #0b192c;
-      border-color: #94a3b8;
+      background: var(--color-bg-hover);
+      color: var(--color-text-primary);
+      border-color: var(--color-text-muted);
     }
   }
 }

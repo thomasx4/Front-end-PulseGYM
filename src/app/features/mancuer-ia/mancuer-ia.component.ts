@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { MancuerIaService, ChatMessage } from './services/mancuer-ia.service';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import Swal from 'sweetalert2';
@@ -9,7 +9,7 @@ import { marked } from 'marked';
   templateUrl: './mancuer-ia.component.html',
   styleUrls: ['./mancuer-ia.component.scss']
 })
-export class MancuerIaComponent implements OnInit, OnDestroy, AfterViewChecked {
+export class MancuerIaComponent implements OnInit, OnDestroy {
   @ViewChild('chatScroll') private chatScroll!: ElementRef;
 
   messages: ChatMessage[] = [];
@@ -21,19 +21,13 @@ export class MancuerIaComponent implements OnInit, OnDestroy, AfterViewChecked {
   showLogs: boolean = false;
   logs: { time: string; text: string; type: string }[] = [];
 
-  // Variables para el bloqueo por Rate Limit y Cronómetro
+  currentMonthIncomeText: string = '';
+  currentMonthIncomeQuery: string = '';
+
   isRateLimited: boolean = false;
   remainingSeconds: number = 0;
   countdownDisplay: string = '';
   private timerInterval: any = null;
-
-  faqs = [
-    { text: '¿Qué plan nutricional es ideal para un principiante?', query: '¿Qué plan nutricional es ideal para un principiante?' },
-    { text: 'Muéstrame el progreso de un socio.', query: 'Muéstrame el progreso de un socio.' },
-    { text: '¿Cuántos equipos están en mantenimiento?', query: '¿Cuántos equipos están en mantenimiento?' },
-    { text: 'Genera una rutina para hipertrofia en piernas.', query: 'Genera una rutina para hipertrofia en piernas.' },
-    { text: 'Crea un reporte de pagos del último mes.', query: 'Crea un reporte de pagos del último mes.' }
-  ];
 
   constructor(
     private aiService: MancuerIaService,
@@ -41,6 +35,7 @@ export class MancuerIaComponent implements OnInit, OnDestroy, AfterViewChecked {
   ) { }
 
   ngOnInit(): void {
+    this.initDynamicQueries();
     this.checkStatus();
     this.loadHistory();
     this.checkStoredRateLimit();
@@ -50,14 +45,25 @@ export class MancuerIaComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.clearTimer();
   }
 
-  ngAfterViewChecked(): void {
-    this.scrollToBottom();
+  initDynamicQueries() {
+    const now = new Date();
+    const options: Intl.DateTimeFormatOptions = { month: 'long', year: 'numeric' };
+    const monthYearStr = now.toLocaleDateString('es-ES', options);
+    
+    const formattedMonthYear = monthYearStr.charAt(0).toUpperCase() + monthYearStr.slice(1);
+
+    this.currentMonthIncomeText = `Ingresos de ${formattedMonthYear}`;
+    this.currentMonthIncomeQuery = `¿Cuáles son los ingresos de ${formattedMonthYear}?`;
   }
 
   scrollToBottom(): void {
-    try {
-      this.chatScroll.nativeElement.scrollTop = this.chatScroll.nativeElement.scrollHeight;
-    } catch (err) { }
+    setTimeout(() => {
+      try {
+        if (this.chatScroll) {
+          this.chatScroll.nativeElement.scrollTop = this.chatScroll.nativeElement.scrollHeight;
+        }
+      } catch (err) { }
+    }, 50);
   }
 
   renderMarkdown(content: string): SafeHtml {
@@ -94,6 +100,7 @@ export class MancuerIaComponent implements OnInit, OnDestroy, AfterViewChecked {
       next: (data) => {
         if (data.messages && data.messages.length > 0) {
           this.messages = data.messages;
+          this.scrollToBottom();
         }
       }
     });
@@ -163,6 +170,7 @@ export class MancuerIaComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     const userMsg: ChatMessage = { role: 'user', content: messageToSend, ts: Date.now() };
     this.messages.push(userMsg);
+    this.scrollToBottom();
 
     if (!text) {
       this.userInput = '';
@@ -173,6 +181,7 @@ export class MancuerIaComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     const typingMsg: ChatMessage = { role: 'assistant', content: 'Pensando...', ts: Date.now() };
     this.messages.push(typingMsg);
+    this.scrollToBottom();
 
     this.aiService.sendMessage(messageToSend).subscribe({
       next: (res) => {
@@ -180,6 +189,7 @@ export class MancuerIaComponent implements OnInit, OnDestroy, AfterViewChecked {
         const replyMsg: ChatMessage = { role: 'assistant', content: res.response, ts: Date.now() };
         this.messages.push(replyMsg);
         this.isBusy = false;
+        this.scrollToBottom();
         this.logMessage(`← Respuesta recibida exitosamente`, 'ok');
       },
       error: (err) => {
@@ -194,7 +204,7 @@ export class MancuerIaComponent implements OnInit, OnDestroy, AfterViewChecked {
           const minMatch = errorText.match(/try again in (\d+)m([\d\.]+)s/);
           const secMatch = errorText.match(/try again in ([\d\.]+)s/);
 
-          let totalSeconds = 30; // fallback por defecto
+          let totalSeconds = 30; 
           let timeMsgDetail = 'unos momentos';
 
           if (minMatch) {
@@ -208,10 +218,8 @@ export class MancuerIaComponent implements OnInit, OnDestroy, AfterViewChecked {
             timeMsgDetail = `${seconds} segundo${seconds !== 1 ? 's' : ''}`;
           }
 
-          // Activa el bloqueo inferior y persistencia
           this.startCountdown(totalSeconds, true);
 
-          // Alerta SweetAlert detallada con el tiempo que indicó la IA
           Swal.fire({
             title: '¡Límite de uso alcanzado!',
             html: `
@@ -234,6 +242,7 @@ export class MancuerIaComponent implements OnInit, OnDestroy, AfterViewChecked {
         } else {
           const errorMsg: ChatMessage = { role: 'error', content: 'Error al comunicarse con MancuerIA: ' + errorText, ts: Date.now() };
           this.messages.push(errorMsg);
+          this.scrollToBottom();
         }
 
         this.logMessage(`✗ Error en petición: ${errorText}`, 'err');
@@ -274,48 +283,6 @@ export class MancuerIaComponent implements OnInit, OnDestroy, AfterViewChecked {
           }
         });
       }
-    });
-  }
-
-  exportConversation() {
-    if (this.messages.length === 0) {
-      Swal.fire({
-        title: 'Atención',
-        text: 'No hay mensajes para exportar.',
-        icon: 'info',
-        confirmButtonText: 'Entendido',
-        customClass: {
-          popup: 'custom-swal-popup',
-          confirmButton: 'custom-swal-confirm-btn'
-        },
-        buttonsStyling: false
-      });
-      return;
-    }
-
-    let textContent = '--- HISTORIAL DE CONVERSACIÓN MANCUERIA ---\n\n';
-    this.messages.forEach(msg => {
-      const roleName = msg.role === 'user' ? 'Administrador' : msg.role === 'assistant' ? 'MancuerIA' : 'Error';
-      const timeStr = msg.ts ? new Date(msg.ts).toLocaleString() : '';
-      textContent += `[${timeStr}] ${roleName}:\n${msg.content}\n\n-----------------------------------\n\n`;
-    });
-
-    const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `mancuer-ia-conversacion-${new Date().toISOString().slice(0, 10)}.txt`;
-    link.click();
-    window.URL.revokeObjectURL(url);
-    this.logMessage('Conversación exportada exitosamente', 'ok');
-
-    Swal.fire({
-      title: '¡Exportado con éxito!',
-      text: 'El archivo de texto con la conversación ha sido descargado.',
-      icon: 'success',
-      timer: 2000,
-      showConfirmButton: false,
-      customClass: { popup: 'custom-swal-popup' }
     });
   }
 }

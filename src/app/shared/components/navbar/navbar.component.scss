@@ -12,7 +12,7 @@
     padding: 1.5rem 1rem;
     box-sizing: border-box;
     border-right: 1px solid var(--color-border, #e2e8f0);
-    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.03);
+    box-shadow: var(--shadow-sm);
     user-select: none;
     z-index: 1000;
     overflow-y: auto;
@@ -31,7 +31,7 @@
 
         &:hover {
             background: var(--color-bg-hover, #f1f5f9);
-            color: var(--color-text-primary, #0f172a);
+            color: var(--color-primary, #0f1c3f);
         }
     }
 }
@@ -45,12 +45,12 @@
     background-color: var(--color-bg-card, #ffffff);
     border-radius: 12px;
     border: 1px solid var(--color-border, #e2e8f0);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    box-shadow: var(--shadow-sm);
     transition: all 0.2s ease;
 }
 
 .sidebar__brand:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--shadow-md);
 }
 
 .sidebar__brand-icon {
@@ -97,6 +97,7 @@
     background: transparent;
 }
 
+/* ✅ HOVER MORADO PARA EL ÍTEM PRINCIPAL */
 .sidebar__nav-item {
     display: flex;
     align-items: center;
@@ -109,23 +110,33 @@
     font-weight: 500;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
-}
 
-.sidebar__nav-item:hover {
-    color: var(--color-text-primary, #0e3b72);
-    background-color: var(--color-bg-hover, #e2e8f0);
-    transform: translateX(3px);
+    /* ✅ El ícono también hereda el color en hover */
+    .sidebar__icon-wrapper {
+        color: var(--color-text-muted, #64748b);
+        transition: color 0.2s ease;
+    }
+
+    &:hover {
+        color: var(--color-primary, #6b8cff); /* 👈 MORADO/AZUL BRILLANTE */
+        background-color: var(--color-bg-hover, #e2e8f0);
+        transform: translateX(3px);
+
+        .sidebar__icon-wrapper {
+            color: var(--color-primary, #6b8cff); /* 👈 ÍCONO MORADO */
+        }
+    }
 }
 
 .sidebar__nav-item--active {
     background-color: var(--color-primary, #0e3b72) !important;
     color: #ffffff !important;
     font-weight: 600;
-    box-shadow: 0 4px 12px rgba(14, 59, 114, 0.25);
-}
+    box-shadow: var(--shadow-md);
 
-.sidebar__nav-item--active .sidebar__icon-wrapper {
-    color: #ffffff;
+    .sidebar__icon-wrapper {
+        color: #ffffff !important;
+    }
 }
 
 .sidebar__icon-wrapper {
@@ -152,15 +163,15 @@
     justify-content: center;
     gap: 0.65rem;
     background-color: var(--color-bg-card, #ffffff);
-    border: 1px solid #fee2e2;
-    color: #ef4444;
+    border: 1px solid var(--color-error-bg, #fee2e2);
+    color: var(--color-error, #ef4444);
     padding: 0.75rem 1rem;
     cursor: pointer;
     font-size: 0.875rem;
     font-weight: 600;
     margin-top: 1rem;
     border-radius: 10px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    box-shadow: var(--shadow-sm);
     transition: all 0.2s ease;
     width: 100%;
 
@@ -173,9 +184,9 @@
     }
 
     &:hover {
-        background-color: #e67171;
+        background-color: var(--color-error, #ef4444);
         color: #ffffff;
-        border-color: #ef4444;
+        border-color: var(--color-error, #ef4444);
         box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
 
         .sidebar__icon-wrapper,
@@ -186,9 +197,7 @@
     }
 }
 
-/* ==========================================
-   GRUPO DESPLEGABLE (Equipos)
-   ========================================== */
+/* GRUPO DESPLEGABLE */
 .sidebar__nav-group {
     display: flex;
     flex-direction: column;
@@ -219,7 +228,7 @@
     }
 }
 
-/* Submenú */
+/* ✅ HOVER MORADO PARA SUBMENÚ */
 .sidebar__submenu {
     display: flex;
     flex-direction: column;
@@ -254,20 +263,18 @@
 
     &:hover {
         background: var(--color-bg-hover, #f1f5f9);
-        color: var(--color-text-primary, #0e3b72);
+        color: var(--color-primary, #6b8cff); /* 👈 MORADO/AZUL BRILLANTE */
         transform: translateX(2px);
     }
 
     &--active {
-        background: rgba(14, 59, 114, 0.08);
+        background: var(--color-primary-light, rgba(14, 59, 114, 0.08));
         color: var(--color-primary, #0e3b72);
         font-weight: 700;
     }
 }
 
-/* ==========================================
-   HAMBURGER BUTTON (solo móvil)
-   ========================================== */
+/* HAMBURGER BUTTON */
 .hamburger-btn {
     display: none;
     position: fixed;
@@ -279,11 +286,11 @@
     border-radius: 10px;
     padding: 0.5rem;
     cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--shadow-sm);
     transition: all 0.2s ease;
 
     &:hover {
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        box-shadow: var(--shadow-md);
     }
 
     svg {
@@ -298,9 +305,7 @@
     }
 }
 
-/* ==========================================
-   BOTTOM NAV (solo móvil)
-   ========================================== */
+/* BOTTOM NAV */
 .bottom-nav {
     display: none;
     position: fixed;
@@ -341,7 +346,7 @@
         }
 
         &:hover {
-            color: var(--color-text-primary, #0f172a);
+            color: var(--color-primary, #6b8cff);
         }
 
         &--active {
@@ -371,9 +376,7 @@
     }
 }
 
-/* ==========================================
-   RESPONSIVE - MÓVIL (hasta 768px)
-   ========================================== */
+/* RESPONSIVE */
 @media (max-width: 768px) {
     .hamburger-btn {
         display: flex;
@@ -409,9 +412,6 @@
     }
 }
 
-/* ==========================================
-   RESPONSIVE - MÓVIL PEQUEÑO (hasta 480px)
-   ========================================== */
 @media (max-width: 480px) {
     .sidebar {
         width: 260px;
@@ -440,9 +440,6 @@
     }
 }
 
-/* ==========================================
-   RESPONSIVE - TABLET (769px - 1024px)
-   ========================================== */
 @media (min-width: 769px) and (max-width: 1024px) {
     .sidebar {
         width: 72px;

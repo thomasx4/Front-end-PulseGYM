@@ -1,8 +1,9 @@
 .documents-container {
     padding: 24px;
-    background-color: #f4f6fa;
+    background-color: var(--color-bg-main);
     min-height: 100vh;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    transition: background-color 0.3s ease;
 }
 
 .page-header {
@@ -14,14 +15,14 @@
     .page-title {
         font-size: 1.85rem;
         font-weight: 800;
-        color: #0f1c3f;
+        color: var(--color-text-primary);
         margin: 0;
         letter-spacing: -0.02em;
     }
 
     .page-subtitle {
         font-size: 0.9rem;
-        color: #64748b;
+        color: var(--color-text-secondary);
         margin: 4px 0 0 0;
     }
 }
@@ -30,7 +31,7 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    background-color: #0f1c3f;
+    background-color: var(--color-primary);
     color: #ffffff;
     border: none;
     border-radius: 10px;
@@ -38,11 +39,11 @@
     font-size: 0.875rem;
     font-weight: 600;
     cursor: pointer;
-    box-shadow: 0 4px 12px rgba(15, 28, 63, 0.2);
+    box-shadow: var(--shadow-md);
     transition: all 0.2s ease;
 
     &:hover {
-        background-color: #1a2b5c;
+        background-color: var(--color-primary-hover);
         transform: translateY(-1px);
     }
 
@@ -59,14 +60,15 @@
 }
 
 .metric-card {
-    background: #ffffff;
+    background: var(--color-bg-card);
     border-radius: 16px;
     padding: 20px 24px;
     display: flex;
     align-items: center;
     gap: 20px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-    border: 1px solid #edf2f7;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--color-border-light);
+    transition: background-color 0.3s ease;
 
     .metric-icon {
         width: 52px;
@@ -90,7 +92,7 @@
         .metric-value {
             font-size: 1.9rem;
             font-weight: 800;
-            color: #0b1a30;
+            color: var(--color-text-primary);
             line-height: 1.2;
             display: block;
         }
@@ -98,21 +100,23 @@
         .metric-label {
             font-size: 0.75rem;
             font-weight: 600;
-            color: #64748b;
+            color: var(--color-text-secondary);
             text-transform: uppercase;
             letter-spacing: 0.05em;
             display: block;
         }
 
+        /* ✅ Semántico (verde) */
         .metric-trend {
             font-size: 0.725rem;
             font-weight: 600;
-            color: #10b981;
+            color: var(--color-success);
             display: block;
             margin-top: 2px;
         }
     }
 
+    /* ✅ Semánticos (azul/verde) */
     &--activos .metric-icon {
         background: #dbeafe;
         color: #2563eb;
@@ -125,11 +129,12 @@
 }
 
 .filters-section {
-    background: #ffffff;
+    background: var(--color-bg-card);
     border-radius: 12px;
     padding: 16px 20px;
     margin-bottom: 24px;
-    border: 1px solid #edf2f7;
+    border: 1px solid var(--color-border-light);
+    transition: background-color 0.3s ease;
 }
 
 .filters-row {
@@ -147,16 +152,21 @@
         select {
             width: 100%;
             padding: 8px 36px 8px 14px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid var(--color-border);
             border-radius: 8px;
             font-size: 13px;
-            background: #ffffff;
+            background: var(--color-bg-input);
+            color: var(--color-text-primary);
             outline: none;
-            transition: border-color 0.2s;
+            transition: border-color 0.2s, background-color 0.3s ease;
 
             &:focus {
-                border-color: #0f1c3f;
+                border-color: var(--color-primary);
                 box-shadow: 0 0 0 3px rgba(15, 28, 63, 0.08);
+            }
+
+            &::placeholder {
+                color: var(--color-text-muted);
             }
         }
 
@@ -167,7 +177,7 @@
             transform: translateY(-50%);
             width: 16px;
             height: 16px;
-            stroke: #94a3b8;
+            stroke: var(--color-text-muted);
             pointer-events: none;
         }
     }
@@ -178,20 +188,20 @@
     align-items: center;
     gap: 6px;
     padding: 8px 16px;
-    background: #f1f5f9;
-    border: 1px solid #e2e8f0;
+    background: var(--color-bg-hover);
+    border: 1px solid var(--color-border);
     border-radius: 8px;
     font-size: 0.8rem;
     font-weight: 600;
-    color: #64748b;
+    color: var(--color-text-secondary);
     cursor: pointer;
     transition: all 0.2s ease;
     white-space: nowrap;
     height: 38px;
 
     &:hover {
-        background: #e2e8f0;
-        color: #0b1a30;
+        background: var(--color-border);
+        color: var(--color-text-primary);
     }
 
     svg {
@@ -202,11 +212,12 @@
 }
 
 .table-card {
-    background: #ffffff;
+    background: var(--color-bg-card);
     border-radius: 16px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    box-shadow: var(--shadow-sm);
     overflow: hidden;
-    border: 1px solid #edf2f7;
+    border: 1px solid var(--color-border-light);
+    transition: background-color 0.3s ease;
 }
 
 .table-responsive {
@@ -219,14 +230,14 @@
     border-collapse: collapse;
 
     thead {
-        background-color: #f8fafc;
-        border-bottom: 1px solid #edf2f7;
+        background-color: var(--color-bg-hover);
+        border-bottom: 1px solid var(--color-border-light);
 
         th {
             padding: 14px 20px;
             font-size: 0.7rem;
             font-weight: 700;
-            color: #94a3b8;
+            color: var(--color-text-muted);
             text-transform: uppercase;
             letter-spacing: 0.06em;
             text-align: left;
@@ -234,20 +245,22 @@
     }
 
     tbody tr {
-        border-bottom: 1px solid #f1f5f9;
+        border-bottom: 1px solid var(--color-border-light);
         transition: background 0.15s ease;
 
         &:hover {
-            background-color: #fafbfc;
+            background-color: var(--color-bg-hover);
         }
 
         td {
             padding: 14px 20px;
             vertical-align: middle;
+            color: var(--color-text-primary);
         }
     }
 }
 
+/* ✅ Semántico (rojo - PDF) */
 .doc-name {
     display: flex;
     align-items: center;
@@ -256,8 +269,8 @@
     .pdf-icon-badge {
         width: 36px;
         height: 36px;
-        background: #fef2f2;
-        border: 1px solid #fee2e2;
+        background: var(--color-error-bg);
+        border: 1px solid var(--color-error);
         border-radius: 8px;
         display: flex;
         align-items: center;
@@ -267,28 +280,30 @@
 
     .user-text-name {
         font-weight: 600;
-        color: #0b1a30;
+        color: var(--color-text-primary);
         font-size: 0.9rem;
     }
 }
 
+/* ✅ Semántico (azul) */
 .category-badge {
     display: inline-block;
     padding: 3px 12px;
-    background: #e0f2fe;
+    background: var(--color-info-bg);
     border-radius: 8px;
     font-size: 0.75rem;
     font-weight: 700;
-    color: #0369a1;
+    color: var(--color-info);
 }
 
 .date-info {
     display: flex;
     flex-direction: column;
     font-size: 0.85rem;
-    color: #475569;
+    color: var(--color-text-secondary);
 }
 
+/* ✅ Semánticos (verde/rojo/gris) */
 .badge-status {
     display: inline-block;
     padding: 4px 14px;
@@ -308,8 +323,8 @@
     }
 
     &.estado-default {
-        background-color: #f1f5f9;
-        color: #64748b;
+        background-color: var(--color-bg-hover);
+        color: var(--color-text-secondary);
     }
 }
 
@@ -319,41 +334,45 @@
     justify-content: flex-end;
     gap: 6px;
 
+    /* ✅ Semántico (azul) */
     .btn-view {
         display: inline-flex;
         align-items: center;
         justify-content: center;
         padding: 6px;
         border-radius: 8px;
-        background-color: #f0f9ff;
-        color: #0284c7;
-        border: 1px solid #bae6fd;
+        background-color: var(--color-info-bg);
+        color: var(--color-info);
+        border: 1px solid var(--color-info);
         cursor: pointer;
         transition: all 0.2s ease;
         width: 32px;
         height: 32px;
 
         &:hover {
-            background-color: #bae6fd;
+            background-color: var(--color-info);
+            color: #ffffff;
         }
     }
 
+    /* ✅ Semántico (rojo) */
     .btn-delete {
         display: inline-flex;
         align-items: center;
         justify-content: center;
         padding: 6px;
         border-radius: 8px;
-        background-color: #fee2e2;
-        color: #dc2626;
-        border: 1px solid #fecaca;
+        background-color: var(--color-error-bg);
+        color: var(--color-error);
+        border: 1px solid var(--color-error);
         cursor: pointer;
         transition: all 0.2s ease;
         width: 32px;
         height: 32px;
 
         &:hover {
-            background-color: #fecaca;
+            background-color: var(--color-error);
+            color: #ffffff;
         }
     }
 }
@@ -365,17 +384,17 @@
 .empty-state {
     text-align: center;
     padding: 60px 20px;
-    color: #94a3b8;
+    color: var(--color-text-muted);
 
     svg {
-        stroke: #cbd5e1;
+        stroke: var(--color-text-muted);
         margin-bottom: 16px;
     }
 
     p {
         font-size: 1.1rem;
         font-weight: 600;
-        color: #64748b;
+        color: var(--color-text-secondary);
         margin: 0 0 4px 0;
     }
 
@@ -389,14 +408,14 @@
     align-items: center;
     justify-content: space-between;
     padding: 16px 24px;
-    border-top: 1px solid #edf2f7;
+    border-top: 1px solid var(--color-border-light);
 
     .showing-text {
         font-size: 0.825rem;
-        color: #94a3b8;
+        color: var(--color-text-muted);
 
         strong {
-            color: #334155;
+            color: var(--color-text-primary);
         }
     }
 
@@ -414,18 +433,19 @@
             background: transparent;
             font-size: 0.85rem;
             font-weight: 600;
-            color: #64748b;
+            color: var(--color-text-secondary);
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: all 0.15s ease;
 
             &:hover:not(:disabled) {
-                background-color: #f1f5f9;
+                background-color: var(--color-bg-hover);
             }
 
             &.active {
-                background-color: #0f1c3f;
+                background-color: var(--color-primary);
                 color: #ffffff;
             }
 

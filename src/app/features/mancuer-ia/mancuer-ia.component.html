@@ -123,7 +123,6 @@
                 </svg>
                 Limpiar historial
             </button>
-
         </div>
 
         <!-- SUGERENCIAS -->
@@ -153,8 +152,30 @@
             <button class="suggestion-card" [disabled]="isRateLimited" [class.disabled-card]="isRateLimited" (click)="send('Equipos en mantenimiento')">
                 Equipos en mantenimiento
             </button>
+
+            <button class="suggestion-card" [disabled]="isRateLimited" [class.disabled-card]="isRateLimited" (click)="send(currentMonthIncomeQuery)">
+                {{ currentMonthIncomeText }}
+            </button>
+
+            <button class="suggestion-card" [disabled]="isRateLimited" [class.disabled-card]="isRateLimited" (click)="send('Lista todos los socios en mora')">
+                Lista todos los socios en mora
+            </button>
         </div>
 
+        <div class="tips-box">
+            <div class="tips-header">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                <span>Recomendaciones de uso</span>
+            </div>
+            <ul>
+                <li><strong>Limpia la conversación</strong> al terminar para que la IA no disocie con contexto antiguo.</li>
+                <li>Si la IA presenta respuestas erróneas o disociadas, <strong>espera unos segundos</strong> y vuelve a realizar la pregunta.</li>
+            </ul>
+        </div>
     </div>
 
 </div>

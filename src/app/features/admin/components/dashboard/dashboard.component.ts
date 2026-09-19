@@ -31,6 +31,7 @@ export class DashboardComponent implements OnInit {
 
   ingresosMensuales: any[] = [];
   distribucionIngresos: any[] = [];
+  private datosIngresosBackend: any[] = [];
 
   asistenciaAyer: number = 0;
   asistenciaHoy: number = 0;
@@ -38,6 +39,7 @@ export class DashboardComponent implements OnInit {
   porcentajeAsistencia: number = 0;
   porVencer: any[] = [];
   equipos: any[] = [];
+  totalEquiposEnMantenimiento: number = 0;
 
   statsPorVencer = { hoy: 0, manana: 0 };
 
@@ -50,10 +52,10 @@ export class DashboardComponent implements OnInit {
     return this.ingresosMensuales.reduce((sum, item) => sum + item.ingresos, 0);
   }
 
-  // Muestra estrictamente el total aprobado del mes actual
   get mesActualTotalRevenue(): number {
     if (this.ingresosMensuales.length === 0) return 0;
-    return this.ingresosMensuales[this.ingresosMensuales.length - 1].ingresos || 0;
+    const mesConDatos = [...this.ingresosMensuales].reverse().find(m => m.ingresos > 0);
+    return mesConDatos ? mesConDatos.ingresos : 0;
   }
 
   get maxIngreso(): number {
@@ -155,41 +157,76 @@ export class DashboardComponent implements OnInit {
     this.statsAsistencia.ayer = totalAyer;
     this.porcentajeAsistencia = Math.min(Math.round((totalHoy / 100) * 100), 100);
 
+    this.totalEquiposEnMantenimiento = resumen.equiposEnMantenimiento || 0;
+
     if (resumen.equiposCriticos && resumen.equiposCriticos.length > 0) {
       this.equipos = resumen.equiposCriticos.map((e: any) => ({
         id: e.id,
         nombre: e.nombre,
         estado: this.normalizarEstado(e.estado),
       }));
-    } else {
+    } else if (this.totalEquiposEnMantenimiento > 0) {
       this.equipos = [
-        { id: 1, nombre: 'Mantenimientos en Curso', estado: resumen.equiposEnMantenimiento ? 'Mantenimiento' : 'Operativo' }
+        { id: 1, nombre: 'Mantenimiento en Curso', estado: 'Mantenimiento' }
       ];
+    } else {
+      this.equipos = [];
     }
 
     if (resumen.ingresosSeisMeses?.meses) {
-      const mesesBackend = resumen.ingresosSeisMeses.meses;
-
-      this.ingresosMensuales = mesesBackend.map((m: any) => {
-        const numMes = Number(m.mes);
-        const nombreMes = numMes >= 1 && numMes <= 12 ? this.NOMBRES_MESES[numMes - 1] : `MES ${m.mes}`;
-        return {
-          mes: nombreMes,
-          ingresos: m.totalGeneral || 0,
-          anio: m.anio,
-          detalle: m.detalle || []
-        };
-      });
-
-      const mesActualData = mesesBackend[mesesBackend.length - 1];
-      this.procesarDistribucion(mesActualData);
+      this.datosIngresosBackend = resumen.ingresosSeisMeses.meses;
+    } else {
+      this.datosIngresosBackend = [];
     }
+
+    this.actualizarGraficoIngresosPorAnio();
   }
 
-// Añade esta variable arriba en las propiedades de la clase junto a las demás:
+  cambiarAnio(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    this.anioSeleccionado = parseInt(select.value, 10);
+    this.actualizarGraficoIngresosPorAnio();
+  }
+
+  private actualizarGraficoIngresosPorAnio(): void {
+    const mesesDelAnio = this.datosIngresosBackend.filter((m: any) => Number(m.anio) === this.anioSeleccionado);
+
+    let mesesParaMostrar: any[] = [];
+
+    if (mesesDelAnio.length > 0) {
+      mesesDelAnio.sort((a, b) => Number(a.mes) - Number(b.mes));
+      mesesParaMostrar = mesesDelAnio.slice(-6);
+    } else {
+      const mesFin = Number(this.anioSeleccionado) === new Date().getFullYear() ? new Date().getMonth() + 1 : 12;
+      const mesInicio = Math.max(1, mesFin - 5);
+
+      for (let i = mesInicio; i <= mesFin; i++) {
+        mesesParaMostrar.push({
+          mes: i,
+          anio: this.anioSeleccionado,
+          totalGeneral: 0,
+          detalle: []
+        });
+      }
+    }
+
+    this.ingresosMensuales = mesesParaMostrar.map((m: any) => {
+      const numMes = Number(m.mes);
+      const nombreMes = numMes >= 1 && numMes <= 12 ? this.NOMBRES_MESES[numMes - 1] : `MES ${m.mes}`;
+      return {
+        mes: nombreMes,
+        ingresos: m.totalGeneral || 0,
+        anio: m.anio,
+        detalle: m.detalle || []
+      };
+    });
+
+    const ultimoMes = mesesParaMostrar[mesesParaMostrar.length - 1];
+    this.procesarDistribucion(ultimoMes);
+  }
+
   hoveredDistribucion: any = null;
 
-  // Modifica el método procesarDistribucion para incluir la propiedad 'monto':
   private procesarDistribucion(mesActualData: any): void {
     if (mesActualData && Array.isArray(mesActualData.detalle) && mesActualData.detalle.length > 0) {
       const totalMes = mesActualData.totalGeneral || 0;
@@ -198,7 +235,7 @@ export class DashboardComponent implements OnInit {
         const valorPreciso = totalMes > 0 ? (item.total / totalMes) * 100 : 0;
         return {
           fuente: item.tipoMembresia || 'Otros',
-          monto: item.total || 0, // <--- Guardamos el monto exacto aquí
+          monto: item.total || 0,
           valorPreciso: valorPreciso,
           porcentaje: Math.round(valorPreciso),
           color: this.getColorPorTipo(item.tipoMembresia)
@@ -214,10 +251,11 @@ export class DashboardComponent implements OnInit {
       this.distribucionIngresos = items;
     } else {
       this.distribucionIngresos = [
-        { fuente: 'Sin pagos este mes', monto: 0, porcentaje: 100, color: '#94a3b8' }
+        { fuente: 'Sin pagos registrados', monto: 0, porcentaje: 100, color: '#94a3b8' }
       ];
     }
   }
+
   private procesarPorVencer(data: any[]): void {
     if (!Array.isArray(data) || data.length === 0) {
       this.porVencer = [];
@@ -241,11 +279,6 @@ export class DashboardComponent implements OnInit {
     if (u === 'MANTENIMIENTO') return 'Mantenimiento';
     if (u === 'FUERA_DE_SERVICIO') return 'Fuera de Servicio';
     return 'Mantenimiento';
-  }
-
-  cambiarAnio(event: Event): void {
-    const select = event.target as HTMLSelectElement;
-    this.anioSeleccionado = parseInt(select.value, 10);
   }
 
   getDonutGradient(): string {
@@ -289,7 +322,7 @@ export class DashboardComponent implements OnInit {
 
       pdf.setFontSize(18);
       pdf.setTextColor('#0b192c');
-      pdf.text('Reporte de Ingresos - Últimos 6 Meses', pageWidth / 2, 25, { align: 'center' });
+      pdf.text(`Reporte de Ingresos - Año ${this.anioSeleccionado}`, pageWidth / 2, 25, { align: 'center' });
 
       pdf.setFontSize(11);
       pdf.setTextColor('#8a94a6');
@@ -348,7 +381,7 @@ export class DashboardComponent implements OnInit {
       pdf.setFont('helvetica', 'bold');
       pdf.text(`Total General: $ ${Number(total).toLocaleString('es-CO')}`, pageWidth - margin - 80, y);
 
-      pdf.save(`Ingresos-6-meses-${new Date().toISOString().split('T')[0]}.pdf`);
+      pdf.save(`Ingresos-Anio-${this.anioSeleccionado}-${new Date().toISOString().split('T')[0]}.pdf`);
       this.loading = false;
     } catch (error) {
       console.error('Error al exportar PDF:', error);

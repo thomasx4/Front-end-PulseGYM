@@ -134,15 +134,15 @@ export class AjustesComponent implements OnInit {
   }
 
   verTerminos(): void {
-    window.open(this.urlPdfGeneral, '_blank');
+    this.router.navigate(['/politicas']);
   }
 
   verPrivacidad(): void {
-    window.open(this.urlPdfGeneral, '_blank');
+    this.router.navigate(['/politicas']);
   }
 
   verFAQ(): void {
-    window.open(this.urlFaq, '_blank');
+    this.router.navigate(['/politicas']);
   }
 
   cerrarSuccessModal(): void {

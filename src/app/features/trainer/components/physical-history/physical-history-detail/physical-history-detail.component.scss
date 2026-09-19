@@ -1,45 +1,25 @@
 .kpi-icon {
-    &--blue {
-        color: #2563eb;
-    }
-
-    &--teal {
-        color: #0d9488;
-    }
-
-    &--red {
-        color: #ef4444;
-    }
-
-    &--green {
-        color: #16a34a;
-    }
-
-    &--orange {
-        color: #f97316;
-    }
-
-    &--purple {
-        color: #9333ea;
-    }
+    /* ✅ Semánticos (se mantienen) */
+    &--blue { color: #2563eb; }
+    &--teal { color: #0d9488; }
+    &--red { color: #ef4444; }
+    &--green { color: #16a34a; }
+    &--orange { color: #f97316; }
+    &--purple { color: #9333ea; }
 }
 
-.text-red {
-    color: #dc2626 !important;
-}
-
-.text-green {
-    color: #16a34a !important;
-}
+.text-red { color: var(--color-error) !important; }
+.text-green { color: var(--color-success) !important; }
 
 .physical-detail-page {
     padding: 1.5rem 2rem;
-    background-color: #f8fafc;
+    background-color: var(--color-bg-main);
     min-height: 100vh;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     margin-left: 260px;
     width: calc(100% - 260px);
     box-sizing: border-box;
+    transition: background-color 0.3s ease;
 
     @media (max-width: 1024px) {
         margin-left: 0;
@@ -67,7 +47,7 @@
     }
 
     &__icon-wrapper {
-        color: #1e3a8a;
+        color: var(--color-primary);
         display: flex;
         align-items: center;
     }
@@ -75,13 +55,13 @@
     &__title {
         font-size: 1.5rem;
         font-weight: 800;
-        color: #0f172a;
+        color: var(--color-text-primary);
         margin: 0;
     }
 
     &__subtitle {
         font-size: 0.85rem;
-        color: #64748b;
+        color: var(--color-text-secondary);
         margin: 0;
     }
 
@@ -105,38 +85,39 @@
     transition: all 0.2s ease;
 
     &--primary {
-        background-color: #0d1b3e;
+        background-color: var(--color-primary);
         color: #ffffff;
         border: none;
-        box-shadow: 0 4px 12px rgba(13, 27, 62, 0.2);
+        box-shadow: var(--shadow-sm);
 
         &:hover {
-            background-color: #08122c;
+            background-color: var(--color-primary-hover);
         }
     }
 
     &--outline-dark {
-        background-color: #ffffff;
-        color: #0f172a;
-        border: 1px solid #e2e8f0;
+        background-color: var(--color-bg-card);
+        color: var(--color-text-primary);
+        border: 1px solid var(--color-border);
 
         &:hover {
-            background-color: #f1f5f9;
+            background-color: var(--color-bg-hover);
         }
     }
 }
 
 // TARJETA PERFIL SOCIO
 .socio-profile-card {
-    background-color: #ffffff;
+    background-color: var(--color-bg-card);
     border-radius: 12px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--color-border);
     padding: 1.25rem 1.75rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    box-shadow: var(--shadow-sm);
     margin-bottom: 1.5rem;
+    transition: background-color 0.3s ease;
 
     &__left {
         display: flex;
@@ -155,7 +136,7 @@
     width: 48px;
     height: 48px;
     border-radius: 50%;
-    background-color: #0d1b3e;
+    background-color: var(--color-primary);
     color: #ffffff;
     display: flex;
     align-items: center;
@@ -186,11 +167,12 @@
     .socio-name {
         font-size: 1.15rem;
         font-weight: 800;
-        color: #0f172a;
+        color: var(--color-text-primary);
         margin: 0;
     }
 }
 
+/* ✅ Semántico */
 .status-badge {
     font-size: 0.65rem;
     font-weight: 800;
@@ -214,7 +196,7 @@
         align-items: center;
         gap: 0.35rem;
         font-size: 0.8rem;
-        color: #64748b;
+        color: var(--color-text-secondary);
         font-weight: 500;
     }
 }
@@ -226,7 +208,7 @@
 
     .meta-label {
         font-size: 0.72rem;
-        color: #94a3b8;
+        color: var(--color-text-muted);
         font-weight: 600;
     }
 
@@ -236,7 +218,7 @@
         gap: 0.35rem;
         font-size: 0.85rem;
         font-weight: 700;
-        color: #1e293b;
+        color: var(--color-text-primary);
     }
 }
 
@@ -250,13 +232,13 @@
         .section-title {
             font-size: 1.05rem;
             font-weight: 800;
-            color: #0f172a;
+            color: var(--color-text-primary);
             margin: 0;
         }
 
         .section-subtitle {
             font-size: 0.78rem;
-            color: #94a3b8;
+            color: var(--color-text-muted);
             font-weight: 500;
         }
     }
@@ -269,11 +251,12 @@
 }
 
 .kpi-detail-card {
-    background-color: #ffffff;
+    background-color: var(--color-bg-card);
     border-radius: 12px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--color-border);
     padding: 1rem 1.15rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    box-shadow: var(--shadow-sm);
+    transition: background-color 0.3s ease;
 
     .kpi-header {
         display: flex;
@@ -284,7 +267,7 @@
         .kpi-title {
             font-size: 0.78rem;
             font-weight: 700;
-            color: #475569;
+            color: var(--color-text-secondary);
         }
     }
 
@@ -296,17 +279,18 @@
         .kpi-num {
             font-size: 1.3rem;
             font-weight: 800;
-            color: #0f172a;
+            color: var(--color-text-primary);
 
             small {
                 font-size: 0.75rem;
                 font-weight: 600;
-                color: #64748b;
+                color: var(--color-text-secondary);
             }
         }
     }
 }
 
+/* ✅ Semánticos */
 .badge-status {
     font-size: 0.65rem;
     font-weight: 700;
@@ -314,13 +298,13 @@
     border-radius: 6px;
 
     &--blue {
-        background-color: #eff6ff;
-        color: #2563eb;
+        background-color: var(--color-info-bg);
+        color: var(--color-info);
     }
 
     &--green {
-        background-color: #f0fdf4;
-        color: #16a34a;
+        background-color: var(--color-success-bg);
+        color: var(--color-success);
     }
 
     &--green-dark {
@@ -344,14 +328,15 @@
     }
 }
 
-// TARJETA DE GRÁFICA DE EVOLUCIÓN CON SCROLL HORIZONTAL AISLADO
+// TARJETA DE GRÁFICA
 .chart-card {
-    background-color: #ffffff;
+    background-color: var(--color-bg-card);
     border-radius: 12px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--color-border);
     padding: 1.25rem 1.5rem;
     position: relative;
     overflow: hidden;
+    transition: background-color 0.3s ease;
 
     &__header {
         display: flex;
@@ -366,15 +351,15 @@
 .chart-title {
     font-size: 0.95rem;
     font-weight: 800;
-    color: #0f172a;
+    color: var(--color-text-primary);
     margin: 0;
 }
 
 .chart-scroll-hint {
     font-size: 0.72rem;
     font-weight: 600;
-    color: #64748b;
-    background-color: #f1f5f9;
+    color: var(--color-text-secondary);
+    background-color: var(--color-bg-hover);
     padding: 0.2rem 0.6rem;
     border-radius: 6px;
 }
@@ -386,22 +371,16 @@
     padding-bottom: 8px;
     -webkit-overflow-scrolling: touch;
 
-    &::-webkit-scrollbar {
-        height: 6px;
-    }
-
+    &::-webkit-scrollbar { height: 6px; }
     &::-webkit-scrollbar-track {
-        background: #f1f5f9;
+        background: var(--color-bg-hover);
         border-radius: 4px;
     }
-
     &::-webkit-scrollbar-thumb {
-        background: #cbd5e1;
+        background: var(--color-border);
         border-radius: 4px;
 
-        &:hover {
-            background: #94a3b8;
-        }
+        &:hover { background: var(--color-text-muted); }
     }
 }
 
@@ -417,15 +396,16 @@
     }
 }
 
-// TARJETA UNIFICADA (ÚLTIMAS MEDICIONES + COMPARACIÓN GENERAL)
+// TARJETA UNIFICADA
 .unified-measurements-card {
-    background-color: #ffffff;
+    background-color: var(--color-bg-card);
     border-radius: 12px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--color-border);
     padding: 1.25rem 1.5rem;
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
+    transition: background-color 0.3s ease;
 
     .unified-section {
         display: flex;
@@ -442,13 +422,13 @@
     .m-card-title {
         font-size: 0.95rem;
         font-weight: 800;
-        color: #0f172a;
+        color: var(--color-text-primary);
         margin: 0;
     }
 
     .section-divider {
         border: 0;
-        border-top: 1px solid #f1f5f9;
+        border-top: 1px solid var(--color-border-light);
         margin: 0;
     }
 }
@@ -458,10 +438,10 @@
     align-items: center;
     justify-content: space-between;
     font-size: 0.75rem;
-    color: #64748b;
+    color: var(--color-text-secondary);
     padding-bottom: 0.85rem;
     margin-bottom: 1rem;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid var(--color-border-light);
 
     .m-sub-date,
     .m-sub-user {
@@ -478,7 +458,7 @@
     }
 }
 
-// NUEVA GRID PROFESIONAL CON LOGOS/ICONOS DE MEDICIONES
+// GRID PROFESIONAL
 .pro-measurements-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -486,8 +466,8 @@
 }
 
 .pro-card {
-    background-color: #f8fafc;
-    border: 1px solid #f1f5f9;
+    background-color: var(--color-bg-hover);
+    border: 1px solid var(--color-border-light);
     border-radius: 10px;
     padding: 0.75rem 0.9rem;
     display: flex;
@@ -496,9 +476,9 @@
     transition: all 0.2s ease;
 
     &:hover {
-        background-color: #ffffff;
-        border-color: #cbd5e1;
-        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+        background-color: var(--color-bg-card);
+        border-color: var(--color-text-muted);
+        box-shadow: var(--shadow-sm);
     }
 
     &__icon {
@@ -510,35 +490,13 @@
         justify-content: center;
         flex-shrink: 0;
 
-        &--blue {
-            background-color: #eff6ff;
-            color: #2563eb;
-        }
-
-        &--teal {
-            background-color: #f0fdf4;
-            color: #0d9488;
-        }
-
-        &--red {
-            background-color: #fef2f2;
-            color: #ef4444;
-        }
-
-        &--green {
-            background-color: #f0fdf4;
-            color: #16a34a;
-        }
-
-        &--purple {
-            background-color: #faf5ff;
-            color: #9333ea;
-        }
-
-        &--orange {
-            background-color: #fff7ed;
-            color: #f97316;
-        }
+        /* ✅ Semánticos */
+        &--blue { background-color: #eff6ff; color: #2563eb; }
+        &--teal { background-color: #f0fdf4; color: #0d9488; }
+        &--red { background-color: #fef2f2; color: #ef4444; }
+        &--green { background-color: #f0fdf4; color: #16a34a; }
+        &--purple { background-color: #faf5ff; color: #9333ea; }
+        &--orange { background-color: #fff7ed; color: #f97316; }
     }
 
     &__info {
@@ -548,25 +506,25 @@
 
         .pro-card__label {
             font-size: 0.72rem;
-            color: #64748b;
+            color: var(--color-text-secondary);
             font-weight: 600;
         }
 
         .pro-card__value {
             font-size: 0.95rem;
             font-weight: 800;
-            color: #0f172a;
+            color: var(--color-text-primary);
 
             small {
                 font-size: 0.7rem;
                 font-weight: 600;
-                color: #94a3b8;
+                color: var(--color-text-muted);
             }
         }
     }
 }
 
-// SECCIÓN COMPARACIÓN GENERAL
+// COMPARACIÓN GENERAL
 .comparison-header {
     display: flex;
     align-items: center;
@@ -575,7 +533,7 @@
 
     .comparison-subtitle {
         font-size: 0.72rem;
-        color: #94a3b8;
+        color: var(--color-text-muted);
     }
 }
 
@@ -594,7 +552,7 @@
             align-items: center;
             gap: 0.3rem;
             font-size: 0.72rem;
-            color: #64748b;
+            color: var(--color-text-secondary);
             font-weight: 600;
         }
 
@@ -605,16 +563,17 @@
     }
 }
 
-// SILUETA CARD Y MODEL VIEWER
+// SILUETA CARD
 .silhouette-card {
-    background-color: #ffffff;
+    background-color: var(--color-bg-card);
     border-radius: 12px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--color-border);
     padding: 1.25rem 1.5rem;
     display: flex;
     flex-direction: column;
     position: sticky;
     top: 1.5rem;
+    transition: background-color 0.3s ease;
 
     &__header {
         display: flex;
@@ -631,13 +590,13 @@
         .s-title {
             font-size: 0.95rem;
             font-weight: 800;
-            color: #0f172a;
+            color: var(--color-text-primary);
             margin: 0;
         }
 
         .s-subtitle {
             font-size: 0.72rem;
-            color: #94a3b8;
+            color: var(--color-text-muted);
         }
 
         .badge-3d {
@@ -646,10 +605,10 @@
             letter-spacing: 0.04em;
             text-transform: uppercase;
             padding: 0.2rem 0.55rem;
-            background: #f1f5f9;
-            color: #475569;
+            background: var(--color-bg-hover);
+            color: var(--color-text-secondary);
             border-radius: 6px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid var(--color-border);
         }
     }
 }
@@ -661,8 +620,8 @@
     display: block;
     border-radius: 10px;
     overflow: hidden;
-    border: 1px dashed #e2e8f0;
-    background-color: #fafafa;
+    border: 1px dashed var(--color-border);
+    background-color: var(--color-bg-hover);
 }
 
 .model-viewer-canvas {
@@ -672,7 +631,7 @@
     display: block;
 }
 
-// DESGLOSE LATERAL SILUETA (NEUTRO, MAYOR TAMAÑO DE TEXTO Y SOLO TÍTULOS CON COLOR)
+// DESGLOSE LATERAL SILUETA
 .silhouette-measures-aside {
     display: flex;
     flex-direction: column;
@@ -680,8 +639,8 @@
     margin-top: 1.25rem;
 
     .s-group {
-        background-color: #ffffff;
-        border: 1px solid #e2e8f0;
+        background-color: var(--color-bg-card);
+        border: 1px solid var(--color-border);
         border-radius: 8px;
         padding: 0.85rem 1rem;
         display: flex;
@@ -690,8 +649,8 @@
         transition: all 0.2s ease;
 
         &:hover {
-            border-color: #cbd5e1;
-            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+            border-color: var(--color-text-muted);
+            box-shadow: var(--shadow-sm);
         }
 
         .s-group-header {
@@ -699,9 +658,7 @@
             align-items: center;
             gap: 0.5rem;
 
-            svg {
-                flex-shrink: 0;
-            }
+            svg { flex-shrink: 0; }
 
             .s-group-title {
                 font-size: 0.88rem;
@@ -711,32 +668,25 @@
             }
         }
 
+        /* ✅ Semánticos (colores por zona) */
         &--purple {
             .s-group-header svg,
-            .s-group-title {
-                color: #9333ea;
-            }
+            .s-group-title { color: #9333ea; }
         }
 
         &--orange {
             .s-group-header svg,
-            .s-group-title {
-                color: #f97316;
-            }
+            .s-group-title { color: #f97316; }
         }
 
         &--green {
             .s-group-header svg,
-            .s-group-title {
-                color: #16a34a;
-            }
+            .s-group-title { color: #16a34a; }
         }
 
         &--blue {
             .s-group-header svg,
-            .s-group-title {
-                color: #0284c7;
-            }
+            .s-group-title { color: #0284c7; }
         }
 
         .s-measure-grid {
@@ -752,30 +702,26 @@
             font-size: 0.9rem;
 
             .s-label {
-                color: #64748b;
+                color: var(--color-text-secondary);
                 font-weight: 600;
             }
 
             .s-val {
                 font-weight: 800;
-                color: #0f172a !important;
+                color: var(--color-text-primary) !important;
             }
         }
     }
 }
 
-.text-purple,
-.text-orange,
-.text-green,
-.text-green-dark,
-.text-blue,
-.text-blue-dark {
-    color: #0f172a !important;
+.text-purple, .text-orange, .text-green,
+.text-green-dark, .text-blue, .text-blue-dark {
+    color: var(--color-text-primary) !important;
 }
 
 .silhouette-footer-banner {
-    background: #f0f9ff;
-    border: 1px solid #e0f2fe;
+    background: var(--color-info-bg);
+    border: 1px solid var(--color-info);
     border-radius: 8px;
     padding: 0.6rem 0.85rem;
     margin-top: 1rem;
@@ -784,13 +730,13 @@
     gap: 0.5rem;
 
     svg {
-        color: #0284c7;
+        color: var(--color-info);
         flex-shrink: 0;
     }
 
     p {
         font-size: 0.72rem;
-        color: #0369a1;
+        color: var(--color-info);
         margin: 0;
         line-height: 1.35;
         font-weight: 500;
@@ -806,10 +752,11 @@
 }
 
 .bottom-card {
-    background-color: #ffffff;
+    background-color: var(--color-bg-card);
     border-radius: 12px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--color-border);
     padding: 1.25rem 1.5rem;
+    transition: background-color 0.3s ease;
 
     &__header {
         display: flex;
@@ -820,17 +767,18 @@
         h4 {
             font-size: 0.9rem;
             font-weight: 800;
-            color: #0f172a;
+            color: var(--color-text-primary);
             margin: 0;
         }
 
         span {
             font-size: 0.72rem;
-            color: #94a3b8;
+            color: var(--color-text-muted);
         }
     }
 }
 
+/* ✅ Semánticos */
 .icon-circle {
     width: 32px;
     height: 32px;
@@ -840,8 +788,8 @@
     justify-content: center;
 
     &--blue {
-        background-color: #eff6ff;
-        color: #2563eb;
+        background-color: var(--color-info-bg);
+        color: var(--color-info);
     }
 
     &--purple {
@@ -851,7 +799,7 @@
 }
 
 .recommendation-box {
-    background-color: #eff6ff;
+    background-color: var(--color-info-bg);
     border-radius: 8px;
     padding: 0.75rem 1rem;
     display: flex;
@@ -860,27 +808,25 @@
 
     .rec-text {
         font-size: 0.75rem;
-        color: #1e40af;
+        color: var(--color-info);
 
-        strong {
-            font-weight: 800;
-        }
+        strong { font-weight: 800; }
     }
 
     .info-icon {
-        color: #2563eb;
+        color: var(--color-info);
         flex-shrink: 0;
     }
 }
 
-// HOTSPOTS ANOTACIONES VISIBLES
+// HOTSPOTS
 .hotspot {
     display: block;
     width: 14px;
     height: 14px;
     border-radius: 50%;
-    border: 2px solid #ffffff;
-    background-color: #2563eb;
+    border: 2px solid var(--color-bg-card);
+    background-color: var(--color-info);
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.35);
     cursor: pointer;
     position: relative;
@@ -921,32 +867,20 @@
 
 // RESPONSIVE
 @media (max-width: 1200px) {
-    .pro-measurements-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
+    .pro-measurements-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 1024px) {
-    .main-detail-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .silhouette-card {
-        position: static;
-    }
-
+    .main-detail-grid { grid-template-columns: 1fr; }
+    .silhouette-card { position: static; }
     .kpi-grid-detail,
-    .comparison-grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
+    .comparison-grid { grid-template-columns: repeat(3, 1fr); }
 }
 
 @media (max-width: 640px) {
     .kpi-grid-detail,
     .comparison-grid,
-    .pro-measurements-grid {
-        grid-template-columns: repeat(1, 1fr);
-    }
+    .pro-measurements-grid { grid-template-columns: repeat(1, 1fr); }
 
     .socio-profile-card {
         flex-direction: column;

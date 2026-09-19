@@ -1,16 +1,10 @@
-$primary-navy: #051f42;
-$button-navy: #253874;
-$bg-canvas: #f4f6fa;
-$text-dark: #0f172a;
-$text-muted: #64748b;
-$border-light: #e2e8f0;
-
 :host {
   display: block;
   padding: 24px;
-  background-color: $bg-canvas;
+  background-color: var(--color-bg-main);
   min-height: 100vh;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  transition: background-color 0.3s ease;
 }
 
 .page-header {
@@ -22,14 +16,14 @@ $border-light: #e2e8f0;
   .page-title {
     font-size: 1.85rem;
     font-weight: 800;
-    color: $primary-navy;
+    color: var(--color-text-primary);
     margin: 0 0 4px 0;
     letter-spacing: -0.02em;
   }
 
   .page-subtitle {
     font-size: 0.875rem;
-    color: $text-muted;
+    color: var(--color-text-secondary);
     margin: 0;
   }
 }
@@ -38,7 +32,7 @@ $border-light: #e2e8f0;
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background-color: $button-navy;
+  background-color: var(--color-primary);
   color: #ffffff;
   border: none;
   border-radius: 10px;
@@ -46,22 +40,23 @@ $border-light: #e2e8f0;
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(37, 56, 116, 0.2);
+  box-shadow: var(--shadow-md);
   transition: all 0.2s ease;
 
   &:hover {
-    background-color: lighten($button-navy, 5%);
+    background-color: var(--color-primary-hover);
     transform: translateY(-1px);
   }
 }
 
 .filter-card {
-  background: #ffffff;
+  background: var(--color-bg-card);
   border-radius: 16px;
-  border: 1px solid $border-light;
+  border: 1px solid var(--color-border);
   padding: 18px 24px;
   margin-bottom: 28px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+  box-shadow: var(--shadow-sm);
+  transition: background-color 0.3s ease;
 }
 
 .filter-form {
@@ -81,7 +76,7 @@ $border-light: #e2e8f0;
   label {
     font-size: 0.725rem;
     font-weight: 700;
-    color: $text-muted;
+    color: var(--color-text-secondary);
     text-transform: uppercase;
     letter-spacing: 0.05em;
   }
@@ -90,15 +85,20 @@ $border-light: #e2e8f0;
 .filter-input {
   height: 42px;
   padding: 0 14px;
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--color-border);
   border-radius: 10px;
   font-size: 0.875rem;
-  color: $text-dark;
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-input);
   outline: none;
   transition: border-color 0.15s ease;
 
   &:focus {
-    border-color: $button-navy;
+    border-color: var(--color-primary);
+  }
+
+  &::placeholder {
+    color: var(--color-text-muted);
   }
 }
 
@@ -118,26 +118,26 @@ $border-light: #e2e8f0;
     transition: all 0.15s ease;
 
     &--primary {
-      background-color: $button-navy;
+      background-color: var(--color-primary);
       color: #ffffff;
 
       &:hover {
-        background-color: lighten($button-navy, 5%);
+        background-color: var(--color-primary-hover);
       }
     }
 
     &--secondary {
-      background-color: #f1f5f9;
-      color: #475569;
+      background-color: var(--color-bg-hover);
+      color: var(--color-text-secondary);
 
       &:hover {
-        background-color: #e2e8f0;
+        background-color: var(--color-border);
       }
     }
   }
 }
 
-/* GRID DE TARJETAS (ESTILO MEMBRESÍAS) */
+/* GRID DE TARJETAS */
 .sedes-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -145,18 +145,18 @@ $border-light: #e2e8f0;
 }
 
 .sede-card {
-  background: #ffffff;
+  background: var(--color-bg-card);
   border-radius: 16px;
-  border: 1px solid $border-light;
+  border: 1px solid var(--color-border);
   padding: 24px;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.3s ease;
 
   &:hover {
     transform: translateY(-3px);
-    box-shadow: 0 12px 28px rgba(5, 31, 66, 0.08);
+    box-shadow: var(--shadow-md);
   }
 }
 
@@ -177,6 +177,7 @@ $border-light: #e2e8f0;
   font-weight: 700;
   letter-spacing: 0.04em;
 
+  /* ✅ Semánticos (azul/violeta/verde) */
   &--purple {
     background-color: #e8f0ff;
     color: #25355c;
@@ -191,7 +192,7 @@ $border-light: #e2e8f0;
 .sede-title {
   font-size: 1.35rem;
   font-weight: 800;
-  color: $primary-navy;
+  color: var(--color-text-primary);
   margin: 0 0 16px 0;
   line-height: 1.25;
 }
@@ -207,18 +208,18 @@ $border-light: #e2e8f0;
     display: flex;
     align-items: center;
     gap: 10px;
-    color: $text-muted;
+    color: var(--color-text-secondary);
     font-size: 0.875rem;
 
     .detail-icon {
       width: 18px;
       height: 18px;
       flex-shrink: 0;
-      color: #94a3b8;
+      color: var(--color-text-muted);
     }
 
     .detail-text {
-      color: #334155;
+      color: var(--color-text-secondary);
       font-weight: 500;
     }
   }
@@ -240,16 +241,17 @@ $border-light: #e2e8f0;
 
     &--primary {
       display: flex;
-      background-color: $button-navy;
+      background-color: var(--color-primary);
       color: #ffffff;
       align-items: center;
       gap: 5px;
 
       &:hover {
-        background-color: lighten($button-navy, 5%);
+        background-color: var(--color-primary-hover);
       }
     }
 
+    /* ✅ Semántico (rojo) */
     &--danger {
       display: flex;
       background-color: #fff1f2;
@@ -268,8 +270,8 @@ $border-light: #e2e8f0;
 /* ESTADOS DE CARGA Y VACÍO */
 .alert-error {
   padding: 14px 20px;
-  background-color: #fef2f2;
-  color: #991b1b;
+  background-color: var(--color-error-bg);
+  color: var(--color-error);
   border-radius: 12px;
   margin-bottom: 24px;
   font-weight: 600;
@@ -280,13 +282,13 @@ $border-light: #e2e8f0;
   flex-direction: column;
   align-items: center;
   padding: 48px 0;
-  color: $text-muted;
+  color: var(--color-text-secondary);
 
   .spinner {
     width: 36px;
     height: 36px;
-    border: 3px solid #e2e8f0;
-    border-top-color: $button-navy;
+    border: 3px solid var(--color-border);
+    border-top-color: var(--color-primary);
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
     margin-bottom: 12px;
@@ -294,32 +296,34 @@ $border-light: #e2e8f0;
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .empty-state {
   text-align: center;
   padding: 60px 20px;
-  background: #ffffff;
+  background: var(--color-bg-card);
   border-radius: 16px;
-  border: 1px solid $border-light;
+  border: 1px solid var(--color-border);
 
   .empty-icon svg {
     width: 48px;
     height: 48px;
-    color: #94a3b8;
+    color: var(--color-text-muted);
     margin-bottom: 12px;
   }
 
   h3 {
     font-size: 1.1rem;
-    color: $primary-navy;
+    color: var(--color-text-primary);
     margin: 0 0 6px 0;
   }
 
   p {
     font-size: 0.875rem;
-    color: $text-muted;
+    color: var(--color-text-secondary);
     margin: 0;
   }
 }
