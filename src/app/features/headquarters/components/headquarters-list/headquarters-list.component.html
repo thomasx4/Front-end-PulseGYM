@@ -12,6 +12,21 @@
     </button>
 </header>
 
+<!-- BARRA DE ACCIONES EN LOTE PARA ELIMINAR -->
+<div class="bulk-actions-bar" *ngIf="idsSeleccionados.size > 0">
+    <div class="bulk-info">
+        <span class="selected-count">{{ idsSeleccionados.size }}</span> sede(s) seleccionada(s)
+    </div>
+    <div class="bulk-buttons">
+        <button type="button" class="btn-bulk btn-bulk--delete" (click)="eliminarSeleccionados()">
+            Eliminar Seleccionadas
+        </button>
+        <button type="button" class="btn-bulk btn-bulk--clear" (click)="limpiarSeleccion()">
+            Cancelar
+        </button>
+    </div>
+</div>
+
 <section class="filter-card">
     <div class="filter-form">
         <div class="filter-group">
@@ -37,6 +52,16 @@
     </div>
 </section>
 
+<!-- SELECTOR GENERAL DE TARJETAS CORREGIDO -->
+<div class="select-all-bar" *ngIf="!cargando && sedes.length > 0">
+    <label class="custom-checkbox select-all-label">
+        <input type="checkbox" [checked]="isAllSelected" [indeterminate]="isSomeSelected" (change)="toggleSelectAll($event)">
+        <span class="checkmark"></span>
+        <span class="select-all-text">Seleccionar todas las sedes</span>
+    </label>
+    <span class="select-counter">{{ idsSeleccionados.size }} de {{ sedes.length }} seleccionadas</span>
+</div>
+
 <div *ngIf="errorMensaje" class="alert-error">
     {{ errorMensaje }}
 </div>
@@ -47,19 +72,26 @@
 </div>
 
 <section class="sedes-grid" *ngIf="!cargando && sedes.length > 0">
-    <article class="sede-card" *ngFor="let sede of sedes">
+    <article class="sede-card" *ngFor="let sede of sedes" [class.selected-card]="isSeleccionado(sede.idSede)">
 
-        <div class="card-header-badge">
-            <span class="badge-tag badge-tag--purple">{{ sede.ciudad | uppercase }}</span>
-            <span class="badge-tag badge-tag--equipos">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
-                    <path d="M2 8h16v8H2z"></path>
-                    <line x1="6" y1="1" x2="6" y2="23"></line>
-                    <line x1="14" y1="1" x2="14" y2="23"></line>
-                </svg>
-                {{ sede.cantidadEquipos ?? 0 }} equipos
-            </span>
+        <div class="card-top-row">
+            <label class="custom-checkbox">
+                <input type="checkbox" [checked]="isSeleccionado(sede.idSede)" (change)="toggleSeleccionItem(sede.idSede)">
+                <span class="checkmark"></span>
+            </label>
+
+            <div class="card-header-badge">
+                <span class="badge-tag badge-tag--purple">{{ sede.ciudad | uppercase }}</span>
+                <span class="badge-tag badge-tag--equipos">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+                        <path d="M2 8h16v8H2z"></path>
+                        <line x1="6" y1="1" x2="6" y2="23"></line>
+                        <line x1="14" y1="1" x2="14" y2="23"></line>
+                    </svg>
+                    {{ sede.cantidadEquipos ?? 0 }} equipos
+                </span>
+            </div>
         </div>
 
         <h2 class="sede-title">{{ sede.nombreSede }}</h2>
