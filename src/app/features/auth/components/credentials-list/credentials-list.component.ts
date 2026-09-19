@@ -37,6 +37,8 @@ export class CredentialsListComponent implements OnInit {
 
   avatarErrors: Set<string | number> = new Set<string | number>();
 
+  idsSeleccionados: Set<number> = new Set<number>();
+
   constructor(private authService: AuthService) { }
 
   ngOnInit(): void {
@@ -69,6 +71,7 @@ export class CredentialsListComponent implements OnInit {
   cargarCredenciales(filtros: FiltrosCredenciales = {}): void {
     this.cargando = true;
     this.errorMensaje = '';
+    this.limpiarSeleccion();
 
     const esLimpieza = Object.keys(filtros).length === 0;
 
@@ -101,6 +104,138 @@ export class CredentialsListComponent implements OnInit {
         this.cargando = false;
       }
     });
+  }
+
+  isSeleccionado(id: number): boolean {
+    return this.idsSeleccionados.has(id);
+  }
+
+  toggleSeleccionItem(id: number): void {
+    if (this.idsSeleccionados.has(id)) {
+      this.idsSeleccionados.delete(id);
+    } else {
+      this.idsSeleccionados.add(id);
+    }
+  }
+
+  toggleSelectAll(event: any): void {
+    const checked = event.target.checked;
+    if (checked) {
+      this.credenciales.forEach(item => {
+        if (item.id !== undefined && item.id !== null) {
+          this.idsSeleccionados.add(item.id);
+        }
+      });
+    } else {
+      this.limpiarSeleccion();
+    }
+  }
+
+  limpiarSeleccion(): void {
+    this.idsSeleccionados.clear();
+  }
+
+  get isAllSelected(): boolean {
+    if (this.credenciales.length === 0) return false;
+    return this.credenciales.every(item => item.id !== undefined && item.id !== null && this.idsSeleccionados.has(item.id));
+  }
+
+  get isSomeSelected(): boolean {
+    if (this.credenciales.length === 0) return false;
+    const count = this.credenciales.filter(item => item.id !== undefined && item.id !== null && this.idsSeleccionados.has(item.id)).length;
+    return count > 0 && !this.isAllSelected;
+  }
+
+  cambiarEstadoSeleccionados(nuevoEstado: boolean): void {
+    const ids: number[] = Array.from(this.idsSeleccionados);
+    if (ids.length === 0) return;
+
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: `Vas a ${nuevoEstado ? 'activar' : 'desactivar'} ${ids.length} usuario(s) seleccionado(s).`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#0f1c3f',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, continuar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        let completados = 0;
+        ids.forEach(id => {
+          this.authService.cambiarEstado(id, nuevoEstado).subscribe({
+            next: () => {
+              completados++;
+              const usuario = this.credenciales.find(c => c.id === id);
+              if (usuario) usuario.estado = nuevoEstado;
+              
+              if (completados === ids.length) {
+                this.cargarMetricasGlobales();
+                this.limpiarSeleccion();
+                Swal.fire('¡Actualizado!', 'Los estados han sido modificados correctamente.', 'success');
+              }
+            },
+            error: (err) => {
+              console.error(`Error al cambiar estado para ID ${id}:`, err);
+            }
+          });
+        });
+      }
+    });
+  }
+
+  restablecerClaveSeleccionados(): void {
+    const ids: number[] = Array.from(this.idsSeleccionados);
+    if (ids.length === 0) return;
+
+    const usuariosSeleccionadosObjs = this.credenciales.filter(c => c.id !== undefined && this.idsSeleccionados.has(c.id));
+
+    Swal.fire({
+      title: '¿Restablecer accesos?',
+      text: `Se enviará una contraseña temporal a los correos de ${ids.length} usuario(s) seleccionado(s).`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#0f1c3f',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, enviar a todos',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        let completados = 0;
+        let errores = 0;
+
+        usuariosSeleccionadosObjs.forEach(user => {
+          if (!user.email) {
+            completados++;
+            return;
+          }
+          this.authService.generarContrasenaTemporalByAdmin(user.email).subscribe({
+            next: () => {
+              completados++;
+              if (completados + errores === usuariosSeleccionadosObjs.length) {
+                this.finalizarEnvioMasivo(errores);
+              }
+            },
+            error: (err) => {
+              console.error(`Error enviando clave a ${user.email}:`, err);
+              errores++;
+              if (completados + errores === usuariosSeleccionadosObjs.length) {
+                this.finalizarEnvioMasivo(errores);
+              }
+            }
+          });
+        });
+      }
+    });
+  }
+
+  private finalizarEnvioMasivo(errores: number): void {
+    this.limpiarSeleccion();
+    if (errores === 0) {
+      Swal.fire('¡Proceso Exitoso!', 'Se han enviado las contraseñas temporales a todos los usuarios seleccionados.', 'success');
+    } else {
+      Swal.fire('Proceso Completado', `Se enviaron los correos, pero hubo ${errores} error(es) en algunas cuentas.`, 'warning');
+    }
   }
 
   getFotoCredencial(item: Credencial): string | null {
