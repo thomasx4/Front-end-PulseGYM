@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpContext } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { SKIP_LOADING } from '../../../core/constants/http-context';
+import { environment } from '../../../../environments/environment';
 
 export interface ChatMessage {
     role: 'user' | 'assistant' | 'error';
@@ -19,7 +20,7 @@ export interface StatusResponse {
     providedIn: 'root'
 })
 export class MancuerIaService {
-    private apiUrl = 'http://localhost:5050';
+    private apiUrl = environment.apiUrl;
 
     constructor(private http: HttpClient) { }
 
