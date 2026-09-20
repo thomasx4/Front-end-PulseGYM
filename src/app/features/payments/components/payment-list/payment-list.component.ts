@@ -6,6 +6,7 @@ import { Payment, PaymentSummaryDTO, AnularPagoRequestDTO } from '../../../../co
 import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-payment-list',
@@ -13,7 +14,7 @@ import { Share } from '@capacitor/share';
   styleUrls: ['./payment-list.component.scss']
 })
 export class PaymentListComponent implements OnInit {
-  paginatedRecords: Payment[] = [];
+  paginatedRecords: (Payment & { selected?: boolean })[] = [];
   selectedPayment: Payment | null = null;
   loading: boolean = false;
   searchQuery: string = '';
@@ -66,7 +67,8 @@ export class PaymentListComponent implements OnInit {
 
     this.paymentService.filtrarPagosPaginados(filtroPayload).subscribe({
       next: (res) => {
-        this.paginatedRecords = res.content || [];
+        const lista = res.content || [];
+        this.paginatedRecords = lista.map((p: Payment) => ({ ...p, selected: false }));
         this.totalElements = res.totalElements || 0;
         this.totalPages = res.totalPages || 1;
         this.loading = false;
@@ -77,6 +79,86 @@ export class PaymentListComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  get pagosSeleccionadosCount(): number {
+    return this.paginatedRecords.filter(p => p.selected && !p.anulado).length;
+  }
+
+  get todosSeleccionadosPagina(): boolean {
+    const validos = this.paginatedRecords.filter(p => !p.anulado);
+    if (validos.length === 0) return false;
+    return validos.every(p => p.selected);
+  }
+
+  toggleSeleccionarTodos(event: any): void {
+    const checked = event.target.checked;
+    this.paginatedRecords.forEach(p => {
+      if (!p.anulado) p.selected = checked;
+    });
+  }
+
+  limpiarSeleccionPagos(): void {
+    this.paginatedRecords.forEach(p => p.selected = false);
+  }
+
+  async anularPagosEnLote(): Promise<void> {
+    const seleccionados = this.paginatedRecords.filter(p => p.selected && !p.anulado);
+    if (seleccionados.length === 0) return;
+
+    const { value: motivoInput } = await Swal.fire({
+      title: '¿Estás seguro de anular los pagos seleccionados?',
+      text: `Se anularán ${seleccionados.length} pago(s).`,
+      input: 'text',
+      inputLabel: 'Motivo de anulación general',
+      inputValue: 'Anulación masiva de pagos',
+      inputPlaceholder: 'Escribe el motivo aquí...',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, anular todos',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#dc2626',
+      cancelButtonColor: '#64748b',
+      inputValidator: (value) => {
+        if (!value || value.trim() === '') {
+          return '¡Debes escribir un motivo de anulación!';
+        }
+        return null;
+      }
+    });
+
+    if (motivoInput) {
+      this.loading = true;
+      const peticiones = seleccionados.map(p => {
+        const payload: AnularPagoRequestDTO = {
+          idPago: p.idPago,
+          motivo: motivoInput.trim()
+        };
+        return this.paymentService.anularPago(payload);
+      });
+
+      forkJoin(peticiones).subscribe({
+        next: () => {
+          this.loading = false;
+          Swal.fire({
+            icon: 'success',
+            title: '¡Pagos Anulados!',
+            text: 'Los pagos seleccionados han sido anulados correctamente.',
+            timer: 2000,
+            showConfirmButton: false
+          });
+          this.loadResumen();
+          if (this.selectedPayment && seleccionados.some(s => s.idPago === this.selectedPayment?.idPago)) {
+            this.selectedPayment = null;
+          }
+        },
+        error: (err) => {
+          this.loading = false;
+          console.error('Error al anular pagos en lote', err);
+          Swal.fire('Error', 'No se pudieron anular algunos pagos.', 'error');
+          this.loadResumen();
+        }
+      });
+    }
   }
 
   onSelectPayment(item: Payment, event?: Event): void {
@@ -212,12 +294,10 @@ export class PaymentListComponent implements OnInit {
                   directory: Directory.ExternalStorage
                 });
 
-                console.log('Archivo guardado exitosamente:', savedFile.uri);
-
                 Swal.fire({
                   icon: 'success',
                   title: '¡Comprobante Descargado!',
-                  text: `Guardado correctamente en la carpeta de almacenamiento del dispositivo.`,
+                  text: `Guardado correctamente en el dispositivo.`,
                   timer: 3000,
                   showConfirmButton: false
                 });
@@ -229,8 +309,6 @@ export class PaymentListComponent implements OnInit {
                 });
 
               } catch (fsError: any) {
-                console.error('Error al guardar con ExternalStorage, intentando con Documents:', fsError);
-
                 try {
                   const savedFileFallback = await Filesystem.writeFile({
                     path: fileName,
@@ -244,8 +322,7 @@ export class PaymentListComponent implements OnInit {
                     dialogTitle: 'Abrir o compartir comprobante'
                   });
                 } catch (fallbackErr: any) {
-                  console.error('Error definitivo al guardar archivo:', fallbackErr);
-                  Swal.fire('Error', 'No se pudo guardar el archivo en el almacenamiento: ' + (fallbackErr.message || fallbackErr), 'error');
+                  Swal.fire('Error', 'No se pudo guardar el archivo en el almacenamiento', 'error');
                 }
               }
             };
@@ -258,12 +335,10 @@ export class PaymentListComponent implements OnInit {
             window.URL.revokeObjectURL(url);
           }
         } catch (err) {
-          console.error('Error procesando el PDF:', err);
           Swal.fire('Error', 'Ocurrió un error al procesar el comprobante', 'error');
         }
       },
-      error: (err) => {
-        console.error('Error al descargar el PDF desde el servidor', err);
+      error: () => {
         Swal.fire('Error', 'No se pudo obtener el comprobante del servidor', 'error');
       }
     });

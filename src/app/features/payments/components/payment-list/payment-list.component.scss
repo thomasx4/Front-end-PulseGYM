@@ -712,3 +712,112 @@
         }
     }
 }
+
+/* Barra superior de acciones en lote */
+.bulk-actions-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #0f172a;
+    color: #ffffff;
+    padding: 12px 24px;
+    border-radius: 14px;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    animation: fadeIn 0.2s ease;
+
+    .bulk-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9rem;
+        font-weight: 600;
+
+        .selected-badge {
+            background: #e11d48;
+            color: #ffffff;
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 6px;
+        }
+    }
+
+    .bulk-buttons {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+
+        .btn-bulk {
+            border: none;
+            border-radius: 8px;
+            padding: 7px 14px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+
+            &--danger {
+                background-color: #fee2e2;
+                color: #b91c1c;
+                &:hover { background-color: #fecaca; }
+            }
+
+            &--clear {
+                background-color: #334155;
+                color: #f8fafc;
+                &:hover { background-color: #475569; }
+            }
+        }
+    }
+}
+
+.selection-header-bar {
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    margin-bottom: 12px;
+
+    .select-all-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--color-text-primary);
+        cursor: pointer;
+
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--color-primary);
+        }
+    }
+}
+
+.custom-table tbody tr.selected {
+    background: var(--color-bg-hover) !important;
+    border-color: var(--color-primary);
+}
+
+.row-checkbox {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--color-primary);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
