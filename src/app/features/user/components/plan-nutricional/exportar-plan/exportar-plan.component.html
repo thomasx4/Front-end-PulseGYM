@@ -17,10 +17,18 @@
                     </button>
                     <div>
                         <h1>Exportar plan nutricional</h1>
-                        <p class="subtitle">Exporta tus planes nutricionales en formato PDF para compartir o imprimir</p>
+                        <p class="subtitle">Exporta tus planes nutricionales en formato PDF individual o ZIP agrupado</p>
                     </div>
                 </div>
                 <div class="page-header__right">
+                    <button class="btn btn--export" (click)="exportarTodosPlanesZIP()" [disabled]="isLoading || planes.length === 0">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="7 10 12 15 17 10"/>
+                            <line x1="12" y1="15" x2="12" y2="3"/>
+                        </svg>
+                        Exportar todos (ZIP)
+                    </button>
                     <button class="btn btn--export" (click)="exportarUltimoPlan()" [disabled]="isLoading || planes.length === 0">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -32,15 +40,47 @@
                 </div>
             </header>
 
+            <!-- Barra de Acciones en Lote (Visible cuando hay seleccionados) -->
+            <div class="bulk-actions-bar" *ngIf="planesSeleccionadosCount > 0">
+                <div class="bulk-info">
+                    <span class="selected-badge">{{ planesSeleccionadosCount }}</span> plan(es) seleccionado(s)
+                </div>
+                <div class="bulk-buttons">
+                    <button type="button" class="btn-bulk btn-bulk--export" (click)="exportarSeleccionadosZIP()" [disabled]="isLoading">
+                        Exportar ZIP seleccionados
+                    </button>
+                    <button type="button" class="btn-bulk btn-bulk--clear" (click)="limpiarSeleccionPlanes()" [disabled]="isLoading">
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Seleccionar todos -->
+            <div *ngIf="!isLoading && planes.length > 0" class="selection-header-bar">
+                <label class="select-all-label">
+                    <input type="checkbox" [checked]="todosSeleccionados" (change)="toggleSeleccionarTodos($event)">
+                    <span>Seleccionar todos ({{ planes.length }})</span>
+                </label>
+            </div>
+
+            <!-- Indicador de Carga / Spinner al exportar masivo -->
+            <div *ngIf="isLoading" class="state-container">
+                <div class="spinner"></div>
+                <p>Generando y comprimiendo archivos PDF, por favor espera...</p>
+            </div>
+
             <!-- Contenido -->
-            <ng-container *ngIf="!isLoading && !errorMessage">
+            <ng-container *ngIf="!errorMessage">
                 <!-- Grid de planes -->
-                <div class="planes-grid">
-                    <div class="plan-card" *ngFor="let plan of planes">
+                <div class="planes-grid" *ngIf="planes.length > 0">
+                    <div class="plan-card" *ngFor="let plan of planes" [class.selected]="plan.selected">
+                        <div class="plan-card__top">
+                            <input type="checkbox" [(ngModel)]="plan.selected" class="row-checkbox">
+                            <span class="plan-card__badge">{{ plan.calorias_diarias }} kcal</span>
+                        </div>
                         <div class="plan-card__header">
                             <div class="plan-card__info">
                                 <h4>{{ plan.generadoPorIA ? 'Plan IA' : 'Plan #' + plan.idPlanNutricional }}</h4>
-                                <span class="plan-card__badge">{{ plan.calorias_diarias }} kcal</span>
                             </div>
                             <span class="plan-card__date">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -96,7 +136,7 @@
                 </div>
 
                 <!-- Empty State -->
-                <div *ngIf="planes.length === 0" class="empty-state">
+                <div *ngIf="!isLoading && planes.length === 0" class="empty-state">
                     <div class="empty-state__icon">
                         <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                             <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
