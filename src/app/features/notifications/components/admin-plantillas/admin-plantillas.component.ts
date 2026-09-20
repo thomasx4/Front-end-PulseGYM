@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { NotificationService } from '../../services/notification.service';
 import { PlantillaNotificacion, EnumCanalNotificacion, EnumEventoAsociado } from '../../models/notification.model';
 import Swal from 'sweetalert2';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-admin-plantillas',
@@ -16,7 +17,7 @@ export class AdminPlantillasComponent implements OnInit {
   private notificationService = inject(NotificationService);
   private rolAdmin = 'ADMIN';
 
-  plantillas: PlantillaNotificacion[] = [];
+  plantillas: (PlantillaNotificacion & { selected?: boolean })[] = [];
   cargando = false;
   modalAbierto = false;
   esEdicion = false;
@@ -46,9 +47,9 @@ export class AdminPlantillasComponent implements OnInit {
 
   vistaPreviaTexto = '';
 
-  get plantillasFiltradas(): PlantillaNotificacion[] {
+  get plantillasFiltradas(): (PlantillaNotificacion & { selected?: boolean })[] {
     return this.plantillas.filter(p => {
-      const coincideTexto = !this.filtroBusqueda || 
+      const coincideTexto = !this.filtroBusqueda ||  
         p.nombre.toLowerCase().includes(this.filtroBusqueda.toLowerCase()) ||
         (p.descripcion && p.descripcion.toLowerCase().includes(this.filtroBusqueda.toLowerCase()));
       
@@ -60,6 +61,25 @@ export class AdminPlantillasComponent implements OnInit {
     });
   }
 
+  get plantillasSeleccionadasCount(): number {
+    return this.plantillasFiltradas.filter(p => p.selected).length;
+  }
+
+  get todosSeleccionadosFiltrados(): boolean {
+    const visibles = this.plantillasFiltradas;
+    if (visibles.length === 0) return false;
+    return visibles.every(p => p.selected);
+  }
+
+  toggleSeleccionarTodos(event: any): void {
+    const checked = event.target.checked;
+    this.plantillasFiltradas.forEach(p => p.selected = checked);
+  }
+
+  limpiarSeleccionPlantillas(): void {
+    this.plantillas.forEach(p => p.selected = false);
+  }
+
   ngOnInit(): void {
     this.cargarPlantillas();
   }
@@ -68,7 +88,8 @@ export class AdminPlantillasComponent implements OnInit {
     this.cargando = true;
     this.notificationService.listarPlantillas(this.rolAdmin).subscribe({
       next: (res) => {
-        this.plantillas = res.data || [];
+        const lista = res.data || [];
+        this.plantillas = lista.map((p: PlantillaNotificacion) => ({ ...p, selected: false }));
         this.cargando = false;
       },
       error: (err) => {
@@ -183,6 +204,80 @@ export class AdminPlantillasComponent implements OnInit {
         });
       }
     });
+  }
+
+  async cambiarEstadoEnLote(activar: boolean): Promise<void> {
+    const seleccionadas = this.plantillasFiltradas.filter(p => p.selected && p.estado !== activar);
+    if (seleccionadas.length === 0) {
+      Swal.fire('Información', 'No hay plantillas seleccionadas para cambiar al estado solicitado.', 'info');
+      return;
+    }
+
+    this.cargando = true;
+    const peticiones = seleccionadas.map(p => 
+      this.notificationService.cambiarEstadoPlantilla(this.rolAdmin, p.idPlantilla!, activar)
+    );
+
+    forkJoin(peticiones).subscribe({
+      next: () => {
+        this.cargando = false;
+        Swal.fire({
+          icon: 'success',
+          title: '¡Estados actualizados!',
+          text: `Las plantillas seleccionadas han sido ${activar ? 'activadas' : 'inactivadas'}.`,
+          timer: 2000,
+          showConfirmButton: false
+        });
+        this.cargarPlantillas();
+      },
+      error: (err) => {
+        this.cargando = false;
+        Swal.fire('Error', 'Ocurrió un error al actualizar algunas plantillas en lote.', 'error');
+        this.cargarPlantillas();
+      }
+    });
+  }
+
+  async eliminarPlantillasEnLote(): Promise<void> {
+    const seleccionadas = this.plantillasFiltradas.filter(p => p.selected && p.idPlantilla);
+    if (seleccionadas.length === 0) return;
+
+    const confirmacion = await Swal.fire({
+      title: '¿Estás seguro?',
+      text: `Deseas eliminar ${seleccionadas.length} plantilla(s) seleccionada(s)`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc2626',
+      cancelButtonColor: '#0e3b72',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    });
+
+    if (confirmacion.isConfirmed) {
+      this.cargando = true;
+      const peticiones = seleccionadas.map(p => 
+        this.notificationService.eliminarPlantilla(this.rolAdmin, p.idPlantilla!)
+      );
+
+      forkJoin(peticiones).subscribe({
+        next: () => {
+          this.cargando = false;
+          Swal.fire({
+            icon: 'success',
+            title: '¡Eliminadas!',
+            text: 'Las plantillas seleccionadas han sido eliminadas correctamente.',
+            timer: 2000,
+            showConfirmButton: false
+          });
+          this.cargarPlantillas();
+        },
+        error: (err) => {
+          this.cargando = false;
+          Swal.fire('Error', 'Error al eliminar las plantillas seleccionadas.', 'error');
+          this.cargarPlantillas();
+        }
+      });
+    }
   }
 
   generarVistaPrevia(): void {
