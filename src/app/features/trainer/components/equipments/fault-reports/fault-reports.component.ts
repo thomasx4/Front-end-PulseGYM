@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { EquipmentService } from '../../../../../core/services/equipment.service';
 import { ReporteFallaItem, FiltrosFalla, EstadoReporteFalla, UrgenciaFalla } from '../../../models/trainer.model';
-import { RegistrarMantenimientoPayload, TipoMantenimiento } from '../../../models/trainer.model';
+import { RegistrarMantenimientoPayload } from '../../../models/trainer.model';
+import { forkJoin } from 'rxjs';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-fault-reports',
@@ -10,8 +12,8 @@ import { RegistrarMantenimientoPayload, TipoMantenimiento } from '../../../model
 })
 export class FaultReportsComponent implements OnInit {
 
-  reportes: ReporteFallaItem[] = [];
-  reportesFiltrados: ReporteFallaItem[] = [];
+  reportes: (ReporteFallaItem & { selected?: boolean })[] = [];
+  reportesFiltrados: (ReporteFallaItem & { selected?: boolean })[] = [];
   cargando: boolean = false;
   busquedaTexto: string = '';
 
@@ -31,16 +33,6 @@ export class FaultReportsComponent implements OnInit {
   mostrarModalMantenimiento: boolean = false;
   guardandoMantenimiento: boolean = false;
   equipoSeleccionadoFalla: ReporteFallaItem | null = null;
-
-  // ==========================================
-  // Modales de estado
-  // ==========================================
-  mostrarModalError: boolean = false;
-  modalErrorTitulo: string = 'Error';
-  modalErrorMensaje: string = '';
-
-  mostrarModalExito: boolean = false;
-  modalExitoMensaje: string = '';
 
   nuevoMantenimiento: RegistrarMantenimientoPayload = {
     idEquipo: 0,
@@ -63,7 +55,8 @@ export class FaultReportsComponent implements OnInit {
 
     this.equipmentService.obtenerReportesFalla(this.filtros).subscribe({
       next: (res) => {
-        this.reportes = res?.data || [];
+        const lista = res?.data || [];
+        this.reportes = lista.map(r => ({ ...r, selected: false }));
         this.aplicarBusquedaLocal();
         this.cargando = false;
       },
@@ -74,6 +67,61 @@ export class FaultReportsComponent implements OnInit {
         this.cargando = false;
       }
     });
+  }
+
+  get reportesSeleccionadosCount(): number {
+    return this.reportes.filter(r => r.selected).length;
+  }
+
+  get todosSeleccionadosPagina(): boolean {
+    if (this.reportesPaginados.length === 0) return false;
+    return this.reportesPaginados.every(r => r.selected);
+  }
+
+  toggleSeleccionarTodos(event: any): void {
+    const checked = event.target.checked;
+    this.reportesPaginados.forEach(r => r.selected = checked);
+  }
+
+  limpiarSeleccionReportes(): void {
+    this.reportes.forEach(r => r.selected = false);
+  }
+
+  async cambiarEstadoEnLote(nuevoEstado: EstadoReporteFalla): Promise<void> {
+    const seleccionados = this.reportes.filter(r => r.selected);
+    if (seleccionados.length === 0) return;
+
+    const result = await Swal.fire({
+      title: '¿Actualizar reportes en lote?',
+      text: `Estás a punto de cambiar el estado de ${seleccionados.length} reporte(s) a ${nuevoEstado}.`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#2563eb',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Sí, cambiar',
+      cancelButtonText: 'Cancelar'
+    });
+
+    if (result.isConfirmed) {
+      this.cargando = true;
+      const peticiones = seleccionados.map(r => 
+        this.equipmentService.actualizarEstadoReporte(r.idEquipo, nuevoEstado)
+      );
+
+      forkJoin(peticiones).subscribe({
+        next: () => {
+          this.cargando = false;
+          Swal.fire('¡Actualizado!', 'Los reportes seleccionados han cambiado de estado correctamente.', 'success');
+          this.cargarReportes();
+        },
+        error: (err) => {
+          this.cargando = false;
+          console.error('Error al actualizar reportes en lote:', err);
+          Swal.fire('Error', 'No se pudieron actualizar algunos de los reportes seleccionados.', 'error');
+          this.cargarReportes();
+        }
+      });
+    }
   }
 
   abrirModalMantenimiento(reporte: ReporteFallaItem): void {
@@ -99,7 +147,12 @@ export class FaultReportsComponent implements OnInit {
 
   guardarMantenimiento(): void {
     if (!this.nuevoMantenimiento.tecnicoResponsable.trim() || !this.nuevoMantenimiento.descripcion.trim()) {
-      this.mostrarError('Campos incompletos', 'Por favor ingrese el técnico responsable y la descripción del trabajo.');
+      Swal.fire({
+        icon: 'warning',
+        title: 'Campos incompletos',
+        text: 'Por favor ingrese el técnico responsable y la descripción del trabajo.',
+        confirmButtonColor: '#1e293b'
+      });
       return;
     }
 
@@ -116,22 +169,43 @@ export class FaultReportsComponent implements OnInit {
     };
 
     this.equipmentService.registrarMantenimiento(payload).subscribe({
-      next: (res) => {
-        this.guardandoMantenimiento = false;
-        this.mostrarModalMantenimiento = false;
-
+      next: () => {
         if (this.equipoSeleccionadoFalla) {
-          this.cambiarEstado(this.equipoSeleccionadoFalla, 'RESUELTO');
-        }
+          const idEquipoProcesado = this.equipoSeleccionadoFalla.idEquipo;
 
-        this.mostrarExito('Mantenimiento registrado correctamente');
-        this.cargarReportes();
+          this.equipmentService.actualizarEstadoReporte(idEquipoProcesado, 'RESUELTO').subscribe({
+            next: () => {
+              this.reportes = this.reportes.filter(r => r.idEquipo !== idEquipoProcesado);
+              this.aplicarBusquedaLocal();
+
+              this.guardandoMantenimiento = false;
+              this.mostrarModalMantenimiento = false;
+              this.equipoSeleccionadoFalla = null;
+
+              Swal.fire({
+                icon: 'success',
+                title: '¡Mantenimiento registrado!',
+                text: 'La falla ha sido resuelta y el equipo fue removido de la lista de incidencias.',
+                timer: 2500,
+                showConfirmButton: false
+              });
+            },
+            error: () => {
+              this.guardandoMantenimiento = false;
+              this.mostrarModalMantenimiento = false;
+              this.cargarReportes();
+            }
+          });
+        } else {
+          this.guardandoMantenimiento = false;
+          this.mostrarModalMantenimiento = false;
+          this.cargarReportes();
+        }
       },
       error: (err) => {
-        console.error('Error HTTP al registrar mantenimiento:', err);
-        const mensajeError = err?.error?.message || err?.error || 'Ocurrió un error al guardar el registro de mantenimiento.';
-        this.mostrarError('Error al guardar', typeof mensajeError === 'string' ? mensajeError : 'Revisa la consola para más detalles.');
+        const mensajeError = err?.error?.message || err?.error || 'Ocurrió un error al guardar el registro.';
         this.guardandoMantenimiento = false;
+        Swal.fire('Error', typeof mensajeError === 'string' ? mensajeError : 'Error al guardar.', 'error');
       }
     });
   }
@@ -175,42 +249,12 @@ export class FaultReportsComponent implements OnInit {
     reporte.estadoReporte = nuevoEstado;
 
     this.equipmentService.actualizarEstadoReporte(reporte.idEquipo, nuevoEstado).subscribe({
-      next: (res) => {
-        console.log('Estado actualizado correctamente:', res);
-      },
-      error: (err) => {
-        console.error('Error al cambiar el estado del reporte:', err);
+      error: () => {
         reporte.estadoReporte = estadoPrevio;
-        this.mostrarError('Error al actualizar', 'No se pudo cambiar el estado del reporte.');
       }
     });
   }
 
-  // ==========================================
-  // Modales
-  // ==========================================
-  mostrarError(titulo: string, mensaje: string): void {
-    this.modalErrorTitulo = titulo;
-    this.modalErrorMensaje = mensaje;
-    this.mostrarModalError = true;
-  }
-
-  cerrarModalError(): void {
-    this.mostrarModalError = false;
-  }
-
-  mostrarExito(mensaje: string): void {
-    this.modalExitoMensaje = mensaje;
-    this.mostrarModalExito = true;
-  }
-
-  cerrarModalExito(): void {
-    this.mostrarModalExito = false;
-  }
-
-  // ==========================================
-  // Paginación
-  // ==========================================
   get totalElementos(): number {
     return this.reportesFiltrados.length;
   }
@@ -233,7 +277,7 @@ export class FaultReportsComponent implements OnInit {
     return arr;
   }
 
-  get reportesPaginados(): ReporteFallaItem[] {
+  get reportesPaginados(): (ReporteFallaItem & { selected?: boolean })[] {
     return this.reportesFiltrados.slice(this.inicio, this.fin);
   }
 
