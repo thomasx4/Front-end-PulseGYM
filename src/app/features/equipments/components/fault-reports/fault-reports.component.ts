@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { EquipmentService } from '../../../../core/services/equipment.service';
 import { ReporteFallaItem, FiltrosFalla, EstadoReporteFalla, UrgenciaFalla } from '../../models/equipment-fault.model';
-import { RegistrarMantenimientoPayload, TipoMantenimiento } from '../../models/maintenance.model';
+import { RegistrarMantenimientoPayload } from '../../models/maintenance.model';
+import { forkJoin } from 'rxjs';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -11,8 +12,8 @@ import Swal from 'sweetalert2';
 })
 export class FaultReportsComponent implements OnInit {
 
-  reportes: ReporteFallaItem[] = [];
-  reportesFiltrados: ReporteFallaItem[] = [];
+  reportes: (ReporteFallaItem & { selected?: boolean })[] = [];
+  reportesFiltrados: (ReporteFallaItem & { selected?: boolean })[] = [];
   cargando: boolean = false;
   busquedaTexto: string = '';
 
@@ -54,7 +55,8 @@ export class FaultReportsComponent implements OnInit {
 
     this.equipmentService.obtenerReportesFalla(this.filtros).subscribe({
       next: (res) => {
-        this.reportes = res?.data || [];
+        const lista = res?.data || [];
+        this.reportes = lista.map(r => ({ ...r, selected: false }));
         this.aplicarBusquedaLocal();
         this.cargando = false;
       },
@@ -67,12 +69,67 @@ export class FaultReportsComponent implements OnInit {
     });
   }
 
+  get reportesSeleccionadosCount(): number {
+    return this.reportes.filter(r => r.selected).length;
+  }
+
+  get todosSeleccionadosPagina(): boolean {
+    if (this.reportesPaginados.length === 0) return false;
+    return this.reportesPaginados.every(r => r.selected);
+  }
+
+  toggleSeleccionarTodos(event: any): void {
+    const checked = event.target.checked;
+    this.reportesPaginados.forEach(r => r.selected = checked);
+  }
+
+  limpiarSeleccionReportes(): void {
+    this.reportes.forEach(r => r.selected = false);
+  }
+
+  async cambiarEstadoEnLote(nuevoEstado: EstadoReporteFalla): Promise<void> {
+    const seleccionados = this.reportes.filter(r => r.selected);
+    if (seleccionados.length === 0) return;
+
+    const result = await Swal.fire({
+      title: '¿Actualizar reportes en lote?',
+      text: `Estás a punto de cambiar el estado de ${seleccionados.length} reporte(s) a ${nuevoEstado}.`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#2563eb',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Sí, cambiar',
+      cancelButtonText: 'Cancelar'
+    });
+
+    if (result.isConfirmed) {
+      this.cargando = true;
+      const peticiones = seleccionados.map(r => 
+        this.equipmentService.actualizarEstadoReporte(r.idEquipo, nuevoEstado)
+      );
+
+      forkJoin(peticiones).subscribe({
+        next: () => {
+          this.cargando = false;
+          Swal.fire('¡Actualizado!', 'Los reportes seleccionados han cambiado de estado correctamente.', 'success');
+          this.cargarReportes();
+        },
+        error: (err) => {
+          this.cargando = false;
+          console.error('Error al actualizar reportes en lote:', err);
+          Swal.fire('Error', 'No se pudieron actualizar algunos de los reportes seleccionados.', 'error');
+          this.cargarReportes();
+        }
+      });
+    }
+  }
+
   abrirModalMantenimiento(reporte: ReporteFallaItem): void {
     this.equipoSeleccionadoFalla = reporte;
     this.nuevoMantenimiento = {
       idEquipo: reporte.idEquipo,
       fechaServicio: new Date().toISOString().slice(0, 10),
-      tipo: 'CORRECTIVO', // Al provenir de una falla, por defecto proponemos CORRECTIVO
+      tipo: 'CORRECTIVO',
       descripcion: `Atención a falla reportada: ${reporte.descripcionFalla}`,
       costo: 0,
       tecnicoResponsable: '',
@@ -112,9 +169,7 @@ export class FaultReportsComponent implements OnInit {
     };
 
     this.equipmentService.registrarMantenimiento(payload).subscribe({
-      next: (res) => {
-        console.log('Respuesta del servidor:', res);
-
+      next: () => {
         if (this.equipoSeleccionadoFalla) {
           const idEquipoProcesado = this.equipoSeleccionadoFalla.idEquipo;
 
@@ -135,18 +190,10 @@ export class FaultReportsComponent implements OnInit {
                 showConfirmButton: false
               });
             },
-            error: (err) => {
-              console.error('Error al actualizar estado del reporte:', err);
+            error: () => {
               this.guardandoMantenimiento = false;
               this.mostrarModalMantenimiento = false;
               this.cargarReportes();
-
-              Swal.fire({
-                icon: 'warning',
-                title: 'Mantenimiento guardado',
-                text: 'Se registró el mantenimiento, pero hubo un detalle al actualizar el estado de la falla.',
-                confirmButtonColor: '#1e293b'
-              });
             }
           });
         } else {
@@ -156,16 +203,9 @@ export class FaultReportsComponent implements OnInit {
         }
       },
       error: (err) => {
-        console.error('Error HTTP al registrar mantenimiento:', err);
-        const mensajeError = err?.error?.message || err?.error || 'Ocurrió un error al guardar el registro de mantenimiento.';
+        const mensajeError = err?.error?.message || err?.error || 'Ocurrió un error al guardar el registro.';
         this.guardandoMantenimiento = false;
-
-        Swal.fire({
-          icon: 'error',
-          title: 'Error al guardar',
-          text: typeof mensajeError === 'string' ? mensajeError : 'Revisa la consola para más detalles.',
-          confirmButtonColor: '#ef4444'
-        });
+        Swal.fire('Error', typeof mensajeError === 'string' ? mensajeError : 'Error al guardar.', 'error');
       }
     });
   }
@@ -209,11 +249,7 @@ export class FaultReportsComponent implements OnInit {
     reporte.estadoReporte = nuevoEstado;
 
     this.equipmentService.actualizarEstadoReporte(reporte.idEquipo, nuevoEstado).subscribe({
-      next: (res) => {
-        console.log('Estado actualizado correctamente:', res);
-      },
-      error: (err) => {
-        console.error('Error al cambiar el estado del reporte:', err);
+      error: () => {
         reporte.estadoReporte = estadoPrevio;
       }
     });
@@ -241,7 +277,7 @@ export class FaultReportsComponent implements OnInit {
     return arr;
   }
 
-  get reportesPaginados(): ReporteFallaItem[] {
+  get reportesPaginados(): (ReporteFallaItem & { selected?: boolean })[] {
     return this.reportesFiltrados.slice(this.inicio, this.fin);
   }
 
