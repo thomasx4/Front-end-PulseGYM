@@ -4,6 +4,7 @@ import { SupplierService } from '../../../../core/services/supplier.service';
 import { SedeService } from '../../../../core/services/sede.service';
 import { Equipo, EstadoEquipo, ConsultaEquipoRequest } from '../../models/equipment.model';
 import { Supplier } from '../../../suppliers/models/suppliers.model';
+import { forkJoin } from 'rxjs';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -14,7 +15,7 @@ import Swal from 'sweetalert2';
 export class EquipmentListComponent implements OnInit {
 
   equipos: Equipo[] = [];
-  equiposPaginados: Equipo[] = [];
+  equiposPaginados: (Equipo & { selected?: boolean })[] = [];
   sedes: any[] = [];
   proveedores: Supplier[] = [];
 
@@ -79,7 +80,7 @@ export class EquipmentListComponent implements OnInit {
 
     this.equipmentService.consultarEquipos(payload).subscribe({
       next: (data: Equipo[]) => {
-        this.equipos = data || [];
+        this.equipos = (data || []).map(e => ({ ...e, selected: false }));
         this.calcularMetricas(this.equipos);
         this.currentPage = 1;
         this.actualizarPaginacion();
@@ -124,6 +125,62 @@ export class EquipmentListComponent implements OnInit {
     this.actualizarPaginacion();
   }
 
+  get equiposSeleccionadosCount(): number {
+    return this.equipos.filter(e => e.selected).length;
+  }
+
+  get todosSeleccionadosPagina(): boolean {
+    if (this.equiposPaginados.length === 0) return false;
+    return this.equiposPaginados.every(e => e.selected);
+  }
+
+  toggleSeleccionarTodos(event: any): void {
+    const checked = event.target.checked;
+    this.equiposPaginados.forEach(e => e.selected = checked);
+  }
+
+  limpiarSeleccionEquipos(): void {
+    this.equipos.forEach(e => e.selected = false);
+  }
+
+  async cambiarEstadoEnLote(nuevoEstado: EstadoEquipo): Promise<void> {
+    const seleccionados = this.equipos.filter(e => e.selected);
+    if (seleccionados.length === 0) return;
+
+    const result = await Swal.fire({
+      title: '¿Actualizar estado en lote?',
+      text: `Estás a punto de cambiar el estado de ${seleccionados.length} equipo(s) a ${this.formatearEstado(nuevoEstado)}.`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#2563eb',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Sí, cambiar todos',
+      cancelButtonText: 'Cancelar'
+    });
+
+    if (result.isConfirmed) {
+      this.cargando = true;
+      const peticiones = seleccionados.map(e => {
+        const id = e.idEquipo || e.id;
+        return this.equipmentService.cambiarEstado(id!, nuevoEstado);
+      });
+
+      forkJoin(peticiones).subscribe({
+        next: () => {
+          this.cargando = false;
+          Swal.fire('¡Actualizado!', 'Los equipos seleccionados han cambiado de estado correctamente.', 'success');
+          this.consultarEquipos();
+        },
+        error: (err) => {
+          this.cargando = false;
+          console.error('Error al actualizar equipos en lote:', err);
+          Swal.fire('Error', 'No se pudieron actualizar algunos de los equipos seleccionados.', 'error');
+          this.consultarEquipos();
+        }
+      });
+    }
+  }
+
   cambiarEstadoRapido(equipo: Equipo, nuevoEstado: EstadoEquipo): void {
     const id = equipo.idEquipo || equipo.id;
     if (!id || equipo.estado === nuevoEstado) return;
@@ -149,6 +206,7 @@ export class EquipmentListComponent implements OnInit {
       case 'OPERATIVO': return 'OPERATIVO';
       case 'MANTENIMIENTO': return 'MANTENIMIENTO';
       case 'FUERA_DE_SERVICIO': return 'FUERA DE SERVICIO';
+      case 'RETIRADO': return 'RETIRADO';
       default: return estado;
     }
   }

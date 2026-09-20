@@ -16,6 +16,7 @@ export interface Equipo {
   urgenciaFalla?: string;
   descripcionFalla?: string;
   estadoReporte?: string;
+  selected?: boolean;
 }
 
 export interface ApiResponseEquipos<T> {
