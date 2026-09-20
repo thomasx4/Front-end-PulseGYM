@@ -18,11 +18,19 @@
                         </button>
                         <div>
                             <h1>Exportar rutina</h1>
-                            <p class="subtitle">Exporta tus rutinas en formato PDF para compartir o imprimir</p>
+                            <p class="subtitle">Exporta tus rutinas en formato PDF individual o en ZIP agrupado</p>
                         </div>
                     </div>
                 </div>
                 <div class="page-header__right">
+                    <button class="btn btn--export" (click)="exportarTodasRutinasZIP()" [disabled]="isLoading || rutinas.length === 0">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="7 10 12 15 17 10"/>
+                            <line x1="12" y1="15" x2="12" y2="3"/>
+                        </svg>
+                        Exportar todas (ZIP)
+                    </button>
                     <button class="btn btn--export" (click)="exportarUltimaRutina()" [disabled]="isLoading || rutinas.length === 0">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -34,15 +42,46 @@
                 </div>
             </header>
 
-            <!-- Contenido -->
-            <ng-container *ngIf="!isLoading && !errorMessage">
-                <!-- Grid de rutinas -->
-                <div class="rutinas-grid">
-                    <div class="rutina-card" *ngFor="let rutina of rutinas">
+            <!-- Barra de Acciones en Lote (Visible cuando hay seleccionados) -->
+            <div class="bulk-actions-bar" *ngIf="rutinasSeleccionadasCount > 0">
+                <div class="bulk-info">
+                    <span class="selected-badge">{{ rutinasSeleccionadasCount }}</span> rutina(s) seleccionada(s)
+                </div>
+                <div class="bulk-buttons">
+                    <button type="button" class="btn-bulk btn-bulk--export" (click)="exportarSeleccionadasZIP()" [disabled]="isLoading">
+                        Exportar ZIP seleccionadas
+                    </button>
+                    <button type="button" class="btn-bulk btn-bulk--clear" (click)="limpiarSeleccionRutinas()" [disabled]="isLoading">
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Seleccionar todos -->
+            <div *ngIf="!isLoading && rutinas.length > 0" class="selection-header-bar">
+                <label class="select-all-label">
+                    <input type="checkbox" [checked]="todosSeleccionados" (change)="toggleSeleccionarTodos($event)">
+                    <span>Seleccionar todas ({{ rutinas.length }})</span>
+                </label>
+            </div>
+
+            <!-- Indicador de Carga / Spinner al exportar masivo -->
+            <div *ngIf="isLoading" class="state-container">
+                <div class="spinner"></div>
+                <p>Generando y comprimiendo archivos PDF, por favor espera...</p>
+            </div>
+
+            <!-- Contenido / Grid completo sin paginación -->
+            <ng-container *ngIf="!errorMessage">
+                <div class="rutinas-grid" *ngIf="rutinas.length > 0">
+                    <div class="rutina-card" *ngFor="let rutina of rutinas" [class.selected]="rutina.selected">
+                        <div class="rutina-card__top">
+                            <input type="checkbox" [(ngModel)]="rutina.selected" class="row-checkbox">
+                            <span class="rutina-card__badge">{{ getDiasPorSemana(rutina.detalles) }} dias/sem</span>
+                        </div>
                         <div class="rutina-card__header">
                             <div class="rutina-card__info">
                                 <h4>{{ rutina.nombre }}</h4>
-                                <span class="rutina-card__badge">{{ getDiasPorSemana(rutina.detalles) }} dias/sem</span>
                             </div>
                             <span class="rutina-card__date">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -80,7 +119,7 @@
                 </div>
 
                 <!-- Empty State -->
-                <div *ngIf="rutinas.length === 0" class="empty-state">
+                <div *ngIf="!isLoading && rutinas.length === 0" class="empty-state">
                     <div class="empty-state__icon">
                         <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                             <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
