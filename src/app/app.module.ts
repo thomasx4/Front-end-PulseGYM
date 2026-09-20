@@ -18,6 +18,7 @@ import { LandingPageComponent } from './features/landing/pages/landing-page/land
 import { PoliticasPageComponent } from './features/landing/pages/politicas-page/politicas-page.component';
 import { AjustesComponent } from './features/ajustes/ajustes.component';
 import { ProfileComponent } from './features/profile/profile.component';
+import { AdminWhatsappComponent } from './features/notifications/components/admin-whatsapp/admin-whatsapp.component';
 
 export function initializeTheme(themeInitializer: ThemeInitializerService) {
   return () => themeInitializer.initializeTheme();
