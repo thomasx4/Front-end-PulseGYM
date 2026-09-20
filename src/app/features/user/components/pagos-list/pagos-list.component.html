@@ -18,13 +18,20 @@
                             </div>
                             <div>
                                 <h1 class="page-header__title">Mi Historial de Pagos</h1>
-                                <p class="page-header__subtitle">Visualiza el estado de tus transacciones y pagos de
-                                    membresía.</p>
+                                <p class="page-header__subtitle">Visualiza el estado de tus transacciones y pagos de membresía.</p>
                             </div>
                         </div>
                     </div>
 
                     <div class="page-header__actions">
+                        <button type="button" class="btn btn--secondary-export" (click)="exportarTodosPagosZIP()" [disabled]="loading || totalElements === 0">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                            Exportar todos (ZIP)
+                        </button>
                         <button type="button" class="btn btn--primary" routerLink="/user/pagos/form">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2.5">
@@ -32,6 +39,21 @@
                                 <line x1="5" y1="12" x2="19" y2="12"></line>
                             </svg>
                             Pagar Membresía
+                        </button>
+                    </div>
+                </div>
+
+                <!-- BARRA DE ACCIONES EN LOTE (Flotante al seleccionar ítems) -->
+                <div class="bulk-actions-bar" *ngIf="pagosSeleccionadosCount > 0">
+                    <div class="bulk-info">
+                        <span class="selected-badge">{{ pagosSeleccionadosCount }}</span> pago(s) seleccionado(s)
+                    </div>
+                    <div class="bulk-buttons">
+                        <button type="button" class="btn-bulk btn-bulk--export" (click)="exportarSeleccionadosZIP()" [disabled]="loading">
+                            Exportar ZIP seleccionados
+                        </button>
+                        <button type="button" class="btn-bulk btn-bulk--clear" (click)="limpiarSeleccionPagos()" [disabled]="loading">
+                            Cancelar
                         </button>
                     </div>
                 </div>
@@ -49,7 +71,7 @@
                     </div>
                 </div>
 
-                <!-- BARRA DE FILTROS IDÉNTICA A ADMIN -->
+                <!-- BARRA DE FILTROS -->
                 <div class="filters-card">
                     <div class="filters-card__search">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -99,13 +121,22 @@
                     </div>
                 </div>
 
+                <!-- SPINNER DE CARGA MASIVA -->
+                <div *ngIf="loading && pagosList.length === 0" class="state-container">
+                    <div class="spinner"></div>
+                    <p>Cargando transacciones...</p>
+                </div>
+
                 <!-- TABLA + PANEL LATERAL -->
-                <div class="main-content-layout" [class.with-detail]="selectedPayment">
+                <div class="main-content-layout" [class.with-detail]="selectedPayment" *ngIf="!loading || pagosList.length > 0">
                     <div class="table-card-wrapper">
                         <div class="table-container">
                             <table class="custom-table">
                                 <thead>
                                     <tr>
+                                        <th style="width: 50px;" class="text-center">
+                                            <input type="checkbox" [checked]="todosSeleccionados" (change)="toggleSeleccionarTodos($event)" title="Seleccionar todos">
+                                        </th>
                                         <th>FECHA</th>
                                         <th>MEMBRESÍA</th>
                                         <th>MONTO</th>
@@ -116,14 +147,15 @@
                                 </thead>
                                 <tbody>
                                     <tr *ngFor="let item of pagosList"
-                                        [class.selected]="selectedPayment?.idPago === item.idPago"
+                                        [class.selected]="selectedPayment?.idPago === item.idPago || item.selected"
                                         [class.row-anulado]="item.anulado" (click)="onSelectPayment(item)">
+                                        <td class="text-center" (click)="$event.stopPropagation()">
+                                            <input type="checkbox" [(ngModel)]="item.selected" class="row-checkbox">
+                                        </td>
                                         <td>
                                             <div class="date-cell">
-                                                <span class="date-cell__date">{{ item.fechaPago | date:'dd MMM yyyy'
-                                                    }}</span>
-                                                <span class="date-cell__time">{{ item.fechaPago | date:'hh:mm a'
-                                                    }}</span>
+                                                <span class="date-cell__date">{{ item.fechaPago | date:'dd MMM yyyy' }}</span>
+                                                <span class="date-cell__time">{{ item.fechaPago | date:'hh:mm a' }}</span>
                                             </div>
                                         </td>
                                         <td>
@@ -139,8 +171,7 @@
                                         <td>
                                             <div class="method-cell">
                                                 <span class="method-tag">{{ item.metodoPago }}</span>
-                                                <span class="method-sub" *ngIf="item.numeroComprobante">Ref: {{
-                                                    item.numeroComprobante }}</span>
+                                                <span class="method-sub" *ngIf="item.numeroComprobante">Ref: {{ item.numeroComprobante }}</span>
                                             </div>
                                         </td>
                                         <td class="text-center">
@@ -174,7 +205,7 @@
                                         </td>
                                     </tr>
                                     <tr *ngIf="pagosList.length === 0 && !loading">
-                                        <td colspan="6" class="empty-row">
+                                        <td colspan="7" class="empty-row">
                                             <div class="empty-state-content">
                                                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none"
                                                     stroke="#94a3b8" stroke-width="1.5">
@@ -190,10 +221,9 @@
                             </table>
                         </div>
 
-                        <!-- PAGINACIÓN NUMÉRICA IGUAL A ADMIN -->
+                        <!-- PAGINACIÓN NUMÉRICA -->
                         <div class="pagination-footer" *ngIf="totalPages > 0">
-                            <span class="pagination-footer__info">Mostrando {{ startIndex }} a {{ endIndex }} de {{
-                                totalElements }} pagos</span>
+                            <span class="pagination-footer__info">Mostrando {{ startIndex }} a {{ endIndex }} de {{ totalElements }} pagos</span>
                             <div class="pagination-controls">
                                 <button class="page-btn" [disabled]="currentPage === 0"
                                     (click)="goToPage(currentPage - 1)">‹</button>
@@ -228,23 +258,17 @@
 
                             <div class="section-title">Información General</div>
                             <div class="info-grid">
-                                <div class="row"><span class="label">Fecha</span><span class="val">{{
-                                        selectedPayment.fechaPago | date:'dd MMM yyyy - hh:mm a' }}</span></div>
-                                <div class="row"><span class="label">Método</span><span class="val">{{
-                                        selectedPayment.metodoPago }}</span></div>
-                                <div class="row" *ngIf="selectedPayment.numeroComprobante"><span
-                                        class="label">Referencia</span><span class="val">{{
-                                        selectedPayment.numeroComprobante }}</span></div>
-                                <div class="row"><span class="label">Socio</span><span class="val font-bold">{{
-                                        selectedPayment.nombreSocio }}</span></div>
+                                <div class="row"><span class="label">Fecha</span><span class="val">{{ selectedPayment.fechaPago | date:'dd MMM yyyy - hh:mm a' }}</span></div>
+                                <div class="row"><span class="label">Método</span><span class="val">{{ selectedPayment.metodoPago }}</span></div>
+                                <div class="row" *ngIf="selectedPayment.numeroComprobante"><span class="label">Referencia</span><span class="val">{{ selectedPayment.numeroComprobante }}</span></div>
+                                <div class="row"><span class="label">Socio</span><span class="val font-bold">{{ selectedPayment.nombreSocio }}</span></div>
                             </div>
 
                             <div *ngIf="selectedPayment.anulado">
                                 <hr />
                                 <div class="section-title text-red">Anulación</div>
                                 <div class="info-grid">
-                                    <div class="row"><span class="label">Motivo</span><span class="val text-red">{{
-                                            selectedPayment.motivoAnulacion }}</span></div>
+                                    <div class="row"><span class="label">Motivo</span><span class="val text-red">{{ selectedPayment.motivoAnulacion }}</span></div>
                                 </div>
                             </div>
                         </div>

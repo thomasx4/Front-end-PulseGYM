@@ -86,32 +86,28 @@
     svg { stroke: currentColor; }
 }
 
-// ==========================================
-// Loading
-// ==========================================
-.loading-state {
-    display: flex;
-    flex-direction: column;
+// ✅ Botón para eliminar en lote
+.btn-eliminar-lote {
+    display: inline-flex;
     align-items: center;
-    justify-content: center;
-    padding: 4rem 2rem;
-    color: var(--color-text-secondary, #475569);
+    gap: 0.5rem;
+    padding: 0.65rem 1.25rem;
+    background: #dc2626;
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
 
-    .spinner-border {
-        width: 2.5rem;
-        height: 2.5rem;
-        border: 0.25rem solid var(--color-border, #e2e8f0);
-        border-top-color: var(--color-primary, #0f1c3f);
-        border-radius: 50%;
-        animation: spin 0.8s linear infinite;
-        margin-bottom: 1rem;
+    &:hover {
+        background: #b91c1c;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
     }
 
-    p { margin: 0; font-size: 0.95rem; }
-}
-
-@keyframes spin {
-    to { transform: rotate(360deg); }
+    svg { stroke: currentColor; }
 }
 
 // ==========================================
@@ -150,7 +146,6 @@
 
         svg { stroke: currentColor; }
 
-        /* ✅ Semánticos (azul/verde/púrpura/naranja) */
         &--blue { background: #dbeafe; color: #0f1c3f; }
         &--green { background: #d1fae5; color: #059669; }
         &--purple { background: #ede9fe; color: #7c3aed; }
@@ -235,7 +230,6 @@
     }
 }
 
-/* ✅ Semántico (rojo) */
 .btn-limpiar-filtros {
     display: inline-flex;
     align-items: center;
@@ -298,7 +292,8 @@
 
 .ejercicios-count-bar {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 1rem;
 
     .ejercicios-count {
@@ -309,6 +304,67 @@
         border-radius: 12px;
         font-weight: 600;
     }
+}
+
+// Estilos para checkboxes personalizados
+.checkbox-container {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-text-secondary, #475569);
+    user-select: none;
+
+    input {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+        height: 0;
+        width: 0;
+
+        &:checked ~ .checkmark {
+            background-color: var(--color-primary, #0f1c3f);
+            border-color: var(--color-primary, #0f1c3f);
+
+            &:after {
+                display: block;
+            }
+        }
+    }
+
+    .checkmark {
+        position: relative;
+        height: 18px;
+        width: 18px;
+        background-color: #ffffff;
+        border: 1.5px solid var(--color-border, #cbd5e1);
+        border-radius: 4px;
+        transition: all 0.2s ease;
+
+        &:after {
+            content: "";
+            position: absolute;
+            display: none;
+            left: 5px;
+            top: 2px;
+            width: 5px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+    }
+
+    &:hover input ~ .checkmark {
+        border-color: var(--color-primary, #0f1c3f);
+    }
+}
+
+.select-all-text {
+    font-size: 0.85rem;
+    color: var(--color-text-primary, #0f172a);
 }
 
 .ejercicios-grid {
@@ -326,10 +382,29 @@
     box-shadow: var(--shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.06));
     display: flex;
     flex-direction: column;
+    position: relative;
+
+    &.selected {
+        border-color: var(--color-primary, #0f1c3f);
+        box-shadow: 0 0 0 2px rgba(15, 28, 63, 0.15);
+        background-color: rgba(15, 28, 63, 0.015);
+    }
 
     &:hover {
         box-shadow: var(--shadow-md, 0 4px 16px rgba(0, 0, 0, 0.08));
         transform: translateY(-3px);
+    }
+
+    .card-checkbox-wrapper {
+        position: absolute;
+        top: 0.75rem;
+        right: 0.75rem;
+        z-index: 10;
+        background: rgba(255, 255, 255, 0.85);
+        padding: 0.35rem;
+        border-radius: 6px;
+        backdrop-filter: blur(4px);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
 
     &__image {
@@ -377,7 +452,6 @@
         backdrop-filter: blur(4px);
     }
 
-    /* ✅ Semánticos (verde/gris) */
     &__estado {
         position: relative;
         z-index: 1;
@@ -388,6 +462,7 @@
         padding: 0.25rem 0.65rem;
         border-radius: 8px;
         backdrop-filter: blur(4px);
+        margin-right: 2rem; // Espacio para el checkbox
 
         &.activo {
             background: rgba(16, 185, 129, 0.9);
@@ -438,7 +513,6 @@
 
             svg { stroke: currentColor; flex-shrink: 0; }
 
-            /* ✅ Semánticos */
             &.dificultad {
                 &.nivel-1 { background: #d1fae5; color: #059669; }
                 &.nivel-2 { background: #dcfce7; color: #16a34a; }
@@ -494,7 +568,6 @@
         transform: translateY(-1px);
     }
 
-    /* ✅ Semántico (rojo) */
     &.btn-eliminar:hover {
         background: var(--color-error, #dc2626);
         color: #ffffff;
@@ -511,14 +584,14 @@
 }
 
 // ==========================================
-// Empty state
+// Empty state & Modales
 // ==========================================
 .empty-state {
     text-align: center;
     padding: 4rem 2rem;
     background: var(--color-bg-card, #ffffff);
     border-radius: 12px;
-    border: 1px dashed var(--color-border, #e2e8f0);
+    border: 1.5px dashed var(--color-border, #e2e8f0);
     margin: 1.5rem 0;
 
     &__icon {
@@ -574,9 +647,6 @@
     }
 }
 
-// ==========================================
-// Modal generico
-// ==========================================
 .modal-overlay {
     position: fixed;
     inset: 0;
@@ -643,10 +713,7 @@
     border-bottom: 1px solid var(--color-border, #e2e8f0);
     flex-shrink: 0;
 
-    h3 {
-        margin: 0;
-        font-size: 1.15rem;
-    }
+    h3 { margin: 0; font-size: 1.15rem; }
 
     .btn-close {
         background: transparent;
@@ -684,12 +751,8 @@
     flex-shrink: 0;
 }
 
-// ==========================================
-// Formulario
-// ==========================================
 .form-section {
     margin-bottom: 1.5rem;
-
     &:last-child { margin-bottom: 0; }
 
     h4 {
@@ -729,9 +792,7 @@
         justify-content: center;
         transition: all 0.3s ease;
 
-        .image-placeholder {
-            color: var(--color-text-muted, #94a3b8);
-        }
+        .image-placeholder { color: var(--color-text-muted, #94a3b8); }
     }
 
     .image-actions {
@@ -752,7 +813,6 @@
         font-weight: 600;
         cursor: pointer;
         transition: all 0.3s ease;
-
         svg { stroke: currentColor; }
     }
 
@@ -766,29 +826,17 @@
             color: #ffffff;
             border-color: var(--color-primary, #0f1c3f);
         }
-
-        &:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
+        &:disabled { opacity: 0.6; cursor: not-allowed; }
     }
 
     .btn-toggle-url {
         background: transparent;
         border: 1.5px dashed var(--color-border, #e2e8f0);
         color: var(--color-text-secondary, #475569);
-
-        &:hover {
-            background: var(--color-bg-hover, #f1f5f9);
-            color: var(--color-text-primary, #0f172a);
-            border-color: var(--color-primary, #0f1c3f);
-        }
+        &:hover { background: var(--color-bg-hover, #f1f5f9); color: var(--color-text-primary, #0f172a); }
     }
 
-    .url-manual-group {
-        width: 100%;
-        margin-top: 0.5rem;
-    }
+    .url-manual-group { width: 100%; margin-top: 0.5rem; }
 }
 
 .text-hint {
@@ -810,14 +858,12 @@
     flex-direction: column;
     gap: 0.4rem;
     margin-bottom: 1rem;
-
     &:last-child { margin-bottom: 0; }
 
     label {
         font-size: 0.8rem;
         font-weight: 600;
         color: var(--color-text-primary, #0f172a);
-
         .required { color: var(--color-error, #dc2626); margin-left: 2px; }
     }
 
@@ -837,47 +883,16 @@
         box-sizing: border-box;
 
         &::placeholder { color: var(--color-text-muted, #94a3b8); }
-
         &:focus {
             outline: none;
             border-color: var(--color-primary, #0f1c3f);
             box-shadow: 0 0 0 3px rgba(15, 28, 63, 0.1);
         }
     }
-
-    textarea {
-        resize: vertical;
-        min-height: 90px;
-        line-height: 1.5;
-    }
-
+    textarea { resize: vertical; min-height: 90px; line-height: 1.5; }
     select { cursor: pointer; }
-
-    &--check {
-        margin-top: 0.5rem;
-
-        .checkbox-label {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            cursor: pointer;
-            font-size: 0.85rem;
-            font-weight: 500;
-            color: var(--color-text-primary, #0f172a);
-
-            input[type="checkbox"] {
-                width: 18px;
-                height: 18px;
-                cursor: pointer;
-                accent-color: var(--color-primary, #0f1c3f);
-            }
-        }
-    }
 }
 
-// ==========================================
-// Botones del modal form
-// ==========================================
 .btn-primary,
 .btn-secondary {
     display: inline-flex;
@@ -890,28 +905,13 @@
     cursor: pointer;
     transition: all 0.3s ease;
     border: none;
-
     svg { stroke: currentColor; }
-
-    &:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-    }
-
-    .spinner-border {
-        width: 1rem;
-        height: 1rem;
-        border: 2px solid currentColor;
-        border-right-color: transparent;
-        border-radius: 50%;
-        animation: spin 0.75s linear infinite;
-    }
+    &:disabled { opacity: 0.6; cursor: not-allowed; }
 }
 
 .btn-primary {
     background: var(--color-primary, #0f1c3f);
     color: #ffffff;
-
     &:hover:not(:disabled) {
         background: var(--color-primary-hover, #1a2b5c);
         transform: translateY(-2px);
@@ -923,15 +923,9 @@
     background: var(--color-bg-card, #ffffff);
     color: var(--color-text-primary, #0f172a);
     border: 1.5px solid var(--color-border, #e2e8f0);
-
-    &:hover:not(:disabled) {
-        background: var(--color-bg-hover, #f1f5f9);
-    }
+    &:hover:not(:disabled) { background: var(--color-bg-hover, #f1f5f9); }
 }
 
-// ==========================================
-// Modales de confirmacion
-// ==========================================
 .modal-icon {
     width: 64px;
     height: 64px;
@@ -941,24 +935,9 @@
     justify-content: center;
     margin: 0 auto 16px;
 
-    /* ✅ Semánticos */
-    &.error-icon {
-        background: var(--color-error-bg, #fef2f2);
-        color: var(--color-error, #dc2626);
-        svg { stroke: var(--color-error, #dc2626); }
-    }
-
-    &.warning-icon {
-        background: #fffbeb;
-        color: #d97706;
-        svg { stroke: #d97706; }
-    }
-
-    &.success-icon {
-        background: var(--color-success-bg, #d1fae5);
-        color: var(--color-success, #10b981);
-        svg { stroke: var(--color-success, #10b981); }
-    }
+    &.error-icon { background: var(--color-error-bg, #fef2f2); color: var(--color-error, #dc2626); }
+    &.warning-icon { background: #fffbeb; color: #d97706; }
+    &.success-icon { background: var(--color-success-bg, #d1fae5); color: var(--color-success, #10b981); }
 }
 
 .modal-title {
@@ -973,7 +952,6 @@
     color: var(--color-text-secondary, #475569);
     margin: 0 0 1.5rem;
     line-height: 1.6;
-
     strong { color: var(--color-text-primary, #0f172a); }
 }
 
@@ -996,176 +974,20 @@
     cursor: pointer;
     transition: all 0.3s ease;
 
-    &:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-    }
-
+    &:disabled { opacity: 0.6; cursor: not-allowed; }
     &-primary {
         background: var(--color-primary, #0f1c3f);
         color: #ffffff;
-
-        &:hover:not(:disabled) {
-            background: var(--color-primary-hover, #1a2b5c);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md, 0 4px 12px rgba(15, 28, 63, 0.3));
-        }
+        &:hover:not(:disabled) { background: var(--color-primary-hover, #1a2b5c); }
     }
-
     &-secondary {
         background: var(--color-bg-hover, #f1f5f9);
         color: var(--color-text-primary, #0f172a);
-
-        &:hover:not(:disabled) {
-            background: var(--color-border, #e2e8f0);
-        }
+        &:hover:not(:disabled) { background: var(--color-border, #e2e8f0); }
     }
-
-    /* ✅ Semántico (rojo) */
     &-danger {
         background: var(--color-error, #dc2626);
         color: #ffffff;
-
-        &:hover:not(:disabled) {
-            background: #b91c1c;
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md, 0 4px 12px rgba(220, 38, 38, 0.3));
-        }
-
-        .spinner-border {
-            width: 1rem;
-            height: 1rem;
-            border: 2px solid currentColor;
-            border-right-color: transparent;
-            border-radius: 50%;
-            animation: spin 0.75s linear infinite;
-        }
-    }
-}
-
-// ==========================================
-// Responsive
-// ==========================================
-@media (min-width: 1400px) {
-    .ejercicios-wrapper { padding: 2rem 2.5rem 3rem; }
-    .stat-card__value { font-size: 1.65rem; }
-}
-
-@media (max-width: 1199px) {
-    .stats-grid { grid-template-columns: repeat(2, 1fr); }
-}
-
-@media (max-width: 991px) {
-    .ejercicios-main {
-        margin-left: 0;
-        width: 100%;
-        max-width: 100%;
-    }
-
-    .ejercicios-wrapper { padding: 1rem 1.25rem 2rem; }
-    .page-header h1 { font-size: 1.5rem; }
-
-    .filtros-bar {
-        flex-direction: column;
-        align-items: stretch;
-
-        &__left,
-        &__right { width: 100%; }
-    }
-
-    .filtro-select,
-    .filtro-busqueda {
-        min-width: 0;
-        width: 100%;
-        flex: 1;
-    }
-}
-
-@media (max-width: 767px) {
-    .ejercicios-wrapper {
-        padding: 1rem 1rem 1.5rem;
-        gap: 1rem;
-    }
-
-    .page-header {
-        flex-direction: column;
-        align-items: stretch;
-
-        h1 { font-size: 1.4rem; }
-
-        &__right .btn-crear {
-            width: 100%;
-            justify-content: center;
-        }
-    }
-
-    .stats-grid {
-        grid-template-columns: 1fr;
-        gap: 0.75rem;
-    }
-
-    .stat-card {
-        padding: 0.9rem 1rem;
-
-        &__icon { width: 40px; height: 40px; }
-        &__value { font-size: 1.3rem; }
-        &__label { font-size: 0.72rem; }
-    }
-
-    .ejercicios-grid { grid-template-columns: 1fr; }
-
-    .form-row { grid-template-columns: 1fr; }
-
-    .modal-form { max-width: 100%; }
-
-    .modal-content:not(.modal-form) { padding: 30px 24px 24px; }
-
-    .modal-header,
-    .modal-body,
-    .modal-footer { padding: 1rem; }
-
-    .modal-footer {
-        flex-direction: column-reverse;
-
-        .btn-primary,
-        .btn-secondary { width: 100%; justify-content: center; }
-    }
-}
-
-@media (max-width: 479px) {
-    .ejercicios-wrapper { padding: 0.75rem 0.75rem 1.25rem; }
-
-    .page-header h1 { font-size: 1.2rem; }
-
-    .stat-card {
-        padding: 0.75rem 0.85rem;
-
-        &__icon {
-            width: 36px;
-            height: 36px;
-            border-radius: 8px;
-
-            svg { width: 18px; height: 18px; }
-        }
-
-        &__value { font-size: 1.15rem; }
-        &__label { font-size: 0.68rem; }
-    }
-
-    .ejercicio-card__image { height: 140px; }
-    .ejercicio-card__nombre { font-size: 0.95rem; }
-    .ejercicio-card__body { padding: 0.85rem 1rem 0.65rem; }
-    .ejercicio-card__footer { padding: 0.65rem 1rem; }
-
-    .modal-content:not(.modal-form) {
-        padding: 24px 16px 20px;
-
-        .modal-title { font-size: 1rem; }
-        .modal-message { font-size: 0.85rem; }
-    }
-
-    .modal-btn {
-        padding: 0.6rem 1.2rem;
-        font-size: 0.8rem;
+        &:hover:not(:disabled) { background: #b91c1c; }
     }
 }

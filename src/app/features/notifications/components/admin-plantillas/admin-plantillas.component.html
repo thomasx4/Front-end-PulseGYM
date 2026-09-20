@@ -61,11 +61,41 @@
         </div>
     </div>
 
+    <!-- BARRA SUPERIOR DE ACCIONES EN LOTE -->
+    <div class="bulk-actions-bar" *ngIf="plantillasSeleccionadasCount > 0">
+        <div class="bulk-info">
+            <span class="selected-badge">{{ plantillasSeleccionadasCount }}</span> plantilla(s) seleccionada(s)
+        </div>
+        <div class="bulk-buttons">
+            <button type="button" class="btn-bulk btn-bulk--success" (click)="cambiarEstadoEnLote(true)" [disabled]="cargando">
+                Activar Seleccionadas
+            </button>
+            <button type="button" class="btn-bulk btn-bulk--warning" (click)="cambiarEstadoEnLote(false)" [disabled]="cargando">
+                Inactivar Seleccionadas
+            </button>
+            <button type="button" class="btn-bulk btn-bulk--danger" (click)="eliminarPlantillasEnLote()" [disabled]="cargando">
+                Eliminar Seleccionadas
+            </button>
+            <button type="button" class="btn-bulk btn-bulk--clear" (click)="limpiarSeleccionPlantillas()" [disabled]="cargando">
+                Cancelar
+            </button>
+        </div>
+    </div>
+
+    <!-- BARRA SELECCIONAR VISTA FILTRADA -->
+    <div *ngIf="!cargando && plantillasFiltradas.length > 0" class="selection-header-bar">
+        <label class="select-all-label">
+            <input type="checkbox" [checked]="todosSeleccionadosFiltrados" (change)="toggleSeleccionarTodos($event)">
+            <span>Seleccionar plantillas visibles ({{ plantillasFiltradas.length }})</span>
+        </label>
+    </div>
+
     <!-- TABLA DE PLANTILLAS -->
     <div class="table-container">
         <table class="custom-table">
             <thead>
                 <tr>
+                    <th style="width: 40px;"></th>
                     <th>NOMBRE</th>
                     <th>TIPO / EVENTO</th>
                     <th>CANAL</th>
@@ -75,6 +105,9 @@
             </thead>
             <tbody>
                 <tr *ngFor="let p of plantillasFiltradas">
+                    <td (click)="$event.stopPropagation()">
+                        <input type="checkbox" [(ngModel)]="p.selected" class="row-checkbox">
+                    </td>
                     <td>
                         <div class="user-cell">
                             <div class="avatar-mini">
@@ -120,7 +153,7 @@
                                     <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
                                 </svg>
                             </button>
-                            <!-- NUEVO BOTÓN DE ELIMINAR -->
+                            <!-- BOTÓN DE ELIMINAR -->
                             <button class="action-btn action-btn--danger" title="Eliminar plantilla"
                                 (click)="eliminarPlantilla(p)">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -137,7 +170,7 @@
                     </td>
                 </tr>
                 <tr *ngIf="plantillasFiltradas.length === 0">
-                    <td colspan="5" class="empty-row">
+                    <td colspan="6" class="empty-row">
                         <div class="empty-state-content">
                             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#94a3b8"
                                 stroke-width="1.5">

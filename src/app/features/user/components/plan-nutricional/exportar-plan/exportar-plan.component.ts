@@ -5,6 +5,12 @@ import { NutricionalService, PlanNutricionalReal } from '../../../../../core/ser
 import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
+import { lastValueFrom } from 'rxjs';
+import JSZip from 'jszip';
+
+export interface PlanNutricionalUI extends PlanNutricionalReal {
+  selected?: boolean;
+}
 
 @Component({
   selector: 'app-exportar-plan',
@@ -14,7 +20,7 @@ import { Share } from '@capacitor/share';
 export class ExportarPlanComponent implements OnInit {
   public isLoading: boolean = false;
   public errorMessage: string = '';
-  public planes: PlanNutricionalReal[] = [];
+  public planes: PlanNutricionalUI[] = [];
 
   public showErrorModal: boolean = false;
   public errorModalTitle: string = 'Error';
@@ -35,7 +41,7 @@ export class ExportarPlanComponent implements OnInit {
 
     this.nutricionalService.getMisPlanes().subscribe({
       next: (response: PlanNutricionalReal[]) => {
-        this.planes = response || [];
+        this.planes = (response || []).map(p => ({ ...p, selected: false }));
         this.isLoading = false;
       },
       error: (error: any) => {
@@ -61,6 +67,24 @@ export class ExportarPlanComponent implements OnInit {
     });
   }
 
+  get planesSeleccionadosCount(): number {
+    return this.planes.filter(p => p.selected).length;
+  }
+
+  get todosSeleccionados(): boolean {
+    if (this.planes.length === 0) return false;
+    return this.planes.every(p => p.selected);
+  }
+
+  toggleSeleccionarTodos(event: any): void {
+    const checked = event.target.checked;
+    this.planes.forEach(p => p.selected = checked);
+  }
+
+  limpiarSeleccionPlanes(): void {
+    this.planes.forEach(p => p.selected = false);
+  }
+
   formatearFecha(fecha: string): string {
     const date = new Date(fecha);
     const meses = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
@@ -75,12 +99,14 @@ export class ExportarPlanComponent implements OnInit {
 
     this.isLoading = true;
     const plan = this.planes.find(p => p.idPlanNutricional === idPlan);
-    const fileName = `plan-nutricional-${plan?.idPlanNutricional || idPlan}.pdf`;
+    const fechaStr = plan?.fechaGeneracion ? this.formatearFecha(plan.fechaGeneracion) : '';
+    const tipoPlan = plan?.generadoPorIA ? 'IA' : idPlan;
+    const fileName = `plan-nutricional_${tipoPlan}_${fechaStr}_id${idPlan}.pdf`;
 
     this.nutricionalService.exportarPlanPDF(idPlan).subscribe({
       next: async (blob: Blob) => {
         this.isLoading = false;
-        await this.procesarPdfMovilOWeb(blob, fileName);
+        await this.procesarArchivoIndividual(blob, fileName);
       },
       error: (error: any) => {
         this.isLoading = false;
@@ -99,7 +125,7 @@ export class ExportarPlanComponent implements OnInit {
     this.nutricionalService.exportarUltimoPlanPDF().subscribe({
       next: async (blob: Blob) => {
         this.isLoading = false;
-        await this.procesarPdfMovilOWeb(blob, fileName);
+        await this.procesarArchivoIndividual(blob, fileName);
       },
       error: (error: any) => {
         this.isLoading = false;
@@ -111,7 +137,47 @@ export class ExportarPlanComponent implements OnInit {
     });
   }
 
-  private async procesarPdfMovilOWeb(blob: Blob, fileName: string): Promise<void> {
+  exportarSeleccionadosZIP(): void {
+    const seleccionados = this.planes.filter(p => p.selected);
+    if (seleccionados.length === 0) return;
+    this.procesarExportacionZIP(seleccionados, 'planes-nutricionales-seleccionados.zip');
+  }
+
+  exportarTodosPlanesZIP(): void {
+    if (this.planes.length === 0) return;
+    this.procesarExportacionZIP(this.planes, 'todos-mis-planes-nutricionales.zip');
+  }
+
+  private async procesarExportacionZIP(listaPlanes: PlanNutricionalUI[], nombreZip: string): Promise<void> {
+    this.isLoading = true;
+    const zip = new JSZip();
+
+    try {
+      for (const plan of listaPlanes) {
+        try {
+          const blob = await lastValueFrom(this.nutricionalService.exportarPlanPDF(plan.idPlanNutricional));
+          const fechaStr = plan.fechaGeneracion ? this.formatearFecha(plan.fechaGeneracion) : '';
+          const tipoPlan = plan.generadoPorIA ? 'IA' : plan.idPlanNutricional;
+          
+          const nombreArchivo = `plan-nutricional_${tipoPlan}_${fechaStr}_id${plan.idPlanNutricional}.pdf`;
+          
+          zip.file(nombreArchivo, blob);
+        } catch (itemErr) {
+          console.warn(`No se pudo descargar el plan con ID ${plan.idPlanNutricional}`, itemErr);
+        }
+      }
+
+      const content = await zip.generateAsync({ type: 'blob' });
+      this.isLoading = false;
+      await this.procesarArchivoIndividual(content, nombreZip);
+    } catch (err) {
+      this.isLoading = false;
+      console.error('Error al generar ZIP de planes:', err);
+      Swal.fire('Error', 'Ocurrió un error al empaquetar los planes en ZIP.', 'error');
+    }
+  }
+
+  private async procesarArchivoIndividual(blob: Blob, fileName: string): Promise<void> {
     try {
       if (Capacitor.isNativePlatform()) {
         try {
@@ -136,11 +202,11 @@ export class ExportarPlanComponent implements OnInit {
             await Share.share({
               title: 'Plan Nutricional Pulse Gym',
               url: savedFile.uri,
-              dialogTitle: 'Abrir o compartir plan nutricional PDF'
+              dialogTitle: 'Abrir o compartir archivo'
             });
           } catch (fsError: any) {
             console.error('Error al guardar archivo en móvil:', fsError);
-            Swal.fire('Error', 'No se pudo abrir el archivo en el dispositivo: ' + (fsError.message || fsError), 'error');
+            Swal.fire('Error', 'No se pudo abrir el archivo en el dispositivo.', 'error');
           }
         };
       } else {
@@ -152,7 +218,7 @@ export class ExportarPlanComponent implements OnInit {
         window.URL.revokeObjectURL(url);
       }
     } catch (err) {
-      console.error('Error procesando PDF:', err);
+      console.error('Error procesando archivo:', err);
       Swal.fire('Error', 'Ocurrió un error al procesar el archivo', 'error');
     }
   }

@@ -2,7 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { EjerciciosService, Ejercicio, CrearEjercicioPayload } from '../../../../core/services/ejercicios.service';
 import { environment } from '../../../../../environments/environment';
-import { Observable } from 'rxjs';
+import { Observable, forkJoin } from 'rxjs';
+import Swal from 'sweetalert2';
 
 export interface EjercicioUI {
   idEjercicio: number;
@@ -14,6 +15,7 @@ export interface EjercicioUI {
   dificultad: number;
   caloriasPorMinuto: number;
   activo: boolean;
+  selected?: boolean;
 }
 
 @Component({
@@ -62,7 +64,7 @@ export class EjerciciosComponent implements OnInit {
   public uploadingImage: boolean = false;
   public usarUrlManual: boolean = false;
 
-  // Modal eliminar
+  // Modal eliminar individual
   public showDeleteModal: boolean = false;
   public ejercicioAEliminar: EjercicioUI | null = null;
   public isDeleting: boolean = false;
@@ -76,7 +78,6 @@ export class EjerciciosComponent implements OnInit {
   public showSuccessModal: boolean = false;
   public successModalMessage: string = '';
 
-  // Exponer environment al template
   public environment = environment;
 
   constructor(
@@ -89,9 +90,6 @@ export class EjerciciosComponent implements OnInit {
     this.cargarEjercicios();
   }
 
-  // ==========================================
-  // Cargar ejercicios
-  // ==========================================
   cargarEjercicios(): void {
     this.isLoading = true;
 
@@ -112,7 +110,7 @@ export class EjerciciosComponent implements OnInit {
           lista = response;
         }
 
-        this.ejercicios = lista.map(e => this.mapearEjercicio(e));
+        this.ejercicios = lista.map(e => ({ ...this.mapearEjercicio(e), selected: false }));
         this.ejerciciosFiltrados = [...this.ejercicios];
 
         this.calcularStats();
@@ -151,27 +149,20 @@ export class EjerciciosComponent implements OnInit {
     };
   }
 
-  // ==========================================
-  // Cargar catalogos (SIN datos quemados)
-  // ==========================================
   cargarCatalogos(): void {
-    // Grupos musculares - solo desde backend
     this.ejerciciosService.getGruposMusculares().subscribe({
       next: (response: any) => {
         this.gruposMusculares = this.extraerListaStrings(response);
-        console.log('Grupos musculares:', this.gruposMusculares);
       },
       error: (err: any) => {
         console.error('Error al cargar grupos musculares:', err);
-        this.gruposMusculares = [];  // 👈 SIN fallback quemado
+        this.gruposMusculares = [];
       }
     });
 
-    // Equipos - desde inventario real (pg-ms-operation)
     this.ejerciciosService.getEquipos().subscribe({
       next: (response: any) => {
         this.equipos = this.extraerListaStrings(response);
-        console.log('Equipos del inventario:', this.equipos);
       },
       error: (err: any) => {
         console.error('Error al cargar equipos:', err);
@@ -180,16 +171,11 @@ export class EjerciciosComponent implements OnInit {
     });
   }
 
-  // Helper: normaliza cualquier respuesta a string[]
   private extraerListaStrings(response: any): string[] {
     if (!response) return [];
-
-    // Caso: array de strings puros
     if (Array.isArray(response) && response.every(item => typeof item === 'string')) {
       return response;
     }
-
-    // Caso: array de objetos
     if (Array.isArray(response)) {
       return response
         .map(item => {
@@ -198,30 +184,15 @@ export class EjerciciosComponent implements OnInit {
         })
         .filter((s: string) => !!s);
     }
-
-    // Caso: { data: [...] }
     if (response.data && Array.isArray(response.data)) {
       return this.extraerListaStrings(response.data);
     }
     if (response.items && Array.isArray(response.items)) {
       return this.extraerListaStrings(response.items);
     }
-    if (response.equipos && Array.isArray(response.equipos)) {
-      return this.extraerListaStrings(response.equipos);
-    }
-    if (response.grupos && Array.isArray(response.grupos)) {
-      return this.extraerListaStrings(response.grupos);
-    }
-    if (response.gruposMusculares && Array.isArray(response.gruposMusculares)) {
-      return this.extraerListaStrings(response.gruposMusculares);
-    }
-
     return [];
   }
 
-  // ==========================================
-  // Stats
-  // ==========================================
   private calcularStats(): void {
     this.totalEjercicios = this.ejercicios.length;
     this.totalActivos = this.ejercicios.filter(e => e.activo).length;
@@ -235,9 +206,56 @@ export class EjerciciosComponent implements OnInit {
     }
   }
 
-  // ==========================================
-  // Filtros
-  // ==========================================
+  get ejerciciosSeleccionadosCount(): number {
+    return this.ejercicios.filter(e => e.selected).length;
+  }
+
+  get todosSeleccionados(): boolean {
+    if (this.ejercicios.length === 0) return false;
+    return this.ejercicios.every(e => e.selected);
+  }
+
+  toggleSeleccionarTodos(event: any): void {
+    const checked = event.target.checked;
+    this.ejercicios.forEach(e => e.selected = checked);
+  }
+
+  async eliminarEjerciciosEnLote(): Promise<void> {
+    const seleccionados = this.ejercicios.filter(e => e.selected && e.idEjercicio);
+    if (seleccionados.length === 0) return;
+
+    const result = await Swal.fire({
+      title: '¿Estás seguro?',
+      text: `Se eliminarán ${seleccionados.length} ejercicio(s) seleccionados. Esta acción no se puede deshacer.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#dc2626',
+      cancelButtonColor: '#64748b'
+    });
+
+    if (result.isConfirmed) {
+      this.isLoading = true;
+      const peticiones = seleccionados.map(e => this.ejerciciosService.eliminarEjercicio(e.idEjercicio));
+
+      forkJoin(peticiones).subscribe({
+        next: () => {
+          this.isLoading = false;
+          this.successModalMessage = 'Ejercicios eliminados correctamente';
+          this.showSuccessModal = true;
+          this.cargarEjercicios();
+        },
+        error: (err) => {
+          this.isLoading = false;
+          console.error('Error al eliminar ejercicios en lote', err);
+          this.mostrarError('Error', 'No se pudieron eliminar algunos ejercicios seleccionados.');
+          this.cargarEjercicios();
+        }
+      });
+    }
+  }
+
   onFiltroChange(): void {
     this.cargarEjercicios();
   }
@@ -253,16 +271,10 @@ export class EjerciciosComponent implements OnInit {
     return !!(this.filtroNombre || this.filtroGrupo || this.filtroDificultad);
   }
 
-  // ==========================================
-  // ✅ NUEVO: Ver detalle del ejercicio
-  // ==========================================
   verEjercicio(ejercicio: EjercicioUI): void {
     this.router.navigate(['/trainer/ejercicios', ejercicio.idEjercicio]);
   }
 
-  // ==========================================
-  // Modal Crear / Editar
-  // ==========================================
   abrirModalCrear(): void {
     this.modoEdicion = false;
     this.form = this.getFormVacio();
@@ -311,9 +323,6 @@ export class EjerciciosComponent implements OnInit {
     }
   }
 
-  // ==========================================
-  // Imagen - Selección local
-  // ==========================================
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) return;
@@ -344,19 +353,9 @@ export class EjerciciosComponent implements OnInit {
     if (fileInput) fileInput.click();
   }
 
-  // ==========================================
-  // Subir imagen a Cloudinary
-  // ==========================================
   private subirImagen(): Observable<string> {
     return new Observable(observer => {
-
-      if (this.usarUrlManual) {
-        observer.next(this.form.urlImagen);
-        observer.complete();
-        return;
-      }
-
-      if (!this.selectedFile) {
+      if (this.usarUrlManual || !this.selectedFile) {
         observer.next(this.form.urlImagen);
         observer.complete();
         return;
@@ -368,7 +367,6 @@ export class EjerciciosComponent implements OnInit {
       }
 
       this.uploadingImage = true;
-
       const formData = new FormData();
       formData.append('file', this.selectedFile);
       formData.append('upload_preset', environment.cloudinary.uploadPreset);
@@ -380,12 +378,6 @@ export class EjerciciosComponent implements OnInit {
         next: (response: any) => {
           this.uploadingImage = false;
           const imageUrl = response.secure_url || response.url;
-
-          if (!imageUrl) {
-            observer.error(new Error('Cloudinary no devolvio una URL valida'));
-            return;
-          }
-
           observer.next(imageUrl);
           observer.complete();
         },
@@ -400,27 +392,24 @@ export class EjerciciosComponent implements OnInit {
   private uploadToCloudinary(url: string, formData: FormData): Observable<any> {
     return new Observable((observer: any) => {
       fetch(url, { method: 'POST', body: formData })
-        .then((response: any) => {
+        .then(response => {
           if (!response.ok) {
-            return response.json().then((data: any) => {
+            return response.json().then(data => {
               throw new Error(data.error?.message || `Error ${response.status} al subir imagen`);
             });
           }
           return response.json();
         })
-        .then((data: any) => {
+        .then(data => {
           observer.next(data);
           observer.complete();
         })
-        .catch((error: any) => {
+        .catch(error => {
           observer.error(error);
         });
     });
   }
 
-  // ==========================================
-  // Guardar
-  // ==========================================
   guardar(): void {
     if (!this.form.nombre.trim()) {
       this.mostrarError('Campos incompletos', 'El nombre es obligatorio.');
@@ -466,12 +455,8 @@ export class EjerciciosComponent implements OnInit {
         }
       },
       error: (err) => {
-        console.error('Error al subir imagen:', err);
         this.isSaving = false;
-        this.mostrarError(
-          'Error al subir imagen',
-          err.message || 'No se pudo subir la imagen. Verifica la configuracion de Cloudinary o usa el modo URL manual.'
-        );
+        this.mostrarError('Error al subir imagen', err.message || 'No se pudo subir la imagen.');
       }
     });
   }
@@ -486,14 +471,10 @@ export class EjerciciosComponent implements OnInit {
 
   private onErrorGuardado(err: any): void {
     this.isSaving = false;
-    console.error('Error al guardar:', err);
-    const mensaje = err.error?.message || 'No se pudo guardar el ejercicio. Intenta de nuevo.';
+    const mensaje = err.error?.message || 'No se pudo guardar el ejercicio.';
     this.mostrarError('Error al guardar', mensaje);
   }
 
-  // ==========================================
-  // Eliminar
-  // ==========================================
   abrirModalEliminar(ejercicio: EjercicioUI): void {
     this.ejercicioAEliminar = ejercicio;
     this.showDeleteModal = true;
@@ -526,9 +507,6 @@ export class EjerciciosComponent implements OnInit {
     });
   }
 
-  // ==========================================
-  // Modales
-  // ==========================================
   mostrarError(titulo: string, mensaje: string): void {
     this.errorModalTitle = titulo;
     this.errorModalMessage = mensaje;
@@ -543,9 +521,6 @@ export class EjerciciosComponent implements OnInit {
     this.showSuccessModal = false;
   }
 
-  // ==========================================
-  // Helpers
-  // ==========================================
   private getFormVacio(): CrearEjercicioPayload {
     return {
       nombre: '',

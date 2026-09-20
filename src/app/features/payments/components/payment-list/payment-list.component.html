@@ -101,7 +101,6 @@
         </div>
 
         <div class="filters-card__selects">
-            <!-- FILTRO POR ESTADO -->
             <div class="filter-group">
                 <label>Estado</label>
                 <select [(ngModel)]="selectedEstado" (change)="applyFilters()">
@@ -138,12 +137,39 @@
         </div>
     </div>
 
+    <!-- BARRA SUPERIOR DE ACCIONES EN LOTE (ANULAR Y DESCARGAR) -->
+    <div class="bulk-actions-bar" *ngIf="pagosSeleccionadosCount > 0">
+        <div class="bulk-info">
+            <span class="selected-badge">{{ pagosSeleccionadosCount }}</span> pago(s) seleccionado(s)
+        </div>
+        <div class="bulk-buttons">
+            <button type="button" class="btn-bulk btn-bulk--primary" (click)="descargarComprobantesEnLote()" [disabled]="loading">
+                Descargar Comprobantes
+            </button>
+            <button type="button" class="btn-bulk btn-bulk--danger" (click)="anularPagosEnLote()" [disabled]="loading">
+                Anular Seleccionados
+            </button>
+            <button type="button" class="btn-bulk btn-bulk--clear" (click)="limpiarSeleccionPagos()" [disabled]="loading">
+                Cancelar
+            </button>
+        </div>
+    </div>
+
+    <!-- BARRA SELECCIONAR PÁGINA ACTUAL -->
+    <div *ngIf="!loading && paginatedRecords.length > 0" class="selection-header-bar">
+        <label class="select-all-label">
+            <input type="checkbox" [checked]="todosSeleccionadosPagina" (change)="toggleSeleccionarTodos($event)">
+            <span>Seleccionar página actual ({{ paginatedRecords.length }})</span>
+        </label>
+    </div>
+
     <!-- TABLA + PANEL LATERAL -->
     <div class="main-content-layout" [class.with-detail]="selectedPayment">
         <div class="table-container">
             <table class="custom-table">
                 <thead>
                     <tr>
+                        <th style="width: 40px;"></th>
                         <th>FECHA</th>
                         <th>SOCIO</th>
                         <th>MEMBRESÍA</th>
@@ -158,6 +184,9 @@
                         [class.selected]="selectedPayment?.idPago === item.idPago"
                         [class.row-anulado]="item.anulado"
                         (click)="onSelectPayment(item)">
+                        <td (click)="$event.stopPropagation()">
+                            <input type="checkbox" [(ngModel)]="item.selected" class="row-checkbox">
+                        </td>
                         <td>
                             <div class="date-cell">
                                 <span class="date-cell__date">{{ item.fechaPago | date:'dd MMM yyyy' }}</span>
@@ -209,6 +238,14 @@
                                     </svg>
                                 </button>
 
+                                <button class="action-btn" title="Descargar Comprobante PDF" (click)="descargarPdf(item.idPago); $event.stopPropagation()">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                        <polyline points="7 10 12 15 17 10"></polyline>
+                                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                                    </svg>
+                                </button>
+
                                 <button class="action-btn action-btn--danger" *ngIf="!item.anulado" title="Anular Pago"
                                     (click)="onAnularPago(item, $event)">
                                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -225,7 +262,7 @@
                         </td>
                     </tr>
                     <tr *ngIf="paginatedRecords.length === 0 && !loading">
-                        <td colspan="7" class="empty-row">
+                        <td colspan="8" class="empty-row">
                             <div class="empty-state-content">
                                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5">
                                     <circle cx="12" cy="12" r="10"></circle>

@@ -13,6 +13,14 @@
                     <p class="subtitle">Gestiona el catalogo de ejercicios del gimnasio</p>
                 </div>
                 <div class="page-header__right">
+                    <button class="btn-eliminar-lote" *ngIf="ejerciciosSeleccionadosCount > 0" (click)="eliminarEjerciciosEnLote()">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="3 6 5 6 21 6" />
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                        </svg>
+                        Eliminar seleccionados ({{ ejerciciosSeleccionadosCount }})
+                    </button>
+
                     <button class="btn-crear" (click)="abrirModalCrear()">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2">
@@ -134,12 +142,28 @@
                 <!-- Grid de ejercicios -->
                 <section class="ejercicios-section" *ngIf="ejercicios.length > 0">
                     <div class="ejercicios-count-bar">
-                        <span class="ejercicios-count">{{ ejercicios.length }} {{ ejercicios.length === 1 ? 'ejercicio'
-                            : 'ejercicios' }}</span>
+                        <!-- ✅ Checkbox de seleccionar todos -->
+                        <div class="selectAll-container" *ngIf="ejercicios.length > 0">
+                            <label class="checkbox-container">
+                                <input type="checkbox" [checked]="todosSeleccionados" (change)="toggleSeleccionarTodos($event)" />
+                                <span class="checkmark"></span>
+                                <span class="select-all-text">Seleccionar todos ({{ ejercicios.length }})</span>
+                            </label>
+                        </div>
+
+                        <span class="ejercicios-count">{{ ejercicios.length }} {{ ejercicios.length === 1 ? 'ejercicio' : 'ejercicios' }}</span>
                     </div>
 
                     <div class="ejercicios-grid">
-                        <div class="ejercicio-card" *ngFor="let ej of ejercicios">
+                        <div class="ejercicio-card" *ngFor="let ej of ejercicios" [class.selected]="ej.selected">
+
+                            <!-- ✅ Checkbox individual flotante en la tarjeta -->
+                            <div class="card-checkbox-wrapper" (click)="$event.stopPropagation()">
+                                <label class="checkbox-container">
+                                    <input type="checkbox" [(ngModel)]="ej.selected" />
+                                    <span class="checkmark"></span>
+                                </label>
+                            </div>
 
                             <!-- Imagen -->
                             <div class="ejercicio-card__image"

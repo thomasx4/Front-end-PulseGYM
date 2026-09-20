@@ -1,6 +1,5 @@
 <div class="equipments-page">
 
-
     <header class="page-header">
         <div class="page-header__info">
             <h1 class="page-header__title">Inventario de Equipos</h1>
@@ -14,7 +13,6 @@
             <span>Nuevo Equipo</span>
         </button>
     </header>
-
 
     <section class="kpi-grid">
         <div class="kpi-card">
@@ -46,9 +44,7 @@
         <div class="kpi-card">
             <div class="kpi-card__icon kpi-card__icon--amber">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path
-                        d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z">
-                    </path>
+                    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
                 </svg>
             </div>
             <div class="kpi-card__content">
@@ -60,8 +56,7 @@
         <div class="kpi-card">
             <div class="kpi-card__icon kpi-card__icon--rose">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z">
-                    </path>
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
                     <line x1="12" y1="9" x2="12" y2="13"></line>
                 </svg>
             </div>
@@ -72,10 +67,8 @@
         </div>
     </section>
 
-
     <section class="filters-card">
         <div class="filters-wrapper">
-
             <div class="filter-item filter-item--search">
                 <label for="filtroNombre">Buscar Equipo</label>
                 <input type="text" id="filtroNombre" [(ngModel)]="filtroTexto" (input)="consultarEquipos()"
@@ -84,8 +77,7 @@
 
             <div class="filter-item">
                 <label for="filtroEstado">Estado</label>
-                <select id="filtroEstado" [(ngModel)]="filtroEstado" (change)="consultarEquipos()"
-                    class="filter-select">
+                <select id="filtroEstado" [(ngModel)]="filtroEstado" (change)="consultarEquipos()" class="filter-select">
                     <option value="">Todos los Estados</option>
                     <option value="OPERATIVO">OPERATIVO</option>
                     <option value="MANTENIMIENTO">MANTENIMIENTO</option>
@@ -107,10 +99,8 @@
             <div class="filter-actions">
                 <button type="button" class="btn-clear" (click)="limpiarFiltros()">Limpiar Filtros</button>
             </div>
-
         </div>
     </section>
-
 
     <section class="content-section">
 
@@ -123,27 +113,60 @@
             <p>No se encontraron equipos registrados.</p>
         </div>
 
+        <!-- BARRA DE ACCIONES EN LOTE (ESTILO SEDES - SUPERIOR) -->
+        <div class="bulk-actions-bar" *ngIf="equiposSeleccionadosCount > 0">
+            <div class="bulk-info">
+                <span class="selected-badge">{{ equiposSeleccionadosCount }}</span> equipo(s) seleccionado(s)
+            </div>
+            <div class="bulk-buttons">
+                <button type="button" class="btn-bulk btn-bulk--operativo" (click)="cambiarEstadoEnLote('OPERATIVO')" [disabled]="cargando">
+                    Marcar Operativo
+                </button>
+                <button type="button" class="btn-bulk btn-bulk--mantenimiento" (click)="cambiarEstadoEnLote('MANTENIMIENTO')" [disabled]="cargando">
+                    Marcar Mantenimiento
+                </button>
+                <button type="button" class="btn-bulk btn-bulk--fuera" (click)="cambiarEstadoEnLote('FUERA_DE_SERVICIO')" [disabled]="cargando">
+                    Fuera de Servicio
+                </button>
+                <button type="button" class="btn-bulk btn-bulk--retirado" (click)="cambiarEstadoEnLote('RETIRADO')" [disabled]="cargando">
+                    Retirar
+                </button>
+                <button type="button" class="btn-bulk btn-bulk--clear" (click)="limpiarSeleccionEquipos()" [disabled]="cargando">
+                    Cancelar
+                </button>
+            </div>
+        </div>
+
+        <!-- Selección general visible cuando hay equipos -->
+        <div *ngIf="!cargando && equiposPaginados.length > 0" class="selection-header-bar">
+            <label class="select-all-label">
+                <input type="checkbox" [checked]="todosSeleccionadosPagina" (change)="toggleSeleccionarTodos($event)">
+                <span>Seleccionar página actual ({{ equiposPaginados.length }})</span>
+            </label>
+        </div>
+
         <div *ngIf="!cargando && equiposPaginados.length > 0" class="equipments-grid">
-
-            <article *ngFor="let eq of equiposPaginados" class="equipment-card">
-
+            <article *ngFor="let eq of equiposPaginados" class="equipment-card" [class.selected]="eq.selected">
                 <header class="equipment-card__header">
-                    <div class="equipment-card__badge-code">
-                        ID: #{{ eq.idEquipo || eq.id }}
+                    <div class="equipment-card__header-left">
+                        <input type="checkbox" [(ngModel)]="eq.selected" class="equipment-checkbox">
+                        <div class="equipment-card__badge-code">
+                            ID: #{{ eq.idEquipo || eq.id }}
+                        </div>
                     </div>
                     <span class="status-badge" [ngClass]="{
-      'status-badge--operativo': eq.estado === 'OPERATIVO',
-      'status-badge--mantenimiento': eq.estado === 'MANTENIMIENTO',
-      'status-badge--fuera': eq.estado === 'FUERA_DE_SERVICIO'
-    }">
+                        'status-badge--operativo': eq.estado === 'OPERATIVO',
+                        'status-badge--mantenimiento': eq.estado === 'MANTENIMIENTO',
+                        'status-badge--fuera': eq.estado === 'FUERA_DE_SERVICIO',
+                        'status-badge--retirado': eq.estado === 'RETIRADO'
+                    }">
                         {{ formatearEstado(eq.estado) }}
                     </span>
                 </header>
 
                 <div class="equipment-card__body">
                     <div class="equipment-card__icon-box">
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <rect x="2" y="7" width="20" height="14" rx="2"></rect>
                             <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
                         </svg>
@@ -151,19 +174,18 @@
                     <div class="equipment-card__details">
                         <h3 class="equipment-card__title">{{ eq.nombre }}</h3>
                         <span class="equipment-card__brand">
-                            {{ eq.marca || 'Sin marca' }} <ng-container *ngIf="eq.modelo">- {{ eq.modelo
-                                }}</ng-container>
+                            {{ eq.marca || 'Sin marca' }} <ng-container *ngIf="eq.modelo">- {{ eq.modelo }}</ng-container>
                         </span>
                     </div>
                 </div>
 
                 <div class="quick-status">
                     <span class="quick-status__label">Estado actual:</span>
-                    <select [ngModel]="eq.estado" (ngModelChange)="cambiarEstadoRapido(eq, $event)"
-                        class="quick-status__select">
+                    <select [ngModel]="eq.estado" (ngModelChange)="cambiarEstadoRapido(eq, $event)" class="quick-status__select">
                         <option value="OPERATIVO">OPERATIVO</option>
                         <option value="MANTENIMIENTO">MANTENIMIENTO</option>
                         <option value="FUERA_DE_SERVICIO">FUERA DE SERVICIO</option>
+                        <option value="RETIRADO">RETIRADO</option>
                     </select>
                 </div>
 
@@ -175,23 +197,18 @@
                         Editar Equipo
                     </button>
                 </footer>
-
             </article>
-
         </div>
-
 
         <div *ngIf="!cargando && totalPages > 1" class="pagination-container">
             <button type="button" class="pagination-btn" [disabled]="currentPage === 1"
                 (click)="cambiarPagina(currentPage - 1)">
                 ‹
             </button>
-
             <button *ngFor="let page of pagesArray" type="button" class="pagination-btn"
                 [class.active]="page === currentPage" (click)="cambiarPagina(page)">
                 {{ page }}
             </button>
-
             <button type="button" class="pagination-btn" [disabled]="currentPage === totalPages"
                 (click)="cambiarPagina(currentPage + 1)">
                 ›

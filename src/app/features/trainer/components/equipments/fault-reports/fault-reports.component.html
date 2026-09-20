@@ -65,12 +65,47 @@
             </div>
         </div>
 
+        <!-- BARRA SUPERIOR DE ACCIONES EN LOTE -->
+        <div class="bulk-actions-bar" *ngIf="reportesSeleccionadosCount > 0">
+            <div class="bulk-info">
+                <span class="selected-badge">{{ reportesSeleccionadosCount }}</span> reporte(s) seleccionado(s)
+            </div>
+            <div class="bulk-buttons">
+                <button type="button" class="btn-bulk btn-bulk--revision" (click)="cambiarEstadoEnLote('EN_REVISION')" [disabled]="cargando">
+                    Marcar En Revisión
+                </button>
+                <button type="button" class="btn-bulk btn-bulk--repair" (click)="cambiarEstadoEnLote('EN_REPARACION')" [disabled]="cargando">
+                    Marcar En Reparación
+                </button>
+                <button type="button" class="btn-bulk btn-bulk--resolved" (click)="cambiarEstadoEnLote('RESUELTO')" [disabled]="cargando">
+                    Marcar Resuelto
+                </button>
+                <button type="button" class="btn-bulk btn-bulk--clear" (click)="limpiarSeleccionReportes()" [disabled]="cargando">
+                    Cancelar
+                </button>
+            </div>
+        </div>
+
+        <!-- SELECCIONAR TODOS (PÁGINA ACTUAL) -->
+        <div *ngIf="!cargando && reportesPaginados.length > 0" class="selection-header-bar">
+            <label class="select-all-label">
+                <input type="checkbox" [checked]="todosSeleccionadosPagina" (change)="toggleSeleccionarTodos($event)">
+                <span>Seleccionar página actual ({{ reportesPaginados.length }})</span>
+            </label>
+        </div>
+
         <div class="table-card">
+
+            <div *ngIf="cargando" class="state-container">
+                <div class="spinner"></div>
+                <p>Cargando incidencias de equipos...</p>
+            </div>
 
             <div *ngIf="!cargando && reportesPaginados.length > 0" class="table-wrapper">
                 <table class="pulse-table">
                     <thead>
                         <tr>
+                            <th style="width: 40px;"></th>
                             <th>EQUIPO</th>
                             <th>UBICACIÓN</th>
                             <th>URGENCIA</th>
@@ -80,7 +115,11 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let item of reportesPaginados">
+                        <tr *ngFor="let item of reportesPaginados" [class.selected]="item.selected">
+
+                            <td>
+                                <input type="checkbox" [(ngModel)]="item.selected" class="row-checkbox">
+                            </td>
 
                             <td>
                                 <div class="equipment-cell">
@@ -125,7 +164,9 @@
                                     title="Registrar Mantenimiento">
                                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                         stroke-width="2">
-                                        <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+                                        <path
+                                            d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z">
+                                        </path>
                                     </svg>
                                     <span>Mantenimiento</span>
                                 </button>
@@ -142,7 +183,8 @@
 
             <footer *ngIf="!cargando && totalElementos > 0" class="table-footer">
                 <span class="showing-text">
-                    Mostrando <strong>{{ inicio + 1 }}</strong> a <strong>{{ fin }}</strong> de <strong>{{ totalElementos }}</strong> incidencias
+                    Mostrando <strong>{{ inicio + 1 }}</strong> a <strong>{{ fin }}</strong> de <strong>{{ totalElementos
+                    }}</strong> incidencias
                 </span>
 
                 <div class="pagination">
@@ -151,7 +193,8 @@
                         (click)="irPagina(p)">
                         {{ p }}
                     </button>
-                    <button class="page-btn" (click)="paginaSiguiente()" [disabled]="paginaActual === totalPaginas">›</button>
+                    <button class="page-btn" (click)="paginaSiguiente()"
+                        [disabled]="paginaActual === totalPaginas">›</button>
                 </div>
             </footer>
 
@@ -161,9 +204,6 @@
 
 </div>
 
-<!-- ========================================== -->
-<!-- Modal Mantenimiento -->
-<!-- ========================================== -->
 <div class="modal-backdrop" *ngIf="mostrarModalMantenimiento" (click)="cerrarModalMantenimiento()">
     <div class="modal-card" (click)="$event.stopPropagation()">
 
@@ -171,13 +211,13 @@
             <div>
                 <span class="modal-tag">EQUIPO #{{ equipoSeleccionadoFalla?.idEquipo }}</span>
                 <h3 class="modal-title">Registrar Mantenimiento</h3>
-                <p class="modal-subtitle">{{ equipoSeleccionadoFalla?.nombre }} ({{ equipoSeleccionadoFalla?.marca }})</p>
+                <p class="modal-subtitle">{{ equipoSeleccionadoFalla?.nombre }} ({{ equipoSeleccionadoFalla?.marca }})
+                </p>
             </div>
             <button type="button" class="btn-close" (click)="cerrarModalMantenimiento()">&times;</button>
         </div>
 
         <div class="modal-body">
-
             <div class="form-row">
                 <div class="form-group">
                     <label>Tipo de Mantenimiento</label>
@@ -217,7 +257,6 @@
                     placeholder="Ingrese la descripción del Mantenimiento realizado"
                     class="form-input"></textarea>
             </div>
-
         </div>
 
         <div class="modal-footer">
@@ -231,44 +270,5 @@
             </button>
         </div>
 
-    </div>
-</div>
-
-<!-- ========================================== -->
-<!-- Modal Error -->
-<!-- ========================================== -->
-<div class="modal-backdrop" *ngIf="mostrarModalError" (click)="cerrarModalError()">
-    <div class="modal-content-state" (click)="$event.stopPropagation()">
-        <div class="modal-state-icon error-icon">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10" />
-                <line x1="12" y1="8" x2="12" y2="12" />
-                <line x1="12" y1="16" x2="12.01" y2="16" />
-            </svg>
-        </div>
-        <h3 class="modal-state-title">{{ modalErrorTitulo }}</h3>
-        <p class="modal-state-message">{{ modalErrorMensaje }}</p>
-        <div class="modal-state-actions">
-            <button class="modal-state-btn modal-state-btn--primary" (click)="cerrarModalError()">Entendido</button>
-        </div>
-    </div>
-</div>
-
-<!-- ========================================== -->
-<!-- Modal Éxito -->
-<!-- ========================================== -->
-<div class="modal-backdrop" *ngIf="mostrarModalExito" (click)="cerrarModalExito()">
-    <div class="modal-content-state" (click)="$event.stopPropagation()">
-        <div class="modal-state-icon success-icon">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                <polyline points="22 4 12 14.01 9 11.01" />
-            </svg>
-        </div>
-        <h3 class="modal-state-title">¡Operación exitosa!</h3>
-        <p class="modal-state-message">{{ modalExitoMensaje }}</p>
-        <div class="modal-state-actions">
-            <button class="modal-state-btn modal-state-btn--primary" (click)="cerrarModalExito()">Aceptar</button>
-        </div>
     </div>
 </div>

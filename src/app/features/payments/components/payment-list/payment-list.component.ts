@@ -6,6 +6,8 @@ import { Payment, PaymentSummaryDTO, AnularPagoRequestDTO } from '../../../../co
 import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
+import { forkJoin } from 'rxjs';
+import JSZip from 'jszip';
 
 @Component({
   selector: 'app-payment-list',
@@ -13,7 +15,7 @@ import { Share } from '@capacitor/share';
   styleUrls: ['./payment-list.component.scss']
 })
 export class PaymentListComponent implements OnInit {
-  paginatedRecords: Payment[] = [];
+  paginatedRecords: (Payment & { selected?: boolean })[] = [];
   selectedPayment: Payment | null = null;
   loading: boolean = false;
   searchQuery: string = '';
@@ -66,7 +68,8 @@ export class PaymentListComponent implements OnInit {
 
     this.paymentService.filtrarPagosPaginados(filtroPayload).subscribe({
       next: (res) => {
-        this.paginatedRecords = res.content || [];
+        const lista = res.content || [];
+        this.paginatedRecords = lista.map((p: Payment) => ({ ...p, selected: false }));
         this.totalElements = res.totalElements || 0;
         this.totalPages = res.totalPages || 1;
         this.loading = false;
@@ -75,6 +78,162 @@ export class PaymentListComponent implements OnInit {
         console.error('Error al filtrar pagos', err);
         this.paginatedRecords = [];
         this.loading = false;
+      }
+    });
+  }
+
+  get pagosSeleccionadosCount(): number {
+    return this.paginatedRecords.filter(p => p.selected).length;
+  }
+
+  get todosSeleccionadosPagina(): boolean {
+    const visibles = this.paginatedRecords;
+    if (visibles.length === 0) return false;
+    return visibles.every(p => p.selected);
+  }
+
+  toggleSeleccionarTodos(event: any): void {
+    const checked = event.target.checked;
+    this.paginatedRecords.forEach(p => p.selected = checked);
+  }
+
+  limpiarSeleccionPagos(): void {
+    this.paginatedRecords.forEach(p => p.selected = false);
+  }
+
+  async anularPagosEnLote(): Promise<void> {
+    const seleccionados = this.paginatedRecords.filter(p => p.selected && !p.anulado);
+    if (seleccionados.length === 0) {
+      Swal.fire('Información', 'No hay pagos válidos seleccionados para anular.', 'info');
+      return;
+    }
+
+    const { value: motivoInput } = await Swal.fire({
+      title: '¿Estás seguro de anular los pagos seleccionados?',
+      text: `Se anularán ${seleccionados.length} pago(s).`,
+      input: 'text',
+      inputLabel: 'Motivo de anulación general',
+      inputValue: 'Anulación masiva de pagos',
+      inputPlaceholder: 'Escribe el motivo aquí...',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, anular todos',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#dc2626',
+      cancelButtonColor: '#64748b',
+      inputValidator: (value) => {
+        if (!value || value.trim() === '') {
+          return '¡Debes escribir un motivo de anulación!';
+        }
+        return null;
+      }
+    });
+
+    if (motivoInput) {
+      this.loading = true;
+      const peticiones = seleccionados.map(p => {
+        const payload: AnularPagoRequestDTO = {
+          idPago: p.idPago,
+          motivo: motivoInput.trim()
+        };
+        return this.paymentService.anularPago(payload);
+      });
+
+      forkJoin(peticiones).subscribe({
+        next: () => {
+          this.loading = false;
+          Swal.fire({
+            icon: 'success',
+            title: '¡Pagos Anulados!',
+            text: 'Los pagos seleccionados han sido anulados correctamente.',
+            timer: 2000,
+            showConfirmButton: false
+          });
+          this.loadResumen();
+          if (this.selectedPayment && seleccionados.some(s => s.idPago === this.selectedPayment?.idPago)) {
+            this.selectedPayment = null;
+          }
+        },
+        error: (err) => {
+          this.loading = false;
+          console.error('Error al anular pagos en lote', err);
+          Swal.fire('Error', 'No se pudieron anular algunos pagos.', 'error');
+          this.loadResumen();
+        }
+      });
+    }
+  }
+
+  async descargarComprobantesEnLote(): Promise<void> {
+    const seleccionados = this.paginatedRecords.filter(p => p.selected && p.idPago);
+    if (seleccionados.length === 0) {
+      Swal.fire('Información', 'No hay pagos seleccionados para descargar comprobantes.', 'info');
+      return;
+    }
+
+    this.loading = true;
+    const peticiones = seleccionados.map(p => this.paymentService.descargarComprobantePDF(p.idPago));
+
+    forkJoin(peticiones).subscribe({
+      next: async (blobs) => {
+        const zip = new JSZip();
+
+        blobs.forEach((blob, index) => {
+          const idPago = seleccionados[index].idPago;
+          const fileName = `comprobante-pago-${idPago}.pdf`;
+          zip.file(fileName, blob);
+        });
+
+        try {
+          const content = await zip.generateAsync({ type: 'blob' });
+          this.loading = false;
+
+          if (Capacitor.isNativePlatform()) {
+            const reader = new FileReader();
+            reader.readAsDataURL(content);
+            reader.onloadend = async () => {
+              const base64data = reader.result as string;
+              const base64Content = base64data.includes(',') ? base64data.split(',')[1] : base64data;
+              const zipFileName = `comprobantes-pagos-${Date.now()}.zip`;
+
+              const savedFile = await Filesystem.writeFile({
+                path: zipFileName,
+                data: base64Content,
+                directory: Directory.Documents
+              });
+
+              await Share.share({
+                title: 'Comprobantes de Pago - Pulse Gym',
+                url: savedFile.uri,
+                dialogTitle: 'Compartir archivo ZIP'
+              });
+            };
+          } else {
+            const url = window.URL.createObjectURL(content);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `comprobantes-pagos-${Date.now()}.zip`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+          }
+
+          Swal.fire({
+            icon: 'success',
+            title: '¡ZIP Descargado!',
+            text: `Se comprimieron y descargaron ${blobs.length} comprobante(s) en un archivo .zip exitosamente.`,
+            timer: 2500,
+            showConfirmButton: false
+          });
+
+        } catch (zipError) {
+          this.loading = false;
+          console.error('Error al generar el archivo ZIP', zipError);
+          Swal.fire('Error', 'No se pudo empaquetar los comprobantes en el archivo ZIP.', 'error');
+        }
+      },
+      error: (err) => {
+        this.loading = false;
+        console.error('Error al descargar comprobantes en lote', err);
+        Swal.fire('Error', 'No se pudieron obtener algunos comprobantes del servidor.', 'error');
       }
     });
   }
@@ -212,12 +371,10 @@ export class PaymentListComponent implements OnInit {
                   directory: Directory.ExternalStorage
                 });
 
-                console.log('Archivo guardado exitosamente:', savedFile.uri);
-
                 Swal.fire({
                   icon: 'success',
                   title: '¡Comprobante Descargado!',
-                  text: `Guardado correctamente en la carpeta de almacenamiento del dispositivo.`,
+                  text: `Guardado correctamente en el dispositivo.`,
                   timer: 3000,
                   showConfirmButton: false
                 });
@@ -229,8 +386,6 @@ export class PaymentListComponent implements OnInit {
                 });
 
               } catch (fsError: any) {
-                console.error('Error al guardar con ExternalStorage, intentando con Documents:', fsError);
-
                 try {
                   const savedFileFallback = await Filesystem.writeFile({
                     path: fileName,
@@ -244,8 +399,7 @@ export class PaymentListComponent implements OnInit {
                     dialogTitle: 'Abrir o compartir comprobante'
                   });
                 } catch (fallbackErr: any) {
-                  console.error('Error definitivo al guardar archivo:', fallbackErr);
-                  Swal.fire('Error', 'No se pudo guardar el archivo en el almacenamiento: ' + (fallbackErr.message || fallbackErr), 'error');
+                  Swal.fire('Error', 'No se pudo guardar el archivo en el almacenamiento', 'error');
                 }
               }
             };
@@ -258,12 +412,10 @@ export class PaymentListComponent implements OnInit {
             window.URL.revokeObjectURL(url);
           }
         } catch (err) {
-          console.error('Error procesando el PDF:', err);
           Swal.fire('Error', 'Ocurrió un error al procesar el comprobante', 'error');
         }
       },
-      error: (err) => {
-        console.error('Error al descargar el PDF desde el servidor', err);
+      error: () => {
         Swal.fire('Error', 'No se pudo obtener el comprobante del servidor', 'error');
       }
     });

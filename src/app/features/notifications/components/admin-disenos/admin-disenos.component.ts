@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { NotificationService } from '../../services/notification.service';
 import { PlantillaDisenoEmail, EnumEventoAsociado, EnumCanalNotificacion } from '../../models/notification.model';
 import Swal from 'sweetalert2';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-admin-disenos',
@@ -16,7 +17,8 @@ export class AdminDisenosComponent implements OnInit {
   private notificationService = inject(NotificationService);
   private rolAdmin = 'ADMIN';
 
-  disenos: PlantillaDisenoEmail[] = [];
+  disenos: (PlantillaDisenoEmail & { selected?: boolean })[] = [];
+  cargando = false;
   modalAbierto = false;
   esEdicion = false;
 
@@ -44,7 +46,7 @@ export class AdminDisenosComponent implements OnInit {
     this.cargarDisenos();
   }
 
-  get disenosFiltrados(): PlantillaDisenoEmail[] {
+  get disenosFiltrados(): (PlantillaDisenoEmail & { selected?: boolean })[] {
     return this.disenos.filter(d => {
       if (d.eliminado) return false;
 
@@ -59,10 +61,37 @@ export class AdminDisenosComponent implements OnInit {
     });
   }
 
+  get disenosSeleccionadosCount(): number {
+    return this.disenosFiltrados.filter(d => d.selected).length;
+  }
+
+  get todosSeleccionadosFiltrados(): boolean {
+    const visibles = this.disenosFiltrados;
+    if (visibles.length === 0) return false;
+    return visibles.every(d => d.selected);
+  }
+
+  toggleSeleccionarTodos(event: any): void {
+    const checked = event.target.checked;
+    this.disenosFiltrados.forEach(d => d.selected = checked);
+  }
+
+  limpiarSeleccionDisenos(): void {
+    this.disenos.forEach(d => d.selected = false);
+  }
+
   cargarDisenos(): void {
+    this.cargando = true;
     this.notificationService.listarDisenos(this.rolAdmin).subscribe({
-      next: (res) => this.disenos = res.data || [],
-      error: (err) => console.error('Error al cargar diseños', err)
+      next: (res) => {
+        const lista = res.data || [];
+        this.disenos = lista.map((d: PlantillaDisenoEmail) => ({ ...d, selected: false }));
+        this.cargando = false;
+      },
+      error: (err) => {
+        console.error('Error al cargar diseños', err);
+        this.cargando = false;
+      }
     });
   }
 
@@ -175,6 +204,48 @@ export class AdminDisenosComponent implements OnInit {
         });
       }
     });
+  }
+
+  async eliminarDisenosEnLote(): Promise<void> {
+    const seleccionados = this.disenosFiltrados.filter(d => d.selected && d.idDiseno);
+    if (seleccionados.length === 0) return;
+
+    const confirmacion = await Swal.fire({
+      title: '¿Estás seguro?',
+      text: `Deseas eliminar ${seleccionados.length} diseño(s) seleccionado(s)`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc2626',
+      cancelButtonColor: '#0e3b72',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    });
+
+    if (confirmacion.isConfirmed) {
+      this.cargando = true;
+      const peticiones = seleccionados.map(d => 
+        this.notificationService.eliminarDiseno(this.rolAdmin, d.idDiseno!)
+      );
+
+      forkJoin(peticiones).subscribe({
+        next: () => {
+          this.cargando = false;
+          Swal.fire({
+            icon: 'success',
+            title: '¡Eliminados!',
+            text: 'Los diseños seleccionados han sido eliminados correctamente.',
+            timer: 2000,
+            showConfirmButton: false
+          });
+          this.cargarDisenos();
+        },
+        error: (err) => {
+          this.cargando = false;
+          Swal.fire('Error', 'Error al eliminar los diseños seleccionados.', 'error');
+          this.cargarDisenos();
+        }
+      });
+    }
   }
 
   limpiarFiltros(): void {
