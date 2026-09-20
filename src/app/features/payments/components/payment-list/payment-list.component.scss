@@ -74,7 +74,6 @@
         justify-content: center;
         flex-shrink: 0;
 
-        /* ✅ Semánticos */
         &--green { background: #dcfce7; color: #16a34a; }
         &--blue { background: #e0f2fe; color: #0284c7; }
         &--yellow { background: #fef9c3; color: #ca8a04; }
@@ -297,7 +296,6 @@
             td { border-color: var(--color-info); }
         }
 
-        /* ✅ Semántico (rojo claro) */
         &.row-anulado {
             background: #fef2f2;
             opacity: 0.8;
@@ -408,7 +406,6 @@
     }
 }
 
-/* ✅ Semánticos */
 .status-pill {
     padding: 0.3rem 0.75rem;
     border-radius: 20px;
@@ -464,7 +461,6 @@
         color: var(--color-info);
     }
 
-    /* ✅ Semántico (rojo) */
     &--danger {
         background: #fef2f2;
         border-color: #fecaca;
@@ -713,7 +709,6 @@
     }
 }
 
-/* Barra superior de acciones en lote */
 .bulk-actions-bar {
     display: flex;
     align-items: center;
@@ -756,6 +751,12 @@
             font-weight: 700;
             cursor: pointer;
             transition: all 0.2s ease;
+
+            &--primary {
+                background-color: #b1f0c9;
+                color: #133e1e;
+                &:hover { background-color: #9ee6b7; }
+            }
 
             &--danger {
                 background-color: #fee2e2;

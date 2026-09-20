@@ -137,12 +137,15 @@
         </div>
     </div>
 
-    <!-- BARRA SUPERIOR DE ACCIONES EN LOTE (ANULAR) -->
+    <!-- BARRA SUPERIOR DE ACCIONES EN LOTE (ANULAR Y DESCARGAR) -->
     <div class="bulk-actions-bar" *ngIf="pagosSeleccionadosCount > 0">
         <div class="bulk-info">
             <span class="selected-badge">{{ pagosSeleccionadosCount }}</span> pago(s) seleccionado(s)
         </div>
         <div class="bulk-buttons">
+            <button type="button" class="btn-bulk btn-bulk--primary" (click)="descargarComprobantesEnLote()" [disabled]="loading">
+                Descargar Comprobantes
+            </button>
             <button type="button" class="btn-bulk btn-bulk--danger" (click)="anularPagosEnLote()" [disabled]="loading">
                 Anular Seleccionados
             </button>
@@ -182,7 +185,7 @@
                         [class.row-anulado]="item.anulado"
                         (click)="onSelectPayment(item)">
                         <td (click)="$event.stopPropagation()">
-                            <input type="checkbox" [(ngModel)]="item.selected" class="row-checkbox" *ngIf="!item.anulado">
+                            <input type="checkbox" [(ngModel)]="item.selected" class="row-checkbox">
                         </td>
                         <td>
                             <div class="date-cell">
@@ -232,6 +235,14 @@
                                         stroke-width="2">
                                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                                         <circle cx="12" cy="12" r="3"></circle>
+                                    </svg>
+                                </button>
+
+                                <button class="action-btn" title="Descargar Comprobante PDF" (click)="descargarPdf(item.idPago); $event.stopPropagation()">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                        <polyline points="7 10 12 15 17 10"></polyline>
+                                        <line x1="12" y1="15" x2="12" y2="3"></line>
                                     </svg>
                                 </button>
 

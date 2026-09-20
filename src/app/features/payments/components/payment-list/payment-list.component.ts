@@ -7,6 +7,7 @@ import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
 import { forkJoin } from 'rxjs';
+import JSZip from 'jszip';
 
 @Component({
   selector: 'app-payment-list',
@@ -82,20 +83,18 @@ export class PaymentListComponent implements OnInit {
   }
 
   get pagosSeleccionadosCount(): number {
-    return this.paginatedRecords.filter(p => p.selected && !p.anulado).length;
+    return this.paginatedRecords.filter(p => p.selected).length;
   }
 
   get todosSeleccionadosPagina(): boolean {
-    const validos = this.paginatedRecords.filter(p => !p.anulado);
-    if (validos.length === 0) return false;
-    return validos.every(p => p.selected);
+    const visibles = this.paginatedRecords;
+    if (visibles.length === 0) return false;
+    return visibles.every(p => p.selected);
   }
 
   toggleSeleccionarTodos(event: any): void {
     const checked = event.target.checked;
-    this.paginatedRecords.forEach(p => {
-      if (!p.anulado) p.selected = checked;
-    });
+    this.paginatedRecords.forEach(p => p.selected = checked);
   }
 
   limpiarSeleccionPagos(): void {
@@ -104,7 +103,10 @@ export class PaymentListComponent implements OnInit {
 
   async anularPagosEnLote(): Promise<void> {
     const seleccionados = this.paginatedRecords.filter(p => p.selected && !p.anulado);
-    if (seleccionados.length === 0) return;
+    if (seleccionados.length === 0) {
+      Swal.fire('Información', 'No hay pagos válidos seleccionados para anular.', 'info');
+      return;
+    }
 
     const { value: motivoInput } = await Swal.fire({
       title: '¿Estás seguro de anular los pagos seleccionados?',
@@ -159,6 +161,81 @@ export class PaymentListComponent implements OnInit {
         }
       });
     }
+  }
+
+  async descargarComprobantesEnLote(): Promise<void> {
+    const seleccionados = this.paginatedRecords.filter(p => p.selected && p.idPago);
+    if (seleccionados.length === 0) {
+      Swal.fire('Información', 'No hay pagos seleccionados para descargar comprobantes.', 'info');
+      return;
+    }
+
+    this.loading = true;
+    const peticiones = seleccionados.map(p => this.paymentService.descargarComprobantePDF(p.idPago));
+
+    forkJoin(peticiones).subscribe({
+      next: async (blobs) => {
+        const zip = new JSZip();
+
+        blobs.forEach((blob, index) => {
+          const idPago = seleccionados[index].idPago;
+          const fileName = `comprobante-pago-${idPago}.pdf`;
+          zip.file(fileName, blob);
+        });
+
+        try {
+          const content = await zip.generateAsync({ type: 'blob' });
+          this.loading = false;
+
+          if (Capacitor.isNativePlatform()) {
+            const reader = new FileReader();
+            reader.readAsDataURL(content);
+            reader.onloadend = async () => {
+              const base64data = reader.result as string;
+              const base64Content = base64data.includes(',') ? base64data.split(',')[1] : base64data;
+              const zipFileName = `comprobantes-pagos-${Date.now()}.zip`;
+
+              const savedFile = await Filesystem.writeFile({
+                path: zipFileName,
+                data: base64Content,
+                directory: Directory.Documents
+              });
+
+              await Share.share({
+                title: 'Comprobantes de Pago - Pulse Gym',
+                url: savedFile.uri,
+                dialogTitle: 'Compartir archivo ZIP'
+              });
+            };
+          } else {
+            const url = window.URL.createObjectURL(content);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `comprobantes-pagos-${Date.now()}.zip`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+          }
+
+          Swal.fire({
+            icon: 'success',
+            title: '¡ZIP Descargado!',
+            text: `Se comprimieron y descargaron ${blobs.length} comprobante(s) en un archivo .zip exitosamente.`,
+            timer: 2500,
+            showConfirmButton: false
+          });
+
+        } catch (zipError) {
+          this.loading = false;
+          console.error('Error al generar el archivo ZIP', zipError);
+          Swal.fire('Error', 'No se pudo empaquetar los comprobantes en el archivo ZIP.', 'error');
+        }
+      },
+      error: (err) => {
+        this.loading = false;
+        console.error('Error al descargar comprobantes en lote', err);
+        Swal.fire('Error', 'No se pudieron obtener algunos comprobantes del servidor.', 'error');
+      }
+    });
   }
 
   onSelectPayment(item: Payment, event?: Event): void {
