@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { UserService, FiltrosPerfiles } from '../../../../core/services/user.service';
+import { UserService, FiltrosPerfiles, UsuarioMetricasDTO } from '../../../../core/services/user.service';
 import Swal from 'sweetalert2';
 
 export interface UserProfile {
@@ -47,8 +47,18 @@ export class UserProfileListComponent implements OnInit {
   filtroRol: string = 'todos';
   filtroEstado: string = 'todos';
 
-  // ⭐ Propiedades para selección múltiple
+  // Propiedad para selección múltiple
   idsSeleccionados: Set<number> = new Set<number>();
+
+  // Propiedad para las métricas globales del sistema
+  metricas: UsuarioMetricasDTO = {
+    totalUsuarios: 0,
+    totalInactivos: 0,
+    totalAdministradores: 0,
+    totalEntrenadores: 0,
+    totalRecepcionistas: 0,
+    totalSocios: 0
+  };
 
   constructor(
     private userService: UserService,
@@ -57,6 +67,7 @@ export class UserProfileListComponent implements OnInit {
 
   ngOnInit(): void {
     this.cargarPerfiles();
+    this.cargarMetricas();
   }
 
   cargarPerfiles(): void {
@@ -99,6 +110,17 @@ export class UserProfileListComponent implements OnInit {
         console.error('Error al cargar perfiles:', error);
         this.errorMensaje = error.error?.message || 'No se pudieron cargar los perfiles.';
         this.loading = false;
+      }
+    });
+  }
+
+  cargarMetricas(): void {
+    this.userService.obtenerMetricasUsuarios().subscribe({
+      next: (data) => {
+        this.metricas = data;
+      },
+      error: (err) => {
+        console.error('Error al cargar métricas globales:', err);
       }
     });
   }
@@ -168,6 +190,8 @@ export class UserProfileListComponent implements OnInit {
 
               if (completados === ids.length) {
                 this.limpiarSeleccion();
+                this.cargarPerfiles();
+                this.cargarMetricas();
                 Swal.fire('¡Actualizado!', 'Los estados de los perfiles han sido modificados correctamente.', 'success');
               }
             },
@@ -269,6 +293,7 @@ export class UserProfileListComponent implements OnInit {
         this.userService.cambiarEstadoPerfil(perfil.idUsuario, nuevoEstado).subscribe({
           next: () => {
             perfil.estado = nuevoEstado;
+            this.cargarMetricas(); // Actualizar las tarjetas globales instantáneamente
             Swal.fire({
               icon: 'success',
               title: 'Estado actualizado',
@@ -294,9 +319,5 @@ export class UserProfileListComponent implements OnInit {
     const date = new Date(fecha);
     if (isNaN(date.getTime())) return 'N/D';
     return date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
-  }
-
-  getTotalPorRol(rol: string): number {
-    return this.perfiles.filter(p => p.rol?.toLowerCase() === rol.toLowerCase()).length;
   }
 }

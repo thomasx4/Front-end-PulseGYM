@@ -22,10 +22,22 @@ export class HeadquartersListComponent implements OnInit {
   // ⭐ Propiedades para selección múltiple
   idsSeleccionados: Set<number> = new Set<number>();
 
+  // 🔥 Sidebar móvil (por si en el futuro se usa dentro de UserLayout)
+  public isSidebarOpen: boolean = false;
+
   constructor(private headquarterService: HeadquarterService) {}
 
   ngOnInit(): void {
     this.cargarSedes();
+  }
+
+  // 🔥 Métodos para sidebar móvil
+  toggleSidebar(): void {
+    this.isSidebarOpen = !this.isSidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.isSidebarOpen = false;
   }
 
   cargarSedes(): void {

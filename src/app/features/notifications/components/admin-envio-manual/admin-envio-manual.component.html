@@ -3,7 +3,8 @@
         <div class="page-header__left">
             <div class="page-header__title-group">
                 <div class="page-header__icon-wrapper">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.5">
                         <path d="M22 2L11 13"></path>
                         <path d="M22 2l-7 20-4-9-9-4 20-7z"></path>
                     </svg>
@@ -25,7 +26,7 @@
         <!-- COLUMNA IZQUIERDA: Destinatario (Modal), Canal y Plantilla -->
         <div class="config-card">
             <div class="config-card__body space-y-4">
-                
+
                 <!-- SELECCIÓN DE USUARIO CON MODAL -->
                 <div class="form-group-full">
                     <label class="form-label">Destinatario / Usuario Asignado <span class="required">*</span></label>
@@ -33,14 +34,16 @@
                     <!-- Estado 1: Sin usuario seleccionado -->
                     <div *ngIf="!selectedUsuario" class="assign-partner-placeholder">
                         <div class="placeholder-text">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
                                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                                 <circle cx="12" cy="7" r="4"></circle>
                             </svg>
                             <span>No se ha seleccionado ningún usuario</span>
                         </div>
                         <button type="button" class="btn-open-modal-partner" (click)="abrirModalSeleccionSocio()">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
                                 <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                                 <circle cx="9" cy="7" r="4"></circle>
                                 <line x1="19" y1="8" x2="19" y2="14"></line>
@@ -57,25 +60,29 @@
                                 <img *ngIf="getUsuarioFoto(selectedUsuario) && !hasAvatarError()"
                                     [src]="getUsuarioFoto(selectedUsuario)" [alt]="selectedUsuario.username"
                                     class="partner-avatar__img" crossOrigin="anonymous" (error)="onAvatarError()" />
-                                <span *ngIf="!getUsuarioFoto(selectedUsuario) || hasAvatarError()" class="avatar-initials">
+                                <span *ngIf="!getUsuarioFoto(selectedUsuario) || hasAvatarError()"
+                                    class="avatar-initials">
                                     {{ getInitials(selectedUsuario.username, selectedUsuario.email) }}
                                 </span>
                             </div>
                             <div class="partner-details">
                                 <div class="name-rol-row">
-                                    <span class="partner-name">{{ selectedUsuario.username || selectedUsuario.email }}</span>
+                                    <span class="partner-name">{{ selectedUsuario.username || selectedUsuario.email
+                                        }}</span>
                                     <span class="role-badge" [ngClass]="getRolClass(selectedUsuario.rol)">
                                         {{ getRolLabel(selectedUsuario.rol) }}
                                     </span>
                                 </div>
                                 <span class="partner-email">Email: {{ selectedUsuario.email }}</span>
-                                
+
                                 <!-- Input dinámico para número de WhatsApp si el canal activo es WhatsApp -->
-                                <div *ngIf="envio.canal === 'WHATSAPP'" class="whatsapp-input-container" style="margin-top: 6px;">
-                                    <label class="form-label" style="font-size: 0.65rem; color: #0284c7;">Número de WhatsApp (ej: +57300...)</label>
-                                    <input [(ngModel)]="telefonoWhatsapp" type="text" class="form-control-custom" placeholder="+573001234567" style="padding: 5px 8px; font-size: 0.8rem;" />
+                                <div *ngIf="envio.canal === 'WHATSAPP'" class="whatsapp-input-container">
+                                    <label class="form-label whatsapp-label">Número de WhatsApp (ej: 300...)</label>
+                                    <input [(ngModel)]="telefonoWhatsapp" type="text"
+                                        class="form-control-custom whatsapp-input" placeholder="3001234567" />
                                 </div>
-                                <span class="partner-phone" *ngIf="envio.canal !== 'WHATSAPP'">Destino: {{ envio.destinatario }}</span>
+                                <span class="partner-phone" *ngIf="envio.canal !== 'WHATSAPP'">Destino: {{
+                                    envio.destinatario }}</span>
                             </div>
                         </div>
                         <div class="partner-card-actions">
@@ -83,7 +90,8 @@
                                 Cambiar
                             </button>
                             <button type="button" class="btn-remove-partner" (click)="limpiarSeleccion()">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
                                     <line x1="18" y1="6" x2="6" y2="18"></line>
                                     <line x1="6" y1="6" x2="18" y2="18"></line>
                                 </svg>
@@ -96,12 +104,24 @@
                 <div class="form-group-full">
                     <label class="form-label">Canal de envío</label>
                     <div class="channels-selector">
-                        <button type="button" class="channel-btn" [class.active]="envio.canal === 'EMAIL'" (click)="envio.canal = 'EMAIL'">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                        <button type="button" class="channel-btn" [class.active]="envio.canal === 'EMAIL'"
+                            (click)="envio.canal = 'EMAIL'">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z">
+                                </path>
+                                <polyline points="22,6 12,13 2,6"></polyline>
+                            </svg>
                             Email
                         </button>
-                        <button type="button" class="channel-btn" [class.active]="envio.canal === 'WHATSAPP'" (click)="envio.canal = 'WHATSAPP'">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                        <button type="button" class="channel-btn" [class.active]="envio.canal === 'WHATSAPP'"
+                            (click)="envio.canal = 'WHATSAPP'">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path
+                                    d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z">
+                                </path>
+                            </svg>
                             Whatsapp
                         </button>
                     </div>
@@ -110,7 +130,8 @@
                 <!-- Plantilla Opcional -->
                 <div class="form-group-full">
                     <label class="form-label">Plantilla (Opcional)</label>
-                    <select [(ngModel)]="plantillaSeleccionadaId" (change)="onSeleccionarPlantilla()" class="form-control-custom">
+                    <select [(ngModel)]="plantillaSeleccionadaId" (change)="onSeleccionarPlantilla()"
+                        class="form-control-custom">
                         <option [ngValue]="null">Selecciona una plantilla (opcional)</option>
                         <option *ngFor="let p of plantillasList" [ngValue]="p.idPlantilla">{{ p.nombre }}</option>
                     </select>
@@ -122,22 +143,25 @@
         <!-- COLUMNA DERECHA: Asunto y Mensaje -->
         <div class="config-card">
             <div class="config-card__body space-y-4">
-                
+
                 <div class="form-group-full">
                     <label class="form-label">Asunto</label>
-                    <input [(ngModel)]="envio.asunto" type="text" maxlength="100" class="form-control-custom" placeholder="Ingresa el asunto de la notificación...">
+                    <input [(ngModel)]="envio.asunto" type="text" maxlength="100" class="form-control-custom"
+                        placeholder="Ingresa el asunto de la notificación...">
                     <span class="char-counter">{{ envio.asunto?.length || 0 }}/100</span>
                 </div>
 
                 <div class="form-group-full">
                     <label class="form-label">Mensaje</label>
-                    <textarea [(ngModel)]="envio.contenido" rows="6" maxlength="1000" class="form-control-custom" placeholder="Escribe el mensaje aquí..."></textarea>
+                    <textarea [(ngModel)]="envio.contenido" rows="6" maxlength="1000" class="form-control-custom"
+                        placeholder="Escribe el mensaje aquí..."></textarea>
                     <span class="char-counter">{{ envio.contenido?.length || 0 }}/1000</span>
                 </div>
 
                 <div class="action-footer">
                     <button type="button" class="btn btn--primary" (click)="enviar()">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5">
                             <line x1="22" y1="2" x2="11" y2="13"></line>
                         </svg>
                         Enviar Notificación
@@ -169,7 +193,8 @@
             <div class="search-input-wrapper">
                 <input type="text" placeholder="Buscar por email o username..." [(ngModel)]="searchUsuario"
                     (keyup.enter)="filtrarSociosModal()" />
-                <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2">
                     <circle cx="11" cy="11" r="8"></circle>
                     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                 </svg>
@@ -198,8 +223,10 @@
                                     <div class="partner-table-avatar">
                                         <img *ngIf="getUsuarioFoto(cred) && !hasModalAvatarError(cred.id)"
                                             [src]="getUsuarioFoto(cred)" [alt]="cred.username"
-                                            class="partner-avatar__img" crossOrigin="anonymous" (error)="modalAvatarErrors.add(cred.id)" />
-                                        <span *ngIf="!getUsuarioFoto(cred) || hasModalAvatarError(cred.id)" class="avatar-initials">
+                                            class="partner-avatar__img" crossOrigin="anonymous"
+                                            (error)="modalAvatarErrors.add(cred.id)" />
+                                        <span *ngIf="!getUsuarioFoto(cred) || hasModalAvatarError(cred.id)"
+                                            class="avatar-initials">
                                             {{ getInitials(cred.username, cred.email) }}
                                         </span>
                                     </div>
@@ -231,11 +258,14 @@
         <!-- PAGINACIÓN MODAL -->
         <div class="modal-partner-footer" *ngIf="totalPaginasModal > 0">
             <div class="pagination-controls">
-                <button type="button" class="btn-page-arrow" [disabled]="paginaModalActual === 0" (click)="paginaAnteriorModal()">‹</button>
-                <button type="button" *ngFor="let p of paginasVisiblesModal" class="btn-page-num" [class.active]="p === paginaModalActual" (click)="irPaginaModal(p)">
+                <button type="button" class="btn-page-arrow" [disabled]="paginaModalActual === 0"
+                    (click)="paginaAnteriorModal()">‹</button>
+                <button type="button" *ngFor="let p of paginasVisiblesModal" class="btn-page-num"
+                    [class.active]="p === paginaModalActual" (click)="irPaginaModal(p)">
                     {{ p + 1 }}
                 </button>
-                <button type="button" class="btn-page-arrow" [disabled]="paginaModalActual >= totalPaginasModal - 1" (click)="paginaSiguienteModal()">›</button>
+                <button type="button" class="btn-page-arrow" [disabled]="paginaModalActual >= totalPaginasModal - 1"
+                    (click)="paginaSiguienteModal()">›</button>
             </div>
         </div>
 

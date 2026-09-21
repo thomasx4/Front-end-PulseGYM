@@ -21,10 +21,22 @@ export class SupplierListComponent implements OnInit {
   proveedorPrincipalNombre: string = 'N/A';
   proveedorPrincipalCant: number = 0;
 
+  // 🔥 Sidebar móvil (por consistencia, no se usa aquí)
+  public isSidebarOpen: boolean = false;
+
   constructor(private supplierService: SupplierService) { }
 
   ngOnInit(): void {
     this.cargarProveedores();
+  }
+
+  // 🔥 Métodos para sidebar móvil
+  toggleSidebar(): void {
+    this.isSidebarOpen = !this.isSidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.isSidebarOpen = false;
   }
 
   cargarProveedores(): void {

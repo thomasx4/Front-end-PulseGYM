@@ -137,19 +137,21 @@
         </div>
     </div>
 
-    <!-- BARRA SUPERIOR DE ACCIONES EN LOTE (ANULAR Y DESCARGAR) -->
+    <!-- BARRA SUPERIOR DE ACCIONES EN LOTE -->
     <div class="bulk-actions-bar" *ngIf="pagosSeleccionadosCount > 0">
         <div class="bulk-info">
             <span class="selected-badge">{{ pagosSeleccionadosCount }}</span> pago(s) seleccionado(s)
         </div>
         <div class="bulk-buttons">
-            <button type="button" class="btn-bulk btn-bulk--primary" (click)="descargarComprobantesEnLote()" [disabled]="loading">
+            <button type="button" class="btn-bulk btn-bulk--primary" (click)="descargarComprobantesEnLote()"
+                [disabled]="loading">
                 Descargar Comprobantes
             </button>
             <button type="button" class="btn-bulk btn-bulk--danger" (click)="anularPagosEnLote()" [disabled]="loading">
                 Anular Seleccionados
             </button>
-            <button type="button" class="btn-bulk btn-bulk--clear" (click)="limpiarSeleccionPagos()" [disabled]="loading">
+            <button type="button" class="btn-bulk btn-bulk--clear" (click)="limpiarSeleccionPagos()"
+                [disabled]="loading">
                 Cancelar
             </button>
         </div>
@@ -166,117 +168,123 @@
     <!-- TABLA + PANEL LATERAL -->
     <div class="main-content-layout" [class.with-detail]="selectedPayment">
         <div class="table-container">
-            <table class="custom-table">
-                <thead>
-                    <tr>
-                        <th style="width: 40px;"></th>
-                        <th>FECHA</th>
-                        <th>SOCIO</th>
-                        <th>MEMBRESÍA</th>
-                        <th>MONTO</th>
-                        <th>MÉTODO DE PAGO</th>
-                        <th class="text-center">ESTADO</th>
-                        <th class="text-center">ACCIONES</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr *ngFor="let item of paginatedRecords"
-                        [class.selected]="selectedPayment?.idPago === item.idPago"
-                        [class.row-anulado]="item.anulado"
-                        (click)="onSelectPayment(item)">
-                        <td (click)="$event.stopPropagation()">
-                            <input type="checkbox" [(ngModel)]="item.selected" class="row-checkbox">
-                        </td>
-                        <td>
-                            <div class="date-cell">
-                                <span class="date-cell__date">{{ item.fechaPago | date:'dd MMM yyyy' }}</span>
-                                <span class="date-cell__time">{{ item.fechaPago | date:'hh:mm a' }}</span>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="user-cell">
-                                <div class="avatar-mini">
-                                    {{ item.nombreSocio ? item.nombreSocio.charAt(0).toUpperCase() : 'S' }}
+            <div class="table-scroll-wrapper">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 40px;"></th>
+                            <th>FECHA</th>
+                            <th>SOCIO</th>
+                            <th>MEMBRESÍA</th>
+                            <th>MONTO</th>
+                            <th>MÉTODO DE PAGO</th>
+                            <th class="text-center">ESTADO</th>
+                            <th class="text-center">ACCIONES</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let item of paginatedRecords"
+                            [class.selected]="selectedPayment?.idPago === item.idPago"
+                            [class.row-anulado]="item.anulado" (click)="onSelectPayment(item, $event)">
+                            <td (click)="$event.stopPropagation()">
+                                <input type="checkbox" [(ngModel)]="item.selected" class="row-checkbox">
+                            </td>
+                            <td>
+                                <div class="date-cell">
+                                    <span class="date-cell__date">{{ item.fechaPago | date:'dd MMM yyyy' }}</span>
+                                    <span class="date-cell__time">{{ item.fechaPago | date:'hh:mm a' }}</span>
                                 </div>
-                                <div class="info">
-                                    <span class="name">{{ item.nombreSocio }}</span>
-                                    <span class="id">ID: {{ item.idSocio }}</span>
+                            </td>
+                            <td>
+                                <div class="user-cell">
+                                    <div class="avatar-mini">
+                                        {{ item.nombreSocio ? item.nombreSocio.charAt(0).toUpperCase() : 'S' }}
+                                    </div>
+                                    <div class="info">
+                                        <span class="name">{{ item.nombreSocio }}</span>
+                                        <span class="id">ID: {{ item.idSocio }}</span>
+                                    </div>
                                 </div>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="plan-cell">
-                                <span class="plan-badge">{{ item.nombreMembresia }}</span>
-                            </div>
-                        </td>
-                        <td>
-                            <span class="amount" [class.text-through]="item.anulado">
-                                ${{ item.monto | number:'1.2-2' }}
-                            </span>
-                        </td>
-                        <td>
-                            <div class="method-cell">
-                                <span class="method-tag">{{ item.metodoPago }}</span>
-                                <span class="method-sub" *ngIf="item.numeroComprobante">Ref: {{ item.numeroComprobante }}</span>
-                            </div>
-                        </td>
-                        <td class="text-center">
-                            <span class="status-pill" 
-                                  [class.danger]="item.anulado || item.estado === 'RECHAZADO' || item.estado === 'ANULADO'" 
-                                  [class.warning]="item.estado === 'PENDIENTE'"
-                                  [class.success]="!item.anulado && item.estado === 'APROBADO'">
-                                {{ item.anulado ? 'ANULADO' : (item.estado || 'APROBADO') }}
-                            </span>
-                        </td>
-                        <td>
-                            <div class="actions-cell" (click)="$event.stopPropagation()">
-                                <button class="action-btn" title="Ver Detalle" (click)="onSelectPayment(item, $event)">
-                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                        stroke-width="2">
-                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                        <circle cx="12" cy="12" r="3"></circle>
-                                    </svg>
-                                </button>
+                            </td>
+                            <td>
+                                <div class="plan-cell">
+                                    <span class="plan-badge">{{ item.nombreMembresia }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="amount" [class.text-through]="item.anulado">
+                                    ${{ item.monto | number:'1.2-2' }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="method-cell">
+                                    <span class="method-tag">{{ item.metodoPago }}</span>
+                                    <span class="method-sub" *ngIf="item.numeroComprobante">Ref: {{
+                                        item.numeroComprobante }}</span>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <span class="status-pill"
+                                    [class.danger]="item.anulado || item.estado === 'RECHAZADO' || item.estado === 'ANULADO'"
+                                    [class.warning]="item.estado === 'PENDIENTE'"
+                                    [class.success]="!item.anulado && item.estado === 'APROBADO'">
+                                    {{ item.anulado ? 'ANULADO' : (item.estado || 'APROBADO') }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="actions-cell" (click)="$event.stopPropagation()">
+                                    <button class="action-btn" title="Ver Detalle"
+                                        (click)="onSelectPayment(item, $event)">
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                            <circle cx="12" cy="12" r="3"></circle>
+                                        </svg>
+                                    </button>
 
-                                <button class="action-btn" title="Descargar Comprobante PDF" (click)="descargarPdf(item.idPago); $event.stopPropagation()">
-                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                        <polyline points="7 10 12 15 17 10"></polyline>
-                                        <line x1="12" y1="15" x2="12" y2="3"></line>
-                                    </svg>
-                                </button>
+                                    <button class="action-btn" title="Descargar Comprobante PDF"
+                                        (click)="descargarPdf(item.idPago); $event.stopPropagation()">
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                            <polyline points="7 10 12 15 17 10"></polyline>
+                                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                                        </svg>
+                                    </button>
 
-                                <button class="action-btn action-btn--danger" *ngIf="!item.anulado" title="Anular Pago"
-                                    (click)="onAnularPago(item, $event)">
-                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                        stroke-width="2">
-                                        <polyline points="3 6 5 6 21 6"></polyline>
-                                        <path
-                                            d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
-                                        </path>
-                                        <line x1="10" y1="11" x2="14" y2="15"></line>
-                                        <line x1="14" y1="11" x2="10" y2="15"></line>
+                                    <button class="action-btn action-btn--danger" *ngIf="!item.anulado"
+                                        title="Anular Pago" (click)="onAnularPago(item, $event)">
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2">
+                                            <polyline points="3 6 5 6 21 6"></polyline>
+                                            <path
+                                                d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
+                                            </path>
+                                            <line x1="10" y1="11" x2="14" y2="15"></line>
+                                            <line x1="14" y1="11" x2="10" y2="15"></line>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr *ngIf="paginatedRecords.length === 0 && !loading">
+                            <td colspan="8" class="empty-row">
+                                <div class="empty-state-content">
+                                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#94a3b8"
+                                        stroke-width="1.5">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
                                     </svg>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr *ngIf="paginatedRecords.length === 0 && !loading">
-                        <td colspan="8" class="empty-row">
-                            <div class="empty-state-content">
-                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <line x1="12" y1="8" x2="12" y2="12"></line>
-                                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                                </svg>
-                                <p>No se encontraron pagos registrados.</p>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+                                    <p>No se encontraron pagos registrados.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
-            <!-- PAGINACIÓN -->
+            <!-- PAGINACIÓN ESTÁTICA -->
             <div class="pagination-footer" *ngIf="totalPages > 0">
                 <span class="pagination-footer__info">Mostrando {{ startIndex }} a {{ endIndex }} de {{ totalElements }}
                     pagos</span>
@@ -291,7 +299,7 @@
             </div>
         </div>
 
-        <!-- PANEL LATERAL DE DETALLE -->
+        <!-- PANEL LATERAL DE DETALLE COMPACTO -->
         <div class="detail-sidebar" *ngIf="selectedPayment">
             <div class="detail-header">
                 <h3>Detalle del Pago</h3>
@@ -299,16 +307,16 @@
             </div>
 
             <div class="detail-body">
-                <div class="status-pill lg" 
-                     [class.success]="!selectedPayment.anulado && selectedPayment.estado === 'APROBADO'"
-                     [class.warning]="selectedPayment.estado === 'PENDIENTE'"
-                     [class.danger]="selectedPayment.anulado || selectedPayment.estado === 'RECHAZADO' || selectedPayment.estado === 'ANULADO'">
+                <div class="status-pill lg"
+                    [class.success]="!selectedPayment.anulado && selectedPayment.estado === 'APROBADO'"
+                    [class.warning]="selectedPayment.estado === 'PENDIENTE'"
+                    [class.danger]="selectedPayment.anulado || selectedPayment.estado === 'RECHAZADO' || selectedPayment.estado === 'ANULADO'">
                     {{ selectedPayment.anulado ? 'ANULADO' : (selectedPayment.estado || 'APROBADO') }}
                 </div>
                 <div class="main-amount">${{ selectedPayment.monto | number:'1.2-2' }}</div>
                 <div class="plan-title">{{ selectedPayment.nombreMembresia }}</div>
 
-                <hr />
+                <hr class="detail-divider" />
 
                 <div class="section-title">Información del Socio</div>
                 <div class="info-grid">
@@ -320,7 +328,7 @@
                             }}</span></div>
                 </div>
 
-                <hr />
+                <hr class="detail-divider" />
 
                 <div class="section-title">Información del Pago</div>
                 <div class="info-grid">
@@ -336,7 +344,7 @@
                 </div>
 
                 <div *ngIf="selectedPayment.anulado">
-                    <hr />
+                    <hr class="detail-divider" />
                     <div class="section-title text-red">Anulación</div>
                     <div class="info-grid">
                         <div class="row"><span class="label">Motivo</span><span class="val text-red">{{

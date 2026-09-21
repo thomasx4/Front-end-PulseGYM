@@ -9,30 +9,33 @@
             </div>
             <div>
                 <h1 class="form-header__title">Registrar Pago</h1>
-                <p class="form-header__subtitle">Registra un nuevo pago o abono en efectivo o transferencia de un socio.</p>
+                <p class="form-header__subtitle">Registra un nuevo pago o abono en efectivo o transferencia de un socio.
+                </p>
             </div>
         </div>
 
         <form [formGroup]="paymentForm" (ngSubmit)="onSubmit()" class="payment-form">
-            
+
             <!-- SECCIÓN: SOCIO Y MEMBRESÍA -->
             <div class="form-section">
                 <h3 class="section-title">Información de la Membresía y Socio</h3>
-                
+
                 <div class="form-group full-width">
                     <label>Socio con Membresía <span class="required">*</span></label>
 
                     <!-- Estado 1: Sin membresía seleccionada -->
                     <div *ngIf="!selectedSocioMembresia" class="assign-partner-placeholder">
                         <div class="placeholder-text">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
                                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                                 <circle cx="12" cy="7" r="4"></circle>
                             </svg>
                             <span>No se ha seleccionado ninguna membresía de socio</span>
                         </div>
                         <button type="button" class="btn-open-modal-partner" (click)="abrirModalSeleccionSocio()">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
                                 <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                                 <circle cx="9" cy="7" r="4"></circle>
                                 <line x1="19" y1="8" x2="19" y2="14"></line>
@@ -42,14 +45,15 @@
                         </button>
                     </div>
 
-                    <!-- Estado 2: Membresía seleccionada (Card elegante con sección de monto independiente) -->
+                    <!-- Estado 2: Membresía seleccionada (Card adaptable) -->
                     <div *ngIf="selectedSocioMembresia" class="partner-selected-card">
                         <div class="partner-info-wrapper">
                             <div class="partner-info">
                                 <div class="partner-avatar">
                                     <img *ngIf="selectedSocioMembresia.fotoUrl && !hasAvatarError()"
-                                        [src]="selectedSocioMembresia.fotoUrl" [alt]="selectedSocioMembresia.nombreCompleto"
-                                        class="partner-avatar__img" crossOrigin="anonymous" (error)="onAvatarError()" />
+                                        [src]="selectedSocioMembresia.fotoUrl"
+                                        [alt]="selectedSocioMembresia.nombreCompleto" class="partner-avatar__img"
+                                        crossOrigin="anonymous" (error)="onAvatarError()" />
                                     <span *ngIf="!selectedSocioMembresia.fotoUrl || hasAvatarError()">
                                         {{ getInitials(selectedSocioMembresia.nombreCompleto) }}
                                     </span>
@@ -61,15 +65,19 @@
                                             {{ selectedSocioMembresia.tipoMembresiaDescripcion || 'Membresía Activa' }}
                                         </span>
                                     </div>
-                                    <span class="partner-email">Plan: <strong>{{ selectedSocioMembresia.membresia?.nombre || 'General' }}</strong> • Vence: {{ selectedSocioMembresia.fechaVencimiento | date:'dd/MM/yyyy' }}</span>
-                                    <span class="partner-phone">ID Membresía: #{{ selectedSocioMembresia.idSocioMembresia }}</span>
+                                    <span class="partner-email">Plan: <strong>{{
+                                            selectedSocioMembresia.membresia?.nombre || 'General' }}</strong> • Vence:
+                                        {{ selectedSocioMembresia.fechaVencimiento | date:'dd/MM/yyyy' }}</span>
+                                    <span class="partner-phone">ID Membresía: #{{
+                                        selectedSocioMembresia.idSocioMembresia }}</span>
                                 </div>
                             </div>
-                            
-                            <!-- SECCIÓN INDEPENDIENTE PARA EL VALOR TOTAL -->
+
+                            <!-- SECCIÓN PARA EL VALOR TOTAL -->
                             <div class="amount-display-box">
                                 <span class="amount-label">Total a Pagar</span>
-                                <span class="amount-value">$ {{ selectedSocioMembresia.precioTotal | number:'1.2-2' }}</span>
+                                <span class="amount-value">$ {{ selectedSocioMembresia.precioTotal | number:'1.2-2'
+                                    }}</span>
                             </div>
                         </div>
 
@@ -78,7 +86,8 @@
                                 Cambiar
                             </button>
                             <button type="button" class="btn-remove-partner" (click)="limpiarSeleccion()">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
                                     <line x1="18" y1="6" x2="6" y2="18"></line>
                                     <line x1="6" y1="6" x2="18" y2="18"></line>
                                 </svg>
@@ -86,7 +95,8 @@
                         </div>
                     </div>
 
-                    <div class="error-msg" *ngIf="paymentForm.get('idSocioMembresia')?.invalid && paymentForm.get('idSocioMembresia')?.touched">
+                    <div class="error-msg"
+                        *ngIf="paymentForm.get('idSocioMembresia')?.invalid && paymentForm.get('idSocioMembresia')?.touched">
                         Debes seleccionar un socio con membresía para continuar.
                     </div>
                 </div>
@@ -111,16 +121,10 @@
                     <!-- Cantidad de Días (Visible únicamente si la membresía seleccionada es flexible) -->
                     <div class="form-group" *ngIf="esMembresiaFlexible">
                         <label for="cantidadDias">Cantidad de Días a Extender *</label>
-                        <input 
-                            type="number" 
-                            id="cantidadDias" 
-                            formControlName="cantidadDias" 
-                            min="1" 
-                            max="365" 
-                            class="form-control" 
-                            placeholder="Ej. 15"
-                        />
-                        <small style="color: #64748b; font-size: 0.75rem;">Esta membresía es flexible. Indica cuántos días se sumarán al vencimiento actual con este pago.</small>
+                        <input type="number" id="cantidadDias" formControlName="cantidadDias" min="1" max="365"
+                            class="form-control" placeholder="Ej. 15" />
+                        <small style="color: #64748b; font-size: 0.75rem;">Esta membresía es flexible. Indica cuántos
+                            días se sumarán al vencimiento actual con este pago.</small>
                     </div>
                 </div>
             </div>
@@ -131,13 +135,8 @@
 
                 <div class="form-group">
                     <label for="observaciones">Observaciones / Notas (Opcional)</label>
-                    <textarea 
-                        id="observaciones" 
-                        formControlName="observaciones" 
-                        rows="3" 
-                        placeholder="Ej. Pago en efectivo - Renovación mes actual"
-                        class="form-control"
-                    ></textarea>
+                    <textarea id="observaciones" formControlName="observaciones" rows="3"
+                        placeholder="Ej. Pago en efectivo - Renovación mes actual" class="form-control"></textarea>
                 </div>
             </div>
 
@@ -156,7 +155,7 @@
     </div>
 </div>
 
-<!-- MODAL DE SELECCIÓN DE SOCIO / MEMBRESÍA AMPLIADO Y RESPONSIVO -->
+<!-- MODAL DE SELECCIÓN DE SOCIO / MEMBRESÍA RESPONSIVO -->
 <div class="modal-overlay" *ngIf="showPartnerModal" (click)="cerrarModalSeleccionSocio()">
     <div class="modal-partner-container" (click)="$event.stopPropagation()">
 
@@ -184,7 +183,7 @@
             </div>
         </div>
 
-        <!-- TABLA DE USUARIOS / MEMBRESÍAS -->
+        <!-- TABLA DE USUARIOS / MEMBRESÍAS CON CONTENEDOR SCROLL -->
         <div class="modal-partner-table-wrapper">
             <table class="partner-table">
                 <thead>
@@ -220,7 +219,8 @@
                                     </div>
                                     <div>
                                         <span class="partner-table-name">{{ socio.nombreCompleto }}</span>
-                                        <span class="partner-table-contact">{{ socio.email || socio.telefono || 'Sin contacto' }}</span>
+                                        <span class="partner-table-contact">{{ socio.email || socio.telefono || 'Sin
+                                            contacto' }}</span>
                                     </div>
                                 </div>
                             </td>
@@ -233,7 +233,8 @@
                                 <span class="amount-badge-table">$ {{ socio.precioTotal | number:'1.2-2' }}</span>
                             </td>
                             <td>
-                                <span class="partner-table-contact">{{ socio.fechaVencimiento | date:'dd/MM/yyyy' }}</span>
+                                <span class="partner-table-contact">{{ socio.fechaVencimiento | date:'dd/MM/yyyy'
+                                    }}</span>
                             </td>
                             <td class="text-right">
                                 <button type="button" class="btn-assign-row"

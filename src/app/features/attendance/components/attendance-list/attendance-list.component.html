@@ -26,14 +26,17 @@
         </div>
       </div>
 
-      <div class="chart-container">
-        <div class="bar-group" *ngFor="let p of peakHours">
-          <div class="bar-wrapper">
-            <div class="bar" [style.height.%]="maxPeakHour > 0 ? (p.cantidad / maxPeakHour) * 100 : 0"
-              [attr.data-count]="p.cantidad">
+      <!-- Agregado el contenedor con scroll horizontal -->
+      <div class="chart-scroll-wrapper">
+        <div class="chart-container">
+          <div class="bar-group" *ngFor="let p of peakHours">
+            <div class="bar-wrapper">
+              <div class="bar" [style.height.%]="maxPeakHour > 0 ? (p.cantidad / maxPeakHour) * 100 : 0"
+                [attr.data-count]="p.cantidad">
+              </div>
             </div>
+            <span class="bar-hour">{{ p.etiqueta }}:00</span>
           </div>
-          <span class="bar-hour">{{ p.etiqueta }}:00</span>
         </div>
       </div>
     </article>

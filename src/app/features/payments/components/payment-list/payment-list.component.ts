@@ -243,6 +243,16 @@ export class PaymentListComponent implements OnInit {
       event.stopPropagation();
     }
     this.selectedPayment = item;
+
+    // Desplazamiento automático hacia el panel de detalle en pantallas móviles o intermedias
+    if (window.innerWidth < 1024) {
+      setTimeout(() => {
+        const detailElement = document.querySelector('.detail-sidebar');
+        if (detailElement) {
+          detailElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    }
   }
 
   async onAnularPago(item: Payment, event: Event): Promise<void> {

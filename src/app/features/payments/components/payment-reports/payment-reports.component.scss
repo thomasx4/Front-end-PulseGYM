@@ -1,98 +1,177 @@
 .payment-reports-page {
   display: flex;
   flex-direction: column;
-  gap: 24px;
-  padding: 24px;
+  gap: 16px;
+  padding: 16px;
   background-color: var(--color-bg-main);
   transition: background-color 0.3s ease;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+
+  @media (min-width: 768px) {
+    gap: 24px;
+    padding: 24px;
+  }
 }
 
 .page-header {
   .page-title {
-    font-size: 1.6rem;
+    font-size: 1.35rem;
     font-weight: 800;
     color: var(--color-text-primary);
     margin: 0;
+
+    @media (min-width: 768px) {
+      font-size: 1.6rem;
+    }
   }
 
   .page-subtitle {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     color: var(--color-text-secondary);
     margin: 4px 0 0 0;
+
+    @media (min-width: 768px) {
+      font-size: 0.85rem;
+    }
   }
 }
 
 .reports-grid {
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 16px;
+
+    @media (min-width: 768px) {
+        gap: 24px;
+    }
 }
 
 .report-card {
   background: var(--color-bg-card);
-  border-radius: 18px;
+  border-radius: 16px;
   border: 1px solid var(--color-border);
-  padding: 24px;
+  padding: 14px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   box-shadow: var(--shadow-sm);
   transition: background-color 0.3s ease;
+  min-width: 0;
+  box-sizing: border-box;
+
+  @media (min-width: 576px) {
+    padding: 18px;
+  }
+
+  @media (min-width: 768px) {
+    padding: 24px;
+    border-radius: 18px;
+  }
 
   .card-header {
     display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    padding-bottom: 18px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding-bottom: 14px;
     border-bottom: 1px solid var(--color-border-light);
+    min-width: 0;
 
-    /* ✅ Semánticos */
+    @media (min-width: 576px) {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding-bottom: 18px;
+    }
+
+    .header-info {
+      min-width: 0;
+    }
+
     .badge-tag {
-      font-size: 0.675rem;
+      font-size: 0.65rem;
       font-weight: 800;
       padding: 3px 8px;
       border-radius: 6px;
       letter-spacing: 0.05em;
+      display: inline-block;
 
       &--daily { background: #d1fae5; color: #065f46; }
       &--monthly { background: #e0e7ff; color: #3730a3; }
     }
 
     h3 {
-      font-size: 1.15rem;
+      font-size: 1.05rem;
       font-weight: 800;
       color: var(--color-text-primary);
       margin: 6px 0 0 0;
+
+      @media (min-width: 768px) {
+        font-size: 1.15rem;
+      }
     }
   }
 
   .date-picker-box, .selectors-box {
     display: flex;
     gap: 8px;
+    width: 100%;
+    min-width: 0;
+
+    @media (min-width: 576px) {
+      width: auto;
+    }
 
     .selector-field, & {
       display: flex;
       flex-direction: column;
       gap: 2px;
+      min-width: 0;
+      flex: 1;
+
+      @media (min-width: 576px) {
+        flex: initial;
+      }
 
       label {
-        font-size: 0.7rem;
+        font-size: 0.68rem;
         font-weight: 700;
         color: var(--color-text-secondary);
+        white-space: nowrap;
       }
     }
   }
 
+  .selectors-box {
+    display: grid;
+    grid-template-columns: 1fr 90px;
+    gap: 8px;
+
+    @media (min-width: 576px) {
+      display: flex;
+      grid-template-columns: none;
+    }
+  }
+
   .control-input {
-    padding: 8px 12px;
+    padding: 8px 10px;
     border: 1px solid var(--color-border);
     border-radius: 10px;
-    font-size: 0.825rem;
+    font-size: 0.8rem;
     font-weight: 600;
     color: var(--color-text-primary);
     background: var(--color-bg-input);
     outline: none;
     transition: all 0.2s ease;
+    width: 100%;
+    box-sizing: border-box;
+
+    @media (min-width: 768px) {
+      padding: 8px 12px;
+      font-size: 0.825rem;
+    }
 
     &:focus {
       border-color: var(--color-primary);
@@ -101,79 +180,154 @@
   }
 
   .card-body {
-    padding: 24px 0;
+    padding: 14px 0;
+
+    @media (min-width: 768px) {
+      padding: 24px 0;
+    }
   }
 
   .kpi-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    min-width: 0;
+
+    @media (min-width: 576px) {
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
 
     .kpi-box {
       background: var(--color-bg-hover);
-      padding: 16px;
-      border-radius: 14px;
+      padding: 12px;
+      border-radius: 12px;
       border: 1px solid var(--color-border-light);
+      min-width: 0;
+      box-sizing: border-box;
+
+      @media (min-width: 768px) {
+        padding: 16px;
+        border-radius: 14px;
+      }
 
       .kpi-label {
-        font-size: 0.725rem;
+        font-size: 0.65rem;
         font-weight: 800;
         color: var(--color-text-secondary);
         display: block;
         margin-bottom: 4px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+
+        @media (min-width: 768px) {
+          font-size: 0.725rem;
+        }
       }
 
       .kpi-value {
-        font-size: 1.5rem;
+        font-size: 1.15rem;
         font-weight: 800;
         color: var(--color-text-primary);
         margin: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
 
-        /* ✅ Semánticos */
+        @media (min-width: 576px) {
+          font-size: 1.25rem;
+        }
+
+        @media (min-width: 768px) {
+          font-size: 1.5rem;
+        }
+
         &.text-emerald { color: #059669; }
         &.text-indigo { color: #4f46e5; }
 
         small {
-          font-size: 0.75rem;
+          font-size: 0.68rem;
           color: var(--color-text-muted);
           font-weight: 600;
+
+          @media (min-width: 768px) {
+            font-size: 0.75rem;
+          }
         }
       }
     }
   }
 
   .card-footer {
-    padding-top: 18px;
+    padding-top: 14px;
     border-top: 1px solid var(--color-border-light);
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    min-width: 0;
+    box-sizing: border-box;
+
+    @media (min-width: 640px) {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 18px;
+    }
 
     .footer-label {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       font-weight: 600;
       color: var(--color-text-secondary);
+
+      @media (min-width: 768px) {
+        font-size: 0.8rem;
+      }
     }
 
     .action-buttons {
       display: flex;
+      flex-direction: column; /* Se apilan en pantallas estrechas para evitar desbordes */
       gap: 8px;
+      width: 100%;
+      box-sizing: border-box;
+
+      @media (min-width: 420px) {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+
+      @media (min-width: 640px) {
+        display: flex;
+        flex-direction: row;
+        width: auto;
+      }
     }
   }
 }
 
-/* ✅ Semánticos (PDF rojo / Excel verde) */
 .btn-export {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
-  padding: 8px 14px;
+  padding: 8px 12px;
   border-radius: 8px;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 700;
   border: 1px solid transparent;
   cursor: pointer;
   transition: all 0.2s;
+  width: 100%;
+  white-space: nowrap;
+  box-sizing: border-box;
+
+  @media (min-width: 640px) {
+    width: auto;
+    padding: 8px 14px;
+    font-size: 0.8rem;
+  }
 
   &--pdf {
     background: #fef2f2;
