@@ -1,7 +1,12 @@
+// ==========================================================================
+// BASE
+// ==========================================================================
 :host {
     display: block;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     box-sizing: border-box;
+    width: 100%;
+    overflow-x: hidden;
 
     *,
     *::before,
@@ -17,8 +22,14 @@
     min-height: 100vh;
     background-color: var(--color-bg-main);
     transition: background-color 0.3s ease;
+    width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
 }
 
+/* ==========================================================================
+   HEADER
+   ========================================================================== */
 .detail-header {
     display: flex;
     align-items: flex-start;
@@ -26,14 +37,20 @@
     margin-bottom: 32px;
     padding-bottom: 24px;
     border-bottom: 1px solid var(--color-border);
+    gap: 16px;
+    flex-wrap: wrap;
 
-    &__left { flex: 1; }
+    &__left {
+        flex: 1;
+        min-width: 0;
+    }
 
     &__right {
         display: flex;
         gap: 12px;
         margin-top: 4px;
         flex-shrink: 0;
+        flex-wrap: wrap;
     }
 }
 
@@ -43,6 +60,7 @@
     gap: 8px;
     font-size: 13px;
     margin-bottom: 8px;
+    flex-wrap: wrap;
 
     a {
         color: var(--color-text-secondary);
@@ -65,6 +83,7 @@
     color: var(--color-text-primary);
     margin: 0 0 8px 0;
     letter-spacing: -0.5px;
+    word-break: break-word;
 }
 
 .detail-subtitle {
@@ -73,43 +92,47 @@
     margin: 0;
 }
 
-// BUTTONS
-.btn-primary {
+/* ==========================================================================
+   BOTONES
+   ========================================================================== */
+.btn-primary, .btn-outline {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
-    background: var(--color-primary);
-    color: #ffffff;
-    border: none;
     padding: 10px 24px;
     border-radius: var(--radius);
     font-weight: 700;
     font-size: 14px;
     cursor: pointer;
     transition: all 0.2s ease;
+    white-space: nowrap;
+}
 
-    &:hover {
+.btn-primary {
+    background: var(--color-primary);
+    color: #ffffff;
+    border: none;
+
+    &:hover:not(:disabled) {
         background: var(--color-primary-hover);
         transform: translateY(-1px);
         box-shadow: var(--shadow-md);
     }
 
-    svg { stroke: #ffffff; }
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    svg { stroke: #ffffff; flex-shrink: 0; }
 }
 
 .btn-outline {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 24px;
     background: transparent;
     border: 1px solid var(--color-border);
-    border-radius: var(--radius);
-    font-weight: 600;
-    font-size: 14px;
     color: var(--color-text-secondary);
-    cursor: pointer;
-    transition: all 0.2s ease;
+    font-weight: 600;
 
     &:hover {
         background: var(--color-bg-hover);
@@ -117,20 +140,24 @@
         color: var(--color-text-primary);
     }
 
-    svg { stroke: currentColor; }
+    svg { stroke: currentColor; flex-shrink: 0; }
 }
 
-// GRID
+/* ==========================================================================
+   GRID
+   ========================================================================== */
 .detail-grid {
     display: grid;
     grid-template-columns: 1fr 380px;
     gap: 32px;
+    align-items: start;
 }
 
 .detail-column {
     display: flex;
     flex-direction: column;
     gap: 24px;
+    min-width: 0; // Previene desbordamiento en flex/grid
 }
 
 .stats-column {
@@ -140,9 +167,12 @@
     position: sticky;
     top: 32px;
     align-self: start;
+    min-width: 0; // Previene desbordamiento en flex/grid
 }
 
-// INFO CARD
+/* ==========================================================================
+   INFO CARD
+   ========================================================================== */
 .info-card {
     background: var(--color-bg-card);
     border-radius: var(--radius-lg);
@@ -150,6 +180,8 @@
     border: 1px solid var(--color-border);
     box-shadow: var(--shadow-sm);
     transition: background-color 0.3s ease;
+    min-width: 0;
+    overflow: hidden;
 
     &__title {
         font-size: 14px;
@@ -164,6 +196,7 @@
         color: var(--color-text-secondary);
         line-height: 1.6;
         margin: 0;
+        word-break: break-word;
     }
 }
 
@@ -177,6 +210,7 @@
     display: flex;
     flex-direction: column;
     gap: 2px;
+    min-width: 0;
 
     &__label {
         font-size: 10px;
@@ -190,10 +224,13 @@
         font-size: 15px;
         font-weight: 600;
         color: var(--color-text-primary);
+        word-break: break-word;
     }
 }
 
-// BENEFITS LIST
+/* ==========================================================================
+   BENEFITS
+   ========================================================================== */
 .benefits-list-detail {
     list-style: none;
     padding: 0;
@@ -204,22 +241,26 @@
 
     li {
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         gap: 10px;
         padding: 6px 0;
         font-size: 14px;
         color: var(--color-text-secondary);
+        word-break: break-word;
 
         svg {
             width: 18px;
             height: 18px;
             stroke: var(--color-success);
             flex-shrink: 0;
+            margin-top: 2px;
         }
     }
 }
 
-// CONFIG GRID
+/* ==========================================================================
+   CONFIG
+   ========================================================================== */
 .config-grid {
     display: flex;
     flex-direction: column;
@@ -232,12 +273,14 @@
     align-items: center;
     padding: 8px 0;
     border-bottom: 1px solid var(--color-border);
+    gap: 8px;
 
     &:last-child { border-bottom: none; }
 
     &__label {
         font-size: 13px;
         color: var(--color-text-secondary);
+        min-width: 0;
     }
 
     &__value {
@@ -248,6 +291,7 @@
             font-weight: 600;
             background: var(--color-bg-hover);
             color: var(--color-text-secondary);
+            white-space: nowrap;
 
             &.tag-active {
                 background: var(--color-success-bg);
@@ -257,7 +301,9 @@
     }
 }
 
-// STATUS BADGE
+/* ==========================================================================
+   STATUS BADGE
+   ========================================================================== */
 .status-badge {
     display: inline-block;
     padding: 4px 14px;
@@ -273,12 +319,15 @@
     }
 }
 
-// STATS CARD
+/* ==========================================================================
+   STATS CARD
+   ========================================================================== */
 .stats-card {
     background: var(--color-primary);
     border-radius: var(--radius-lg);
     padding: 24px 28px;
     color: #ffffff;
+    overflow: hidden;
 
     &__title {
         font-size: 11px;
@@ -315,6 +364,7 @@
     align-items: center;
     padding-bottom: 12px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    gap: 8px;
 
     &:last-child {
         border-bottom: none;
@@ -330,12 +380,16 @@
         font-size: 18px;
         font-weight: 700;
         color: #ffffff;
+        text-align: right;
+        word-break: break-word;
 
         &.positive { color: #4ade80; }
     }
 }
 
-// SOCIOS CARD
+/* ==========================================================================
+   SOCIOS CARD
+   ========================================================================== */
 .socios-card {
     background: var(--color-bg-card);
     border-radius: var(--radius-lg);
@@ -343,6 +397,7 @@
     border: 1px solid var(--color-border);
     box-shadow: var(--shadow-sm);
     transition: background-color 0.3s ease;
+    overflow: hidden;
 
     &__title {
         font-size: 14px;
@@ -375,6 +430,7 @@
     background: var(--color-bg-hover);
     border-radius: var(--radius-sm);
     border: 1px solid var(--color-border);
+    min-width: 0;
 
     &__avatar {
         width: 36px;
@@ -407,6 +463,9 @@
         font-weight: 600;
         color: var(--color-text-primary);
         display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     &__email {
@@ -441,7 +500,9 @@
     }
 }
 
-// SPINNER
+/* ==========================================================================
+   LOADING
+   ========================================================================== */
 .loading-overlay {
     display: flex;
     flex-direction: column;
@@ -470,31 +531,88 @@
     to { transform: rotate(360deg); }
 }
 
-// RESPONSIVE
+/* ==========================================================================
+   🖥️ RESPONSIVE ADAPTATIVO (SOLUCIÓN A SOLAPAMIENTOS Y CORTES)
+   ========================================================================== */
+
 @media (max-width: 1024px) {
-    .detail-grid { grid-template-columns: 1fr; }
+    .membership-detail-container {
+        padding: 20px 16px;
+    }
+
+    .detail-grid {
+        grid-template-columns: 1fr; // Columna única vertical para evitar desbordes
+        gap: 20px;
+    }
 
     .stats-column {
-        position: static;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 24px;
+        position: static; // Se quita el sticky en dispositivos táctiles/medianos
     }
 }
 
 @media (max-width: 768px) {
-    .membership-detail-container { padding: 16px; }
-
     .detail-header {
         flex-direction: column;
+        align-items: stretch;
         gap: 16px;
 
         &__right {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
             width: 100%;
-            flex-direction: column;
+
+            .btn-outline, .btn-primary {
+                width: 100%;
+                justify-content: center;
+            }
         }
     }
 
-    .info-grid { grid-template-columns: 1fr; }
-    .stats-column { grid-template-columns: 1fr; }
+    .detail-title {
+        font-size: 24px;
+    }
+
+    .info-card,
+    .stats-card,
+    .socios-card {
+        padding: 18px 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .membership-detail-container {
+        padding: 12px 10px;
+    }
+
+    .detail-header__right {
+        grid-template-columns: 1fr; // Botones apilados al 100% en móviles angostos
+    }
+
+    .detail-title {
+        font-size: 20px;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr; // Datos generales en bloque vertical individual
+        gap: 12px;
+    }
+
+    .info-card,
+    .stats-card,
+    .socios-card {
+        padding: 14px 12px;
+        border-radius: 12px;
+    }
+
+    .socio-item {
+        padding: 8px 10px;
+        gap: 10px;
+
+        &__avatar {
+            width: 32px;
+            height: 32px;
+            font-size: 11px;
+        }
+    }
 }

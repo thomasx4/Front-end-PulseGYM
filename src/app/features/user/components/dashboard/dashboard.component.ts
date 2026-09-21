@@ -264,4 +264,14 @@ export class DashboardComponent implements OnInit {
     this.loadDashboardData();
     this.cargarCaloriasDiarias();
   }
+
+     isSidebarOpen: boolean = false;
+
+       toggleSidebar(): void {
+    this.isSidebarOpen = !this.isSidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.isSidebarOpen = false;
+  }
 }

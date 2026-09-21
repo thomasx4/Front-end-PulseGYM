@@ -3,6 +3,7 @@
     min-height: 100vh;
     background-color: var(--color-bg-main);
     transition: background-color 0.3s ease;
+    position: relative;
 
     &__content {
         flex: 1;
@@ -15,5 +16,18 @@
         flex: 1;
         padding: 0rem 2rem;
         overflow-y: auto;
+    }
+}
+
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.5);
+    backdrop-filter: blur(2px);
+    z-index: 99;
+
+    @media (max-width: 992px) {
+        display: block;
     }
 }

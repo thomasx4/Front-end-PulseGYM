@@ -1,6 +1,4 @@
-// src/app/shared/components/main-layout/header/header.component.ts
-
-import { Component, Input, OnInit, OnDestroy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy } from '@angular/core';
 import { Subscription, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { AuthService } from '../../../../core/services/auth.service';
@@ -16,6 +14,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   @Input() userName: string = 'Usuario';
   @Input() userRole: string = 'Socio';
   @Input() avatarUrl: string | null = null;
+  @Output() toggleMenu = new EventEmitter<void>();
 
   hasAvatarError: boolean = false;
   private userSubscription?: Subscription;
@@ -28,7 +27,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.userSubscription = this.authService.getCurrentUser().subscribe((user: User | null) => {
       if (user) {
-        // Asignar Nombre / Username
         if (user.username && user.username.trim() !== '') {
           this.userName = user.username;
         } else if (user.name && user.name !== 'Usuario') {
@@ -42,13 +40,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
         this.userRole = user.role || this.userRole;
 
-        // ✅ Si el usuario ya tiene foto en el objeto (desde el backend)
         const directFoto = (user as any).fotoUrl || (user as any).fotoPerfil || (user as any).foto;
         if (directFoto && this.isValidUrl(directFoto)) {
           this.avatarUrl = this.formatUrl(directFoto);
-        }
-        // ✅ Si no tiene foto, intentar obtenerla desde el perfil completo
-        else if (user.email) {
+        } else if (user.email) {
           this.cargarPerfilCompleto();
         }
       }
@@ -57,6 +52,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.userSubscription?.unsubscribe();
+  }
+
+  onToggleMenu(): void {
+    this.toggleMenu.emit();
   }
 
   private cargarPerfilCompleto(): void {

@@ -1,4 +1,4 @@
-<aside class="sidebar">
+<aside class="sidebar" [class.sidebar--open]="isOpen">
     <div class="sidebar__brand">
         <img src="/assets/favicon.ico" class="sidebar__brand-icon" alt="Pulse Gym Logo">
         <div>
@@ -11,14 +11,14 @@
         <!-- ITEMS NORMALES (SIN SUBMENÚ) -->
         <ng-container *ngFor="let item of menuItems">
             <a *ngIf="!item.children" [routerLink]="item.route" routerLinkActive="sidebar__nav-item--active"
-                [routerLinkActiveOptions]="{ exact: item.exact || false }" class="sidebar__nav-item">
+                [routerLinkActiveOptions]="{ exact: item.exact || false }" class="sidebar__nav-item" (click)="closeMenu.emit()">
                 <span [innerHTML]="item.iconHtml" class="sidebar__icon-wrapper"></span>
                 <span>{{ item.label }}</span>
             </a>
         </ng-container>
 
-        <!-- MI PERFIL (ENLACE DIRECTO APARTE PARA EL ADMIN) -->
-        <a routerLink="/dashboard-admin/profile" routerLinkActive="sidebar__nav-item--active" [routerLinkActiveOptions]="{ exact: true }" class="sidebar__nav-item">
+        <!-- MI PERFIL -->
+        <a routerLink="/dashboard-admin/profile" routerLinkActive="sidebar__nav-item--active" [routerLinkActiveOptions]="{ exact: true }" class="sidebar__nav-item" (click)="closeMenu.emit()">
             <span [innerHTML]="getMiPerfilIcon()" class="sidebar__icon-wrapper"></span>
             <span>Mi Perfil</span>
         </a>
@@ -40,7 +40,7 @@
                 <div>
                     <a *ngFor="let child of membershipChildren" [routerLink]="child.route"
                         routerLinkActive="sidebar__submenu-item--active"
-                        [routerLinkActiveOptions]="{ exact: child.exact || false }" class="sidebar__submenu-item">
+                        [routerLinkActiveOptions]="{ exact: child.exact || false }" class="sidebar__submenu-item" (click)="closeMenu.emit()">
                         <span [innerHTML]="child.iconHtml" class="sidebar__icon-wrapper"></span>
                         <span>{{ child.label }}</span>
                     </a>
@@ -48,7 +48,7 @@
             </div>
         </div>
 
-        <!-- GESTIÓN GENERAL DE USUARIOS (TODOS LOS PERFILES Y CREDENCIALES) -->
+        <!-- USUARIOS -->
         <div class="sidebar__nav-item--parent" [class.open]="isUsersOpen" (mouseenter)="isUsersOpen = true"
             (mouseleave)="isUsersOpen = false">
             <div class="sidebar__nav-item" [class.sidebar__nav-item--active]="isUsersActive()">
@@ -63,7 +63,7 @@
                 <div>
                     <a *ngFor="let child of usersChildren" [routerLink]="child.route"
                         routerLinkActive="sidebar__submenu-item--active"
-                        [routerLinkActiveOptions]="{ exact: child.exact || false }" class="sidebar__submenu-item">
+                        [routerLinkActiveOptions]="{ exact: child.exact || false }" class="sidebar__submenu-item" (click)="closeMenu.emit()">
                         <span [innerHTML]="child.iconHtml" class="sidebar__icon-wrapper"></span>
                         <span>{{ child.label }}</span>
                     </a>
@@ -87,7 +87,7 @@
 
             <div class="sidebar__submenu" *ngIf="isAttendanceOpen">
                 <a *ngFor="let child of attendanceChildren" [routerLink]="child.route"
-                    routerLinkActive="sidebar__submenu-item--active" class="sidebar__submenu-item">
+                    routerLinkActive="sidebar__submenu-item--active" class="sidebar__submenu-item" (click)="closeMenu.emit()">
                     <span [innerHTML]="child.iconHtml" class="sidebar__icon-wrapper"></span>
                     <span>{{ child.label }}</span>
                 </a>
@@ -110,7 +110,7 @@
 
             <div class="sidebar__submenu" *ngIf="isEquipmentOpen">
                 <a *ngFor="let child of equipmentChildren" [routerLink]="child.route"
-                    routerLinkActive="sidebar__submenu-item--active" class="sidebar__submenu-item">
+                    routerLinkActive="sidebar__submenu-item--active" class="sidebar__submenu-item" (click)="closeMenu.emit()">
                     <span [innerHTML]="child.iconHtml" class="sidebar__icon-wrapper"></span>
                     <span>{{ child.label }}</span>
                 </a>
@@ -133,7 +133,7 @@
 
             <div class="sidebar__submenu" *ngIf="isPaymentsOpen">
                 <a *ngFor="let child of paymentsChildren" [routerLink]="child.route"
-                    routerLinkActive="sidebar__submenu-item--active" class="sidebar__submenu-item">
+                    routerLinkActive="sidebar__submenu-item--active" class="sidebar__submenu-item" (click)="closeMenu.emit()">
                     <span [innerHTML]="child.iconHtml" class="sidebar__icon-wrapper"></span>
                     <span>{{ child.label }}</span>
                 </a>
@@ -157,7 +157,7 @@
 
             <div class="sidebar__submenu" *ngIf="isNotificationsOpen">
                 <a *ngFor="let child of notificationsChildren" [routerLink]="child.route"
-                    routerLinkActive="sidebar__submenu-item--active" class="sidebar__submenu-item">
+                    routerLinkActive="sidebar__submenu-item--active" class="sidebar__submenu-item" (click)="closeMenu.emit()">
                     <span [innerHTML]="child.iconHtml" class="sidebar__icon-wrapper"></span>
                     <span>{{ child.label }}</span>
                 </a>
@@ -165,13 +165,13 @@
         </div>
 
         <!-- MANCUERIA -->
-        <a routerLink="/dashboard-admin/mancuer-ia" routerLinkActive="sidebar__nav-item--active" class="sidebar__nav-item">
+        <a routerLink="/dashboard-admin/mancuer-ia" routerLinkActive="sidebar__nav-item--active" class="sidebar__nav-item" (click)="closeMenu.emit()">
             <span [innerHTML]="getMancuerIaIcon()" class="sidebar__icon-wrapper"></span>
             <span>MancuerIA</span>
         </a>
 
         <!-- AJUSTES -->
-        <a routerLink="/dashboard-admin/ajustes" routerLinkActive="sidebar__nav-item--active" class="sidebar__nav-item">
+        <a routerLink="/dashboard-admin/ajustes" routerLinkActive="sidebar__nav-item--active" class="sidebar__nav-item" (click)="closeMenu.emit()">
             <span [innerHTML]="getAjustesIcon()" class="sidebar__icon-wrapper"></span>
             <span>Ajustes</span>
         </a>

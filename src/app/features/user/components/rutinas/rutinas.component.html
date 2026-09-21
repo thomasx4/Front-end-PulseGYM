@@ -1,8 +1,10 @@
 <div class="routines-layout">
-    <app-navbar></app-navbar>
+    <div class="sidebar-overlay" *ngIf="isSidebarOpen" (click)="closeSidebar()"></div>
+
+    <app-navbar [isOpen]="isSidebarOpen" (closeMenu)="closeSidebar()"></app-navbar>
 
     <div class="routines-main">
-        <app-header></app-header>
+        <app-header (toggleMenu)="toggleSidebar()"></app-header>
 
         <div class="routines-wrapper">
 

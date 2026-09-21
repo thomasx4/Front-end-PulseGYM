@@ -1,7 +1,6 @@
-
-<aside class="sidebar" [class.mobile-open]="isMobileOpen">
+<aside class="sidebar" [class.mobile-open]="isOpen">
     <!-- Botón de cierre para móvil -->
-    <button class="sidebar__close" (click)="toggleMobileMenu()" *ngIf="isMobileOpen">
+    <button class="sidebar__close" (click)="closeMobileMenu()" *ngIf="isOpen">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="18" y1="6" x2="6" y2="18" />
             <line x1="6" y1="6" x2="18" y2="18" />
@@ -66,7 +65,7 @@
                 <span>Rutinas</span>
             </a>
 
-            <a routerLink="/trainer/ejercicios" routerLinkActive="sidebar__nav-item--active" class="sidebar__nav-item">
+            <a routerLink="/trainer/ejercicios" routerLinkActive="sidebar__nav-item--active" class="sidebar__nav-item" (click)="closeMobileMenu()">
                 <span class="sidebar__icon-wrapper">
                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M6.5 6.5h11M6.5 17.5h11M2 12h20M4 7v10M20 7v10" stroke="currentColor" stroke-width="2"
@@ -134,7 +133,6 @@
                 </a>
 
                 <div class="sidebar__submenu" *ngIf="equiposOpen">
-                    <!-- Icono para Inventario (Cajas / Almacén) -->
                     <a routerLink="/trainer/equipos" routerLinkActive="sidebar__submenu-item--active"
                         [routerLinkActiveOptions]="{ exact: true }" class="sidebar__submenu-item"
                         (click)="closeMobileMenu()">
@@ -148,7 +146,6 @@
                         <span>Inventario</span>
                     </a>
 
-                    <!-- Icono para Reportes de Fallas (Llave inglesa / Herramientas / Advertencia) -->
                     <a routerLink="/trainer/equipos/fallas" routerLinkActive="sidebar__submenu-item--active"
                         class="sidebar__submenu-item" (click)="closeMobileMenu()">
                         <span class="sidebar__icon-wrapper" style="width: 16px; height: 16px; margin-right: 6px;">
@@ -264,7 +261,7 @@
                     </svg></span>
                 <span>Asistencia</span>
             </a>
-            <a routerLink="/user/equipos" routerLinkActive="sidebar__nav-item--active" class="sidebar__nav-item">
+            <a routerLink="/user/equipos" routerLinkActive="sidebar__nav-item--active" class="sidebar__nav-item" (click)="closeMobileMenu()">
                 <span class="sidebar__icon-wrapper">
                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M6.5 6.5h11M6.5 17.5h11M2 12h20M4 7v10M20 7v10" stroke="currentColor" stroke-width="2"
@@ -299,12 +296,3 @@
         <span>Cerrar Sesión</span>
     </button>
 </aside>
-
-<!-- Botón Hamburguesa (solo móvil) -->
-<button class="hamburger-btn" (click)="toggleMobileMenu()" [class.active]="isMobileOpen">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <line x1="3" y1="12" x2="21" y2="12" />
-        <line x1="3" y1="6" x2="21" y2="6" />
-        <line x1="3" y1="18" x2="21" y2="18" />
-    </svg>
-</button>

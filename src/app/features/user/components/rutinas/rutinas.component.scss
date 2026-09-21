@@ -595,3 +595,16 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         padding: 30px 24px 24px;
     }
 }
+
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.5);
+    backdrop-filter: blur(2px);
+    z-index: 999;
+
+    @media (max-width: 992px) {
+        display: block;
+    }
+}

@@ -276,82 +276,84 @@
             </div>
 
             <div class="assigned-table-card">
-                <table class="assigned-table">
-                    <thead>
-                        <tr>
-                            <th style="width: 40px;"></th>
-                            <th>MIEMBRO</th>
-                            <th>CONTACTO</th>
-                            <th>PRECIO TOTAL</th>
-                            <th>ASIGNADO EL</th>
-                            <th>VENCE</th>
-                            <th class="text-right">ACCIONES</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr *ngFor="let socio of sociosAsignados; trackBy: trackBySocioId"
-                            [class.selected-row]="socio.selected">
-                            <td style="width: 40px;">
-                                <label class="custom-checkbox">
-                                    <input type="checkbox" [(ngModel)]="socio.selected">
-                                    <span class="checkmark"></span>
-                                </label>
-                            </td>
-                            <td>
-                                <div class="user-profile">
-                                    <div class="avatar-container">
-                                        <img *ngIf="getUserFoto(socio) && !hasAvatarError('tabla_' + socio.id)"
-                                            [src]="getUserFoto(socio)" [alt]="socio.nombre" class="user-profile__avatar"
-                                            (error)="onAvatarError('tabla_' + socio.id)" />
-                                        <div *ngIf="!getUserFoto(socio) || hasAvatarError('tabla_' + socio.id)"
-                                            class="user-avatar-initials">
-                                            {{ getInitials(socio.nombre) }}
+                <div class="assigned-table-wrapper">
+                    <table class="assigned-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 40px;"></th>
+                                <th>MIEMBRO</th>
+                                <th>CONTACTO</th>
+                                <th>PRECIO TOTAL</th>
+                                <th>ASIGNADO EL</th>
+                                <th>VENCE</th>
+                                <th class="text-right">ACCIONES</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let socio of sociosAsignados; trackBy: trackBySocioId"
+                                [class.selected-row]="socio.selected">
+                                <td style="width: 40px;">
+                                    <label class="custom-checkbox">
+                                        <input type="checkbox" [(ngModel)]="socio.selected">
+                                        <span class="checkmark"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <div class="user-profile">
+                                        <div class="avatar-container">
+                                            <img *ngIf="getUserFoto(socio) && !hasAvatarError('tabla_' + socio.id)"
+                                                [src]="getUserFoto(socio)" [alt]="socio.nombre" class="user-profile__avatar"
+                                                (error)="onAvatarError('tabla_' + socio.id)" />
+                                            <div *ngIf="!getUserFoto(socio) || hasAvatarError('tabla_' + socio.id)"
+                                                class="user-avatar-initials">
+                                                {{ getInitials(socio.nombre) }}
+                                            </div>
                                         </div>
+                                        <span class="user-profile__name">{{ socio.nombre }}</span>
                                     </div>
-                                    <span class="user-profile__name">{{ socio.nombre }}</span>
-                                </div>
-                            </td>
-                            <td class="tel-col">{{ socio.telefono }}</td>
-                            <td class="font-semibold text-emerald-400">
-                                {{ formatearPrecio(socio.precioTotal || 0) }}</td>
-                            <td class="date-col">{{ socio.fechaAsignacion }}</td>
-                            <td class="date-col">{{ socio.fechaVencimiento }}</td>
-                            <td class="text-right">
-                                <div class="acciones-buttons">
-                                    <button type="button" class="btn-accion btn-renovar"
-                                        (click)="abrirModalRenovar(socio)" [disabled]="accionEnProceso || loading"
-                                        title="Renovar membresía">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M1 4v6h6" stroke-linecap="round" stroke-linejoin="round" />
-                                            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" stroke-linecap="round"
-                                                stroke-linejoin="round" />
-                                        </svg>
-                                    </button>
-                                    <button type="button" class="btn-accion btn-suspender"
-                                        (click)="abrirModalSuspender(socio)" [disabled]="accionEnProceso || loading"
-                                        title="Suspender membresía">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <circle cx="12" cy="12" r="10" />
-                                            <line x1="12" y1="8" x2="12" y2="12" />
-                                            <line x1="12" y1="16" x2="12.01" y2="16" />
-                                        </svg>
-                                    </button>
-                                    <button type="button" class="btn-accion btn-cancelar"
-                                        (click)="abrirModalCancelar(socio)" [disabled]="accionEnProceso || loading"
-                                        title="Cancelar membresía">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M18 6L6 18" stroke-linecap="round" stroke-linejoin="round" />
-                                            <path d="M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" />
-                                        </svg>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr *ngIf="sociosAsignados.length === 0">
-                            <td colspan="7" class="empty-state">No hay socios asignados.</td>
-                        </tr>
-                    </tbody>
-                </table>
+                                </td>
+                                <td class="tel-col">{{ socio.telefono }}</td>
+                                <td class="font-semibold text-emerald-400">
+                                    {{ formatearPrecio(socio.precioTotal || 0) }}</td>
+                                <td class="date-col">{{ socio.fechaAsignacion }}</td>
+                                <td class="date-col">{{ socio.fechaVencimiento }}</td>
+                                <td class="text-right">
+                                    <div class="acciones-buttons">
+                                        <button type="button" class="btn-accion btn-renovar"
+                                            (click)="abrirModalRenovar(socio)" [disabled]="accionEnProceso || loading"
+                                            title="Renovar membresía">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M1 4v6h6" stroke-linecap="round" stroke-linejoin="round" />
+                                                <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" stroke-linecap="round"
+                                                    stroke-linejoin="round" />
+                                            </svg>
+                                        </button>
+                                        <button type="button" class="btn-accion btn-suspender"
+                                            (click)="abrirModalSuspender(socio)" [disabled]="accionEnProceso || loading"
+                                            title="Suspender membresía">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <circle cx="12" cy="12" r="10" />
+                                                <line x1="12" y1="8" x2="12" y2="12" />
+                                                <line x1="12" y1="16" x2="12.01" y2="16" />
+                                            </svg>
+                                        </button>
+                                        <button type="button" class="btn-accion btn-cancelar"
+                                            (click)="abrirModalCancelar(socio)" [disabled]="accionEnProceso || loading"
+                                            title="Cancelar membresía">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M18 6L6 18" stroke-linecap="round" stroke-linejoin="round" />
+                                                <path d="M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr *ngIf="sociosAsignados.length === 0">
+                                <td colspan="7" class="empty-state">No hay socios asignados.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
 
                 <div class="table-footer" *ngIf="sociosAsignados.length > 0">
                     <span class="table-footer__info">

@@ -11,6 +11,7 @@ import { PreferenciaUsuario } from '../models/preference.model';
 export class NotificationService {
   private http = inject(HttpClient);
   private apiUrl = `${environment.apiUrl}/pg-ms-notifications`;
+  private whatsappApiUrl = `${environment.apiUrl}/pg-ms-whatsapp-web`;
 
   private getHeaders(rol: string, userId?: number) {
     let headers = new HttpHeaders().set('X-User-Rol', rol);
@@ -88,5 +89,18 @@ export class NotificationService {
 
   eliminarDiseno(rol: string, id: number): Observable<any> {
     return this.http.post(`${this.apiUrl}/diseno-email/eliminar/${id}`, {}, { headers: this.getHeaders(rol) });
+  }
+
+  // --- WHATSAPP WEB INTEGRATION ---
+  solicitarCodigoWhatsApp(telefono: string): Observable<{ codigo: string }> {
+    return this.http.post<{ codigo: string }>(`${this.whatsappApiUrl}/codigo`, { telefono });
+  }
+
+  verificarStatusWhatsApp(): Observable<{ logged_in: boolean; iniciado: boolean }> {
+    return this.http.get<{ logged_in: boolean; iniciado: boolean }>(`${this.whatsappApiUrl}/status`);
+  }
+
+  reiniciarSesionWhatsApp(): Observable<{ ok: boolean; mensaje: string }> {
+    return this.http.post<{ ok: boolean; mensaje: string }>(`${this.whatsappApiUrl}/reiniciar-sesion`, {});
   }
 }

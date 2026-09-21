@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
@@ -18,6 +18,8 @@ interface MenuItem {
   styleUrls: ['./sidebar.component.scss'],
 })
 export class SidebarComponent implements OnInit {
+  @Input() isOpen: boolean = false;
+  @Output() closeMenu = new EventEmitter<void>();
 
   menuItems: MenuItem[] = [];
   membershipChildren: MenuItem[] = [];
@@ -231,6 +233,11 @@ export class SidebarComponent implements OnInit {
         iconHtml: notificationIcon
       },
       {
+        label: 'WhatsApp',
+        route: '/dashboard-admin/notifications/whatsapp',
+        iconHtml: notificationIcon
+      },
+      {
         label: 'Configuración & Límites',
         route: '/dashboard-admin/notifications/configuracion',
         iconHtml: notificationIcon
@@ -248,7 +255,7 @@ export class SidebarComponent implements OnInit {
         route: '/dashboard-admin/equipments/faults',
         iconHtml: faultIcon,
       }
-    ]
+    ];
 
     this.menuItems = [
       {
@@ -365,7 +372,6 @@ export class SidebarComponent implements OnInit {
     `);
   }
 
-  // Icono independiente para la sección "Mi Perfil" del Administrador
   getMiPerfilIcon(): SafeHtml {
     return this.sanitizer.bypassSecurityTrustHtml(`
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sidebar__nav-icon">
@@ -406,22 +412,27 @@ export class SidebarComponent implements OnInit {
 
   goToMembershipList(): void {
     this.router.navigate(['/dashboard-admin/memberships/list']);
+    this.closeMenu.emit();
   }
 
   goToAttendanceList(): void {
     this.router.navigate(['/dashboard-admin/attendance/list']);
+    this.closeMenu.emit();
   }
 
   goToPaymentsList(): void {
     this.router.navigate(['/dashboard-admin/payments']);
+    this.closeMenu.emit();
   }
 
   goToNotifications(): void {
     this.router.navigate(['/dashboard-admin/notifications/plantillas']);
+    this.closeMenu.emit();
   }
 
   goToEquipmentList(): void {
-    this.router.navigate(['/dashboard-admin/equipments'])
+    this.router.navigate(['/dashboard-admin/equipments']);
+    this.closeMenu.emit();
   }
 
   logout(): void {

@@ -1,7 +1,7 @@
 <div class="attendance-history">
 
   <header class="attendance-history__header">
-    <div>
+    <div class="attendance-history__titles">
       <h1 class="attendance-history__title">Historial de Accesos</h1>
       <p class="attendance-history__subtitle">Registro de auditoría e intentos de ingreso a las sedes de Pulse GYM.</p>
     </div>
@@ -26,7 +26,7 @@
           <line x1="16" y1="17" x2="8" y2="17"></line>
         </svg>
       </div>
-      <div>
+      <div class="kpi-card__info">
         <span class="kpi-card__label">Total Registros</span>
         <h3 class="kpi-card__value">{{ totalElements }}</h3>
       </div>
@@ -38,7 +38,7 @@
           <polyline points="20 6 9 17 4 12"></polyline>
         </svg>
       </div>
-      <div>
+      <div class="kpi-card__info">
         <span class="kpi-card__label">Accesos Exitosos</span>
         <h3 class="kpi-card__value">{{ totalExitosos }} <small>({{ tasaExito }}%)</small></h3>
       </div>
@@ -52,7 +52,7 @@
           <line x1="9" y1="9" x2="15" y2="15"></line>
         </svg>
       </div>
-      <div>
+      <div class="kpi-card__info">
         <span class="kpi-card__label">Fallidos / Bloqueados</span>
         <h3 class="kpi-card__value">{{ totalFallidos }}</h3>
       </div>
@@ -88,7 +88,7 @@
             <td>
               <div class="user-info">
                 <span class="user-info__avatar">{{ item.nombreUsuario.charAt(0) | uppercase }}</span>
-                <div>
+                <div class="user-info__details">
                   <strong class="user-info__name">{{ item.nombreUsuario }}</strong>
                   <span class="user-info__id">ID: #{{ item.usuarioId }}</span>
                 </div>
@@ -176,9 +176,8 @@
           </button>
         </div>
       </div>
-      <br>
 
-      <div class="form-group mt-4">
+      <div class="form-group">
         <label for="fechaRef" class="form-label">Fecha de Referencia</label>
         <input id="fechaRef" type="date" class="form-input" [(ngModel)]="fechaReferenciaExport" />
         <span class="helper-text" *ngIf="tipoReporteExport === 'SEMANAL'">
@@ -188,9 +187,8 @@
           Se exportará el mes completo correspondiente a esta fecha
         </span>
       </div>
-      <br>
 
-      <div class="form-group mt-5">
+      <div class="form-group">
         <label class="form-label">Formato de Descarga</label>
         <div class="download-actions">
 

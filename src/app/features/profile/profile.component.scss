@@ -1,7 +1,12 @@
+// ==========================================================================
+// BASE
+// ==========================================================================
 :host {
     display: block;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     color: var(--color-text-primary, #172033);
+    width: 100%;
+    overflow-x: hidden;
 }
 
 .profile-layout {
@@ -31,6 +36,9 @@
     overflow-x: hidden;
 }
 
+/* ==========================================================================
+   BOTÓN VOLVER
+   ========================================================================== */
 .admin-top-bar {
     margin-bottom: 24px;
     display: flex;
@@ -51,6 +59,7 @@
     cursor: pointer;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
     transition: all 0.2s ease;
+    white-space: nowrap;
 
     &:hover {
         background: #0f1c3f;
@@ -58,7 +67,7 @@
         border-color: #0f1c3f;
         transform: translateY(-1px);
         box-shadow: 0 4px 12px rgba(15, 28, 63, 0.15);
-        
+
         svg {
             stroke: #ffffff;
         }
@@ -67,9 +76,13 @@
     svg {
         stroke: #0f1c3f;
         transition: stroke 0.2s ease;
+        flex-shrink: 0;
     }
 }
 
+/* ==========================================================================
+   ESTADOS
+   ========================================================================== */
 .state-container {
     padding: 40px;
     text-align: center;
@@ -87,6 +100,9 @@
     margin-top: 12px;
 }
 
+/* ==========================================================================
+   CARDS
+   ========================================================================== */
 .card {
     background: var(--color-bg-card, #fff);
     border: 1px solid var(--color-border, #edf0f5);
@@ -111,11 +127,12 @@
     font-size: 16px;
     font-weight: 700;
     color: var(--color-text-primary, #0f172a);
+    word-break: break-word;
 }
 
-/* ============================================
-   PROFILE GRID - 2 COLUMNAS PARA ADMINISTRADOR
-   ============================================ */
+/* ==========================================================================
+   PROFILE GRID (ADMIN)
+   ========================================================================== */
 .profile-grid.admin-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -138,7 +155,7 @@
 }
 
 .profile-avatar-container {
-    margin-right: 28px;
+    margin-right: 20px;
     flex-shrink: 0;
 }
 
@@ -163,17 +180,20 @@
 }
 
 .profile-main-info {
-    padding-top: 18px;
+    padding-top: 4px;
     flex: 1;
-    min-width: 200px;
-}
+    min-width: 0;
+    padding-right: 140px;
 
-.profile-main-info h2 {
-    margin: 0 0 16px;
-    font-size: 27px;
-    font-weight: 700;
-    color: var(--color-text-primary, #0f1c3f);
-    word-break: break-word;
+    h2 {
+        margin: 0 0 12px;
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--color-text-primary, #0f1c3f);
+        word-break: break-word;
+        overflow-wrap: break-word;
+        line-height: 1.2;
+    }
 }
 
 .profile-badges {
@@ -189,6 +209,7 @@
     color: #0f1c3f;
     font-size: 12px;
     font-weight: 600;
+    white-space: nowrap;
 }
 
 .profile-badge.username {
@@ -196,13 +217,17 @@
     color: #0f1c3f;
 }
 
+/* ==========================================================================
+   BOTONES DE ACCIÓN
+   ========================================================================== */
 .profile-actions {
     display: flex;
     align-items: center;
     gap: 0.5rem;
     position: absolute;
-    top: 2px;
+    top: 4px;
     right: 0;
+    z-index: 2;
 }
 
 .btn-edit-profile {
@@ -246,6 +271,9 @@
     }
 }
 
+/* ==========================================================================
+   CONTACT ROW
+   ========================================================================== */
 .profile-contact-row {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -257,6 +285,7 @@
     align-items: center;
     padding: 22px 25px;
     position: relative;
+    min-width: 0;
 }
 
 .contact-col:not(:last-child)::after {
@@ -281,6 +310,7 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
+    min-width: 0;
 }
 
 .contact-label {
@@ -292,8 +322,14 @@
     color: var(--color-text-primary, #263248);
     font-size: 13px;
     font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
+/* ==========================================================================
+   INFO CARDS
+   ========================================================================== */
 .info-card, .contactos-card {
     padding: 24px;
 }
@@ -319,6 +355,7 @@
 .info-label {
     color: var(--color-text-secondary, #64748b);
     font-size: 12px;
+    flex-shrink: 0;
 }
 
 .info-value.bold {
@@ -327,8 +364,12 @@
     font-weight: 600;
     text-align: right;
     word-break: break-word;
+    min-width: 0;
 }
 
+/* ==========================================================================
+   GOAL BANNER
+   ========================================================================== */
 .goal-banner {
     background: #f1f6ff;
     border: 1px solid #dce8ff;
@@ -362,6 +403,7 @@
     font-size: 14px;
     font-weight: 700;
     color: var(--color-text-primary, #0f172a);
+    word-break: break-word;
 }
 
 .goal-sub {
@@ -370,6 +412,9 @@
     font-size: 11px;
 }
 
+/* ==========================================================================
+   CONTACTOS
+   ========================================================================== */
 .contactos-list {
     display: flex;
     flex-direction: column;
@@ -381,6 +426,8 @@
     min-height: 50px;
     border-bottom: 1px solid var(--color-border-light, #edf0f4);
     padding: 6px 0;
+    gap: 12px;
+    min-width: 0;
 }
 
 .contacto-item:last-child {
@@ -393,7 +440,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-right: 12px;
     border-radius: 50%;
     background: #eef4ff;
     flex-shrink: 0;
@@ -403,6 +449,8 @@
     display: flex;
     flex-direction: column;
     gap: 2px;
+    min-width: 0;
+    flex: 1;
 }
 
 .contacto-head {
@@ -416,6 +464,9 @@
     font-size: 13px;
     font-weight: 700;
     color: var(--color-text-primary, #0f172a);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .tag-parentesco {
@@ -425,11 +476,15 @@
     color: #2563eb;
     font-size: 10px;
     font-weight: 600;
+    white-space: nowrap;
 }
 
 .contacto-telefono {
     color: var(--color-text-secondary, #64748b);
     font-size: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .empty-message {
@@ -438,6 +493,9 @@
     padding: 20px 0;
 }
 
+/* ==========================================================================
+   SECURITY BANNER
+   ========================================================================== */
 .security-banner {
     background: #f1f6ff;
     border: 1px solid #dce8ff;
@@ -446,6 +504,7 @@
     align-items: center;
     margin-top: 20px;
     padding: 12px 14px;
+    gap: 12px;
 }
 
 .shield-icon {
@@ -454,7 +513,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-right: 12px;
     border-radius: 50%;
     background: #dce9ff;
     flex-shrink: 0;
@@ -474,7 +532,9 @@
     line-height: 1.4;
 }
 
-/* EDICIÓN */
+/* ==========================================================================
+   EDICIÓN
+   ========================================================================== */
 .page-header {
     margin-bottom: 24px;
 }
@@ -484,6 +544,7 @@
     font-weight: 700;
     color: var(--color-text-primary, #0f172a);
     margin: 0 0 6px 0;
+    word-break: break-word;
 }
 
 .page-header .subtitle {
@@ -500,6 +561,8 @@
     box-shadow: var(--shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.02));
     max-width: 800px;
     margin: 0 auto;
+    box-sizing: border-box;
+    width: 100%;
 }
 
 .edit-form {
@@ -598,6 +661,7 @@
     display: flex;
     flex-direction: column;
     gap: 6px;
+    min-width: 0;
 }
 
 .form-group label {
@@ -629,6 +693,7 @@
     gap: 12px;
     padding-top: 16px;
     border-top: 1px solid var(--color-border, #e2e8f0);
+    flex-wrap: wrap;
 }
 
 .btn-secondary {
@@ -664,7 +729,9 @@
     font-size: 14px;
 }
 
-/* Modales */
+/* ==========================================================================
+   MODALES
+   ========================================================================== */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -700,17 +767,9 @@
     color: #dc2626;
 }
 
-@media (max-width: 992px) {
-    .profile-grid.admin-grid {
-        grid-template-columns: 1fr;
-    }
-    .profile-contact-row {
-        grid-template-columns: 1fr 1fr;
-    }
-}
-
-/* --- Mejoras visuales para llenar espacios en contactos de emergencia --- */
-
+/* ==========================================================================
+   EXTRAS VISUALES
+   ========================================================================== */
 .badge-verificado {
     display: inline-flex;
     align-items: center;
@@ -721,6 +780,7 @@
     border-radius: 20px;
     font-size: 11px;
     font-weight: 600;
+    white-space: nowrap;
 }
 
 .empty-message-box {
@@ -783,5 +843,494 @@
         font-size: 11.5px;
         color: var(--color-text-secondary, #64748b);
         line-height: 1.45;
+    }
+}
+
+// ==========================================================================
+// 🖥️ RESPONSIVE COMPLETO
+// ==========================================================================
+
+/* ==========================================================================
+   1. PANTALLAS MUY GRANDES (≥ 1600px)
+   ========================================================================== */
+@media (min-width: 1600px) {
+    .profile-wrapper {
+        max-width: 1300px;
+        padding: 40px 48px 55px;
+    }
+
+    .profile-main-info h2 {
+        font-size: 30px;
+    }
+
+    .profile-avatar {
+        width: 140px;
+        height: 140px;
+        font-size: 46px;
+    }
+}
+
+/* ==========================================================================
+   2. DESKTOP GRANDE (1400px - 1599px)
+   ========================================================================== */
+@media (min-width: 1400px) and (max-width: 1599px) {
+    .profile-wrapper {
+        padding: 34px 40px 50px;
+    }
+}
+
+/* ==========================================================================
+   3. DESKTOP ESTÁNDAR (1200px - 1399px)
+   ========================================================================== */
+@media (min-width: 1200px) and (max-width: 1399px) {
+    .profile-wrapper {
+        padding: 30px 35px 45px;
+    }
+}
+
+/* ==========================================================================
+   4. LAPTOP (992px - 1199px)
+   ========================================================================== */
+@media (max-width: 1199px) and (min-width: 992px) {
+    .profile-wrapper {
+        padding: 26px 28px 40px;
+    }
+
+    .profile-card {
+        padding: 28px 30px 0;
+    }
+
+    .profile-avatar {
+        width: 110px;
+        height: 110px;
+        font-size: 36px;
+    }
+
+    .profile-main-info h2 {
+        font-size: 24px;
+    }
+
+    .contact-col {
+        padding: 18px 20px;
+    }
+}
+
+/* ==========================================================================
+   5. TABLET HORIZONTAL (768px - 991px)
+   ========================================================================== */
+@media (max-width: 991px) and (min-width: 768px) {
+    .profile-wrapper {
+        padding: 22px 24px 36px;
+    }
+
+    .profile-card {
+        padding: 24px 24px 0;
+    }
+
+    .profile-grid.admin-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .profile-contact-row {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .contact-col:not(:last-child)::after {
+        display: none;
+    }
+
+    .contact-col {
+        padding: 16px 20px;
+        justify-content: flex-start;
+    }
+
+    .profile-top {
+        min-height: auto;
+    }
+
+    .profile-avatar {
+        width: 100px;
+        height: 100px;
+        font-size: 32px;
+    }
+
+    .profile-main-info {
+        padding-right: 0;
+    }
+
+    .profile-main-info h2 {
+        font-size: 22px;
+        margin-bottom: 12px;
+    }
+
+    .profile-actions {
+        position: static;
+        margin-top: 12px;
+        justify-content: flex-start;
+        width: 100%;
+        gap: 10px;
+    }
+
+    .btn-edit-profile {
+        flex: 1;
+        justify-content: center;
+    }
+
+    .btn-settings {
+        flex-shrink: 0;
+    }
+
+    .edit-container {
+        padding: 24px;
+        max-width: 100%;
+    }
+}
+
+/* ==========================================================================
+   6. TABLET VERTICAL / MÓVIL GRANDE (480px - 767px)
+   [CORREGIDO PARA ADAPTAR 412PX DE FORMA FLUIDA Y CENTRADA]
+   ========================================================================== */
+@media (max-width: 767px) {
+    .profile-wrapper {
+        padding: 18px 16px 30px;
+    }
+
+    .profile-card {
+        padding: 20px 18px 0;
+    }
+
+    .profile-grid.admin-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .profile-contact-row {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .contact-col:not(:last-child)::after {
+        display: none;
+    }
+
+    .contact-col {
+        padding: 14px 16px;
+    }
+
+    .contact-col svg {
+        width: 20px;
+        height: 20px;
+        margin-right: 12px;
+    }
+
+    // Centrado perfecto de la cabecera del perfil en pantallas tipo móvil/tablet pequeña
+    .profile-top {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        min-height: auto;
+    }
+
+    .profile-avatar-container {
+        margin-right: 0;
+        margin-bottom: 16px;
+    }
+
+    .profile-avatar {
+        width: 96px;
+        height: 96px;
+        font-size: 30px;
+    }
+
+    .profile-main-info {
+        padding-top: 0;
+        padding-right: 0;
+        text-align: center;
+        width: 100%;
+    }
+
+    .profile-main-info h2 {
+        font-size: 20px;
+        margin-bottom: 10px;
+    }
+
+    .profile-badges {
+        justify-content: center;
+    }
+
+    .profile-actions {
+        position: static;
+        margin-top: 14px;
+        justify-content: center;
+        width: 100%;
+        gap: 10px;
+    }
+
+    .btn-edit-profile {
+        flex: 1;
+        justify-content: center;
+        max-width: 200px;
+    }
+
+    .info-row {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 10px 0;
+        gap: 4px;
+    }
+
+    .info-value.bold {
+        text-align: left;
+        width: 100%;
+    }
+
+    .contacto-item {
+        gap: 10px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .edit-container {
+        padding: 20px;
+    }
+
+    .form-actions {
+        flex-direction: column-reverse;
+        gap: 10px;
+
+        .btn-secondary,
+        .btn-primary {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+}
+
+/* ==========================================================================
+   7. MÓVIL GRANDE (480px - 599px)
+   ========================================================================== */
+@media (max-width: 599px) and (min-width: 480px) {
+    .profile-contact-row {
+        grid-template-columns: 1fr;
+    }
+
+    .contact-col {
+        justify-content: flex-start;
+        border-bottom: 1px solid var(--color-border, #e8edf3);
+
+        &:last-child {
+            border-bottom: none;
+        }
+    }
+
+    .goal-banner,
+    .security-banner {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+    }
+
+    .goal-icon,
+    .shield-icon {
+        margin-right: 0;
+    }
+}
+
+/* ==========================================================================
+   8. MÓVIL PEQUEÑO (≤ 479px)
+   ========================================================================== */
+@media (max-width: 479px) {
+    .profile-wrapper {
+        padding: 14px 12px 22px;
+    }
+
+    .profile-card {
+        padding: 16px 14px 0;
+        margin-bottom: 16px;
+        border-radius: 12px;
+    }
+
+    .profile-contact-row {
+        grid-template-columns: 1fr;
+    }
+
+    .contact-col:not(:last-child)::after {
+        display: none;
+    }
+
+    .contact-col {
+        padding: 12px 14px;
+        justify-content: flex-start;
+        border-bottom: 1px solid var(--color-border, #e8edf3);
+
+        &:last-child {
+            border-bottom: none;
+        }
+    }
+
+    .contact-col svg {
+        width: 18px;
+        height: 18px;
+        margin-right: 10px;
+    }
+
+    .profile-avatar {
+        width: 76px;
+        height: 76px;
+        font-size: 24px;
+    }
+
+    .profile-main-info h2 {
+        font-size: 17px;
+        margin-bottom: 8px;
+    }
+
+    .profile-badge {
+        padding: 5px 10px;
+        font-size: 10px;
+    }
+
+    .btn-edit-profile {
+        font-size: 12px;
+        padding: 9px 12px;
+    }
+
+    .btn-settings {
+        width: 38px;
+        height: 38px;
+
+        svg {
+            width: 16px;
+            height: 16px;
+        }
+    }
+
+    .info-card,
+    .contactos-card {
+        padding: 14px 12px;
+        border-radius: 12px;
+    }
+
+    .goal-banner,
+    .security-banner {
+        flex-direction: column;
+        text-align: center;
+        gap: 8px;
+        padding: 12px;
+    }
+
+    .goal-icon,
+    .shield-icon {
+        margin-right: 0;
+    }
+}
+
+/* ==========================================================================
+   9. MÓVIL MUY PEQUEÑO (≤ 360px)
+   ========================================================================== */
+@media (max-width: 360px) {
+    .profile-wrapper {
+        padding: 12px 10px 18px;
+    }
+
+    .profile-avatar {
+        width: 68px;
+        height: 68px;
+        font-size: 22px;
+    }
+
+    .profile-main-info h2 {
+        font-size: 15px;
+    }
+}
+
+/* ==========================================================================
+   10. ORIENTACIÓN HORIZONTAL EN MÓVIL
+   ========================================================================== */
+@media (max-height: 500px) and (orientation: landscape) and (max-width: 991px) {
+    .profile-wrapper {
+        padding: 12px 20px;
+    }
+
+    .profile-card {
+        padding: 16px 20px 0;
+    }
+
+    .profile-top {
+        flex-direction: row;
+        align-items: flex-start;
+        min-height: auto;
+    }
+
+    .profile-avatar-container {
+        margin-right: 20px;
+        margin-bottom: 0;
+    }
+
+    .profile-avatar {
+        width: 80px;
+        height: 80px;
+        font-size: 26px;
+    }
+
+    .profile-main-info {
+        padding-top: 8px;
+        text-align: left;
+    }
+
+    .profile-badges {
+        justify-content: flex-start;
+    }
+
+    .profile-actions {
+        position: static;
+        margin-top: 10px;
+        justify-content: flex-start;
+    }
+
+    .profile-contact-row {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .profile-grid.admin-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+/* ==========================================================================
+   11. PANTALLAS RETINA / DPI ALTO
+   ========================================================================== */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .card,
+    .profile-avatar,
+    .form-control {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+}
+
+/* ==========================================================================
+   12. REFUERZO EXTREMO PARA 320px
+   ========================================================================== */
+@media (max-width: 320px) {
+    .profile-wrapper {
+        padding: 10px 8px !important;
+    }
+
+    .profile-card {
+        padding: 12px 10px 0 !important;
+    }
+
+    .profile-avatar {
+        width: 60px !important;
+        height: 60px !important;
+        font-size: 20px !important;
+    }
+
+    .profile-main-info h2 {
+        font-size: 14px !important;
     }
 }

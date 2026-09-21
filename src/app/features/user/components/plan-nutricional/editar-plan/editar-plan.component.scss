@@ -601,3 +601,16 @@ $success-color: #10b981;
         height: 60px;
     }
 }
+
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.5);
+    backdrop-filter: blur(2px);
+    z-index: 999;
+
+    @media (max-width: 992px) {
+        display: block;
+    }
+}

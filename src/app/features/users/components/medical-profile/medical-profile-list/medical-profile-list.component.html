@@ -96,111 +96,114 @@
             </button>
         </div>
 
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th class="th-checkbox">
-                        <label class="custom-checkbox">
-                            <input type="checkbox" [checked]="isAllSelected" [indeterminate]="isSomeSelected" (change)="toggleSelectAll($event)">
-                            <span class="checkmark"></span>
-                        </label>
-                    </th>
-                    <th>SOCIO</th>
-                    <th>PESO (KG)</th>
-                    <th>ESTATURA (CM)</th>
-                    <th>ALERGIAS</th>
-                    <th>CONDICIONES CRÓNICAS</th>
-                    <th>ÚLTIMA ACTUALIZACIÓN</th>
-                    <th class="text-right">ACCIONES</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Fila de carga -->
-                <tr *ngIf="loading">
-                    <td colspan="8" class="empty-table-msg">
-                        Cargando perfiles médicos...
-                    </td>
-                </tr>
-
-                <!-- Datos de perfiles -->
-                <ng-container *ngIf="!loading">
-                    <tr *ngFor="let perfil of perfiles" [class.selected-row]="isSeleccionado(perfil.idSocio)">
-                        <td class="td-checkbox">
+        <!-- CONTENEDOR CON SCROLL INTERNO PARA LA TABLA -->
+        <div class="table-container-scroll">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th class="th-checkbox">
                             <label class="custom-checkbox">
-                                <input type="checkbox" [checked]="isSeleccionado(perfil.idSocio)" (change)="toggleSeleccionItem(perfil.idSocio)">
+                                <input type="checkbox" [checked]="isAllSelected" [indeterminate]="isSomeSelected" (change)="toggleSelectAll($event)">
                                 <span class="checkmark"></span>
                             </label>
-                        </td>
-                        <td>
-                            <div class="partner-cell">
-                                <div class="partner-table-avatar">
-                                    <span>{{ (perfil.nombreSocio?.charAt(0) || 'S') }}</span>
-                                </div>
-                                <div class="partner-info-text">
-                                    <span class="partner-table-name">{{ perfil.nombreSocio || 'Sin nombre' }}</span>
-                                    <span class="partner-table-sub">ID Socio: {{ perfil.idSocio }}</span>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <span class="data-val">{{ perfil.pesoKg ? perfil.pesoKg + ' kg' : 'N/D' }}</span>
-                        </td>
-                        <td>
-                            <span class="data-val">{{ perfil.estaturaCm ? perfil.estaturaCm + ' cm' : 'N/D' }}</span>
-                        </td>
-                        <td>
-                            <span class="badge-text" [class.badge-alert]="perfil.alergias">{{ perfil.alergias ||
-                                'Ninguna' }}</span>
-                        </td>
-                        <td>
-                            <span class="badge-text" [class.badge-alert]="perfil.condicionesCronicas">{{
-                                perfil.condicionesCronicas || 'Ninguna' }}</span>
-                        </td>
-                        <td>
-                            <span class="date-val">{{ perfil.fechaActualizacion ? (perfil.fechaActualizacion | date:'dd
-                                MMM yyyy, hh:mm a') : 'N/D' }}</span>
-                        </td>
-                        <td class="text-right">
-                            <div class="action-buttons">
-                                <button type="button" class="btn-action" title="Ver Detalle"
-                                    (click)="verDetalle(perfil.idSocio)">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                        stroke-width="2">
-                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                        <circle cx="12" cy="12" r="3"></circle>
-                                    </svg>
-                                </button>
-                                <button type="button" class="btn-action" title="Editar"
-                                    (click)="editarPerfil(perfil.idSocio)">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                        stroke-width="2">
-                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                                    </svg>
-                                </button>
-                                <button type="button" class="btn-action btn-action--danger" title="Eliminar"
-                                    (click)="eliminarPerfil(perfil.idSocio)">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                        stroke-width="2">
-                                        <polyline points="3 6 5 6 21 6"></polyline>
-                                        <path
-                                            d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
-                                        </path>
-                                    </svg>
-                                </button>
-                            </div>
-                        </td>
+                        </th>
+                        <th>SOCIO</th>
+                        <th>PESO (KG)</th>
+                        <th>ESTATURA (CM)</th>
+                        <th>ALERGIAS</th>
+                        <th>CONDICIONES CRÓNICAS</th>
+                        <th>ÚLTIMA ACTUALIZACIÓN</th>
+                        <th class="text-right">ACCIONES</th>
                     </tr>
-                    <tr *ngIf="perfiles.length === 0">
+                </thead>
+                <tbody>
+                    <!-- Fila de carga -->
+                    <tr *ngIf="loading">
                         <td colspan="8" class="empty-table-msg">
-                            No se encontraron perfiles médicos registrados.
+                            Cargando perfiles médicos...
                         </td>
                     </tr>
-                </ng-container>
-            </tbody>
-        </table>
 
-        <!-- PIE DE TABLA / PAGINACIÓN -->
+                    <!-- Datos de perfiles -->
+                    <ng-container *ngIf="!loading">
+                        <tr *ngFor="let perfil of perfiles" [class.selected-row]="isSeleccionado(perfil.idSocio)">
+                            <td class="td-checkbox">
+                                <label class="custom-checkbox">
+                                    <input type="checkbox" [checked]="isSeleccionado(perfil.idSocio)" (change)="toggleSeleccionItem(perfil.idSocio)">
+                                    <span class="checkmark"></span>
+                                </label>
+                            </td>
+                            <td>
+                                <div class="partner-cell">
+                                    <div class="partner-table-avatar">
+                                        <span>{{ (perfil.nombreSocio?.charAt(0) || 'S') }}</span>
+                                    </div>
+                                    <div class="partner-info-text">
+                                        <span class="partner-table-name">{{ perfil.nombreSocio || 'Sin nombre' }}</span>
+                                        <span class="partner-table-sub">ID Socio: {{ perfil.idSocio }}</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="data-val">{{ perfil.pesoKg ? perfil.pesoKg + ' kg' : 'N/D' }}</span>
+                            </td>
+                            <td>
+                                <span class="data-val">{{ perfil.estaturaCm ? perfil.estaturaCm + ' cm' : 'N/D' }}</span>
+                            </td>
+                            <td>
+                                <span class="badge-text" [class.badge-alert]="perfil.alergias">{{ perfil.alergias ||
+                                    'Ninguna' }}</span>
+                            </td>
+                            <td>
+                                <span class="badge-text" [class.badge-alert]="perfil.condicionesCronicas">{{
+                                    perfil.condicionesCronicas || 'Ninguna' }}</span>
+                            </td>
+                            <td>
+                                <span class="date-val">{{ perfil.fechaActualizacion ? (perfil.fechaActualizacion | date:'dd
+                                    MMM yyyy, hh:mm a') : 'N/D' }}</span>
+                            </td>
+                            <td class="text-right">
+                                <div class="action-buttons">
+                                    <button type="button" class="btn-action" title="Ver Detalle"
+                                        (click)="verDetalle(perfil.idSocio)">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                            stroke-width="2">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                            <circle cx="12" cy="12" r="3"></circle>
+                                        </svg>
+                                    </button>
+                                    <button type="button" class="btn-action" title="Editar"
+                                        (click)="editarPerfil(perfil.idSocio)">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                            stroke-width="2">
+                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                        </svg>
+                                    </button>
+                                    <button type="button" class="btn-action btn-action--danger" title="Eliminar"
+                                        (click)="eliminarPerfil(perfil.idSocio)">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                            stroke-width="2">
+                                            <polyline points="3 6 5 6 21 6"></polyline>
+                                            <path
+                                                d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
+                                            </path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr *ngIf="perfiles.length === 0">
+                            <td colspan="8" class="empty-table-msg">
+                                No se encontraron perfiles médicos registrados.
+                            </td>
+                        </tr>
+                    </ng-container>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- PIE DE TABLA / PAGINACIÓN (FIJO AL HACER SCROLL) -->
         <div class="table-footer" *ngIf="totalElements > 0">
             <span class="pagination-info">
                 Mostrando {{ (pageIndex * pageSize) + 1 }} a {{ mathMin((pageIndex + 1) * pageSize, totalElements) }} de

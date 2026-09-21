@@ -1,87 +1,118 @@
 .document-detail-container {
-    padding: 24px;
-    max-width: 1100px;
+    padding: 12px;
+    max-width: 1200px;
+    width: 100%;
     margin: 0 auto;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     background-color: var(--color-bg-main);
     transition: background-color 0.3s ease;
+    box-sizing: border-box;
+    overflow-x: hidden;
+
+    *, *::before, *::after {
+        box-sizing: border-box;
+    }
 }
 
 /* HEADER & BREADCRUMB */
 .detail-header {
     display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    margin-bottom: 24px;
-    padding-bottom: 16px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 14px;
     border-bottom: 1px solid var(--color-border);
+    min-width: 0;
 
-    .breadcrumb {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 0.85rem;
-        color: var(--color-text-secondary);
-        margin-bottom: 6px;
+    .header-left {
+        min-width: 0;
 
-        .crumb-link {
-            cursor: pointer;
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+            font-size: 0.75rem;
+            color: var(--color-text-secondary);
+            margin-bottom: 4px;
 
-            &:hover {
+            .crumb-link {
+                cursor: pointer;
+                word-break: break-word;
+
+                &:hover {
+                    color: var(--color-primary);
+                    text-decoration: underline;
+                }
+            }
+
+            .crumb-separator {
+                flex-shrink: 0;
+            }
+
+            .crumb-current {
                 color: var(--color-primary);
-                text-decoration: underline;
+                font-weight: 600;
+                word-break: break-word;
             }
         }
 
-        .crumb-current {
-            color: var(--color-primary);
-            font-weight: 600;
+        .detail-title {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--color-text-primary);
+            margin: 0;
+            word-break: break-word;
+            overflow-wrap: break-word;
         }
-    }
-
-    .detail-title {
-        font-size: 1.6rem;
-        font-weight: 800;
-        color: var(--color-text-primary);
-        margin: 0;
     }
 }
 
 .header-actions {
     display: flex;
-    gap: 10px;
+    flex-direction: row;
+    gap: 8px;
+    width: 100%;
 
-    .btn-back {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        background: var(--color-bg-card);
-        border: 1px solid var(--color-border);
-        border-radius: 8px;
-        padding: 8px 16px;
-        color: var(--color-text-secondary);
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s ease;
-
-        &:hover {
-            background: var(--color-bg-hover);
-        }
-    }
-
-    /* ✅ Semántico (rojo) */
+    .btn-back,
     .btn-delete {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
+        justify-content: center;
+        gap: 6px;
+        border-radius: 8px;
+        padding: 8px 12px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        flex: 1;
+        white-space: nowrap;
+
+        svg {
+            stroke: currentColor;
+            flex-shrink: 0;
+            width: 15px;
+            height: 15px;
+        }
+    }
+
+    .btn-back {
+        background: var(--color-bg-card);
+        border: 1px solid var(--color-border);
+        color: var(--color-text-secondary);
+
+        &:hover {
+            background: var(--color-bg-hover);
+            color: var(--color-text-primary);
+        }
+    }
+
+    .btn-delete {
         background: var(--color-error);
         color: #ffffff;
         border: none;
-        border-radius: 8px;
-        padding: 8px 18px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s ease;
 
         &:hover {
             background: #b91c1c;
@@ -89,82 +120,118 @@
     }
 }
 
-/* ESTRUCTURA GRID 2 COLUMNAS */
+/* ERROR STATE */
+.error-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+    gap: 12px;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-error);
+    border-radius: 12px;
+    box-shadow: var(--shadow-sm);
+    text-align: center;
+
+    p {
+        color: var(--color-error);
+        font-weight: 600;
+        font-size: 0.85rem;
+        word-break: break-word;
+        margin: 0;
+    }
+
+    .btn-back {
+        width: auto;
+        padding: 8px 16px;
+    }
+}
+
+/* ESTRUCTURA GRID PRINCIPAL */
 .detail-grid {
     display: grid;
-    grid-template-columns: 1fr 340px;
-    gap: 24px;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    min-width: 0;
 }
 
 /* COLUMNA PRINCIPAL */
 .main-column {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 16px;
+    min-width: 0;
 }
 
 .document-banner-card {
     background: var(--color-bg-card);
     border: 1px solid var(--color-border);
-    border-radius: 16px;
-    padding: 24px;
+    border-radius: 12px;
+    padding: 16px;
     box-shadow: var(--shadow-sm);
     transition: background-color 0.3s ease;
+    min-width: 0;
 
     .banner-top {
         display: flex;
-        gap: 18px;
-        margin-bottom: 20px;
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 14px;
+        min-width: 0;
 
-        /* ✅ Semántico (rojo - PDF) */
         .pdf-icon-badge {
-            width: 56px;
-            height: 56px;
+            width: 42px;
+            height: 42px;
             background: var(--color-error-bg);
-            border-radius: 12px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
+
+            svg {
+                width: 22px;
+                height: 22px;
+            }
         }
 
         .banner-title-area {
             flex: 1;
+            min-width: 0;
 
             .title-row {
                 display: flex;
-                align-items: center;
-                justify-content: space-between;
-                gap: 12px;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 6px;
+                min-width: 0;
 
                 h2 {
-                    font-size: 1.35rem;
+                    font-size: 1.05rem;
                     font-weight: 800;
                     color: var(--color-text-primary);
                     margin: 0;
+                    word-break: break-word;
                 }
             }
 
             .tag-row {
                 display: flex;
                 align-items: center;
-                gap: 10px;
-                margin-top: 8px;
+                gap: 6px;
+                margin-top: 6px;
+                flex-wrap: wrap;
 
-                /* ✅ Semántico (azul) */
                 .category-tag {
                     background: var(--color-info-bg);
                     color: var(--color-info);
-                    font-size: 0.75rem;
+                    font-size: 0.7rem;
                     font-weight: 700;
-                    padding: 2px 10px;
+                    padding: 2px 8px;
                     border-radius: 6px;
-                }
-
-                .doc-id-tag {
-                    font-size: 0.8rem;
-                    color: var(--color-text-muted);
-                    font-weight: 500;
+                    white-space: nowrap;
                 }
             }
         }
@@ -172,30 +239,41 @@
 
     .banner-meta-grid {
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 16px;
-        padding-top: 16px;
+        grid-template-columns: 1fr;
+        gap: 10px;
+        padding-top: 12px;
         border-top: 1px solid var(--color-border-light);
+        min-width: 0;
 
         .meta-box {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             background: var(--color-bg-hover);
-            padding: 12px 16px;
-            border-radius: 10px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            min-width: 0;
 
-            svg { stroke: var(--color-text-secondary); }
+            svg { stroke: var(--color-text-secondary); flex-shrink: 0; width: 16px; height: 16px; }
+
+            div {
+                min-width: 0;
+                flex: 1;
+            }
 
             .meta-label {
-                font-size: 0.75rem;
+                font-size: 0.675rem;
                 color: var(--color-text-muted);
                 display: block;
+                text-transform: uppercase;
+                letter-spacing: 0.03em;
             }
 
             .meta-value {
-                font-size: 0.9rem;
+                font-size: 0.8rem;
                 color: var(--color-text-primary);
+                word-break: break-word;
+                display: block;
             }
         }
     }
@@ -205,47 +283,62 @@
 .pdf-viewer-card {
     background: var(--color-bg-card);
     border: 1px solid var(--color-border);
-    border-radius: 16px;
-    padding: 20px;
+    border-radius: 12px;
+    padding: 16px;
     box-shadow: var(--shadow-sm);
     transition: background-color 0.3s ease;
+    min-width: 0;
 
     .card-header {
         display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 16px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        margin-bottom: 14px;
+        min-width: 0;
 
         h3 {
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: 700;
             color: var(--color-text-primary);
             margin: 0;
+            word-break: normal;
+            overflow-wrap: break-word;
         }
 
-        /* ✅ Semántico (azul) */
         .btn-external-link {
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 6px;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             font-weight: 600;
             color: var(--color-info);
             text-decoration: none;
+            padding: 6px 10px;
+            background: var(--color-info-bg);
+            border-radius: 6px;
+            border: 1px solid var(--color-info);
+            width: 100%;
+            white-space: nowrap;
 
             &:hover { text-decoration: underline; }
+            svg { flex-shrink: 0; width: 14px; height: 14px; }
         }
     }
 
     .viewer-container {
-        border-radius: 10px;
+        border-radius: 8px;
         overflow: hidden;
         background: var(--color-bg-hover);
         border: 1px solid var(--color-border);
+        width: 100%;
 
         iframe {
             border: none;
             display: block;
+            width: 100%;
+            height: 380px;
         }
 
         .no-pdf-placeholder {
@@ -253,51 +346,68 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 60px 20px;
-            gap: 12px;
+            padding: 40px 16px;
+            gap: 10px;
             color: var(--color-text-muted);
-            font-size: 0.9rem;
+            font-size: 0.8rem;
+            text-align: center;
         }
     }
 }
 
 /* COLUMNA LATERAL */
 .side-column {
+    min-width: 0;
+
     .info-sidebar-card {
         background: var(--color-bg-card);
         border: 1px solid var(--color-border);
-        border-radius: 16px;
-        padding: 20px;
+        border-radius: 12px;
+        padding: 16px;
         box-shadow: var(--shadow-sm);
         transition: background-color 0.3s ease;
+        min-width: 0;
 
         h3 {
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: 700;
             color: var(--color-text-primary);
-            margin: 0 0 16px 0;
+            margin: 0 0 14px 0;
             padding-bottom: 10px;
             border-bottom: 1px solid var(--color-border-light);
+            word-break: break-word;
         }
 
         .info-list {
             display: flex;
             flex-direction: column;
-            gap: 14px;
+            gap: 12px;
+            min-width: 0;
 
             .info-row {
                 display: flex;
-                justify-content: space-between;
-                align-items: center;
+                flex-direction: column;
+                gap: 2px;
+                background: var(--color-bg-main);
+                padding: 10px 12px;
+                border-radius: 8px;
+                border: 1px solid var(--color-border-light);
+                min-width: 0;
 
                 .info-label {
-                    font-size: 0.825rem;
+                    font-size: 0.675rem;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    letter-spacing: 0.03em;
                     color: var(--color-text-secondary);
+                    word-break: break-word;
                 }
 
                 .info-value {
-                    font-size: 0.875rem;
+                    font-size: 0.825rem;
+                    font-weight: 600;
                     color: var(--color-text-primary);
+                    word-break: break-word;
                 }
             }
         }
@@ -305,7 +415,7 @@
         .sidebar-divider {
             height: 1px;
             background: var(--color-border-light);
-            margin: 20px 0;
+            margin: 16px 0;
         }
 
         .btn-download-pdf {
@@ -314,12 +424,12 @@
             justify-content: center;
             gap: 8px;
             width: 100%;
-            padding: 12px;
+            padding: 10px 16px;
             background: var(--color-primary);
             color: #ffffff;
             border: none;
-            border-radius: 10px;
-            font-size: 0.875rem;
+            border-radius: 8px;
+            font-size: 0.825rem;
             font-weight: 600;
             cursor: pointer;
             transition: background 0.2s;
@@ -330,16 +440,19 @@
                 opacity: 0.7;
                 cursor: not-allowed;
             }
+
+            svg { flex-shrink: 0; width: 16px; height: 16px; }
         }
     }
 }
 
-/* ✅ Semánticos (verde/rojo/gris) */
 .badge-status {
-    padding: 4px 12px;
-    border-radius: 12px;
-    font-size: 0.75rem;
+    padding: 3px 10px;
+    border-radius: 10px;
+    font-size: 0.675rem;
     font-weight: 700;
+    white-space: nowrap;
+    display: inline-block;
 
     &.estado-activo {
         background: #dcfce7;
@@ -357,7 +470,131 @@
     }
 }
 
-/* RESPONSIVE */
-@media (max-width: 868px) {
-    .detail-grid { grid-template-columns: 1fr; }
+/* RESPONSIVE PANTALLAS MEDIANAS (TABLETS) */
+@media (min-width: 640px) {
+    .document-detail-container {
+        padding: 24px;
+    }
+
+    .detail-header {
+        flex-direction: row;
+        align-items: flex-end;
+        justify-content: space-between;
+
+        .header-left {
+            .breadcrumb {
+                font-size: 0.85rem;
+            }
+            .detail-title {
+                font-size: 1.5rem;
+            }
+        }
+    }
+
+    .header-actions {
+        width: auto;
+        flex: 0 0 auto;
+
+        .btn-back,
+        .btn-delete {
+            width: auto;
+            flex: initial;
+            padding: 9px 16px;
+            font-size: 0.85rem;
+        }
+    }
+
+    .document-banner-card {
+        padding: 20px;
+
+        .banner-top {
+            align-items: center;
+
+            .banner-title-area {
+                .title-row {
+                    flex-direction: row;
+                    align-items: center;
+                    justify-content: space-between;
+
+                    h2 {
+                        font-size: 1.25rem;
+                    }
+                }
+            }
+        }
+
+        .banner-meta-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 16px !important;
+
+            .meta-box {
+                .meta-value { font-size: 0.875rem; }
+            }
+        }
+    }
+
+    .pdf-viewer-card {
+        padding: 20px;
+
+        .card-header {
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+
+            h3 { font-size: 1rem; }
+
+            .btn-external-link {
+                width: auto;
+                padding: 6px 12px;
+                font-size: 0.775rem;
+            }
+        }
+
+        .viewer-container {
+            iframe {
+                height: 520px;
+            }
+        }
+    }
+
+    .side-column {
+        .info-sidebar-card {
+            padding: 20px;
+
+            h3 { font-size: 1rem; margin-bottom: 16px; }
+
+            .info-list {
+                gap: 14px;
+
+                .info-row {
+                    flex-direction: row;
+                    justify-content: space-between;
+                    align-items: center;
+                    background: transparent;
+                    padding: 0;
+                    border: none;
+
+                    .info-label {
+                        font-size: 0.825rem;
+                        text-transform: none;
+                        letter-spacing: normal;
+                    }
+
+                    .info-value {
+                        font-size: 0.875rem;
+                        text-align: right;
+                    }
+                }
+            }
+        }
+    }
+}
+
+/* RESPONSIVE ESCRITORIO ANCHO (GRID DE 2 COLUMNAS) */
+@media (min-width: 1150px) {
+    .detail-grid {
+        grid-template-columns: 1fr 360px;
+        gap: 24px;
+        align-items: start;
+    }
 }

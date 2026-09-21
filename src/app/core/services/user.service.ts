@@ -54,6 +54,15 @@ export interface UsuarioPerfilResponseDTO {
     fechaCreacion?: string;
 }
 
+export interface UsuarioMetricasDTO {
+    totalUsuarios: number;
+    totalInactivos: number;
+    totalAdministradores: number;
+    totalEntrenadores: number;
+    totalRecepcionistas: number;
+    totalSocios: number;
+}
+
 @Injectable({
     providedIn: 'root'
 })
@@ -167,5 +176,14 @@ export class UserService {
 
     listarPerfiles(filtros?: FiltrosPerfiles): Observable<any> {
         return this.listarPerfilesPaginados(filtros || {});
+    }
+
+    obtenerMetricasUsuarios(): Observable<UsuarioMetricasDTO> {
+        return this.http.get<UsuarioMetricasDTO>(`${this.apiUrl}/metricas`).pipe(
+            catchError((error) => {
+                console.error('❌ Error al obtener las métricas de usuarios:', error);
+                throw error;
+            })
+        );
     }
 }

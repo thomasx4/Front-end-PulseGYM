@@ -168,4 +168,16 @@ export class EquiposComponent implements OnInit {
     this.showErrorModal = false;
     this.cargarEquipos();
   }
+  public isSidebarOpen: boolean = false;
+
+    // ==========================================
+  // Sidebar móvil
+  // ==========================================
+  toggleSidebar(): void {
+    this.isSidebarOpen = !this.isSidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.isSidebarOpen = false;
+  }
 }

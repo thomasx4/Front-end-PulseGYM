@@ -1,8 +1,11 @@
 <div class="ajustes-layout">
-    <app-navbar></app-navbar>
+    <!-- Overlay oscuro para móvil -->
+    <div class="sidebar-overlay" *ngIf="isSidebarOpen" (click)="closeSidebar()"></div>
+
+    <app-navbar [isOpen]="isSidebarOpen" (closeMenu)="closeSidebar()"></app-navbar>
 
     <div class="ajustes-main">
-        <app-header></app-header>
+        <app-header (toggleMenu)="toggleSidebar()"></app-header>
 
         <div class="ajustes-content">
             <div class="ajustes-container">

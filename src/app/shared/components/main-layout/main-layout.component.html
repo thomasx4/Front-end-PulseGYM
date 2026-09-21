@@ -1,8 +1,11 @@
 <div class="layout">
-    <app-sidebar></app-sidebar>
+    <!-- Overlay oscuro para dispositivos móviles cuando el sidebar esté abierto -->
+    <div class="sidebar-overlay" *ngIf="isSidebarOpen" (click)="closeSidebar()"></div>
+
+    <app-sidebar [isOpen]="isSidebarOpen" (closeMenu)="closeSidebar()"></app-sidebar>
 
     <div class="layout__content">
-        <app-header></app-header>
+        <app-header (toggleMenu)="toggleSidebar()"></app-header>
         <main class="layout__page">
             <router-outlet></router-outlet>
         </main>

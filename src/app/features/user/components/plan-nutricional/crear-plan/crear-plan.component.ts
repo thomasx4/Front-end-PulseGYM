@@ -85,4 +85,16 @@ export class CrearPlanComponent {
   cancelarCreacion(): void {
     this.router.navigate(['/user/plan-nutricional']);
   }
+
+  public isSidebarOpen: boolean = false;
+  // ==========================================
+  // Sidebar móvil
+  // ==========================================
+  toggleSidebar(): void {
+    this.isSidebarOpen = !this.isSidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.isSidebarOpen = false;
+  }
 }

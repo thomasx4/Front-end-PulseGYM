@@ -624,4 +624,14 @@ export class AsistenciaComponent implements OnInit, OnDestroy {
   volver(): void {
     this.router.navigate(['/user/']);
   }
+
+    public isSidebarOpen: boolean = false;
+
+      toggleSidebar(): void {
+    this.isSidebarOpen = !this.isSidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.isSidebarOpen = false;
+  }
 }
