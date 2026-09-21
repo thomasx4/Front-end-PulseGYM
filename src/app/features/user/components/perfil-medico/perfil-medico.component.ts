@@ -225,4 +225,18 @@ export class PerfilMedicoComponent implements OnInit {
       this.router.navigate(['/auth/login']);
     }
   }
+
+    // ⬇️ Pega esto junto, tal cual:
+  isSidebarOpen: boolean = false;
+
+  // ==========================================
+  // Sidebar móvil
+  // ==========================================
+  toggleSidebar(): void {
+    this.isSidebarOpen = !this.isSidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.isSidebarOpen = false;
+  }
 }

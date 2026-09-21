@@ -587,4 +587,17 @@ export class HistorialFisicoComponent implements OnInit {
     this.error = null;
     this.cargarHistorial();
   }
+
+    isSidebarOpen: boolean = false;
+
+      // ==========================================
+  // Sidebar móvil
+  // ==========================================
+  toggleSidebar(): void {
+    this.isSidebarOpen = !this.isSidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.isSidebarOpen = false;
+  }
 }

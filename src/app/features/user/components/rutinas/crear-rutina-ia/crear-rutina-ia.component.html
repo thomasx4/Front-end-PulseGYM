@@ -1,8 +1,10 @@
 <div class="crear-rutina-ia-layout">
-    <app-navbar></app-navbar>
+    <div class="sidebar-overlay" *ngIf="isSidebarOpen" (click)="closeSidebar()"></div>
+
+    <app-navbar [isOpen]="isSidebarOpen" (closeMenu)="closeSidebar()"></app-navbar>
 
     <div class="crear-rutina-ia-main">
-        <app-header></app-header>
+        <app-header (toggleMenu)="toggleSidebar()"></app-header>
 
         <div class="crear-rutina-ia-wrapper">
             <header class="page-header">

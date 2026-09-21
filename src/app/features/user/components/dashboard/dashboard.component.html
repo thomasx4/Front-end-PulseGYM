@@ -1,19 +1,19 @@
 <div class="dashboard-layout">
-  <app-navbar></app-navbar>
+  <!-- Overlay oscuro para móvil -->
+  <div class="sidebar-overlay" *ngIf="isSidebarOpen" (click)="closeSidebar()"></div>
+
+  <!-- Sidebar conectado al estado -->
+  <app-navbar [isOpen]="isSidebarOpen" (closeMenu)="closeSidebar()"></app-navbar>
 
   <div class="dashboard-main">
-    <app-header></app-header>
+    <!-- Header conectado al botón hamburguesa -->
+    <app-header (toggleMenu)="toggleSidebar()"></app-header>
 
     <div class="dashboard-wrapper">
       <header class="page-header">
         <h1>Bienvenido, {{ userName }}</h1>
         <p class="subtitle">Aqui tienes un resumen de tu actividad y proximos objetivos.</p>
       </header>
-
-      <!-- Loading -->
-      <div *ngIf="isLoading" class="state-container">
-        <p>Cargando tu panel...</p>
-      </div>
 
       <!-- Contenido del Dashboard -->
       <div *ngIf="!isLoading && !error" class="dashboard-grid">

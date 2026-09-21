@@ -138,4 +138,17 @@ export class DetallePlanComponent implements OnInit {
     this.showErrorModal = false;
     this.cargarPlan();
   }
+
+    public isSidebarOpen: boolean = false;
+
+      // ==========================================
+  // Sidebar móvil
+  // ==========================================
+  toggleSidebar(): void {
+    this.isSidebarOpen = !this.isSidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.isSidebarOpen = false;
+  }
 }

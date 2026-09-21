@@ -173,4 +173,17 @@ export class PlanNutricionalComponent implements OnInit {
   onCloseModal(): void {
     this.showErrorModal = false;
   }
+
+    public isSidebarOpen: boolean = false;
+
+      // ==========================================
+  // Sidebar móvil
+  // ==========================================
+  toggleSidebar(): void {
+    this.isSidebarOpen = !this.isSidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.isSidebarOpen = false;
+  }
 }

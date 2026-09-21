@@ -218,4 +218,17 @@ export class MembresiasComponent implements OnInit {
   get hayPaginas(): boolean {
     return this.totalPaginas > 1;
   }
+
+    isSidebarOpen: boolean = false;
+
+      // ==========================================
+  // Sidebar móvil
+  // ==========================================
+  toggleSidebar(): void {
+    this.isSidebarOpen = !this.isSidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.isSidebarOpen = false;
+  }
 }

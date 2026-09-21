@@ -525,3 +525,16 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     .exportar-rutina-wrapper { padding: 0.75rem 1rem; }
     .rutinas-grid { grid-template-columns: 1fr; }
 }
+
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.5);
+    backdrop-filter: blur(2px);
+    z-index: 999;
+
+    @media (max-width: 992px) {
+        display: block;
+    }
+}

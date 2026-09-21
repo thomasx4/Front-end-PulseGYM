@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
@@ -18,6 +18,8 @@ interface MenuItem {
   styleUrls: ['./sidebar.component.scss'],
 })
 export class SidebarComponent implements OnInit {
+  @Input() isOpen: boolean = false;
+  @Output() closeMenu = new EventEmitter<void>();
 
   menuItems: MenuItem[] = [];
   membershipChildren: MenuItem[] = [];
@@ -410,22 +412,27 @@ export class SidebarComponent implements OnInit {
 
   goToMembershipList(): void {
     this.router.navigate(['/dashboard-admin/memberships/list']);
+    this.closeMenu.emit();
   }
 
   goToAttendanceList(): void {
     this.router.navigate(['/dashboard-admin/attendance/list']);
+    this.closeMenu.emit();
   }
 
   goToPaymentsList(): void {
     this.router.navigate(['/dashboard-admin/payments']);
+    this.closeMenu.emit();
   }
 
   goToNotifications(): void {
     this.router.navigate(['/dashboard-admin/notifications/plantillas']);
+    this.closeMenu.emit();
   }
 
   goToEquipmentList(): void {
-    this.router.navigate(['/dashboard-admin/equipments'])
+    this.router.navigate(['/dashboard-admin/equipments']);
+    this.closeMenu.emit();
   }
 
   logout(): void {

@@ -1,8 +1,10 @@
 <div class="editar-plan-layout">
-    <app-navbar></app-navbar>
+    <div class="sidebar-overlay" *ngIf="isSidebarOpen" (click)="closeSidebar()"></div>
+
+    <app-navbar [isOpen]="isSidebarOpen" (closeMenu)="closeSidebar()"></app-navbar>
 
     <div class="editar-plan-main">
-        <app-header></app-header>
+        <app-header (toggleMenu)="toggleSidebar()"></app-header>
 
         <div class="editar-plan-content">
             <div class="editar-plan-container">

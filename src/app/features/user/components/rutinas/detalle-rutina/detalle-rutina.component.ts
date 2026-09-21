@@ -307,4 +307,17 @@ export class DetalleRutinaComponent implements OnInit {
       this.router.navigate(['/auth/login']);
     }
   }
+
+    public isSidebarOpen: boolean = false;
+
+      // ==========================================
+  // Sidebar móvil
+  // ==========================================
+  toggleSidebar(): void {
+    this.isSidebarOpen = !this.isSidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.isSidebarOpen = false;
+  }
 }

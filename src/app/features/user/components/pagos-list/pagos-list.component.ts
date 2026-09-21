@@ -264,4 +264,18 @@ export class PagosListComponent implements OnInit {
       Swal.fire('Error', 'Ocurrió un error al procesar el comprobante', 'error');
     }
   }
+
+    // ⬇️ Pega esto junto, tal cual:
+  isSidebarOpen: boolean = false;
+
+  // ==========================================
+  // Sidebar móvil
+  // ==========================================
+  toggleSidebar(): void {
+    this.isSidebarOpen = !this.isSidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.isSidebarOpen = false;
+  }
 }

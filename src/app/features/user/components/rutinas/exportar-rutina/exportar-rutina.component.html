@@ -1,8 +1,10 @@
 <div class="exportar-rutina-layout">
-    <app-navbar></app-navbar>
+    <div class="sidebar-overlay" *ngIf="isSidebarOpen" (click)="closeSidebar()"></div>
+
+    <app-navbar [isOpen]="isSidebarOpen" (closeMenu)="closeSidebar()"></app-navbar>
 
     <div class="exportar-rutina-main">
-        <app-header></app-header>
+        <app-header (toggleMenu)="toggleSidebar()"></app-header>
 
         <div class="exportar-rutina-wrapper">
             <!-- Header -->

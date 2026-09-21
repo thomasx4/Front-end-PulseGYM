@@ -156,4 +156,14 @@ export class AjustesComponent implements OnInit {
   volver(): void {
     this.router.navigate(['/user/profile']);
   }
+
+    public isSidebarOpen: boolean = false;
+
+      toggleSidebar(): void {
+    this.isSidebarOpen = !this.isSidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.isSidebarOpen = false;
+  }
 }
