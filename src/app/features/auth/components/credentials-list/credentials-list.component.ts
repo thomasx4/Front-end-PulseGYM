@@ -47,21 +47,12 @@ export class CredentialsListComponent implements OnInit {
   }
 
   cargarMetricasGlobales(): void {
-    this.authService.listarTodosLosUsuarios().subscribe({
-      next: (todos) => {
-        if (todos && Array.isArray(todos)) {
-          this.totalActivosGeneral = todos.filter(u => u.estado === true).length;
-          this.totalInactivosGeneral = todos.filter(u => u.estado === false).length;
-
-          const ahora = new Date();
-          const mesActual = ahora.getMonth();
-          const anioActual = ahora.getFullYear();
-
-          this.totalMesActual = todos.filter(item => {
-            if (!item.fechaRegistro) return false;
-            const fecha = new Date(item.fechaRegistro);
-            return fecha.getMonth() === mesActual && fecha.getFullYear() === anioActual;
-          }).length;
+    this.authService.obtenerMetricasUsuarios().subscribe({
+      next: (metricas) => {
+        if (metricas) {
+          this.totalActivosGeneral = metricas.usuariosActivos;
+          this.totalInactivosGeneral = metricas.usuariosInactivos;
+          this.totalMesActual = metricas.nuevosEsteMes;
         }
       },
       error: (err) => console.error('Error al cargar métricas globales:', err)
