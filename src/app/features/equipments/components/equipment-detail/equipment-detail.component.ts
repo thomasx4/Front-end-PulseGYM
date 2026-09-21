@@ -124,7 +124,40 @@ export class EquipmentDetailComponent implements OnChanges {
       this.errorDescripcionFalla = 'Por favor escribe una descripción para la falla.';
       return;
     }
+
+    const eq = this.equipo as any;
+    const idEquipo = eq?.idEquipo || eq?.id;
+
+    if (!idEquipo) {
+      this.errorDescripcionFalla = 'No se encontró el ID del equipo.';
+      return;
+    }
+
     this.guardandoFalla = true;
+
+    const payload: RegistrarFallaPayload = {
+      urgencia: this.urgenciaSeleccionada as any,
+      descripcion: this.descripcionFalla.trim()
+    };
+
+    this.equipmentService.registrarFalla(Number(idEquipo), payload).subscribe({
+      next: () => {
+        this.guardandoFalla = false;
+        this.mostrandoFormFalla = false;
+        this.fallaReportada.emit();
+
+        if (this.equipo) {
+          this.equipo.urgenciaFalla = this.urgenciaSeleccionada;
+          this.equipo.descripcionFalla = this.descripcionFalla.trim();
+        }
+      },
+      error: (err) => {
+        this.guardandoFalla = false;
+        console.error('Error al registrar la falla:', err);
+        const mensajeError = err?.error?.message || err?.error || 'No se pudo registrar la falla.';
+        this.errorDescripcionFalla = typeof mensajeError === 'string' ? mensajeError : 'Error al enviar el reporte.';
+      }
+    });
   }
 
   cerrar(): void {
