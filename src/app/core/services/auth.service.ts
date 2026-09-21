@@ -22,6 +22,13 @@ import { ThemeService } from './theme.service';
 
 export { FiltrosUsuarios };
 
+export interface UsuarioMetricasDTO {
+  totalUsuarios: number;
+  usuariosActivos: number;
+  usuariosInactivos: number;
+  nuevosEsteMes: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -54,6 +61,10 @@ export class AuthService {
 
   registerCredentials(datos: RegisterRequestDTO): Observable<MessageGlobalDTO> {
     return this.http.post<MessageGlobalDTO>(`${this.apiUrl}/register`, datos);
+  }
+
+  obtenerMetricasUsuarios(): Observable<UsuarioMetricasDTO> {
+    return this.http.get<UsuarioMetricasDTO>(`${this.apiUrl}/usuarios/metricas`);
   }
 
   listarTodosLosUsuarios(
