@@ -4,7 +4,8 @@
         <div>
             <h1 class="form-title">{{ isEditMode ? 'Editar Documento' : 'Nuevo Documento Legal' }}</h1>
             <p class="form-subtitle">
-                {{ isEditMode ? 'Actualiza la información del documento legal.' : 'Registra un nuevo documento legal para un usuario.' }}
+                {{ isEditMode ? 'Actualiza la información del documento legal.' : 'Registra un nuevo documento legal
+                para un usuario.' }}
             </p>
         </div>
         <button class="btn-back" (click)="volver()">
@@ -22,7 +23,8 @@
             <div class="form-section">
                 <div class="section-header">
                     <h3>Información del Documento</h3>
-                    <p>Asigna el usuario correspondiente (Socio, Entrenador, Recepcionista, Admin) y define el tipo de documento legal.</p>
+                    <p>Asigna el usuario correspondiente (Socio, Entrenador, Recepcionista, Admin) y define el tipo de
+                        documento legal.</p>
                 </div>
 
                 <!-- SELECCIÓN DE USUARIO MEDIANTE BOTÓN/CARD -->
@@ -118,7 +120,17 @@
             <!-- SECCIÓN: ARCHIVO PDF -->
             <div class="form-section">
                 <div class="section-header">
-                    <h3>📎 Archivo del Documento</h3>
+                    <h3>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" style="vertical-align: middle; margin-right: 8px;">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                        Archivo del Documento
+                    </h3>
                     <p>Sube el documento firmado en formato PDF.</p>
                 </div>
 
@@ -234,7 +246,8 @@
                                             [src]="getUsuarioFoto(usuario)" [alt]="usuario.nombre"
                                             class="partner-table-avatar__img" crossOrigin="anonymous"
                                             (error)="onModalAvatarError(usuario.idUsuario)" />
-                                        <span *ngIf="!getUsuarioFoto(usuario) || hasModalAvatarError(usuario.idUsuario)">
+                                        <span
+                                            *ngIf="!getUsuarioFoto(usuario) || hasModalAvatarError(usuario.idUsuario)">
                                             {{ getInitials(usuario.nombre, usuario.apellido) }}
                                         </span>
                                     </div>
@@ -247,7 +260,8 @@
                                 </span>
                             </td>
                             <td>
-                                <span class="partner-table-contact">{{ usuario.telefono || usuario.email || 'Sin contacto' }}</span>
+                                <span class="partner-table-contact">{{ usuario.telefono || usuario.email || 'Sin
+                                    contacto' }}</span>
                             </td>
                             <td class="text-right">
                                 <button type="button" class="btn-assign-row"
