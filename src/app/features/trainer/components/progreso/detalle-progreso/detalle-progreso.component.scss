@@ -5,6 +5,29 @@
     -webkit-font-smoothing: antialiased;
 }
 
+.detalle-progreso-layout {
+    display: flex;
+    min-height: 100vh;
+    background: var(--color-bg-main);
+    transition: background-color 0.3s ease;
+    width: 100%;
+    max-width: 100vw;
+    position: relative;
+    overflow-x: hidden;
+}
+
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 99;
+    backdrop-filter: blur(2px);
+    transition: opacity 0.3s ease;
+}
+
 .detalle-progreso-page {
     margin-left: 260px;
     min-height: 100vh;
@@ -12,8 +35,16 @@
     display: flex;
     flex-direction: column;
     width: calc(100% - 260px);
+    max-width: 100%;
     box-sizing: border-box;
     transition: background-color 0.3s ease;
+    overflow-x: hidden;
+
+    @media (max-width: 992px) {
+        margin-left: 0;
+        width: 100%;
+        max-width: 100vw;
+    }
 }
 
 .detalle-progreso-content {
@@ -21,8 +52,23 @@
     display: flex;
     flex-direction: column;
     gap: 24px;
-    padding: 24px;
+    padding: 32px 40px 48px;
     box-sizing: border-box;
+    max-width: 1400px;
+    width: 100%;
+    margin: 0 auto;
+
+    @media (max-width: 992px) {
+        padding: 24px 20px 36px;
+    }
+
+    @media (max-width: 768px) {
+        padding: 20px 16px 32px;
+    }
+
+    @media (max-width: 480px) {
+        padding: 16px 12px 24px;
+    }
 }
 
 /* ============================================
@@ -39,14 +85,23 @@
         display: flex;
         align-items: flex-start;
         gap: 16px;
+        min-width: 0;
+        flex: 1;
+        flex-wrap: wrap;
     }
 
     &__title {
+        min-width: 0;
+        flex: 1;
+
         h1 {
             font-size: 1.75rem;
             font-weight: 800;
             color: var(--color-text-primary);
             margin: 0;
+            word-break: break-word;
+
+            @media (max-width: 768px) { font-size: 1.4rem; }
         }
 
         .subtitle {
@@ -72,6 +127,7 @@
     transition: all 0.2s ease;
     margin-top: 6px;
     font-family: inherit;
+    flex-shrink: 0;
 
     &:hover {
         background: var(--color-bg-hover);
@@ -111,7 +167,6 @@
         margin: 0;
     }
 
-    /* ✅ Semántico (rojo) */
     &.error {
         p {
             color: var(--color-error);
@@ -141,8 +196,14 @@
    ============================================ */
 .kpi-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 16px;
+    width: 100%;
+    box-sizing: border-box;
+
+    @media (max-width: 480px) {
+        grid-template-columns: 1fr;
+    }
 }
 
 .kpi-card {
@@ -155,6 +216,7 @@
     gap: 16px;
     box-shadow: var(--shadow-sm);
     transition: background-color 0.3s ease;
+    box-sizing: border-box;
 
     .kpi-icon {
         width: 46px;
@@ -194,7 +256,6 @@
         }
     }
 
-    /* ✅ Semánticos (colores por tipo de KPI) */
     &--blue .kpi-icon { background: #eff6ff; color: #2563eb; }
     &--green .kpi-icon { background: #f0fdf4; color: #16a34a; }
     &--purple .kpi-icon { background: #f5f3ff; color: #7c3aed; }
@@ -211,6 +272,8 @@
     box-shadow: var(--shadow-sm);
     overflow: hidden;
     transition: background-color 0.3s ease;
+    width: 100%;
+    box-sizing: border-box;
 
     .card-header {
         display: flex;
@@ -219,7 +282,7 @@
         padding: 20px 24px;
         border-bottom: 1px solid var(--color-border-light);
         gap: 12px;
-        flex-wrap: wrap;
+        flex-wrap:-wrap;
 
         h3 {
             font-size: 1rem;
@@ -227,6 +290,8 @@
             color: var(--color-text-primary);
             margin: 0;
         }
+
+        @media (max-width: 480px) { padding: 16px; }
     }
 
     .card-count {
@@ -247,6 +312,8 @@
     flex-direction: column;
     gap: 18px;
     padding: 20px 24px;
+
+    @media (max-width: 480px) { padding: 16px; }
 }
 
 .evolucion-item {
@@ -254,20 +321,26 @@
     grid-template-columns: 1fr 2fr auto;
     align-items: center;
     gap: 16px;
+
+    @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
 }
 
 .evolucion-info {
     display: flex;
     flex-direction: column;
     gap: 4px;
+    min-width: 0;
 
     .evolucion-nombre {
         font-size: 0.875rem;
         font-weight: 700;
         color: var(--color-text-primary);
+        word-break: break-word;
     }
 
-    /* ✅ Semánticos (colores por estado de progreso) */
     .evolucion-estado {
         font-size: 0.675rem;
         font-weight: 800;
@@ -286,8 +359,8 @@
     height: 8px;
     border-radius: 4px;
     overflow: hidden;
+    width: 100%;
 
-    /* ✅ Semánticos */
     .evolucion-fill {
         height: 100%;
         border-radius: 4px;
@@ -306,6 +379,8 @@
     color: var(--color-text-primary);
     text-align: right;
     min-width: 50px;
+
+    @media (max-width: 768px) { text-align: left; }
 }
 
 /* ============================================
@@ -343,6 +418,13 @@
     transition: background 0.15s;
 
     &:hover { background: var(--color-bg-hover); }
+
+    @media (max-width: 768px) {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 16px;
+    }
 }
 
 .sesion-info {
@@ -353,7 +435,6 @@
     min-width: 0;
 }
 
-/* ✅ Semántico (azul) */
 .sesion-icon {
     width: 40px;
     height: 40px;
@@ -376,6 +457,7 @@
         font-size: 0.9rem;
         font-weight: 700;
         color: var(--color-text-primary);
+        word-break: break-word;
     }
 
     .sesion-fecha {
@@ -389,6 +471,12 @@
     align-items: center;
     gap: 8px;
     flex-shrink: 0;
+    flex-wrap: wrap;
+
+    @media (max-width: 768px) {
+        width: 100%;
+        justify-content: space-between;
+    }
 
     .sesion-badge {
         font-size: 0.7rem;
@@ -412,6 +500,8 @@
     padding: 4px 24px 20px;
     background: var(--color-bg-hover);
     animation: expandir 0.2s ease;
+
+    @media (max-width: 768px) { padding: 4px 16px 16px; }
 }
 
 @keyframes expandir {
@@ -428,17 +518,24 @@
     border-bottom: 1px solid var(--color-border);
 
     &:last-of-type { border-bottom: none; }
+
+    @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
 }
 
 .detalle-left {
     display: flex;
     flex-direction: column;
     gap: 2px;
+    min-width: 0;
 
     .detalle-nombre {
         font-size: 0.825rem;
         font-weight: 700;
         color: var(--color-text-primary);
+        word-break: break-word;
     }
 
     .detalle-grupo {
@@ -465,20 +562,19 @@
     }
 }
 
-/* ✅ Semánticos */
 .detalle-estado {
     font-size: 0.7rem;
     font-weight: 800;
     padding: 4px 10px;
     border-radius: 8px;
     white-space: nowrap;
+    width: fit-content;
 
     &.estado--completado { background: #dcfce7; color: #15803d; }
     &.estado--parcial { background: #fef3c7; color: #b45309; }
     &.estado--no-realizado { background: #fee2e2; color: #b91c1c; }
 }
 
-/* ✅ Semántico (azul) */
 .detalle-obs {
     font-size: 0.75rem;
     color: var(--color-text-secondary);
@@ -487,6 +583,7 @@
     border-radius: 8px;
     margin: 8px 0 0;
     border-left: 3px solid var(--color-info);
+    word-break: break-word;
 
     strong {
         color: var(--color-info);
@@ -501,7 +598,6 @@
     padding: 60px 40px;
     text-align: center;
 
-    /* ✅ Semántico (azul) */
     .empty-icon {
         width: 88px;
         height: 88px;
@@ -543,43 +639,5 @@
             background: var(--color-primary-hover);
             box-shadow: var(--shadow-md);
         }
-    }
-}
-
-/* ============================================
-   RESPONSIVE
-   ============================================ */
-@media (max-width: 992px) {
-    .detalle-progreso-page {
-        margin-left: 0;
-        width: 100%;
-    }
-}
-
-@media (max-width: 768px) {
-    .detalle-progreso-content { padding: 16px; }
-    .page-header__title h1 { font-size: 1.4rem; }
-
-    .evolucion-item {
-        grid-template-columns: 1fr;
-        gap: 8px;
-    }
-
-    .evolucion-porcentaje { text-align: left; }
-
-    .sesion-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-    }
-
-    .sesion-meta {
-        width: 100%;
-        justify-content: flex-start;
-    }
-
-    .detalle-item {
-        grid-template-columns: 1fr;
-        gap: 8px;
     }
 }

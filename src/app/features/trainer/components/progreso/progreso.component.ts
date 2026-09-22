@@ -24,6 +24,9 @@ export class ProgresoComponent implements OnInit {
   cargando: boolean = true;
   error: string | null = null;
 
+  // Control de menú lateral (Hamburguesa)
+  isSidebarOpen: boolean = false;
+
   // ==========================================
   // PAGINACIÓN
   // ==========================================
@@ -75,6 +78,17 @@ export class ProgresoComponent implements OnInit {
 
   ngOnInit(): void {
     this.cargarSocios();
+  }
+
+  // ==========================================
+  // MÉTODOS DE MENÚ LATERAL (HAMBURGUESA)
+  // ==========================================
+  toggleSidebar(): void {
+    this.isSidebarOpen = !this.isSidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.isSidebarOpen = false;
   }
 
   cargarSocios(): void {
@@ -132,7 +146,6 @@ export class ProgresoComponent implements OnInit {
         s.email.toLowerCase().includes(q)
       );
     }
-    // Reset a la primera página al filtrar
     this.paginaActual = 1;
   }
 

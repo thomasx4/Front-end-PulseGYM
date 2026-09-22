@@ -39,6 +39,9 @@ export class DetalleMedicoComponent implements OnInit {
   mostrarModalError: boolean = false;
   modalErrorMessage: string = '';
 
+  // Control de menú lateral (Hamburguesa)
+  isSidebarOpen: boolean = false;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -58,6 +61,17 @@ export class DetalleMedicoComponent implements OnInit {
       this.cargarFotoSocio();
       this.cargarPerfilMedico();
     });
+  }
+
+  // ==========================================
+  // MÉTODOS DE MENÚ LATERAL (HAMBURGUESA)
+  // ==========================================
+  toggleSidebar(): void {
+    this.isSidebarOpen = !this.isSidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.isSidebarOpen = false;
   }
 
   // ==========================================

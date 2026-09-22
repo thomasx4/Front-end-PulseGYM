@@ -1,8 +1,13 @@
-<div class="rutinas-socio-layout">
-    <app-navbar></app-navbar>
+<div class="dashboard-container">
+    <!-- Overlay oscuro para dispositivos móviles cuando el sidebar esté abierto -->
+    <div class="sidebar-overlay" *ngIf="isSidebarOpen" (click)="closeSidebar()"></div>
 
-    <div class="rutinas-socio-main">
-        <app-header></app-header>
+    <!-- Componente de la barra lateral con vinculación del estado -->
+    <app-navbar [isOpen]="isSidebarOpen" (closeMenu)="closeSidebar()"></app-navbar>
+
+    <div class="main-content-wrapper">
+        <!-- Cabecera superior global con evento del menú hamburguesa -->
+        <app-header (toggleMenu)="toggleSidebar()"></app-header>
 
         <div class="rutinas-socio-wrapper">
 

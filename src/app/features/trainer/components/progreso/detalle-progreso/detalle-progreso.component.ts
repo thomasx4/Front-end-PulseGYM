@@ -20,6 +20,9 @@ export class DetalleProgresoComponent implements OnInit {
   // Acordeón: set con los IDs de sesiones expandidas
   sesionesExpandidas: Set<number> = new Set();
 
+  // Control de menú lateral (Hamburguesa)
+  isSidebarOpen: boolean = false;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -40,11 +43,21 @@ export class DetalleProgresoComponent implements OnInit {
     });
   }
 
+  // ==========================================
+  // MÉTODOS DE MENÚ LATERAL (HAMBURGUESA)
+  // ==========================================
+  toggleSidebar(): void {
+    this.isSidebarOpen = !this.isSidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.isSidebarOpen = false;
+  }
+
   cargarTodo(): void {
     this.isLoading = true;
     this.error = null;
 
-    // Cargar dashboard y historial en paralelo
     let dashboardCargado = false;
     let historialCargado = false;
 

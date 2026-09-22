@@ -31,6 +31,9 @@ export class PerfilMedicoComponent implements OnInit {
   cargando: boolean = true;
   error: string | null = null;
 
+  // Control de menú lateral (Hamburguesa)
+  isSidebarOpen: boolean = false;
+
   // ==========================================
   // PAGINACIÓN
   // ==========================================
@@ -47,7 +50,6 @@ export class PerfilMedicoComponent implements OnInit {
     return this.sociosFiltrados.slice(inicio, fin);
   }
 
-  // Genera la lista de páginas [1, 2, 3, ..., n]
   get paginas(): number[] {
     const total = this.totalPaginas;
     const actual = this.paginaActual;
@@ -78,6 +80,17 @@ export class PerfilMedicoComponent implements OnInit {
     this.cargarSocios();
   }
 
+  // ==========================================
+  // MÉTODOS DE MENÚ LATERAL (HAMBURGUESA)
+  // ==========================================
+  toggleSidebar(): void {
+    this.isSidebarOpen = !this.isSidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.isSidebarOpen = false;
+  }
+
   cargarSocios(): void {
     this.cargando = true;
     this.error = null;
@@ -85,8 +98,6 @@ export class PerfilMedicoComponent implements OnInit {
     this.entrenadorService.getUsuarios().subscribe({
       next: (data: any) => {
         const lista = Array.isArray(data) ? data : [];
-
-        // ✅ Filtrar SOLO socios
         const soloSocios = lista.filter((u: any) =>
           (u.rol || '').toLowerCase() === 'socio'
         );
@@ -109,7 +120,6 @@ export class PerfilMedicoComponent implements OnInit {
     const apellido = (u.apellido || '').trim();
     const nombreCompleto = `${nombre} ${apellido}`.trim() || u.username || 'Socio';
 
-    // Si la foto es la default placeholder, la tratamos como vacía
     let foto = u.fotoUrl || '';
     if (foto.includes('socio_default_avatar')) {
       foto = '';
@@ -132,7 +142,6 @@ export class PerfilMedicoComponent implements OnInit {
     };
   }
 
-  // ✅ Búsqueda SOLO por username
   filtrarSocios(): void {
     const q = this.busqueda.toLowerCase().trim();
     if (!q) {
@@ -142,17 +151,12 @@ export class PerfilMedicoComponent implements OnInit {
         s.username.toLowerCase().includes(q)
       );
     }
-    // Reset a la primera página al filtrar
     this.paginaActual = 1;
   }
 
-  // ==========================================
-  // PAGINACIÓN - Controles
-  // ==========================================
   irAPagina(pagina: number): void {
     if (pagina < 1 || pagina > this.totalPaginas) return;
     this.paginaActual = pagina;
-    // Scroll suave al inicio
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -164,16 +168,10 @@ export class PerfilMedicoComponent implements OnInit {
     this.irAPagina(this.paginaActual - 1);
   }
 
-  // ==========================================
-  // Navegación
-  // ==========================================
   verDetalle(idSocio: number): void {
     this.router.navigate(['/trainer/perfil-medico', idSocio]);
   }
 
-  // ==========================================
-  // Helpers
-  // ==========================================
   getIniciales(nombreCompleto: string): string {
     if (!nombreCompleto) return '?';
     const partes = nombreCompleto.trim().split(/\s+/);
@@ -211,7 +209,6 @@ export class PerfilMedicoComponent implements OnInit {
     return 'nivel-intermedio';
   }
 
-  //  Rango que se está mostrando (ej: "1-12 de 45")
   get rangoMostrado(): string {
     if (this.sociosFiltrados.length === 0) return '0';
     const inicio = (this.paginaActual - 1) * this.TAMANIO_PAGINA + 1;

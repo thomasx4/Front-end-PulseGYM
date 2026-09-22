@@ -419,4 +419,16 @@ export class RutinasComponent implements OnInit {
   cerrarErrorModal(): void {
     this.showErrorModal = false;
   }
+
+  // Variables para el control del menú hamburguesa / sidebar
+public isSidebarOpen: boolean = false;
+
+// Métodos de control del menú lateral (sidebar)
+toggleSidebar(): void {
+    this.isSidebarOpen = !this.isSidebarOpen;
+}
+
+closeSidebar(): void {
+    this.isSidebarOpen = false;
+}
 }

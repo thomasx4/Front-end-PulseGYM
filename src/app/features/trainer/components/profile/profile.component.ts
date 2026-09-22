@@ -17,8 +17,8 @@ export class ProfileComponent implements OnInit {
   error: string | null = null;
   mensajeExito: string | null = null;
 
-  userName: string = 'Administrador';
-  userRole: string = 'Administrador';
+  userName: string = 'Entrenador';
+  userRole: string = 'Entrenador';
   avatarUrl: string = '';
   userId: number = 0;
   userEmail: string = '';
@@ -32,6 +32,9 @@ export class ProfileComponent implements OnInit {
   mostrarModalError: boolean = false;
   modalErrorMessage: string = '';
   errorAccion: (() => void) | null = null;
+
+  // Variables para el control del menú hamburguesa / sidebar
+  public isSidebarOpen: boolean = false;
 
   userProfile: any = {
     nombre: '',
@@ -71,6 +74,15 @@ export class ProfileComponent implements OnInit {
     this.loadUserInfo();
   }
 
+  // Métodos de control del menú lateral (sidebar)
+  toggleSidebar(): void {
+    this.isSidebarOpen = !this.isSidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.isSidebarOpen = false;
+  }
+
   irAjustes(): void {
     this.router.navigate(['trainer/ajustes']);
   }
@@ -79,8 +91,8 @@ export class ProfileComponent implements OnInit {
     this.authService.getCurrentUser().subscribe({
       next: (user: any) => {
         if (user) {
-          this.userName = user.name || 'Administrador';
-          this.userRole = user.role || 'Administrador';
+          this.userName = user.name || 'Entrenador';
+          this.userRole = user.role || 'Entrenador';
           this.userId = typeof user.id === 'string' ? parseInt(user.id, 10) : (user.id || 0);
           this.userEmail = user.email || '';
           this.userUsername = (user as any).username || user.name || this.userName;
@@ -121,7 +133,7 @@ export class ProfileComponent implements OnInit {
   }
 
   usarDatosDelToken(): void {
-    const nombre = this.userUsername || this.userName || 'Administrador';
+    const nombre = this.userUsername || this.userName || 'Entrenador';
 
     this.userProfile = {
       ...this.userProfile,
@@ -138,7 +150,7 @@ export class ProfileComponent implements OnInit {
       contactoEmergenciaNombre: '',
       contactoEmergenciaTelefono: '',
       idSede: 0,
-      nombreSede: '',               
+      nombreSede: '',                
       username: nombre
     };
 
@@ -159,7 +171,7 @@ export class ProfileComponent implements OnInit {
     } else if (apellido) {
       nombreCompleto = apellido;
     } else {
-      nombreCompleto = data.nombreCompleto || this.userUsername || this.userName || 'Administrador';
+      nombreCompleto = data.nombreCompleto || this.userUsername || this.userName || 'Entrenador';
     }
 
     const sexo = data.sexo || '';
@@ -455,6 +467,7 @@ export class ProfileComponent implements OnInit {
   }
 
   volverAlDashboard(): void {
-    this.router.navigate(['/dashboard-admin']);
+    // Cambiado para volver al dashboard correcto del entrenador
+    this.router.navigate(['/trainer/dashboard']);
   }
 }

@@ -29,9 +29,12 @@ export class MembresiasComponent implements OnInit {
   isLoadingDetalle: boolean = false;
   errorDetalle: string | null = null;
 
-  // Estadísticas (por ahora en 0 hasta conectar endpoint)
+  // Estadísticas
   sociosActivos: number = 0;
   gananciaEstimada: number = 0;
+
+  // Control de menú lateral (Hamburguesa)
+  isSidebarOpen: boolean = false;
 
   constructor(
     private membresiasService: MembresiasService,
@@ -40,7 +43,6 @@ export class MembresiasComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    //  Escucha la URL para decidir qué modo usar
     this.route.params.subscribe(params => {
       const id = params['id'];
 
@@ -53,6 +55,17 @@ export class MembresiasComponent implements OnInit {
         this.cargarMembresias();
       }
     });
+  }
+
+  // ==========================================
+  // MÉTODOS DE MENÚ LATERAL (HAMBURGUESA)
+  // ==========================================
+  toggleSidebar(): void {
+    this.isSidebarOpen = !this.isSidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.isSidebarOpen = false;
   }
 
   // ==========================================
@@ -90,9 +103,6 @@ export class MembresiasComponent implements OnInit {
       next: (data: Membresia | null) => {
         if (data) {
           this.membresia = data;
-          // TODO: cuando exista endpoint de estadísticas, cargarlas aquí
-          // this.sociosActivos = ...
-          // this.gananciaEstimada = ...
         } else {
           this.errorDetalle = 'La membresía no existe';
         }
@@ -127,13 +137,11 @@ export class MembresiasComponent implements OnInit {
 
     const lista: string[] = [];
 
-    // Beneficios base del backend
     if (m.beneficios) {
       const base = m.beneficios.split(',').map(b => b.trim()).filter(b => !!b);
       lista.push(...base);
     }
 
-    // Beneficios dinámicos según configuración
     if (m.esFlexible) {
       lista.push('Flexible - Sin permanencia');
     }

@@ -1,8 +1,13 @@
 <div class="membresias-layout">
-    <app-navbar></app-navbar>
+    <!-- Overlay oscuro para dispositivos móviles cuando el menú lateral está abierto -->
+    <div class="sidebar-overlay" *ngIf="isSidebarOpen" (click)="closeSidebar()"></div>
+
+    <!-- Barra lateral con enlace al estado de apertura -->
+    <app-navbar [isOpen]="isSidebarOpen" (closeMenu)="closeSidebar()"></app-navbar>
 
     <div class="membresias-main">
-        <app-header></app-header>
+        <!-- Cabecera con evento para controlar el menú hamburguesa -->
+        <app-header (toggleMenu)="toggleSidebar()"></app-header>
 
         <div class="membresias-wrapper">
 
@@ -233,3 +238,8 @@
                     </div>
 
                 </div>
+            </ng-container>
+
+        </div>
+    </div>
+</div>

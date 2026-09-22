@@ -1,296 +1,272 @@
-<app-navbar></app-navbar>
+<div class="trainer-layout">
+    <!-- Overlay oscuro para dispositivos móviles cuando el sidebar esté abierto -->
+    <div class="sidebar-overlay" *ngIf="isSidebarOpen" (click)="closeSidebar()"></div>
 
-<app-header></app-header>
-<div class="trainer-main-content">
+    <app-navbar [isOpen]="isSidebarOpen" (closeMenu)="closeSidebar()"></app-navbar>
 
-
-    <div class="stats-grid" *ngIf="dashboardData">
-        <div class="stat-card">
-            <div class="stat-card__icon stat-card__icon--blue">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="9" cy="7" r="4"></circle>
-                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                </svg>
-            </div>
-            <div class="stat-card__content">
-                <div class="stat-card__row">
-                    <span class="stat-card__value">{{ dashboardData.totalSociosActivos | number }}</span>
-                </div>
-                <span class="stat-card__label">Socios Activos a Cargo</span>
-            </div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-card__icon stat-card__icon--purple">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                </svg>
-            </div>
-            <div class="stat-card__content">
-                <div class="stat-card__row">
-                    <span class="stat-card__value">{{ totalSociosAsignadosCount | number }}</span>
-                </div>
-                <span class="stat-card__label">Total en Cartera Asignada</span>
-            </div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-card__icon stat-card__icon--grey">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M6 4v16" />
-                    <path d="M18 4v16" />
-                    <path d="M3 8h6" />
-                    <path d="M15 8h6" />
-                    <path d="M9 12h6" />
-                </svg>
-            </div>
-            <div class="stat-card__content">
-                <div class="stat-card__row">
-                    <span class="stat-card__value">{{ promedioPesoActual }} <small
-                            style="font-size: 14px;">kg</small></span>
-                </div>
-                <span class="stat-card__label">Peso Promedio Global</span>
-            </div>
-        </div>
-    </div>
-
-    <div class="dashboard-split-grid">
-
-        <div class="info-card">
-            <div class="info-card__header">
-                <div class="info-card__title">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0a2a4a" stroke-width="2.5"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="9" cy="7" r="4"></circle>
-                    </svg>
-                    <h3>Socios Asignados</h3>
-                </div>
-                <span class="info-card__subtitle-highlight">{{ sociosAsignados.length }} Miembros</span>
-            </div>
-
-            <div class="info-card__body">
-                <div class="table-responsive" *ngIf="sociosAsignados.length > 0; else sinSociosList">
-                    <table class="evolution-table compact-table">
-                        <thead>
-                            <tr>
-                                <th>Nombre</th>
-                                <th>Contacto</th>
-                                <th>Acción</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr *ngFor="let socio of sociosAsignados"
-                                [class.selected-row]="socioSeleccionadoId === (socio.idUsuario || socio.id)">
-                                <td><strong>{{ socio.nombre }} {{ socio.apellido }}</strong></td>
-                                <td>{{ socio.telefono || socio.email || 'N/D' }}</td>
-                                <td>
-                                    <button class="btn btn--pill-dark" (click)="verDetalleSocio(socio)">
-                                        {{ socioSeleccionadoId === (socio.idUsuario || socio.id) ? 'Viendo Progreso' :
-                                        'Ver Progreso' }}
-                                    </button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <ng-template #sinSociosList>
-                    <div class="expiring-empty-state">
-                        <p class="expiring-empty-state__text">No hay socios asignados en este momento.</p>
-                    </div>
-                </ng-template>
-            </div>
-        </div>
-
-        <div class="info-card">
-            <div class="info-card__header">
-                <div class="info-card__title">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.5"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-                    </svg>
-                    <h3>{{ modoIndividual ? 'Progreso de ' + nombreSocioSeleccionado : 'Diagrama General de Niveles' }}
-                    </h3>
-                </div>
-                <div class="header-actions-inline">
-                    <select class="select-top-right" (change)="onSocioChangeDropdown($event)"
-                        [(ngModel)]="socioSeleccionadoId">
-                        <option [ngValue]="null">-- Todos los Socios --</option>
-                        <option *ngFor="let s of sociosAsignados" [value]="s.idUsuario || s.id">
-                            {{ s.nombre }} {{ s.apellido }}
-                        </option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="info-card__body" *ngIf="tieneDatosParaMostrar(); else sinDatosCurve">
-                <div class="curve-chart-wrapper">
-                    <svg viewBox="0 0 500 200" class="curve-svg" preserveAspectRatio="none">
-                        <defs>
-                            <linearGradient id="curveGradient" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="0%" stop-color="rgba(37, 99, 235, 0.25)"></stop>
-                                <stop offset="100%" stop-color="rgba(37, 99, 235, 0.0)"></stop>
-                            </linearGradient>
-                        </defs>
-                        <path [attr.d]="generarAreaCurvaSVG()" fill="url(#curveGradient)"></path>
-                        <path [attr.d]="generarRutaCurvaSVG()" fill="none" stroke="#2563eb" stroke-width="3.5"
-                            stroke-linecap="round"></path>
-                    </svg>
-
-                    <div class="curve-points-container">
-                        <div class="curve-point-item" *ngFor="let pt of obtenerPuntosVisuales(); let i = index"
-                            [style.left.%]="pt.posX">
-                            <span class="point-tooltip">{{ pt.labelTip }}: {{ pt.valor }} kg</span>
-                            <div class="point-dot"></div>
-                            <span class="point-label">{{ pt.labelSub }}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <ng-template #sinDatosCurve>
-                <div class="expiring-empty-state">
-                    <p class="expiring-empty-state__text">Este socio aún no cuenta con registros históricos de peso para
-                        mostrar en la gráfica.</p>
-                </div>
-            </ng-template>
-        </div>
-
-    </div>
-
-    <div class="dashboard-split-grid">
-
-        <div class="info-card">
-            <div class="info-card__header">
-                <div class="info-card__title">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4f589c" stroke-width="2.5"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M18 20V10"></path>
-                        <path d="M12 20V4"></path>
-                        <path d="M6 20v-6"></path>
-                    </svg>
-                    <h3>Composición Corporal {{ modoIndividual ? '(' + nombreSocioSeleccionado + ')' : 'Promedio' }}
-                    </h3>
-                </div>
-                <span class="info-card__subtitle-highlight">{{ modoIndividual ? 'Actual' : 'Cartera Activa' }}</span>
-            </div>
-
-            <div class="info-card__body">
-                <div class="composition-stats-container">
-                    <div class="comp-metric-row">
-                        <div class="comp-label-group">
-                            <span class="comp-title">Porcentaje de Grasa</span>
-                            <span class="comp-val">{{ promedioGrasaActual }}%</span>
-                        </div>
-                        <div class="comp-track">
-                            <div class="comp-fill comp-fill--purple" [style.width.%]="promedioGrasaActual"></div>
-                        </div>
-                    </div>
-
-                    <div class="comp-metric-row" style="margin-top: 20px;">
-                        <div class="comp-label-group">
-                            <span class="comp-title">Masa Muscular</span>
-                            <span class="comp-val">{{ promedioMasaMuscularActual }} kg</span>
-                        </div>
-                        <div class="comp-track">
-                            <div class="comp-fill comp-fill--blue"
-                                [style.width.%]="(promedioMasaMuscularActual / 60) * 100"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="info-card">
-            <div class="info-card__header">
-                <div class="info-card__title">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2.5"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <path
-                            d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z">
-                        </path>
-                        <line x1="12" y1="9" x2="12" y2="13"></line>
-                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                    </svg>
-                    <h3>Alertas de Medidas (menos de 20 días sin control)</h3>
-                </div>
-                <span class="info-card__subtitle-highlight"
-                    [style.color]="sociosPendientesMedicion.length > 0 ? '#b45309' : '#15803d'"
-                    [style.background]="sociosPendientesMedicion.length > 0 ? '#fef3c7' : '#dcfce7'">
-                    {{ sociosPendientesMedicion.length > 0 ? sociosPendientesMedicion.length + ' Pendientes' : 'Al día'
-                    }}
-                </span>
-            </div>
-
-            <div class="info-card__body">
-                <div class="alerts-panel-container" *ngIf="sociosPendientesMedicion.length > 0; else sinAlertas">
-                    <div class="alert-item-row" *ngFor="let item of sociosPendientesMedicion">
-                        <div class="alert-dot"></div>
-                        <div class="alert-text">
-                            <strong>{{ item.nombre }}</strong>
-                            <span>{{ item.diasSinActualizar }} días sin actualizar medidas físicas.</span>
-                        </div>
-                    </div>
-                </div>
-                <ng-template #sinAlertas>
-                    <div class="expiring-empty-state" style="padding: 15px 0;">
-                        <p class="expiring-empty-state__text" style="color: #4fb273; font-weight: 700;">¡Todos están
-                            bien con las medidas!</p>
-                    </div>
-                </ng-template>
-
-                <div class="quick-tip-card" style="margin-top: 14px;">
-                    <span>Tip: Realiza mediciones físicas periódicas para mantener actualizadas las curvas de
-                        nivel.</span>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-    <div class="dashboard-full-banner">
-        <div class="info-card banner-card">
-            <div class="banner-sections-grid">
-
-                <div class="banner-action-section">
-                    <div class="banner-icon-box banner-icon-box--blue">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                            <polyline points="14 2 14 8 20 8"></polyline>
-                            <line x1="16" y1="13" x2="8" y2="13"></line>
-                            <line x1="16" y1="17" x2="8" y2="17"></line>
-                            <polyline points="10 9 9 9 8 9"></polyline>
+    <div class="trainer-main-wrapper">
+        <app-header (toggleMenu)="toggleSidebar()"></app-header>
+        
+        <div class="trainer-main-content">
+            <div class="stats-grid" *ngIf="dashboardData">
+                <div class="stat-card">
+                    <div class="stat-card__icon stat-card__icon--blue">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                         </svg>
                     </div>
-                    <div class="banner-content">
-                        <h4>Gestión de Rutinas</h4>
-                        <p>Consulta, crea y administra los planes de entrenamiento asignados a tus socios.</p>
+                    <div class="stat-card__content">
+                        <div class="stat-card__row">
+                            <span class="stat-card__value">{{ dashboardData.totalSociosActivos | number }}</span>
+                        </div>
+                        <span class="stat-card__label">Socios Activos a Cargo</span>
                     </div>
-                    <button class="btn btn--primary-dark" routerLink="/trainer/rutinas">Ver Rutinas</button>
                 </div>
 
-                <div class="banner-divider"></div>
-
-                <div class="banner-action-section">
-                    <div class="banner-icon-box banner-icon-box--purple">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M6.5 6.5h11M6.5 17.5h11M3 12h18M2 9v6M22 9v6"></path>
+                <div class="stat-card">
+                    <div class="stat-card__icon stat-card__icon--purple">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
                         </svg>
                     </div>
-                    <div class="banner-content">
-                        <h4>Biblioteca de Ejercicios</h4>
-                        <p>Explora el catálogo completo de movimientos, técnicas y variantes disponibles.</p>
+                    <div class="stat-card__content">
+                        <div class="stat-card__row">
+                            <span class="stat-card__value">{{ totalSociosAsignadosCount | number }}</span>
+                        </div>
+                        <span class="stat-card__label">Total en Cartera Asignada</span>
                     </div>
-                    <button class="btn btn--primary-dark" routerLink="/trainer/ejercicios">Ver Ejercicios</button>
                 </div>
 
+                <div class="stat-card">
+                    <div class="stat-card__icon stat-card__icon--grey">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M6 4v16" />
+                            <path d="M18 4v16" />
+                            <path d="M3 8h6" />
+                            <path d="M15 8h6" />
+                            <path d="M9 12h6" />
+                        </svg>
+                    </div>
+                    <div class="stat-card__content">
+                        <div class="stat-card__row">
+                            <span class="stat-card__value">{{ promedioPesoActual }} <small style="font-size: 14px;">kg</small></span>
+                        </div>
+                        <span class="stat-card__label">Peso Promedio Global</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-split-grid">
+                <div class="info-card">
+                    <div class="info-card__header">
+                        <div class="info-card__title">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0a2a4a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                            </svg>
+                            <h3>Socios Asignados</h3>
+                        </div>
+                        <span class="info-card__subtitle-highlight">{{ sociosAsignados.length }} Miembros</span>
+                    </div>
+
+                    <div class="info-card__body">
+                        <div class="table-responsive" *ngIf="sociosAsignados.length > 0; else sinSociosList">
+                            <table class="evolution-table compact-table">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Contacto</th>
+                                        <th>Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let socio of sociosAsignados" [class.selected-row]="socioSeleccionadoId === (socio.idUsuario || socio.id)">
+                                        <td><strong>{{ socio.nombre }} {{ socio.apellido }}</strong></td>
+                                        <td>{{ socio.telefono || socio.email || 'N/D' }}</td>
+                                        <td>
+                                            <button class="btn btn--pill-dark" (click)="verDetalleSocio(socio)">
+                                                {{ socioSeleccionadoId === (socio.idUsuario || socio.id) ? 'Viendo Progreso' : 'Ver Progreso' }}
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <ng-template #sinSociosList>
+                            <div class="expiring-empty-state">
+                                <p class="expiring-empty-state__text">No hay socios asignados en este momento.</p>
+                            </div>
+                        </ng-template>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-card__header">
+                        <div class="info-card__title">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                            </svg>
+                            <h3>{{ modoIndividual ? 'Progreso de ' + nombreSocioSeleccionado : 'Diagrama General de Niveles' }}</h3>
+                        </div>
+                        <div class="header-actions-inline">
+                            <select class="select-top-right" (change)="onSocioChangeDropdown($event)" [(ngModel)]="socioSeleccionadoId">
+                                <option [ngValue]="null">-- Todos los Socios --</option>
+                                <option *ngFor="let s of sociosAsignados" [value]="s.idUsuario || s.id">
+                                    {{ s.nombre }} {{ s.apellido }}
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="info-card__body" *ngIf="tieneDatosParaMostrar(); else sinDatosCurve">
+                        <div class="curve-chart-wrapper">
+                            <svg viewBox="0 0 500 200" class="curve-svg" preserveAspectRatio="none">
+                                <defs>
+                                    <linearGradient id="curveGradient" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="0%" stop-color="rgba(37, 99, 235, 0.25)"></stop>
+                                        <stop offset="100%" stop-color="rgba(37, 99, 235, 0.0)"></stop>
+                                    </linearGradient>
+                                </defs>
+                                <path [attr.d]="generarAreaCurvaSVG()" fill="url(#curveGradient)"></path>
+                                <path [attr.d]="generarRutaCurvaSVG()" fill="none" stroke="#2563eb" stroke-width="3.5" stroke-linecap="round"></path>
+                            </svg>
+
+                            <div class="curve-points-container">
+                                <div class="curve-point-item" *ngFor="let pt of obtenerPuntosVisuales(); let i = index" [style.left.%]="pt.posX">
+                                    <span class="point-tooltip">{{ pt.labelTip }}: {{ pt.valor }} kg</span>
+                                    <div class="point-dot"></div>
+                                    <span class="point-label">{{ pt.labelSub }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <ng-template #sinDatosCurve>
+                        <div class="expiring-empty-state">
+                            <p class="expiring-empty-state__text">Este socio aún no cuenta con registros históricos de peso para mostrar en la gráfica.</p>
+                        </div>
+                    </ng-template>
+                </div>
+            </div>
+
+            <div class="dashboard-split-grid">
+                <div class="info-card">
+                    <div class="info-card__header">
+                        <div class="info-card__title">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4f589c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 20V10"></path>
+                                <path d="M12 20V4"></path>
+                                <path d="M6 20v-6"></path>
+                            </svg>
+                            <h3>Composición Corporal {{ modoIndividual ? '(' + nombreSocioSeleccionado + ')' : 'Promedio' }}</h3>
+                        </div>
+                        <span class="info-card__subtitle-highlight">{{ modoIndividual ? 'Actual' : 'Cartera Activa' }}</span>
+                    </div>
+
+                    <div class="info-card__body">
+                        <div class="composition-stats-container">
+                            <div class="comp-metric-row">
+                                <div class="comp-label-group">
+                                    <span class="comp-title">Porcentaje de Grasa</span>
+                                    <span class="comp-val">{{ promedioGrasaActual }}%</span>
+                                </div>
+                                <div class="comp-track">
+                                    <div class="comp-fill comp-fill--purple" [style.width.%]="promedioGrasaActual"></div>
+                                </div>
+                            </div>
+
+                            <div class="comp-metric-row" style="margin-top: 20px;">
+                                <div class="comp-label-group">
+                                    <span class="comp-title">Masa Muscular</span>
+                                    <span class="comp-val">{{ promedioMasaMuscularActual }} kg</span>
+                                </div>
+                                <div class="comp-track">
+                                    <div class="comp-fill comp-fill--blue" [style.width.%]="(promedioMasaMuscularActual / 60) * 100"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-card__header">
+                        <div class="info-card__title">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                                <line x1="12" y1="9" x2="12" y2="13"></line>
+                                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                            </svg>
+                            <h3>Alertas de Medidas (menos de 20 días sin control)</h3>
+                        </div>
+                        <span class="info-card__subtitle-highlight" [style.color]="sociosPendientesMedicion.length > 0 ? '#b45309' : '#15803d'" [style.background]="sociosPendientesMedicion.length > 0 ? '#fef3c7' : '#dcfce7'">
+                            {{ sociosPendientesMedicion.length > 0 ? sociosPendientesMedicion.length + ' Pendientes' : 'Al día' }}
+                        </span>
+                    </div>
+
+                    <div class="info-card__body">
+                        <div class="alerts-panel-container" *ngIf="sociosPendientesMedicion.length > 0; else sinAlertas">
+                            <div class="alert-item-row" *ngFor="let item of sociosPendientesMedicion">
+                                <div class="alert-dot"></div>
+                                <div class="alert-text">
+                                    <strong>{{ item.nombre }}</strong>
+                                    <span>{{ item.diasSinActualizar }} días sin actualizar medidas físicas.</span>
+                                </div>
+                            </div>
+                        </div>
+                        <ng-template #sinAlertas>
+                            <div class="expiring-empty-state" style="padding: 15px 0;">
+                                <p class="expiring-empty-state__text" style="color: #4fb273; font-weight: 700;">¡Todos están bien con las medidas!</p>
+                            </div>
+                        </ng-template>
+
+                        <div class="quick-tip-card" style="margin-top: 14px;">
+                            <span>Tip: Realiza mediciones físicas periódicas para mantener actualizadas las curvas de nivel.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-full-banner">
+                <div class="info-card banner-card">
+                    <div class="banner-sections-grid">
+                        <div class="banner-action-section">
+                            <div class="banner-icon-box banner-icon-box--blue">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                                    <polyline points="10 9 9 9 8 9"></polyline>
+                                </svg>
+                            </div>
+                            <div class="banner-content">
+                                <h4>Gestión de Rutinas</h4>
+                                <p>Consulta, crea y administra los planes de entrenamiento asignados a tus socios.</p>
+                            </div>
+                            <button class="btn btn--primary-dark" routerLink="/trainer/rutinas">Ver Rutinas</button>
+                        </div>
+
+                        <div class="banner-divider"></div>
+
+                        <div class="banner-action-section">
+                            <div class="banner-icon-box banner-icon-box--purple">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M6.5 6.5h11M6.5 17.5h11M3 12h18M2 9v6M22 9v6"></path>
+                                </svg>
+                            </div>
+                            <div class="banner-content">
+                                <h4>Biblioteca de Ejercicios</h4>
+                                <p>Explora el catálogo completo de movimientos, técnicas y variantes disponibles.</p>
+                            </div>
+                            <button class="btn btn--primary-dark" routerLink="/trainer/ejercicios">Ver Ejercicios</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-
 </div>

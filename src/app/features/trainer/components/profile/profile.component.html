@@ -1,10 +1,13 @@
 <div class="dashboard-container">
-    <!-- Componente de la barra lateral / Menú de navegación -->
-    <app-navbar></app-navbar>
+    <!-- Overlay oscuro para dispositivos móviles cuando el sidebar esté abierto -->
+    <div class="sidebar-overlay" *ngIf="isSidebarOpen" (click)="closeSidebar()"></div>
+
+    <!-- Componente de la barra lateral con vinculación del estado -->
+    <app-navbar [isOpen]="isSidebarOpen" (closeMenu)="closeSidebar()"></app-navbar>
 
     <div class="main-content-wrapper">
-        <!-- Cabecera superior global -->
-        <app-header></app-header>
+        <!-- Cabecera superior global con evento del menú hamburguesa -->
+        <app-header (toggleMenu)="toggleSidebar()"></app-header>
 
         <div class="profile-layout">
             <div class="profile-main">
@@ -38,7 +41,7 @@
                     <!-- ========== MODO EDICIÓN ========== -->
                     <div *ngIf="editando && !isLoading">
                         <header class="page-header">
-                            <h1>Editar Perfil de Administrador</h1>
+                            <h1>Editar Perfil de Entrenador</h1>
                             <p class="subtitle">Actualiza tu información personal y mantén tus datos de contacto al día.</p>
                         </header>
 
@@ -182,8 +185,8 @@
                                 <div class="profile-main-info">
                                     <h2>{{ userProfile.nombreCompleto || userProfile.nombre || userName }}</h2>
                                     <div class="profile-badges">
-                                        <span class="profile-badge">Entrnador</span>
-                                        <span class="profile-badge username">{{ '@' + (userProfile.username || 'admin') }}</span>
+                                        <span class="profile-badge">Entrenador</span>
+                                        <span class="profile-badge username">{{ '@' + (userProfile.username || 'entrenador') }}</span>
                                     </div>
                                 </div>
 
@@ -253,7 +256,7 @@
                             </div>
                         </div>
 
-                        <!-- ===== GRID DE 2 COLUMNAS (ADMINISTRADOR) ===== -->
+                        <!-- ===== GRID DE 2 COLUMNAS ===== -->
                         <div class="profile-grid admin-grid">
                             <!-- Columna 1: Información Personal y Corporativa -->
                             <div class="card info-card">
@@ -301,7 +304,7 @@
                                     <div class="goal-content">
                                         <span class="goal-title">Permisos del Sistema</span>
                                         <p class="goal-name">Gestión Global de Pulse Gym</p>
-                                        <p class="goal-sub">Acceso completo a pasarelas, sedes, usuarios y ajustes.</p>
+                                        <p class="goal-sub">Acceso completo a rutinas, socios y ajustes de entrenamiento.</p>
                                     </div>
                                 </div>
                             </div>

@@ -128,4 +128,16 @@ export class RutinasSocioComponent implements OnInit {
   onCloseModal(): void {
     this.showErrorModal = false;
   }
+
+  // Agrega esta propiedad dentro de la clase junto a las demás variables públicas:
+public isSidebarOpen: boolean = false;
+
+// Y añade estos dos métodos al final de la clase:
+toggleSidebar(): void {
+    this.isSidebarOpen = !this.isSidebarOpen;
+}
+
+closeSidebar(): void {
+    this.isSidebarOpen = false;
+}
 }

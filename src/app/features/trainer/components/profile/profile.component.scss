@@ -16,34 +16,55 @@
     position: relative;
 }
 
+/* OVERLAY PARA EL MENÚ HAMBURGUESA */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 99;
+    backdrop-filter: blur(2px);
+    transition: opacity 0.3s ease;
+}
+
 .main-content-wrapper {
     flex: 1;
     display: flex;
     flex-direction: column;
     min-width: 0;
     box-sizing: border-box;
-    /* Deja espacio automático para el sidebar fijo de 260px en escritorio */
     margin-left: 260px; 
     width: calc(100% - 260px);
-    transition: margin-left 0.3s ease, width 0.3s ease;
+    transition: all 0.3s ease;
+
+    @media (max-width: 992px) {
+        margin-left: 0;
+        width: 100%;
+    }
 }
 
 .profile-layout {
     display: flex;
-    justify-content: center; /* 👈 Centra horizontalmente todo el contenido dentro del layout */
+    justify-content: center;
     width: 100%;
     padding: 30px 24px;
     box-sizing: border-box;
+
+    @media (max-width: 992px) {
+        padding: 16px 16px;
+    }
 }
 
 .profile-main {
     width: 100%;
-    max-width: 1100px; /* 👈 Ancho máximo consistente y simétrico */
+    max-width: 1100px;
     display: flex;
     flex-direction: column;
     align-items: stretch;
     box-sizing: border-box;
-    margin: 0 auto; /* 👈 Asegura el centrado absoluto */
+    margin: 0 auto;
 }
 
 .profile-wrapper {
@@ -143,7 +164,7 @@
 }
 
 /* ============================================
-   PROFILE GRID - 2 COLUMNAS PARA ADMINISTRADOR
+   PROFILE GRID - 2 COLUMNAS
    ============================================ */
 .profile-grid.admin-grid {
     display: grid;
@@ -157,6 +178,7 @@
     margin-bottom: 30px;
 }
 
+/* --- SECCIÓN SUPERIOR DEL PERFIL --- */
 .profile-top {
     display: flex;
     align-items: flex-start;
@@ -183,6 +205,7 @@
     font-weight: 500;
     overflow: hidden;
     background: #0f1c3f;
+    box-shadow: 0 4px 12px rgba(15, 28, 63, 0.12);
 
     img {
         width: 100%;
@@ -774,28 +797,61 @@
 }
 
 /* ============================================
-   RESPONSIVE DESIGN (RESPETA SIDEBAR COLLAPSED Y MÓVIL)
+   RESPONSIVE DESIGN (ADAPTACIÓN MÓVIL)
    ============================================ */
-@media (max-width: 1024px) {
-    .main-content-wrapper {
-        margin-left: 72px; /* Ajuste para cuando el sidebar se reduce a iconos */
-        width: calc(100% - 72px);
-    }
-}
-
 @media (max-width: 992px) {
+    .main-content-wrapper {
+        margin-left: 0;
+        width: 100%;
+    }
+    
+    .profile-card {
+        padding: 24px 20px 0;
+    }
+
+    .profile-top {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        min-height: auto;
+        gap: 16px;
+        padding-bottom: 20px;
+    }
+
+    .profile-avatar-container {
+        margin-right: 0;
+        margin-bottom: 0;
+        display: flex;
+        justify-content: center;
+        width: 100%;
+    }
+
+    .profile-main-info {
+        padding-top: 0;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .profile-badges {
+        justify-content: center;
+    }
+
+    .profile-actions {
+        position: relative;
+        top: auto;
+        right: auto;
+        margin-top: 4px;
+        width: 100%;
+        justify-content: center;
+    }
+
     .profile-grid.admin-grid {
         grid-template-columns: 1fr;
     }
     .profile-contact-row {
         grid-template-columns: 1fr 1fr;
-    }
-}
-
-@media (max-width: 768px) {
-    .main-content-wrapper {
-        margin-left: 0; /* En móvil el sidebar se oculta por completo */
-        width: 100%;
     }
 }
 

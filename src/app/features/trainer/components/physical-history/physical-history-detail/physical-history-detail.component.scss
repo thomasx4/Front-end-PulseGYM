@@ -1,5 +1,48 @@
+/* ==========================================
+// Layout & Dashboard Container
+// ========================================== */
+.dashboard-container {
+    display: flex;
+    min-height: 100vh;
+    background-color: var(--color-bg-main, #f8fafc);
+    width: 100%;
+    max-width: 100vw;
+    position: relative;
+    overflow-x: hidden; // ✅ Previene desbordamientos globales en móviles
+}
+
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 99;
+    backdrop-filter: blur(2px);
+    transition: opacity 0.3s ease;
+}
+
+.physical-detail-main {
+    flex: 1;
+    margin-left: 260px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    width: calc(100% - 260px);
+    max-width: 100%;
+    background-color: var(--color-bg-main);
+    transition: all 0.3s ease;
+    overflow-x: hidden; // ✅ Evita que hijos anchos expandan el panel
+
+    @media (max-width: 992px) {
+        margin-left: 0;
+        width: 100%;
+        max-width: 100vw;
+    }
+}
+
 .kpi-icon {
-    /* ✅ Semánticos (se mantienen) */
     &--blue { color: #2563eb; }
     &--teal { color: #0d9488; }
     &--red { color: #ef4444; }
@@ -14,16 +57,20 @@
 .physical-detail-page {
     padding: 1.5rem 2rem;
     background-color: var(--color-bg-main);
+    height: auto;
     min-height: 100vh;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    margin-left: 260px;
-    width: calc(100% - 260px);
     box-sizing: border-box;
     transition: background-color 0.3s ease;
+    width: 100%;
+    max-width: 1600px;
+    margin: 0 auto;
+    padding-bottom: 4rem;
+    overflow-x: hidden; // ✅ Asegura que el contenido interno respete los márgenes
 
-    @media (max-width: 1024px) {
-        margin-left: 0;
-        width: 100%;
+    @media (max-width: 768px) {
+        padding: 1rem;
+        padding-bottom: 3rem;
     }
 }
 
@@ -33,11 +80,15 @@
     align-items: flex-start;
     justify-content: space-between;
     margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
 
     &__left {
         display: flex;
         flex-direction: column;
         gap: 0.2rem;
+        min-width: 0; // ✅ Permite que textos largos recorten o ajusten flex
+        max-width: 100%;
     }
 
     &__title-group {
@@ -50,6 +101,7 @@
         color: var(--color-primary);
         display: flex;
         align-items: center;
+        flex-shrink: 0;
     }
 
     &__title {
@@ -57,6 +109,11 @@
         font-weight: 800;
         color: var(--color-text-primary);
         margin: 0;
+        word-break: break-word;
+
+        @media (max-width: 576px) {
+            font-size: 1.3rem;
+        }
     }
 
     &__subtitle {
@@ -69,6 +126,18 @@
         display: flex;
         align-items: center;
         gap: 0.75rem;
+        width: 100%;
+
+        @media (min-width: 576px) {
+            width: auto;
+        }
+
+        .btn {
+            flex: 1;
+            @media (min-width: 576px) {
+                flex: initial;
+            }
+        }
     }
 }
 
@@ -76,6 +145,7 @@
 .btn {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 0.5rem;
     padding: 0.55rem 1.15rem;
     border-radius: 8px;
@@ -118,17 +188,32 @@
     box-shadow: var(--shadow-sm);
     margin-bottom: 1.5rem;
     transition: background-color 0.3s ease;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+    box-sizing: border-box;
+    width: 100%;
 
     &__left {
         display: flex;
         align-items: center;
         gap: 1.25rem;
+        min-width: 0;
+        flex: 1;
     }
 
     &__right {
         display: flex;
         align-items: center;
         gap: 2.5rem;
+        flex-wrap: wrap;
+
+        @media (max-width: 768px) {
+            width: 100%;
+            justify-content: space-between;
+            gap: 1rem;
+            border-top: 1px solid var(--color-border-light);
+            padding-top: 1rem;
+        }
     }
 }
 
@@ -157,11 +242,15 @@
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
+    min-width: 0;
+    flex: 1;
 
     &__header {
         display: flex;
         align-items: center;
         gap: 0.6rem;
+        flex-wrap: wrap;
+        min-width: 0;
     }
 
     .socio-name {
@@ -169,16 +258,20 @@
         font-weight: 800;
         color: var(--color-text-primary);
         margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
     }
 }
 
-/* ✅ Semántico */
 .status-badge {
     font-size: 0.65rem;
     font-weight: 800;
     padding: 0.2rem 0.5rem;
     border-radius: 6px;
     letter-spacing: 0.03em;
+    flex-shrink: 0;
 
     &--active {
         background-color: #dcfce7;
@@ -190,6 +283,7 @@
     display: flex;
     align-items: center;
     gap: 1rem;
+    flex-wrap: wrap;
 
     .contact-item {
         display: flex;
@@ -198,6 +292,7 @@
         font-size: 0.8rem;
         color: var(--color-text-secondary);
         font-weight: 500;
+        word-break: break-all;
     }
 }
 
@@ -225,6 +320,7 @@
 // RESUMEN ACTUAL (KPIS)
 .section-block {
     margin-bottom: 1.5rem;
+    width: 100%;
 
     &__header {
         margin-bottom: 1rem;
@@ -248,6 +344,20 @@
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     gap: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+
+    @media (max-width: 1200px) {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    @media (max-width: 768px) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 480px) {
+        grid-template-columns: 1fr;
+    }
 }
 
 .kpi-detail-card {
@@ -257,6 +367,8 @@
     padding: 1rem 1.15rem;
     box-shadow: var(--shadow-sm);
     transition: background-color 0.3s ease;
+    box-sizing: border-box;
+    min-width: 0;
 
     .kpi-header {
         display: flex;
@@ -290,7 +402,6 @@
     }
 }
 
-/* ✅ Semánticos */
 .badge-status {
     font-size: 0.65rem;
     font-weight: 700;
@@ -320,11 +431,20 @@
     gap: 1.5rem;
     margin-bottom: 1.5rem;
     align-items: start;
+    width: 100%;
+    box-sizing: border-box;
+
+    @media (max-width: 1024px) {
+        grid-template-columns: 1fr;
+    }
 
     &__left {
         display: flex;
         flex-direction: column;
         gap: 1.5rem;
+        min-width: 0;
+        width: 100%;
+        box-sizing: border-box;
     }
 }
 
@@ -337,6 +457,8 @@
     position: relative;
     overflow: hidden;
     transition: background-color 0.3s ease;
+    width: 100%;
+    box-sizing: border-box;
 
     &__header {
         display: flex;
@@ -364,8 +486,10 @@
     border-radius: 6px;
 }
 
+// ✅ Contenedor optimizado para que el scroll horizontal ocurra solo aquí sin forzar la pantalla
 .chart-scroll-container {
     width: 100%;
+    max-width: 100%;
     overflow-x: auto;
     overflow-y: hidden;
     padding-bottom: 8px;
@@ -406,10 +530,13 @@
     flex-direction: column;
     gap: 1.25rem;
     transition: background-color 0.3s ease;
+    width: 100%;
+    box-sizing: border-box;
 
     .unified-section {
         display: flex;
         flex-direction: column;
+        min-width: 0;
 
         &__header {
             display: flex;
@@ -442,6 +569,8 @@
     padding-bottom: 0.85rem;
     margin-bottom: 1rem;
     border-bottom: 1px solid var(--color-border-light);
+    flex-wrap: wrap;
+    gap: 0.5rem;
 
     .m-sub-date,
     .m-sub-user {
@@ -463,6 +592,16 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 0.85rem;
+    width: 100%;
+    box-sizing: border-box;
+
+    @media (max-width: 900px) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 500px) {
+        grid-template-columns: 1fr;
+    }
 }
 
 .pro-card {
@@ -474,6 +613,8 @@
     align-items: center;
     gap: 0.75rem;
     transition: all 0.2s ease;
+    min-width: 0;
+    box-sizing: border-box;
 
     &:hover {
         background-color: var(--color-bg-card);
@@ -490,7 +631,6 @@
         justify-content: center;
         flex-shrink: 0;
 
-        /* ✅ Semánticos */
         &--blue { background-color: #eff6ff; color: #2563eb; }
         &--teal { background-color: #f0fdf4; color: #0d9488; }
         &--red { background-color: #fef2f2; color: #ef4444; }
@@ -503,6 +643,8 @@
         display: flex;
         flex-direction: column;
         gap: 0.15rem;
+        min-width: 0;
+        flex: 1;
 
         .pro-card__label {
             font-size: 0.72rem;
@@ -514,6 +656,9 @@
             font-size: 0.95rem;
             font-weight: 800;
             color: var(--color-text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
 
             small {
                 font-size: 0.7rem;
@@ -541,11 +686,22 @@
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+
+    @media (max-width: 768px) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 480px) {
+        grid-template-columns: 1fr;
+    }
 
     .comp-item {
         display: flex;
         flex-direction: column;
         gap: 0.2rem;
+        min-width: 0;
 
         .comp-label {
             display: flex;
@@ -574,12 +730,20 @@
     position: sticky;
     top: 1.5rem;
     transition: background-color 0.3s ease;
+    width: 100%;
+    box-sizing: border-box;
+
+    @media (max-width: 1024px) {
+        position: static;
+    }
 
     &__header {
         display: flex;
         align-items: center;
         justify-content: space-between;
         margin-bottom: 1rem;
+        flex-wrap: wrap;
+        gap: 0.5rem;
 
         .s-header-group {
             display: flex;
@@ -622,6 +786,7 @@
     overflow: hidden;
     border: 1px dashed var(--color-border);
     background-color: var(--color-bg-hover);
+    box-sizing: border-box;
 }
 
 .model-viewer-canvas {
@@ -637,6 +802,8 @@
     flex-direction: column;
     gap: 0.85rem;
     margin-top: 1.25rem;
+    width: 100%;
+    box-sizing: border-box;
 
     .s-group {
         background-color: var(--color-bg-card);
@@ -647,6 +814,7 @@
         flex-direction: column;
         gap: 0.6rem;
         transition: all 0.2s ease;
+        box-sizing: border-box;
 
         &:hover {
             border-color: var(--color-text-muted);
@@ -668,7 +836,6 @@
             }
         }
 
-        /* ✅ Semánticos (colores por zona) */
         &--purple {
             .s-group-header svg,
             .s-group-title { color: #9333ea; }
@@ -693,6 +860,10 @@
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 0.5rem 1rem;
+
+            @media (max-width: 480px) {
+                grid-template-columns: 1fr;
+            }
         }
 
         .s-measure-item {
@@ -700,6 +871,7 @@
             align-items: center;
             justify-content: space-between;
             font-size: 0.9rem;
+            min-width: 0;
 
             .s-label {
                 color: var(--color-text-secondary);
@@ -728,6 +900,7 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    box-sizing: border-box;
 
     svg {
         color: var(--color-info);
@@ -749,6 +922,8 @@
     grid-template-columns: 1fr;
     gap: 1.5rem;
     margin-top: 1.5rem;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .bottom-card {
@@ -757,6 +932,8 @@
     border: 1px solid var(--color-border);
     padding: 1.25rem 1.5rem;
     transition: background-color 0.3s ease;
+    width: 100%;
+    box-sizing: border-box;
 
     &__header {
         display: flex;
@@ -778,7 +955,6 @@
     }
 }
 
-/* ✅ Semánticos */
 .icon-circle {
     width: 32px;
     height: 32px;
@@ -786,6 +962,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
 
     &--blue {
         background-color: var(--color-info-bg);
@@ -805,6 +982,9 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    box-sizing: border-box;
 
     .rec-text {
         font-size: 0.75rem;
@@ -862,29 +1042,5 @@
             font-weight: 800;
             font-size: 0.68rem;
         }
-    }
-}
-
-// RESPONSIVE
-@media (max-width: 1200px) {
-    .pro-measurements-grid { grid-template-columns: repeat(2, 1fr); }
-}
-
-@media (max-width: 1024px) {
-    .main-detail-grid { grid-template-columns: 1fr; }
-    .silhouette-card { position: static; }
-    .kpi-grid-detail,
-    .comparison-grid { grid-template-columns: repeat(3, 1fr); }
-}
-
-@media (max-width: 640px) {
-    .kpi-grid-detail,
-    .comparison-grid,
-    .pro-measurements-grid { grid-template-columns: repeat(1, 1fr); }
-
-    .socio-profile-card {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
     }
 }
