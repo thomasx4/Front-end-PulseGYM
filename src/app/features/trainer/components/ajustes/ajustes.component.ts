@@ -3,13 +3,14 @@ import { Router } from '@angular/router';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ThemeService } from '../../../../core/services/theme.service';
 import { AjustesService } from '../../../../core/services/ajustes.service';
+import { ComponentWithUnsavedChanges } from '../../../../core/guards/pending-changes.guard';
 
 @Component({
   selector: 'app-ajustes',
   templateUrl: './ajustes.component.html',
   styleUrls: ['./ajustes.component.scss']
 })
-export class AjustesComponent implements OnInit {
+export class AjustesComponent implements OnInit, ComponentWithUnsavedChanges {
   public ajustesForm: FormGroup;
   public isLoading: boolean = false;
   public showSuccessModal: boolean = false;
@@ -23,6 +24,7 @@ export class AjustesComponent implements OnInit {
 
   // Estado inicial guardado para comparar si hubo cambios
   private initialFormValues: any = null;
+  private permitirSalida: boolean = false;
 
   private readonly soporteEmail = 'soportepulsegym@gmail.com';
 
@@ -100,6 +102,23 @@ export class AjustesComponent implements OnInit {
     return currentValues !== this.initialFormValues;
   }
 
+  // ==========================================
+  // MÉTODOS REQUERIDOS POR EL CanDeactivate Guard
+  // ==========================================
+  canDeactivate(): boolean {
+    if (this.tieneCambiosPendientes() && !this.permitirSalida) {
+      this.showUnsavedModal = true;
+      return false;
+    }
+    return true;
+  }
+
+  mostrarModalCambiosPendientes(): void {
+    if (this.tieneCambiosPendientes() && !this.permitirSalida) {
+      this.showUnsavedModal = true;
+    }
+  }
+
   intentarVolver(): void {
     if (this.tieneCambiosPendientes()) {
       this.showUnsavedModal = true;
@@ -119,6 +138,7 @@ export class AjustesComponent implements OnInit {
 
   descartarYSalir(): void {
     this.showUnsavedModal = false;
+    this.permitirSalida = true; // Autoriza el cambio de ruta
     this.volverRutaDestino();
   }
 
@@ -193,6 +213,8 @@ export class AjustesComponent implements OnInit {
 
   cerrarSuccessModal(): void {
     this.showSuccessModal = false;
+    this.permitirSalida = true;
+    this.volverRutaDestino();
   }
 
   cerrarErrorModal(): void {
@@ -200,7 +222,8 @@ export class AjustesComponent implements OnInit {
   }
 
   volverRutaDestino(): void {
-    this.router.navigate(['/trainer']);
+    this.permitirSalida = true;
+    this.router.navigate(['/trainer/dashboard']);
   }
 
   volver(): void {

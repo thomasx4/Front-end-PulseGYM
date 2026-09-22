@@ -21,6 +21,7 @@ import { PagosFormComponent } from './components/pagos-form/pagos-form.component
 import { PagosDetailComponent } from './components/pagos-detail/pagos-detail.component';
 import { AsistenciaComponent } from './components/asistencia/asistencia.component';
 import { EquiposComponent } from './components/equipos/equipos.component';
+import { pendingChangesGuard } from '../../core/guards/pending-changes.guard';
 
 const routes: Routes = [
   { path: '', component: DashboardComponent },
@@ -38,7 +39,11 @@ const routes: Routes = [
   { path: 'plan-nutricional/detalle/:id', component: DetallePlanComponent },
   { path: 'plan-nutricional/editar/:id', component: EditarPlanComponent },
   { path: 'plan-nutricional/exportar', component: ExportarPlanComponent },
-  { path: 'ajustes', component: AjustesComponent },
+  { 
+    path: 'ajustes', 
+    component: AjustesComponent,
+    canDeactivate: [pendingChangesGuard] 
+  },
   { path: 'pagos', component: PagosListComponent },
   { path: 'pagos/form', component: PagosFormComponent },
   { path: 'pagos/detail/:id', component: PagosDetailComponent },

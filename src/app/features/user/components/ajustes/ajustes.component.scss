@@ -768,3 +768,82 @@ $error: #dc2626;
         display: block;
     }
 }
+
+// ==========================================
+// Estilo Modal Advertencia de Cambios sin Guardar
+// ==========================================
+.modal-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+
+    &.error-icon {
+        background: #fef2f2;
+        color: $error;
+        svg { stroke: $error; }
+    }
+
+    &.success-icon {
+        background: #d1fae5;
+        color: $success;
+        svg { stroke: $success; }
+    }
+
+    &.warning-icon {
+        background: #fef3c7;
+        color: #d97706;
+        svg { stroke: #d97706; }
+    }
+}
+
+.modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+
+    &.flex-wrap-actions {
+        flex-direction: column;
+        @media (min-width: 480px) {
+            flex-direction: row;
+        }
+    }
+}
+
+.modal-btn {
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: $transition;
+    width: 100%;
+    box-sizing: border-box;
+
+    @media (min-width: 480px) {
+        width: auto;
+    }
+
+    &-primary {
+        background: $primary-color;
+        color: #ffffff;
+
+        &:hover {
+            background: $primary-hover;
+            box-shadow: 0 4px 12px rgba(15, 28, 63, 0.3);
+        }
+    }
+
+    &-secondary {
+        background: var(--color-bg-hover, #e2e8f0);
+        color: var(--color-text-primary, $text-primary);
+
+        &:hover {
+            background: #cbd5e1;
+        }
+    }
+}

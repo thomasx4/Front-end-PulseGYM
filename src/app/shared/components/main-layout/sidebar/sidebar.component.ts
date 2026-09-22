@@ -176,7 +176,14 @@ export class SidebarComponent implements OnInit {
       </svg>
     `);
 
+    // Ruta corregida a /list para Membresías
     this.membershipChildren = [
+      {
+        label: 'Gestión / Listado',
+        route: '/dashboard-admin/memberships/list',
+        exact: true,
+        iconHtml: this.getMembershipIcon(),
+      },
       {
         label: 'Asignar Membresía',
         route: '/dashboard-admin/memberships/assign',
@@ -189,7 +196,14 @@ export class SidebarComponent implements OnInit {
       }
     ];
 
+    // Ruta corregida para Asistencias Hoy / Historial
     this.attendanceChildren = [
+      {
+        label: 'Asistencias Hoy',
+        route: '/dashboard-admin/attendance/list',
+        exact: true,
+        iconHtml: this.getAttendanceIcon(),
+      },
       {
         label: 'Historial Accesos',
         route: '/dashboard-admin/attendance/history',
@@ -240,6 +254,12 @@ export class SidebarComponent implements OnInit {
 
     this.paymentsChildren = [
       {
+        label: 'Gestión de Pagos',
+        route: '/dashboard-admin/payments',
+        exact: true,
+        iconHtml: reportsFinIcon
+      },
+      {
         label: 'Reportes Financieros',
         route: '/dashboard-admin/payments/reports',
         iconHtml: reportsFinIcon
@@ -275,6 +295,12 @@ export class SidebarComponent implements OnInit {
     ];
 
     this.equipmentChildren = [
+      {
+        label: 'Gestión de Equipos',
+        route: '/dashboard-admin/equipments',
+        exact: true,
+        iconHtml: this.getEquipmentIcon(),
+      },
       {
         label: 'Reporte de Fallas',
         route: '/dashboard-admin/equipments/faults',

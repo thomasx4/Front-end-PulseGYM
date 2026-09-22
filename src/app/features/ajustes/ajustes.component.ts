@@ -20,6 +20,7 @@ export class AjustesComponent implements OnInit {
 
   // Estado inicial guardado para comparar si hubo cambios
   private initialFormValues: any = null;
+  private permitirSalida: boolean = false;
 
   private readonly soporteEmail = 'soportepulsegym@gmail.com';
 
@@ -86,6 +87,20 @@ export class AjustesComponent implements OnInit {
     return currentValues !== this.initialFormValues;
   }
 
+  // Método requerido por el Guard cuando se intenta cambiar de ruta mediante el menú lateral
+  mostrarModalCambiosPendientes(): void {
+    this.showUnsavedModal = true;
+  }
+
+  // Método ejecutado automáticamente por el CanDeactivate Guard
+  canDeactivate(): boolean {
+    if (this.tieneCambiosPendientes() && !this.permitirSalida) {
+      this.showUnsavedModal = true;
+      return false;
+    }
+    return true;
+  }
+
   intentarVolver(): void {
     if (this.tieneCambiosPendientes()) {
       this.showUnsavedModal = true;
@@ -105,6 +120,7 @@ export class AjustesComponent implements OnInit {
 
   descartarYSalir(): void {
     this.showUnsavedModal = false;
+    this.permitirSalida = true; // Autoriza el cambio de ruta
     this.volverRutaDestino();
   }
 
@@ -179,6 +195,7 @@ export class AjustesComponent implements OnInit {
 
   cerrarSuccessModal(): void {
     this.showSuccessModal = false;
+    this.permitirSalida = true;
     this.volverRutaDestino();
   }
 
@@ -187,6 +204,7 @@ export class AjustesComponent implements OnInit {
   }
 
   volverRutaDestino(): void {
+    this.permitirSalida = true;
     this.router.navigate(['/dashboard-admin']);
   }
 
