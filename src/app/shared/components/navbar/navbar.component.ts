@@ -16,7 +16,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   userRoleLabel = 'SOCIO';
   isTrainer = false;
 
-  equiposOpen = true;
+  equiposOpen = false;
 
   private routerSub?: Subscription;
 
@@ -27,14 +27,14 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.checkUserRole(this.router.url);
-    this.equiposOpen = this.router.url.startsWith('/trainer/equipos');
+    this.equiposOpen = this.isEquiposActive;
 
     this.routerSub = this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: any) => {
       const url = event.urlAfterRedirects;
       this.checkUserRole(url);
-      if (url.startsWith('/trainer/equipos')) {
+      if (this.isEquiposActive) {
         this.equiposOpen = true;
       }
     });
