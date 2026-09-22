@@ -61,7 +61,32 @@ export class SidebarComponent implements OnInit {
       this.isAttendanceOpen = this.isAttendanceActive();
       this.isPaymentsOpen = this.isPaymentsActive();
       this.isNotificationsOpen = this.isNotificationsActive();
+      this.isEquipmentOpen = this.isEquipmentActive();
     }, 100);
+  }
+
+  toggleMembership(): void {
+    this.isMembershipOpen = !this.isMembershipOpen;
+  }
+
+  toggleUsers(): void {
+    this.isUsersOpen = !this.isUsersOpen;
+  }
+
+  toggleAttendance(): void {
+    this.isAttendanceOpen = !this.isAttendanceOpen;
+  }
+
+  toggleEquipment(): void {
+    this.isEquipmentOpen = !this.isEquipmentOpen;
+  }
+
+  togglePayments(): void {
+    this.isPaymentsOpen = !this.isPaymentsOpen;
+  }
+
+  toggleNotifications(): void {
+    this.isNotificationsOpen = !this.isNotificationsOpen;
   }
 
   initMenuItems(): void {
