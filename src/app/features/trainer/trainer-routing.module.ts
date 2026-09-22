@@ -15,12 +15,13 @@ import { FaultReportsComponent } from './components/equipments/fault-reports/fau
 import { ProgresoComponent } from './components/progreso/progreso.component';
 import { DetalleProgresoComponent } from './components/progreso/detalle-progreso/detalle-progreso.component';
 import { AjustesComponent } from './components/ajustes/ajustes.component';
-import { ProfileComponent } from './components/profile/profile.component'; // 👈 Importa el componente profile
+import { ProfileComponent } from './components/profile/profile.component';
+import { pendingChangesGuard } from '../../core/guards/pending-changes.guard'; // 👈 Importa el guard
 
 const routes: Routes = [
   { path: '', component: DashboardComponent },
   { path: 'dashboard', component: DashboardComponent },
-  { path: 'profile', component: ProfileComponent }, // 👈 Ruta para el perfil del entrenador
+  { path: 'profile', component: ProfileComponent },
   {
     path: 'physical-history',
     loadChildren: () => import('./components/physical-history/physical-history.module').then(m => m.PhysicalHistoryModule)
@@ -39,7 +40,11 @@ const routes: Routes = [
   { path: 'equipos/fallas', component: FaultReportsComponent },
   { path: 'progreso', component: ProgresoComponent },
   { path: 'progreso/:idSocio', component: DetalleProgresoComponent },
-  { path: 'ajustes', component: AjustesComponent },
+  { 
+    path: 'ajustes', 
+    component: AjustesComponent,
+    canDeactivate: [pendingChangesGuard]
+  },
 ];
 
 @NgModule({

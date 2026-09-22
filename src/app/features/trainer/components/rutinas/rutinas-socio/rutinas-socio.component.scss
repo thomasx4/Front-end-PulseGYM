@@ -5,13 +5,29 @@
     transition: background-color 0.3s ease;
 }
 
-.rutinas-socio-layout {
+.dashboard-container {
     display: flex;
     min-height: 100vh;
     background-color: var(--color-bg-main);
+    width: 100%;
+    overflow-x: hidden;
+    position: relative;
 }
 
-.rutinas-socio-main {
+/* OVERLAY PARA EL MENÚ HAMBURGUESA */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 99;
+    backdrop-filter: blur(2px);
+    transition: opacity 0.3s ease;
+}
+
+.main-content-wrapper {
     flex: 1;
     margin-left: 260px;
     display: flex;
@@ -21,6 +37,13 @@
     max-width: calc(100% - 260px);
     overflow-x: hidden;
     background-color: var(--color-bg-main);
+    transition: all 0.3s ease;
+
+    @media (max-width: 992px) {
+        margin-left: 0;
+        width: 100%;
+        max-width: 100%;
+    }
 }
 
 .rutinas-socio-wrapper {
@@ -303,7 +326,6 @@
     animation: slideUp 0.3s ease;
 }
 
-/* ✅ Semántico (rojo) */
 .modal-icon {
     width: 64px;
     height: 64px;
@@ -385,7 +407,7 @@
 }
 
 @media (max-width: 992px) {
-    .rutinas-socio-main {
+    .routines-socio-main {
         margin-left: 0;
         width: 100%;
         max-width: 100%;

@@ -31,12 +31,26 @@ export class EquipmentListComponent implements OnInit {
   mostrarModalDetalle: boolean = false;
   equipoSeleccionado: Equipo | null = null;
 
+  // Control de menú lateral (Hamburguesa)
+  isSidebarOpen: boolean = false;
+
   constructor(
     private equipmentService: EquipmentService
   ) { }
 
   ngOnInit(): void {
     this.consultarEquipos();
+  }
+
+  // ==========================================
+  // MÉTODOS DE MENÚ LATERAL (HAMBURGUESA)
+  // ==========================================
+  toggleSidebar(): void {
+    this.isSidebarOpen = !this.isSidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.isSidebarOpen = false;
   }
 
   consultarEquipos(): void {

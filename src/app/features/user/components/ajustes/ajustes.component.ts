@@ -14,13 +14,16 @@ export class AjustesComponent implements OnInit {
   public isLoading: boolean = false;
   public showSuccessModal: boolean = false;
   public showErrorModal: boolean = false;
+  public showUnsavedModal: boolean = false;
   public errorMessage: string = '';
   public isDarkMode: boolean = false;
 
+  // Estado inicial guardado para comparar si hubo cambios
+  private initialFormValues: any = null;
+  private permitirSalida: boolean = false;
+
   private readonly soporteEmail = 'soportepulsegym@gmail.com';
-
   private readonly urlPdfGeneral = 'https://drive.google.com/file/d/1LafUWZUpaYUWZKMCojw9MwXzEXv4qB2J/view?usp=sharing';
-
   private readonly urlFaq = 'https://drive.google.com/file/d/1LafUWZUpaYUWZKMCojw9MwXzEXv4qB2J/view?usp=sharing';
 
   public canalesNotificacion = [
@@ -63,19 +66,68 @@ export class AjustesComponent implements OnInit {
         const data = response.data || response;
         console.log('Preferencias cargadas:', data);
 
-        this.ajustesForm.patchValue({
+        const loadedValues = {
+          modoOscuro: this.isDarkMode,
           canalNotificacion: data.preferencia || 'AMBOS'
-        });
+        };
+
+        this.ajustesForm.patchValue(loadedValues);
+        this.initialFormValues = JSON.stringify(this.ajustesForm.value);
         this.isLoading = false;
       },
       error: (error) => {
         console.error('Error al cargar preferencias:', error);
         this.isLoading = false;
-        this.ajustesForm.patchValue({
+        const defaultValues = {
+          modoOscuro: this.isDarkMode,
           canalNotificacion: 'AMBOS'
-        });
+        };
+        this.ajustesForm.patchValue(defaultValues);
+        this.initialFormValues = JSON.stringify(this.ajustesForm.value);
       }
     });
+  }
+
+  tieneCambiosPendientes(): boolean {
+    if (!this.initialFormValues) return false;
+    const currentValues = JSON.stringify(this.ajustesForm.value);
+    return currentValues !== this.initialFormValues;
+  }
+
+  // Método requerido por el Guard cuando se intenta cambiar de ruta mediante el menú lateral u otra sección
+  mostrarModalCambiosPendientes(): void {
+    this.showUnsavedModal = true;
+  }
+
+  // Método que ejecuta el CanDeactivate Guard automáticamente
+  canDeactivate(): boolean {
+    if (this.tieneCambiosPendientes() && !this.permitirSalida) {
+      this.showUnsavedModal = true;
+      return false;
+    }
+    return true;
+  }
+
+  intentarVolver(): void {
+    if (this.tieneCambiosPendientes()) {
+      this.showUnsavedModal = true;
+    } else {
+      this.volverRutaDestino();
+    }
+  }
+
+  irAGuardar(): void {
+    this.showUnsavedModal = false;
+    const element = document.getElementById('seccion-guardar');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
+
+  descartarYSalir(): void {
+    this.showUnsavedModal = false;
+    this.permitirSalida = true; // Autoriza el cambio de ruta
+    this.volverRutaDestino();
   }
 
   guardarAjustes(): void {
@@ -105,6 +157,7 @@ export class AjustesComponent implements OnInit {
       next: (response) => {
         console.log('Preferencias guardadas:', response);
         this.isLoading = false;
+        this.initialFormValues = JSON.stringify(this.ajustesForm.value);
         this.showSuccessModal = true;
       },
       error: (error) => {
@@ -147,19 +200,26 @@ export class AjustesComponent implements OnInit {
 
   cerrarSuccessModal(): void {
     this.showSuccessModal = false;
+    this.permitirSalida = true;
+    this.volverRutaDestino();
   }
 
   cerrarErrorModal(): void {
     this.showErrorModal = false;
   }
 
-  volver(): void {
+  volverRutaDestino(): void {
+    this.permitirSalida = true;
     this.router.navigate(['/user/profile']);
   }
 
-    public isSidebarOpen: boolean = false;
+  volver(): void {
+    this.intentarVolver();
+  }
 
-      toggleSidebar(): void {
+  public isSidebarOpen: boolean = false;
+
+  toggleSidebar(): void {
     this.isSidebarOpen = !this.isSidebarOpen;
   }
 

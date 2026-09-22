@@ -427,4 +427,15 @@ export class PhysicalHistoryDetailComponent implements OnInit, OnDestroy, AfterV
     setTimeout(() => this.adjustHotspots(), 300);
   }
 
+  // Añade esta propiedad en la clase PhysicalHistoryDetailComponent:
+public isSidebarOpen: boolean = false;
+
+// Y agrega estos dos métodos al final de la clase:
+toggleSidebar(): void {
+  this.isSidebarOpen = !this.isSidebarOpen;
+}
+
+closeSidebar(): void {
+  this.isSidebarOpen = false;
+}
 }

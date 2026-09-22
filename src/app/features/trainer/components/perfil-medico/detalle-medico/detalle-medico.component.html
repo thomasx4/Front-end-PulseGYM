@@ -1,8 +1,13 @@
 <div class="detalle-medico-layout">
-    <app-navbar></app-navbar>
+    <!-- Overlay oscuro para dispositivos móviles cuando el menú lateral está abierto -->
+    <div class="sidebar-overlay" *ngIf="isSidebarOpen" (click)="closeSidebar()"></div>
+
+    <!-- Barra lateral con enlace al estado de apertura -->
+    <app-navbar [isOpen]="isSidebarOpen" (closeMenu)="closeSidebar()"></app-navbar>
 
     <div class="detalle-medico-main">
-        <app-header></app-header>
+        <!-- Cabecera con evento para controlar el menú hamburguesa -->
+        <app-header (toggleMenu)="toggleSidebar()"></app-header>
 
         <div class="detalle-medico-wrapper">
 
@@ -54,10 +59,8 @@
                     <div class="card socio-card">
                         <div class="socio-info">
                             <div class="socio-avatar">
-                                <img *ngIf="fotoSocio"
-                                     [src]="fotoSocio"
-                                     [alt]="perfilMedico.nombreSocio"
-                                     (error)="onImageError($event)" />
+                                <img *ngIf="fotoSocio" [src]="fotoSocio" [alt]="perfilMedico.nombreSocio"
+                                    (error)="onImageError($event)" />
                                 <span *ngIf="!fotoSocio" class="avatar-initials">
                                     {{ getIniciales(perfilMedico.nombreSocio) }}
                                 </span>
@@ -93,13 +96,15 @@
                                 <div class="info-row">
                                     <span class="info-label">Estatura</span>
                                     <span class="info-value">
-                                        {{ perfilMedico.estaturaCm ? perfilMedico.estaturaCm + ' cm' : 'No registrado' }}
+                                        {{ perfilMedico.estaturaCm ? perfilMedico.estaturaCm + ' cm' : 'No registrado'
+                                        }}
                                     </span>
                                 </div>
                                 <div class="info-row">
                                     <span class="info-label">Porcentaje de Grasa</span>
                                     <span class="info-value">
-                                        {{ perfilMedico.porcentajeGrasa ? perfilMedico.porcentajeGrasa + ' %' : 'No registrado' }}
+                                        {{ perfilMedico.porcentajeGrasa ? perfilMedico.porcentajeGrasa + ' %' : 'No
+                                        registrado' }}
                                     </span>
                                 </div>
                             </div>
@@ -145,8 +150,8 @@
             </ng-container>
 
             <!-- ============================================
-                 MODO EDICIÓN
-                 ============================================ -->
+                MODO EDICIÓN
+                ============================================ -->
             <ng-container *ngIf="editando">
 
                 <!-- Header edición -->
@@ -195,10 +200,8 @@
                 <div class="card socio-card">
                     <div class="socio-info">
                         <div class="socio-avatar">
-                            <img *ngIf="fotoSocio"
-                                 [src]="fotoSocio"
-                                 [alt]="perfilMedico.nombreSocio"
-                                 (error)="onImageError($event)" />
+                            <img *ngIf="fotoSocio" [src]="fotoSocio" [alt]="perfilMedico.nombreSocio"
+                                (error)="onImageError($event)" />
                             <span *ngIf="!fotoSocio" class="avatar-initials">
                                 {{ getIniciales(perfilMedico.nombreSocio) }}
                             </span>
@@ -218,14 +221,8 @@
                                 Peso <span class="required">*</span>
                             </label>
                             <div class="input-with-suffix">
-                                <input type="number"
-                                       id="pesoKg"
-                                       name="pesoKg"
-                                       [(ngModel)]="perfilMedico.pesoKg"
-                                       placeholder="Ej: 75"
-                                       step="0.1"
-                                       min="0"
-                                       required />
+                                <input type="number" id="pesoKg" name="pesoKg" [(ngModel)]="perfilMedico.pesoKg"
+                                    placeholder="Ej: 75" step="0.1" min="0" required />
                                 <span class="suffix">kg</span>
                             </div>
                         </div>
@@ -236,13 +233,8 @@
                                 Estatura <span class="required">*</span>
                             </label>
                             <div class="input-with-suffix">
-                                <input type="number"
-                                       id="estaturaCm"
-                                       name="estaturaCm"
-                                       [(ngModel)]="perfilMedico.estaturaCm"
-                                       placeholder="Ej: 175"
-                                       min="0"
-                                       required />
+                                <input type="number" id="estaturaCm" name="estaturaCm"
+                                    [(ngModel)]="perfilMedico.estaturaCm" placeholder="Ej: 175" min="0" required />
                                 <span class="suffix">cm</span>
                             </div>
                         </div>
@@ -251,14 +243,9 @@
                         <div class="form-group">
                             <label for="porcentajeGrasa">Porcentaje de Grasa</label>
                             <div class="input-with-suffix">
-                                <input type="number"
-                                       id="porcentajeGrasa"
-                                       name="porcentajeGrasa"
-                                       [(ngModel)]="perfilMedico.porcentajeGrasa"
-                                       placeholder="Ej: 15.5"
-                                       step="0.1"
-                                       min="0"
-                                       max="100" />
+                                <input type="number" id="porcentajeGrasa" name="porcentajeGrasa"
+                                    [(ngModel)]="perfilMedico.porcentajeGrasa" placeholder="Ej: 15.5" step="0.1" min="0"
+                                    max="100" />
                                 <span class="suffix">%</span>
                             </div>
                         </div>
@@ -266,31 +253,23 @@
                         <!-- Alergias -->
                         <div class="form-group">
                             <label for="alergias">Alergias</label>
-                            <input type="text"
-                                   id="alergias"
-                                   name="alergias"
-                                   [(ngModel)]="perfilMedico.alergias"
-                                   placeholder="Ej: Polen, lactosa..." />
+                            <input type="text" id="alergias" name="alergias" [(ngModel)]="perfilMedico.alergias"
+                                placeholder="Ej: Polen, lactosa..." />
                         </div>
 
                         <!-- Condiciones crónicas -->
                         <div class="form-group">
                             <label for="condicionesCronicas">Condiciones Crónicas</label>
-                            <input type="text"
-                                   id="condicionesCronicas"
-                                   name="condicionesCronicas"
-                                   [(ngModel)]="perfilMedico.condicionesCronicas"
-                                   placeholder="Ej: Asma, diabetes..." />
+                            <input type="text" id="condicionesCronicas" name="condicionesCronicas"
+                                [(ngModel)]="perfilMedico.condicionesCronicas" placeholder="Ej: Asma, diabetes..." />
                         </div>
 
                         <!-- Lesiones previas -->
                         <div class="form-group">
                             <label for="lesionesPrevias">Lesiones Previas</label>
-                            <input type="text"
-                                   id="lesionesPrevias"
-                                   name="lesionesPrevias"
-                                   [(ngModel)]="perfilMedico.lesionesPrevias"
-                                   placeholder="Ej: Dolor en rodilla derecha..." />
+                            <input type="text" id="lesionesPrevias" name="lesionesPrevias"
+                                [(ngModel)]="perfilMedico.lesionesPrevias"
+                                placeholder="Ej: Dolor en rodilla derecha..." />
                         </div>
 
                     </div>

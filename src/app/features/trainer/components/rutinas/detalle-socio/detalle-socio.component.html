@@ -1,8 +1,13 @@
-<div class="detalle-socio-layout">
-    <app-navbar></app-navbar>
+<div class="dashboard-container">
+    <!-- Overlay oscuro para dispositivos móviles cuando el sidebar esté abierto -->
+    <div class="sidebar-overlay" *ngIf="isSidebarOpen" (click)="closeSidebar()"></div>
+
+    <!-- Componente de la barra lateral con vinculación del estado -->
+    <app-navbar [isOpen]="isSidebarOpen" (closeMenu)="closeSidebar()"></app-navbar>
 
     <div class="detalle-socio-main">
-        <app-header></app-header>
+        <!-- Cabecera superior global con evento del menú hamburguesa -->
+        <app-header (toggleMenu)="toggleSidebar()"></app-header>
 
         <div class="detalle-socio-container">
 

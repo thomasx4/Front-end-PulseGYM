@@ -112,49 +112,60 @@
                 <span>Membresías</span>
             </a>
 
-            <!-- Equipos (desplegable) -->
-            <div class="sidebar__nav-group" [class.sidebar__nav-group--open]="equiposOpen">
-                <a class="sidebar__nav-item sidebar__nav-item--parent"
-                    [class.sidebar__nav-item--active]="isEquiposActive" (click)="toggleEquipos()">
+            <!-- Equipos (desplegable unificado con estructura de admin) -->
+            <div class="sidebar__nav-item--parent" [class.open]="equiposOpen">
+                <div class="sidebar__nav-item" [class.sidebar__nav-item--active]="isEquiposActive"
+                    (click)="toggleEquipos()">
                     <span class="sidebar__icon-wrapper">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="2" y="7" width="20" height="14" rx="2"></rect>
-                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="sidebar__nav-icon">
+                            <circle cx="6.27" cy="13.91" r="4.77" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
+                            <circle cx="18.2" cy="16.3" r="2.39" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
+                            <polyline points="6.27 13.91 8.18 13.91 18.68 13.91" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
+                            <line x1="6.27" y1="18.68" x2="18.68" y2="18.68" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
+                            <line x1="18.68" y1="6.27" x2="18.68" y2="13.91" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
+                            <line x1="6.27" y1="2.45" x2="6.27" y2="9.14" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
+                            <polyline points="0.55 1.5 2.46 1.5 10.09 4.36" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
+                            <line x1="6.27" y1="18.68" x2="4.36" y2="22.5" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
+                            <line x1="18.68" y1="18.68" x2="18.68" y2="22.5" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
+                            <line x1="23.45" y1="22.5" x2="0.55" y2="22.5" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
+                            <path d="M21.55,5.32h0a3.28,3.28,0,0,1-2.31.95H15.82" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
+                            <circle cx="6.27" cy="13.91" r="0.95" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="1.91"/>
                         </svg>
                     </span>
                     <span>Equipos</span>
-                    <span class="sidebar__chevron" [class.sidebar__chevron--rotated]="equiposOpen">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="6 9 12 15 18 9"></polyline>
-                        </svg>
-                    </span>
-                </a>
+                    <svg class="sidebar__dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </div>
 
-                <div class="sidebar__submenu" *ngIf="equiposOpen">
-                    <a routerLink="/trainer/equipos" routerLinkActive="sidebar__submenu-item--active"
-                        [routerLinkActiveOptions]="{ exact: true }" class="sidebar__submenu-item"
-                        (click)="closeMobileMenu()">
-                        <span class="sidebar__icon-wrapper" style="width: 16px; height: 16px; margin-right: 6px;">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-                                <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-                                <line x1="12" y1="22.08" x2="12" y2="12"></line>
-                            </svg>
-                        </span>
-                        <span>Inventario</span>
-                    </a>
+                <div class="sidebar__submenu" [class.open]="equiposOpen">
+                    <div>
+                        <a routerLink="/trainer/equipos" routerLinkActive="sidebar__submenu-item--active"
+                            [routerLinkActiveOptions]="{ exact: true }" class="sidebar__submenu-item"
+                            (click)="closeMobileMenu()">
+                            <span class="sidebar__icon-wrapper">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                                    <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                                </svg>
+                            </span>
+                            <span>Inventario</span>
+                        </a>
 
-                    <a routerLink="/trainer/equipos/fallas" routerLinkActive="sidebar__submenu-item--active"
-                        class="sidebar__submenu-item" (click)="closeMobileMenu()">
-                        <span class="sidebar__icon-wrapper" style="width: 16px; height: 16px; margin-right: 6px;">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
-                            </svg>
-                        </span>
-                        <span>Reportes de Fallas</span>
-                    </a>
+                        <a routerLink="/trainer/equipos/fallas" routerLinkActive="sidebar__submenu-item--active"
+                            class="sidebar__submenu-item" (click)="closeMobileMenu()">
+                            <span class="sidebar__icon-wrapper">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                                </svg>
+                            </span>
+                            <span>Reportes de Fallas</span>
+                        </a>
+                    </div>
                 </div>
             </div>
 

@@ -289,4 +289,16 @@ export class EditarSocioComponent implements OnInit {
       this.router.navigate(['/auth/login']);
     }
   }
+
+  // Añade esta propiedad pública junto a las demás:
+public isSidebarOpen: boolean = false;
+
+// Y agrega estos dos métodos al final de la clase:
+toggleSidebar(): void {
+    this.isSidebarOpen = !this.isSidebarOpen;
+}
+
+closeSidebar(): void {
+    this.isSidebarOpen = false;
+}
 }

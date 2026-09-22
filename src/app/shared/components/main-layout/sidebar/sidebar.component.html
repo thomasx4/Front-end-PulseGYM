@@ -28,7 +28,7 @@
             (mouseleave)="isMembershipOpen = false">
 
             <div class="sidebar__nav-item" [class.sidebar__nav-item--active]="isMembershipActive()"
-                (click)="goToMembershipList()">
+                (click)="toggleMembership()">
                 <span [innerHTML]="getMembershipIcon()" class="sidebar__icon-wrapper"></span>
                 <span>Membresías</span>
                 <svg class="sidebar__dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
@@ -51,7 +51,7 @@
         <!-- USUARIOS -->
         <div class="sidebar__nav-item--parent" [class.open]="isUsersOpen" (mouseenter)="isUsersOpen = true"
             (mouseleave)="isUsersOpen = false">
-            <div class="sidebar__nav-item" [class.sidebar__nav-item--active]="isUsersActive()">
+            <div class="sidebar__nav-item" [class.sidebar__nav-item--active]="isUsersActive()" (click)="toggleUsers()">
                 <span [innerHTML]="getUsersIcon()" class="sidebar__icon-wrapper"></span>
                 <span>Usuarios</span>
                 <svg class="sidebar__dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
@@ -76,7 +76,7 @@
             (mouseleave)="isAttendanceOpen = false">
 
             <div class="sidebar__nav-item" [class.sidebar__nav-item--active]="isAttendanceActive()"
-                (click)="goToAttendanceList()">
+                (click)="toggleAttendance()">
                 <span [innerHTML]="getAttendanceIcon()" class="sidebar__icon-wrapper"></span>
                 <span>Asistencia</span>
                 <svg class="sidebar__dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
@@ -85,12 +85,15 @@
                 </svg>
             </div>
 
-            <div class="sidebar__submenu" *ngIf="isAttendanceOpen">
-                <a *ngFor="let child of attendanceChildren" [routerLink]="child.route"
-                    routerLinkActive="sidebar__submenu-item--active" class="sidebar__submenu-item" (click)="closeMenu.emit()">
-                    <span [innerHTML]="child.iconHtml" class="sidebar__icon-wrapper"></span>
-                    <span>{{ child.label }}</span>
-                </a>
+            <div class="sidebar__submenu" [class.open]="isAttendanceOpen">
+                <div>
+                    <a *ngFor="let child of attendanceChildren" [routerLink]="child.route"
+                        routerLinkActive="sidebar__submenu-item--active"
+                        [routerLinkActiveOptions]="{ exact: child.exact || false }" class="sidebar__submenu-item" (click)="closeMenu.emit()">
+                        <span [innerHTML]="child.iconHtml" class="sidebar__icon-wrapper"></span>
+                        <span>{{ child.label }}</span>
+                    </a>
+                </div>
             </div>
         </div>
 
@@ -99,7 +102,7 @@
             (mouseleave)="isEquipmentOpen = false">
 
             <div class="sidebar__nav-item" [class.sidebar__nav-item--active]="isEquipmentActive()"
-                (click)="goToEquipmentList()">
+                (click)="toggleEquipment()">
                 <span [innerHTML]="getEquipmentIcon()" class="sidebar__icon-wrapper"></span>
                 <span>Equipos</span>
                 <svg class="sidebar__dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
@@ -108,12 +111,15 @@
                 </svg>
             </div>
 
-            <div class="sidebar__submenu" *ngIf="isEquipmentOpen">
-                <a *ngFor="let child of equipmentChildren" [routerLink]="child.route"
-                    routerLinkActive="sidebar__submenu-item--active" class="sidebar__submenu-item" (click)="closeMenu.emit()">
-                    <span [innerHTML]="child.iconHtml" class="sidebar__icon-wrapper"></span>
-                    <span>{{ child.label }}</span>
-                </a>
+            <div class="sidebar__submenu" [class.open]="isEquipmentOpen">
+                <div>
+                    <a *ngFor="let child of equipmentChildren" [routerLink]="child.route"
+                        routerLinkActive="sidebar__submenu-item--active"
+                        [routerLinkActiveOptions]="{ exact: child.exact || false }" class="sidebar__submenu-item" (click)="closeMenu.emit()">
+                        <span [innerHTML]="child.iconHtml" class="sidebar__icon-wrapper"></span>
+                        <span>{{ child.label }}</span>
+                    </a>
+                </div>
             </div>
         </div>
 
@@ -122,7 +128,7 @@
             (mouseleave)="isPaymentsOpen = false">
 
             <div class="sidebar__nav-item" [class.sidebar__nav-item--active]="isPaymentsActive()"
-                (click)="goToPaymentsList()">
+                (click)="togglePayments()">
                 <span [innerHTML]="menuItems[1]?.iconHtml || getMembershipIcon()" class="sidebar__icon-wrapper"></span>
                 <span>Pagos</span>
                 <svg class="sidebar__dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
@@ -131,12 +137,15 @@
                 </svg>
             </div>
 
-            <div class="sidebar__submenu" *ngIf="isPaymentsOpen">
-                <a *ngFor="let child of paymentsChildren" [routerLink]="child.route"
-                    routerLinkActive="sidebar__submenu-item--active" class="sidebar__submenu-item" (click)="closeMenu.emit()">
-                    <span [innerHTML]="child.iconHtml" class="sidebar__icon-wrapper"></span>
-                    <span>{{ child.label }}</span>
-                </a>
+            <div class="sidebar__submenu" [class.open]="isPaymentsOpen">
+                <div>
+                    <a *ngFor="let child of paymentsChildren" [routerLink]="child.route"
+                        routerLinkActive="sidebar__submenu-item--active"
+                        [routerLinkActiveOptions]="{ exact: child.exact || false }" class="sidebar__submenu-item" (click)="closeMenu.emit()">
+                        <span [innerHTML]="child.iconHtml" class="sidebar__icon-wrapper"></span>
+                        <span>{{ child.label }}</span>
+                    </a>
+                </div>
             </div>
         </div>
 
@@ -145,7 +154,7 @@
             (mouseenter)="isNotificationsOpen = true" (mouseleave)="isNotificationsOpen = false">
 
             <div class="sidebar__nav-item" [class.sidebar__nav-item--active]="isNotificationsActive()"
-                (click)="goToNotifications()">
+                (click)="toggleNotifications()">
                 <span [innerHTML]="notificationsChildren[0]?.iconHtml || getMembershipIcon()"
                     class="sidebar__icon-wrapper"></span>
                 <span>Notificaciones</span>
@@ -155,12 +164,15 @@
                 </svg>
             </div>
 
-            <div class="sidebar__submenu" *ngIf="isNotificationsOpen">
-                <a *ngFor="let child of notificationsChildren" [routerLink]="child.route"
-                    routerLinkActive="sidebar__submenu-item--active" class="sidebar__submenu-item" (click)="closeMenu.emit()">
-                    <span [innerHTML]="child.iconHtml" class="sidebar__icon-wrapper"></span>
-                    <span>{{ child.label }}</span>
-                </a>
+            <div class="sidebar__submenu" [class.open]="isNotificationsOpen">
+                <div>
+                    <a *ngFor="let child of notificationsChildren" [routerLink]="child.route"
+                        routerLinkActive="sidebar__submenu-item--active"
+                        [routerLinkActiveOptions]="{ exact: child.exact || false }" class="sidebar__submenu-item" (click)="closeMenu.emit()">
+                        <span [innerHTML]="child.iconHtml" class="sidebar__icon-wrapper"></span>
+                        <span>{{ child.label }}</span>
+                    </a>
+                </div>
             </div>
         </div>
 

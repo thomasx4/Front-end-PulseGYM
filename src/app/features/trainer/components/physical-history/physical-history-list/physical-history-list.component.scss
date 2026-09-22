@@ -1,15 +1,58 @@
+/* ==========================================
+// Layout & Dashboard Container
+// ========================================== */
+.dashboard-container {
+    display: flex;
+    min-height: 100vh;
+    background-color: var(--color-bg-main, #f8fafc);
+    width: 100%;
+    overflow-x: hidden;
+    position: relative;
+}
+
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 99;
+    backdrop-filter: blur(2px);
+    transition: opacity 0.3s ease;
+}
+
+.physical-history-main {
+    flex: 1;
+    margin-left: 260px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    width: calc(100% - 260px);
+    max-width: calc(100% - 260px);
+    overflow-x: hidden;
+    background-color: var(--color-bg-main);
+    transition: all 0.3s ease;
+
+    @media (max-width: 992px) {
+        margin-left: 0;
+        width: 100%;
+        max-width: 100%;
+    }
+}
+
 .physical-history-page {
     padding: 1.5rem 2rem;
     background-color: var(--color-bg-main);
-    min-height: 100vh;
-    margin-left: 260px;
-    width: calc(100% - 260px);
+    min-height: calc(100vh - 70px);
     box-sizing: border-box;
     transition: background-color 0.3s ease;
+    width: 100%;
+    max-width: 1600px;
+    margin: 0 auto;
 
-    @media (max-width: 1024px) {
-        margin-left: 0;
-        width: 100%;
+    @media (max-width: 768px) {
+        padding: 1rem;
     }
 }
 
@@ -19,6 +62,8 @@
     align-items: center;
     justify-content: space-between;
     margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
 
     &__left {
         display: flex;
@@ -43,23 +88,28 @@
         font-weight: 800;
         color: var(--color-text-primary);
         margin: 0;
-    }
 
-    &__breadcrumb {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.85rem;
-        color: var(--color-text-muted);
-        font-weight: 500;
-
-        .active { color: var(--color-text-secondary); }
+        @media (max-width: 576px) {
+            font-size: 1.35rem;
+        }
     }
 
     &__actions {
         display: flex;
         align-items: center;
         gap: 1rem;
+        width: 100%;
+
+        @media (min-width: 576px) {
+            width: auto;
+        }
+
+        .btn {
+            flex: 1;
+            @media (min-width: 576px) {
+                flex: initial;
+            }
+        }
     }
 }
 
@@ -67,6 +117,7 @@
 .btn {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 0.5rem;
     padding: 0.65rem 1.25rem;
     border-radius: 10px;
@@ -86,22 +137,6 @@
             transform: translateY(-1px);
         }
     }
-
-    &--outline-dark {
-        background-color: var(--color-bg-card);
-        color: var(--color-text-primary);
-        border: 1px solid var(--color-border);
-
-        &:hover { background-color: var(--color-bg-hover); }
-    }
-
-    &--filter {
-        background-color: var(--color-bg-card);
-        border: 1px solid var(--color-border);
-        color: var(--color-text-secondary);
-
-        &:hover { background-color: var(--color-bg-hover); }
-    }
 }
 
 // TARJETAS KPIS
@@ -110,6 +145,14 @@
     grid-template-columns: repeat(4, 1fr);
     gap: 1.25rem;
     margin-bottom: 1.75rem;
+
+    @media (max-width: 1200px) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 576px) {
+        grid-template-columns: 1fr;
+    }
 }
 
 .kpi-card {
@@ -123,7 +166,6 @@
     box-shadow: var(--shadow-sm);
     transition: background-color 0.3s ease;
 
-    /* ✅ Semánticos */
     &__icon {
         width: 48px;
         height: 48px;
@@ -139,12 +181,15 @@
         &--orange { background-color: #ffedd5; color: #ea580c; }
     }
 
-    &__content { display: flex; flex-direction: column; }
+    &__content { display: flex; flex-direction: column; min-width: 0; }
 
     &__value {
         font-size: 1.25rem;
         font-weight: 800;
         color: var(--color-text-primary);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     &__label {
@@ -167,17 +212,31 @@
     box-shadow: var(--shadow-sm);
     margin-bottom: 1.5rem;
     transition: background-color 0.3s ease;
+    flex-wrap: wrap;
+    gap: 1rem;
 
     &__left,
     &__right {
         display: flex;
         align-items: center;
         gap: 1rem;
+        flex-wrap: wrap;
+        width: 100%;
+
+        @media (min-width: 1024px) {
+            width: auto;
+        }
     }
 }
 
 .select-wrapper {
     position: relative;
+    flex: 1;
+    min-width: 180px;
+
+    @media (min-width: 1024px) {
+        flex: initial;
+    }
 
     .filter-select {
         appearance: none;
@@ -190,6 +249,7 @@
         color: var(--color-text-primary);
         cursor: pointer;
         transition: all 0.2s ease;
+        width: 100%;
 
         &:focus { outline: none; border-color: var(--color-primary); }
     }
@@ -204,23 +264,13 @@
     }
 }
 
-.filter-date-btn {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    background-color: var(--color-bg-hover);
-    border: 1px solid var(--color-border);
-    border-radius: 10px;
-    padding: 0.6rem 1rem;
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: var(--color-text-primary);
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
 .search-input-wrapper {
     position: relative;
+    width: 100%;
+
+    @media (min-width: 1024px) {
+        width: auto;
+    }
 
     .search-icon {
         position: absolute;
@@ -237,10 +287,13 @@
         padding: 0.6rem 1rem 0.6rem 2.5rem;
         font-size: 0.875rem;
         color: var(--color-text-primary);
-        width: 280px;
+        width: 100%;
+
+        @media (min-width: 1024px) {
+            width: 280px;
+        }
 
         &::placeholder { color: var(--color-text-muted); }
-
         &:focus { outline: none; border-color: var(--color-primary); }
     }
 }
@@ -255,10 +308,17 @@
     transition: background-color 0.3s ease;
 }
 
+.table-scroll-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
 .custom-table {
     width: 100%;
     border-collapse: collapse;
     text-align: left;
+    min-width: 750px;
 
     thead {
         background-color: var(--color-bg-hover);
@@ -369,7 +429,6 @@
     }
 }
 
-/* ✅ Semánticos (rojo/verde para tendencias) */
 .trend-icon {
     display: inline-flex;
     align-items: center;
@@ -390,17 +449,16 @@
     gap: 0.5rem;
 }
 
-/* ✅ Semántico (azul) */
 .action-btn {
-    background: var(--color-info-bg);
-    border: 1px solid var(--color-info);
+    background: var(--color-info-bg, #eff6ff);
+    border: 1px solid var(--color-info, #3b82f6);
     width: 34px;
     height: 34px;
     border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--color-info);
+    color: var(--color-info, #3b82f6);
     cursor: pointer;
     transition: all 0.2s ease;
 
@@ -428,6 +486,8 @@
     padding: 1rem 1.5rem;
     background-color: var(--color-bg-card);
     border-top: 1px solid var(--color-border-light);
+    flex-wrap: wrap;
+    gap: 1rem;
 
     &__info {
         font-size: 0.85rem;
@@ -477,6 +537,7 @@
     border: 1px solid var(--color-border);
     border-radius: 10px;
     padding: 0.35rem 0.75rem;
+    flex-wrap: wrap;
 
     .date-input-wrapper {
         display: flex;

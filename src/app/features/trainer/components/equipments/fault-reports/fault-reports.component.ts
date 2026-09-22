@@ -44,10 +44,24 @@ export class FaultReportsComponent implements OnInit {
     proximoMantenimiento: ''
   };
 
+  // Control de menú lateral (Hamburguesa)
+  isSidebarOpen: boolean = false;
+
   constructor(private equipmentService: EquipmentService) { }
 
   ngOnInit(): void {
     this.cargarReportes();
+  }
+
+  // ==========================================
+  // MÉTODOS DE MENÚ LATERAL (HAMBURGUESA)
+  // ==========================================
+  toggleSidebar(): void {
+    this.isSidebarOpen = !this.isSidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.isSidebarOpen = false;
   }
 
   cargarReportes(): void {

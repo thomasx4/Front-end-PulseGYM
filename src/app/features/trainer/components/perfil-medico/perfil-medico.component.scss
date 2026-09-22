@@ -11,6 +11,22 @@
     min-height: 100vh;
     background: var(--color-bg-main);
     transition: background-color 0.3s ease;
+    width: 100%;
+    max-width: 100vw;
+    position: relative;
+    overflow-x: hidden;
+}
+
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 99;
+    backdrop-filter: blur(2px);
+    transition: opacity 0.3s ease;
 }
 
 .perfil-medico-main {
@@ -18,8 +34,14 @@
     margin-left: 260px;
     min-height: 100vh;
     width: calc(100% - 260px);
-    max-width: calc(100% - 260px);
+    max-width: 100%;
     overflow-x: hidden;
+
+    @media (max-width: 992px) {
+        margin-left: 0;
+        width: 100%;
+        max-width: 100vw;
+    }
 }
 
 .perfil-medico-wrapper {
@@ -28,6 +50,10 @@
     padding: 32px 40px 48px;
     width: 100%;
     box-sizing: border-box;
+
+    @media (max-width: 768px) {
+        padding: 20px 16px 32px;
+    }
 }
 
 /* HEADER */
@@ -39,20 +65,29 @@
     margin-bottom: 28px;
     flex-wrap: wrap;
 
-    &__title {
-        h1 {
-            font-size: 28px;
-            font-weight: 800;
-            letter-spacing: -0.3px;
-            margin: 0;
-            color: var(--color-text-primary);
-        }
+    &__left {
+        min-width: 0;
+        flex: 1;
 
-        .subtitle {
-            font-size: 14px;
-            font-weight: 400;
-            color: var(--color-text-secondary);
-            margin: 6px 0 0;
+        .page-header__title {
+            h1 {
+                font-size: 28px;
+                font-weight: 800;
+                letter-spacing: -0.3px;
+                margin: 0;
+                color: var(--color-text-primary);
+                word-break: break-word;
+
+                @media (max-width: 768px) { font-size: 22px; }
+                @media (max-width: 480px) { font-size: 20px; }
+            }
+
+            .subtitle {
+                font-size: 14px;
+                font-weight: 400;
+                color: var(--color-text-secondary);
+                margin: 6px 0 0;
+            }
         }
     }
 
@@ -79,6 +114,8 @@
 /* BUSCADOR */
 .buscador-card {
     margin-bottom: 28px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .buscador {
@@ -91,6 +128,8 @@
     border-radius: 12px;
     transition: all 0.2s ease;
     box-shadow: var(--shadow-sm);
+    width: 100%;
+    box-sizing: border-box;
 
     &:focus-within {
         border-color: var(--color-primary);
@@ -110,15 +149,14 @@
         color: var(--color-text-primary);
         font-family: inherit;
         font-weight: 500;
+        min-width: 0;
 
         &::placeholder {
             color: var(--color-text-muted);
             font-weight: 400;
         }
 
-        &:focus {
-            outline: none;
-        }
+        &:focus { outline: none; }
     }
 
     .btn-clear {
@@ -140,42 +178,18 @@
     }
 }
 
-/* LOADER */
-.state-container {
-    padding: 80px 40px;
-    text-align: center;
-    background: var(--color-bg-card);
-    border-radius: 16px;
-    border: 1px solid var(--color-border);
-
-    .spinner-border {
-        width: 2.5rem;
-        height: 2.5rem;
-        border: 3px solid var(--color-border);
-        border-top-color: var(--color-primary);
-        border-radius: 50%;
-        animation: spin 0.8s linear infinite;
-        margin: 0 auto 18px;
-        display: block;
-    }
-
-    p {
-        color: var(--color-text-secondary);
-        font-size: 14.5px;
-        font-weight: 500;
-        margin: 0;
-    }
-}
-
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-
 /* GRID DE SOCIOS */
 .socios-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 20px;
+    width: 100%;
+    box-sizing: border-box;
+
+    @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
 }
 
 .socio-card {
@@ -188,6 +202,8 @@
     display: flex;
     flex-direction: column;
     box-shadow: var(--shadow-sm);
+    width: 100%;
+    box-sizing: border-box;
 
     &:hover {
         border-color: var(--color-text-muted);
@@ -207,15 +223,22 @@
         justify-content: space-between;
         align-items: flex-start;
         padding: 24px 24px 0;
+
+        @media (max-width: 480px) { padding: 20px 20px 0; }
     }
 
     &__body {
         padding: 16px 24px 20px;
         flex: 1;
+        min-width: 0;
+
+        @media (max-width: 480px) { padding: 14px 20px 18px; }
     }
 
     &__footer {
         padding: 0 20px 20px;
+
+        @media (max-width: 480px) { padding: 0 16px 16px; }
     }
 }
 
@@ -251,9 +274,14 @@
     &.avatar-fallback {
         background: linear-gradient(135deg, var(--color-primary) 100%);
     }
+
+    @media (max-width: 480px) {
+        width: 64px;
+        height: 64px;
+        .avatar-initials { font-size: 20px; }
+    }
 }
 
-/* ✅ Semánticos */
 .socio-status {
     display: inline-flex;
     align-items: center;
@@ -264,6 +292,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.3px;
+    flex-shrink: 0;
 
     .dot {
         width: 6px;
@@ -274,19 +303,16 @@
     &.activo {
         background: #dcfce7;
         color: #16a34a;
-
         .dot { background: #16a34a; }
     }
 
     &.inactivo {
         background: var(--color-bg-hover);
         color: var(--color-text-secondary);
-
         .dot { background: var(--color-text-muted); }
     }
 }
 
-/* INFO DEL SOCIO */
 .socio-nombre {
     font-size: 17px;
     font-weight: 700;
@@ -294,6 +320,11 @@
     margin: 0 0 4px;
     letter-spacing: -0.2px;
     line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    @media (max-width: 480px) { font-size: 15.5px; }
 }
 
 .socio-username {
@@ -301,6 +332,9 @@
     font-weight: 500;
     color: var(--color-text-secondary);
     margin: 0 0 16px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .socio-info-list {
@@ -308,6 +342,7 @@
     flex-direction: column;
     gap: 10px;
     margin-bottom: 16px;
+    min-width: 0;
 }
 
 .info-item {
@@ -317,6 +352,7 @@
     font-size: 12.5px;
     color: var(--color-text-secondary);
     font-weight: 500;
+    min-width: 0;
 
     svg {
         stroke: var(--color-text-muted);
@@ -330,7 +366,6 @@
     }
 }
 
-/* ✅ Semánticos - NIVEL DE EXPERIENCIA */
 .socio-nivel {
     display: flex;
     align-items: center;
@@ -346,9 +381,7 @@
         opacity: 0.75;
     }
 
-    .nivel-value {
-        font-weight: 700;
-    }
+    .nivel-value { font-weight: 700; }
 
     &.nivel-novato {
         background: #f0fdf4;
@@ -366,7 +399,6 @@
     }
 }
 
-/* BOTÓN VER PERFIL */
 .btn-ver-perfil {
     width: 100%;
     display: flex;
@@ -383,6 +415,7 @@
     cursor: pointer;
     transition: all 0.2s ease;
     font-family: inherit;
+    box-sizing: border-box;
 
     svg {
         stroke: currentColor;
@@ -393,13 +426,14 @@
     .arrow { margin-left: auto; }
 }
 
-/* EMPTY STATE */
 .empty-state {
     text-align: center;
     padding: 80px 24px;
     background: var(--color-bg-card);
     border: 1px dashed var(--color-border);
     border-radius: 16px;
+    width: 100%;
+    box-sizing: border-box;
 
     .empty-icon {
         color: var(--color-text-muted);
@@ -434,7 +468,6 @@
     }
 }
 
-/* PAGINACIÓN */
 .paginacion {
     display: flex;
     justify-content: space-between;
@@ -447,6 +480,8 @@
     border-radius: 14px;
     flex-wrap: wrap;
     transition: background-color 0.3s ease;
+    width: 100%;
+    box-sizing: border-box;
 
     &__info {
         font-size: 13px;
@@ -458,6 +493,7 @@
         display: flex;
         align-items: center;
         gap: 6px;
+        flex-wrap: wrap;
     }
 }
 
@@ -498,8 +534,13 @@
     &--nav {
         padding: 0;
         width: 36px;
-
         svg { stroke: currentColor; }
+    }
+
+    @media (max-width: 480px) {
+        min-width: 32px;
+        height: 32px;
+        font-size: 12px;
     }
 }
 
@@ -509,63 +550,14 @@
         align-items: stretch;
 
         &__info { text-align: center; }
-
-        &__controles {
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-    }
-
-    .pag-btn {
-        min-width: 32px;
-        height: 32px;
-        font-size: 12px;
+        &__controles { justify-content: center; }
     }
 }
 
-/* RESPONSIVE */
 @media (max-width: 992px) {
     .perfil-medico-main {
         margin-left: 0;
         width: 100%;
         max-width: 100%;
     }
-
-    .perfil-medico-wrapper {
-        padding: 24px 20px 36px;
-    }
-}
-
-@media (max-width: 768px) {
-    .perfil-medico-wrapper {
-        padding: 20px 16px 32px;
-    }
-
-    .page-header {
-        &__title h1 { font-size: 22px; }
-    }
-
-    .socios-grid {
-        grid-template-columns: 1fr;
-        gap: 16px;
-    }
-}
-
-@media (max-width: 480px) {
-    .page-header__title h1 { font-size: 20px; }
-
-    .socio-card {
-        &__header { padding: 20px 20px 0; }
-        &__body { padding: 14px 20px 18px; }
-        &__footer { padding: 0 16px 16px; }
-    }
-
-    .socio-avatar {
-        width: 64px;
-        height: 64px;
-
-        .avatar-initials { font-size: 20px; }
-    }
-
-    .socio-nombre { font-size: 15.5px; }
 }

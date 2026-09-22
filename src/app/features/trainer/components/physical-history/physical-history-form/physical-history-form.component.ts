@@ -581,4 +581,15 @@ onCancel(): void {
   onBack(): void {
   this.router.navigate(['/trainer/physical-history']);
 }
+// Añade esta propiedad en la clase PhysicalHistoryFormComponent:
+public isSidebarOpen: boolean = false;
+
+// Y agrega estos dos métodos al final de la clase:
+toggleSidebar(): void {
+  this.isSidebarOpen = !this.isSidebarOpen;
+}
+
+closeSidebar(): void {
+  this.isSidebarOpen = false;
+}
 }

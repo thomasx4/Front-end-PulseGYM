@@ -1,8 +1,13 @@
-<div class="ejercicios-layout">
-    <app-navbar></app-navbar>
+<div class="dashboard-container">
+    <!-- Overlay oscuro para dispositivos móviles cuando el menú lateral está abierto -->
+    <div class="sidebar-overlay" *ngIf="isSidebarOpen" (click)="closeSidebar()"></div>
+
+    <!-- Barra lateral con enlace al estado de apertura -->
+    <app-navbar [isOpen]="isSidebarOpen" (closeMenu)="closeSidebar()"></app-navbar>
 
     <div class="ejercicios-main">
-        <app-header></app-header>
+        <!-- Cabecera superior con evento de control para el menú hamburguesa -->
+        <app-header (toggleMenu)="toggleSidebar()"></app-header>
 
         <div class="ejercicios-wrapper">
 
@@ -142,7 +147,7 @@
                 <!-- Grid de ejercicios -->
                 <section class="ejercicios-section" *ngIf="ejercicios.length > 0">
                     <div class="ejercicios-count-bar">
-                        <!-- ✅ Checkbox de seleccionar todos -->
+                        <!-- Checkbox de seleccionar todos -->
                         <div class="selectAll-container" *ngIf="ejercicios.length > 0">
                             <label class="checkbox-container">
                                 <input type="checkbox" [checked]="todosSeleccionados" (change)="toggleSeleccionarTodos($event)" />
@@ -157,7 +162,7 @@
                     <div class="ejercicios-grid">
                         <div class="ejercicio-card" *ngFor="let ej of ejercicios" [class.selected]="ej.selected">
 
-                            <!-- ✅ Checkbox individual flotante en la tarjeta -->
+                            <!-- Checkbox individual flotante en la tarjeta -->
                             <div class="card-checkbox-wrapper" (click)="$event.stopPropagation()">
                                 <label class="checkbox-container">
                                     <input type="checkbox" [(ngModel)]="ej.selected" />

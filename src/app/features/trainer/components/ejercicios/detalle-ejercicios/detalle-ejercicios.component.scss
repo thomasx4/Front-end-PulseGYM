@@ -6,11 +6,34 @@
     -moz-osx-font-smoothing: grayscale;
 }
 
+.dashboard-container {
+    display: flex;
+    min-height: 100vh;
+    background-color: var(--color-bg-main);
+    width: 100%;
+    overflow-x: hidden;
+    position: relative;
+}
+
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 99;
+    backdrop-filter: blur(2px);
+    transition: opacity 0.3s ease;
+}
+
 .detalle-ejercicio-layout {
     display: flex;
     min-height: 100vh;
     background: var(--color-bg-main);
     transition: background-color 0.3s ease;
+    width: 100%;
+    overflow-x: hidden;
 }
 
 .detalle-ejercicio-main {
@@ -20,6 +43,16 @@
     width: calc(100% - 260px);
     max-width: calc(100% - 260px);
     overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--color-bg-main);
+    transition: all 0.3s ease;
+
+    @media (max-width: 992px) {
+        margin-left: 0;
+        width: 100%;
+        max-width: 100%;
+    }
 }
 
 .detalle-ejercicio-wrapper {
@@ -171,7 +204,6 @@
     }
 }
 
-/* ✅ Semánticos (verde/gris) */
 .hero-estado {
     position: absolute;
     top: 16px;
@@ -252,7 +284,6 @@
         flex-shrink: 0;
     }
 
-    /* ✅ Semánticos (5 niveles de dificultad) */
     &.dificultad {
         &.nivel-1 { background: #d1fae5; color: #059669; }
         &.nivel-2 { background: #dcfce7; color: #16a34a; }

@@ -543,4 +543,16 @@ export class EjerciciosComponent implements OnInit {
     const clases = ['', 'nivel-1', 'nivel-2', 'nivel-3', 'nivel-4', 'nivel-5'];
     return clases[d] || 'nivel-3';
   }
+
+  // Agrega esta propiedad pública en la clase EjerciciosComponent:
+public isSidebarOpen: boolean = false;
+
+// Y añade estos métodos al final de la clase:
+toggleSidebar(): void {
+  this.isSidebarOpen = !this.isSidebarOpen;
+}
+
+closeSidebar(): void {
+  this.isSidebarOpen = false;
+}
 }

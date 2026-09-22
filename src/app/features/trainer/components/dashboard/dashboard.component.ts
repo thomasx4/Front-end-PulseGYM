@@ -15,10 +15,22 @@ export class DashboardComponent implements OnInit {
 
   entrenadorId: number = 5;
 
+  // Variables para el control del menú hamburguesa / sidebar
+  public isSidebarOpen: boolean = false;
+
   constructor(private trainerService: TrainerService) { }
 
   ngOnInit(): void {
     this.cargarSociosAsignados();
+  }
+
+  // Métodos de control del menú lateral (sidebar)
+  toggleSidebar(): void {
+    this.isSidebarOpen = !this.isSidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.isSidebarOpen = false;
   }
 
   cargarSociosAsignados(): void {
