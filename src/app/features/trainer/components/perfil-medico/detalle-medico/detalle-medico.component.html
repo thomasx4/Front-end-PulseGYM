@@ -96,15 +96,13 @@
                                 <div class="info-row">
                                     <span class="info-label">Estatura</span>
                                     <span class="info-value">
-                                        {{ perfilMedico.estaturaCm ? perfilMedico.estaturaCm + ' cm' : 'No registrado'
-                                        }}
+                                        {{ perfilMedico.estaturaCm ? perfilMedico.estaturaCm + ' cm' : 'No registrado' }}
                                     </span>
                                 </div>
                                 <div class="info-row">
                                     <span class="info-label">Porcentaje de Grasa</span>
                                     <span class="info-value">
-                                        {{ perfilMedico.porcentajeGrasa ? perfilMedico.porcentajeGrasa + ' %' : 'No
-                                        registrado' }}
+                                        {{ perfilMedico.porcentajeGrasa !== null && perfilMedico.porcentajeGrasa !== undefined ? perfilMedico.porcentajeGrasa + ' %' : 'No registrado' }}
                                     </span>
                                 </div>
                             </div>
@@ -175,7 +173,7 @@
                         <button class="btn-secondary" (click)="cancelarEdicion()" [disabled]="isSaving">
                             Cancelar
                         </button>
-                        <button class="btn-primary" (click)="guardarCambios()" [disabled]="isSaving">
+                        <button class="btn-primary" (click)="guardarCambios()" [disabled]="isSaving || form.invalid">
                             <ng-container *ngIf="!isSaving">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                     stroke-width="2">
@@ -210,8 +208,8 @@
                     </div>
                 </div>
 
-                <!-- Formulario -->
-                <form (ngSubmit)="guardarCambios()" #perfilForm="ngForm" class="form-card">
+                <!-- Formulario Reactivo -->
+                <form [formGroup]="form" class="form-card">
 
                     <div class="form-grid">
 
@@ -221,9 +219,13 @@
                                 Peso <span class="required">*</span>
                             </label>
                             <div class="input-with-suffix">
-                                <input type="number" id="pesoKg" name="pesoKg" [(ngModel)]="perfilMedico.pesoKg"
-                                    placeholder="Ej: 75" step="0.1" min="0" required />
+                                <input type="number" id="pesoKg" formControlName="pesoKg"
+                                    placeholder="Ej: 75" step="0.1" min="20" max="400" />
                                 <span class="suffix">kg</span>
+                            </div>
+                            <div class="form-error" *ngIf="form.get('pesoKg')?.invalid && form.get('pesoKg')?.touched">
+                                <small *ngIf="form.get('pesoKg')?.errors?.['required']">El peso es obligatorio.</small>
+                                <small *ngIf="form.get('pesoKg')?.errors?.['min'] || form.get('pesoKg')?.errors?.['max']">Debe ser entre 20 y 400 kg.</small>
                             </div>
                         </div>
 
@@ -233,9 +235,13 @@
                                 Estatura <span class="required">*</span>
                             </label>
                             <div class="input-with-suffix">
-                                <input type="number" id="estaturaCm" name="estaturaCm"
-                                    [(ngModel)]="perfilMedico.estaturaCm" placeholder="Ej: 175" min="0" required />
+                                <input type="number" id="estaturaCm" formControlName="estaturaCm" 
+                                    placeholder="Ej: 175" step="0.1" min="50" max="280" />
                                 <span class="suffix">cm</span>
+                            </div>
+                            <div class="form-error" *ngIf="form.get('estaturaCm')?.invalid && form.get('estaturaCm')?.touched">
+                                <small *ngIf="form.get('estaturaCm')?.errors?.['required']">La estatura es obligatoria.</small>
+                                <small *ngIf="form.get('estaturaCm')?.errors?.['min'] || form.get('estaturaCm')?.errors?.['max']">Debe estar entre 50 y 280 cm.</small>
                             </div>
                         </div>
 
@@ -243,33 +249,43 @@
                         <div class="form-group">
                             <label for="porcentajeGrasa">Porcentaje de Grasa</label>
                             <div class="input-with-suffix">
-                                <input type="number" id="porcentajeGrasa" name="porcentajeGrasa"
-                                    [(ngModel)]="perfilMedico.porcentajeGrasa" placeholder="Ej: 15.5" step="0.1" min="0"
-                                    max="100" />
+                                <input type="number" id="porcentajeGrasa" formControlName="porcentajeGrasa"
+                                    placeholder="Ej: 15.5" step="0.1" min="0" max="100" />
                                 <span class="suffix">%</span>
+                            </div>
+                            <div class="form-error" *ngIf="form.get('porcentajeGrasa')?.invalid && form.get('porcentajeGrasa')?.touched">
+                                <small>Debe estar entre 0% y 100%.</small>
                             </div>
                         </div>
 
                         <!-- Alergias -->
                         <div class="form-group">
                             <label for="alergias">Alergias</label>
-                            <input type="text" id="alergias" name="alergias" [(ngModel)]="perfilMedico.alergias"
+                            <input type="text" id="alergias" formControlName="alergias"
                                 placeholder="Ej: Polen, lactosa..." />
+                            <div class="form-error" *ngIf="form.get('alergias')?.invalid && form.get('alergias')?.touched">
+                                <small>Máximo 255 caracteres.</small>
+                            </div>
                         </div>
 
                         <!-- Condiciones crónicas -->
                         <div class="form-group">
                             <label for="condicionesCronicas">Condiciones Crónicas</label>
-                            <input type="text" id="condicionesCronicas" name="condicionesCronicas"
-                                [(ngModel)]="perfilMedico.condicionesCronicas" placeholder="Ej: Asma, diabetes..." />
+                            <input type="text" id="condicionesCronicas" formControlName="condicionesCronicas"
+                                placeholder="Ej: Asma, diabetes..." />
+                            <div class="form-error" *ngIf="form.get('condicionesCronicas')?.invalid && form.get('condicionesCronicas')?.touched">
+                                <small>Máximo 255 caracteres.</small>
+                            </div>
                         </div>
 
                         <!-- Lesiones previas -->
                         <div class="form-group">
                             <label for="lesionesPrevias">Lesiones Previas</label>
-                            <input type="text" id="lesionesPrevias" name="lesionesPrevias"
-                                [(ngModel)]="perfilMedico.lesionesPrevias"
+                            <input type="text" id="lesionesPrevias" formControlName="lesionesPrevias"
                                 placeholder="Ej: Dolor en rodilla derecha..." />
+                            <div class="form-error" *ngIf="form.get('lesionesPrevias')?.invalid && form.get('lesionesPrevias')?.touched">
+                                <small>Máximo 255 caracteres.</small>
+                            </div>
                         </div>
 
                     </div>

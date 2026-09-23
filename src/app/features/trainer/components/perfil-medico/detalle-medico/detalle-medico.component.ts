@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EntrenadorService } from '../../../../../core/services/entrenador.service';
 
@@ -23,6 +24,7 @@ export interface PerfilMedico {
 export class DetalleMedicoComponent implements OnInit {
 
   idSocio: number = 0;
+  form!: FormGroup;
 
   perfilMedico: PerfilMedico = this.getPerfilVacio();
   perfilBackup: PerfilMedico = this.getPerfilVacio();
@@ -43,23 +45,40 @@ export class DetalleMedicoComponent implements OnInit {
   isSidebarOpen: boolean = false;
 
   constructor(
+    private fb: FormBuilder,
     private route: ActivatedRoute,
     private router: Router,
     private entrenadorService: EntrenadorService
-  ) {}
+  ) {
+    this.initForm();
+  }
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
       this.idSocio = Number(params['idSocio']) || 0;
 
       if (!this.idSocio) {
-        this.error = 'No se especifico un socio valido';
+        this.error = 'No se especificó un socio válido';
         this.isLoading = false;
         return;
       }
 
       this.cargarFotoSocio();
       this.cargarPerfilMedico();
+    });
+  }
+
+  // ==========================================
+  // INICIALIZACIÓN DE VALIDACIONES (Igual al Admin)
+  // ==========================================
+  private initForm(): void {
+    this.form = this.fb.group({
+      pesoKg: [null, [Validators.required, Validators.min(20), Validators.max(400)]],
+      estaturaCm: [null, [Validators.required, Validators.min(50), Validators.max(280)]],
+      porcentajeGrasa: [null, [Validators.min(0), Validators.max(100)]],
+      alergias: ['', [Validators.maxLength(200)]],
+      condicionesCronicas: ['', [Validators.maxLength(200)]],
+      lesionesPrevias: ['', [Validators.maxLength(500)]]
     });
   }
 
@@ -132,7 +151,7 @@ export class DetalleMedicoComponent implements OnInit {
           this.isLoading = false;
         } else {
           this.isLoading = false;
-          this.mostrarErrorModal('No se pudo cargar el perfil medico del socio.');
+          this.mostrarErrorModal('No se pudo cargar el perfil médico del socio.');
         }
       }
     });
@@ -143,6 +162,17 @@ export class DetalleMedicoComponent implements OnInit {
   // ==========================================
   activarEdicion(): void {
     this.perfilBackup = { ...this.perfilMedico };
+    
+    // Cargar datos actuales en el formulario reactivo
+    this.form.patchValue({
+      pesoKg: this.perfilMedico.pesoKg,
+      estaturaCm: this.perfilMedico.estaturaCm,
+      porcentajeGrasa: this.perfilMedico.porcentajeGrasa,
+      alergias: this.perfilMedico.alergias,
+      condicionesCronicas: this.perfilMedico.condicionesCronicas,
+      lesionesPrevias: this.perfilMedico.lesionesPrevias
+    });
+
     this.editando = true;
     this.mensajeExito = null;
     this.error = null;
@@ -161,32 +191,25 @@ export class DetalleMedicoComponent implements OnInit {
       return;
     }
 
-    // Validaciones
-    if (this.perfilMedico.pesoKg === null || this.perfilMedico.pesoKg <= 0) {
-      this.error = 'El peso es obligatorio y debe ser mayor a 0';
-      return;
-    }
-    if (this.perfilMedico.estaturaCm === null || this.perfilMedico.estaturaCm <= 0) {
-      this.error = 'La estatura es obligatoria y debe ser mayor a 0';
-      return;
-    }
-    if (this.perfilMedico.porcentajeGrasa !== null &&
-        (this.perfilMedico.porcentajeGrasa < 0 || this.perfilMedico.porcentajeGrasa > 100)) {
-      this.error = 'El porcentaje de grasa debe estar entre 0 y 100';
+    // Validación estricta igual al formulario de admin
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      this.error = 'Por favor, completa correctamente los campos obligatorios y asegúrate de respetar los rangos válidos.';
       return;
     }
 
     this.isSaving = true;
     this.error = null;
 
+    const formValue = this.form.value;
     const payload = {
       idSocio: this.idSocio,
-      pesoKg: this.perfilMedico.pesoKg,
-      estaturaCm: this.perfilMedico.estaturaCm,
-      porcentajeGrasa: this.perfilMedico.porcentajeGrasa,
-      alergias: this.perfilMedico.alergias || '',
-      condicionesCronicas: this.perfilMedico.condicionesCronicas || '',
-      lesionesPrevias: this.perfilMedico.lesionesPrevias || ''
+      pesoKg: Number(formValue.pesoKg),
+      estaturaCm: Number(formValue.estaturaCm),
+      porcentajeGrasa: formValue.porcentajeGrasa !== null && formValue.porcentajeGrasa !== '' ? Number(formValue.porcentajeGrasa) : 0,
+      alergias: formValue.alergias ? formValue.alergias.trim() : '',
+      condicionesCronicas: formValue.condicionesCronicas ? formValue.condicionesCronicas.trim() : '',
+      lesionesPrevias: formValue.lesionesPrevias ? formValue.lesionesPrevias.trim() : ''
     };
 
     const peticion = this.perfilMedico.idPerfilMedico
@@ -197,7 +220,7 @@ export class DetalleMedicoComponent implements OnInit {
       next: () => {
         this.isSaving = false;
         this.editando = false;
-        this.mensajeExito = 'Perfil medico actualizado correctamente';
+        this.mensajeExito = 'Perfil médico actualizado correctamente';
 
         this.cargarPerfilMedico();
 

@@ -1082,3 +1082,11 @@
         &:hover:not(:disabled) { background: #b91c1c; }
     }
 }
+
+.error-hint {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--color-error, #dc2626);
+    margin-top: 0.3rem;
+    font-weight: 500;
+}
