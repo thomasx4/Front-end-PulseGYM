@@ -1,5 +1,5 @@
 import { Component, OnInit, ElementRef, ViewChild, OnDestroy, NgZone, AfterViewInit, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router'; // <--- AGREGAR ESTA LÍNEA
+import { ActivatedRoute, Router } from '@angular/router';
 import { PhysicalHistoryService } from '../../../../../core/services/physical-history.service';
 import { UserService } from '../../../../../core/services/user.service';
 import { PhysicalHistory, PhysicalHistoryEvolutionResponse } from '../../../../../core/models/physical-history';
@@ -33,6 +33,9 @@ export class PhysicalHistoryDetailComponent implements OnInit, OnDestroy, AfterV
   avatarError: boolean = false;
   chartWidthStyle: string = '100%';
 
+  // Ruta del modelo 3D humano (Mixamo Idle.glb)
+  modeloUrl: string = 'assets/models/Idle.glb';
+  calibrationMode: boolean = true;
 
   medidasSilueta = {
     cuello: 0,
@@ -57,6 +60,7 @@ export class PhysicalHistoryDetailComponent implements OnInit, OnDestroy, AfterV
   private isHovering: boolean = false;
 
   modelLoaded: boolean = false;
+  public isSidebarOpen: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -97,6 +101,24 @@ export class PhysicalHistoryDetailComponent implements OnInit, OnDestroy, AfterV
       model.addEventListener('load', () => {
         this.modelLoaded = true;
         setTimeout(() => this.adjustHotspots(), 300);
+      });
+
+      // Calibrador de clics para consola
+      model.addEventListener('click', (event: MouseEvent) => {
+        if (!this.calibrationMode) return;
+
+        const rect = model.getBoundingClientRect();
+        const hit = model.positionAndNormalFromPoint(
+          event.clientX - rect.left,
+          event.clientY - rect.top
+        );
+
+        if (hit) {
+          const pos = hit.position.toArray().map((n: number) => n.toFixed(2) + 'm').join(' ');
+          const normal = hit.normal.toArray().map((n: number) => n.toFixed(2) + 'm').join(' ');
+          console.log('%cdata-position="' + pos + '"', 'color: #2563eb; font-weight: bold;');
+          console.log('%cdata-normal="' + normal + '"', 'color: #16a34a; font-weight: bold;');
+        }
       });
 
       if (model.loaded) {
@@ -159,10 +181,8 @@ export class PhysicalHistoryDetailComponent implements OnInit, OnDestroy, AfterV
       next: (data) => {
         this.evolutionData = data;
 
-        // Calcular ancho proporcional para que quepan exactamente 4 elementos visibles y el resto haga scroll
         const totalPoints = data.evolucionPeso?.length || 0;
         if (totalPoints > 4) {
-          // Cada punto ocupa una proporción, asegurando que se vea el equivalente a 4 por vista
           const ratio = totalPoints / 4;
           this.chartWidthStyle = `${ratio * 100}%`;
         } else {
@@ -172,7 +192,6 @@ export class PhysicalHistoryDetailComponent implements OnInit, OnDestroy, AfterV
         this.ngZone.runOutsideAngular(() => {
           requestAnimationFrame(() => {
             this.renderChart();
-            // Posicionar el scroll al extremo derecho (últimas mediciones) por defecto
             setTimeout(() => {
               if (this.chartScrollContainer) {
                 const el = this.chartScrollContainer.nativeElement;
@@ -187,6 +206,7 @@ export class PhysicalHistoryDetailComponent implements OnInit, OnDestroy, AfterV
       }
     });
   }
+
   cargarPerfilSocio(idSocio: number): void {
     this.userService.obtenerPerfilPorId(idSocio).subscribe({
       next: (data) => {
@@ -427,15 +447,11 @@ export class PhysicalHistoryDetailComponent implements OnInit, OnDestroy, AfterV
     setTimeout(() => this.adjustHotspots(), 300);
   }
 
-  // Añade esta propiedad en la clase PhysicalHistoryDetailComponent:
-public isSidebarOpen: boolean = false;
+  toggleSidebar(): void {
+    this.isSidebarOpen = !this.isSidebarOpen;
+  }
 
-// Y agrega estos dos métodos al final de la clase:
-toggleSidebar(): void {
-  this.isSidebarOpen = !this.isSidebarOpen;
-}
-
-closeSidebar(): void {
-  this.isSidebarOpen = false;
-}
+  closeSidebar(): void {
+    this.isSidebarOpen = false;
+  }
 }

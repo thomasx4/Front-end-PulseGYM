@@ -910,48 +910,110 @@
     }
 }
 
-// HOTSPOTS ANOTACIONES
-.hotspot {
-    display: block;
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    border: 2px solid var(--color-text-inverse);
-    background-color: #2563eb;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.35);
-    cursor: pointer;
-    position: relative;
-    transition: all 0.25s ease;
+// HOTSPOTS Y ANOTACIONES FLOTANTES CON LÍNEA/INDICADOR Y ::ng-deep PARA PENETRAR EL SHADOW DOM
+// HOTSPOTS Y ANOTACIONES FLOTANTES CORREGIDAS
+// ==========================================
+// ESTILOS AVANZADOS PARA HOTSPOTS LATERALES CON LÍNEAS CONECTORAS
+// ==========================================
+// ==========================================
+// ESTILOS AVANZADOS PARA HOTSPOTS LATERALES (MÁS ALEJADOS Y CON LÍNEAS)
+// ==========================================
+::ng-deep model-viewer {
+    .hotspot {
+        display: block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        border: 2px solid #ffffff;
+        background-color: var(--color-primary, #2563eb);
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+        cursor: pointer;
+        position: relative;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
 
-    .hotspot-annotation {
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
-        bottom: 22px;
-        background: var(--color-bg-card);
-        backdrop-filter: blur(4px);
-        color: var(--color-text-primary);
-        padding: 0.2rem 0.5rem;
-        border-radius: 6px;
-        font-size: 0.65rem;
-        white-space: nowrap;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        pointer-events: none;
-        border: 1px solid var(--color-border);
-        opacity: 1 !important;
+        // Tarjeta de anotación posicionada significativamente más lejos del cuerpo
+        .hotspot-annotation {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--color-bg-card, #ffffff);
+            color: var(--color-text-primary, #111827);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.65rem;
+            white-space: nowrap;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            pointer-events: none;
+            border: 1px solid var(--color-border, #e5e7eb);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            opacity: 0.95;
+            z-index: 999;
+            transition: all 0.2s ease;
 
-        span {
-            color: var(--color-text-muted);
-            font-size: 0.6rem;
-            font-weight: 600;
+            // Línea indicadora o "hilo" conector largo que apunta desde la tarjeta hacia el punto
+            &::before {
+                content: '';
+                position: absolute;
+                top: 50%;
+                width: 35px; // Longitud extendida de la línea horizontal
+                height: 1.5px;
+                background-color: var(--color-primary, #2563eb);
+            }
+
+            span {
+                color: var(--color-text-muted, #6b7280);
+                font-size: 0.55rem;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.03em;
+                line-height: 1;
+                margin-bottom: 2px;
+            }
+
+            strong {
+                color: var(--color-text-primary, #111827);
+                font-weight: 800;
+                font-size: 0.7rem;
+                line-height: 1;
+            }
         }
+    }
 
-        strong {
-            color: var(--color-text-primary);
-            font-weight: 800;
-            font-size: 0.7rem;
+    // Hotspots del lado izquierdo (Alejados hacia la izquierda)
+    .hotspot[slot="hotspot-brazo-izq"],
+    .hotspot[slot="hotspot-pierna-izq"] {
+        .hotspot-annotation {
+            right: calc(100% + 35px); // Mayor separación del cuerpo
+            left: auto;
+            align-items: flex-end;
+            text-align: right;
+
+            &::before {
+                right: -35px; // Conecta exactamente con el ancho de la línea
+                left: auto;
+            }
+        }
+    }
+
+    // Hotspots del lado derecho y centro (Alejados hacia la derecha)
+    .hotspot[slot="hotspot-cuello"],
+    .hotspot[slot="hotspot-pecho"],
+    .hotspot[slot="hotspot-brazo-der"],
+    .hotspot[slot="hotspot-cintura"],
+    .hotspot[slot="hotspot-cadera"],
+    .hotspot[slot="hotspot-pierna-der"] {
+        .hotspot-annotation {
+            left: calc(100% + 35px); // Mayor separación del cuerpo
+            right: auto;
+            align-items: flex-start;
+            text-align: left;
+
+            &::before {
+                left: -35px; // Conecta exactamente con el ancho de la línea
+                right: auto;
+            }
         }
     }
 }
@@ -1050,7 +1112,7 @@
     }
 
     .kpi-grid-detail {
-        grid-template-columns: repeat(3, 1fr); // Se mantiene seguro a 3 columnas en pantallas de 1024px (con sidebar abierto)
+        grid-template-columns: repeat(3, 1fr);
     }
 
     .pro-measurements-grid {
@@ -1069,6 +1131,6 @@
 
 @media (min-width: 1280px) {
     .kpi-grid-detail {
-        grid-template-columns: repeat(5, 1fr); // Salta a las 5 columnas solo en pantallas grandes con suficiente espacio real
+        grid-template-columns: repeat(5, 1fr);
     }
 }

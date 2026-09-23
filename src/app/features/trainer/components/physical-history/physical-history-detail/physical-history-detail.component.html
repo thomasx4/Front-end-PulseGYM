@@ -474,7 +474,7 @@
           </div>
         </div>
 
-        <!-- SILUETA 3D CON ASTRONAUTA CENTRADA -->
+        <!-- SILUETA 3D CON MODELO HUMANO (Idle.glb) -->
         <div class="main-detail-grid__right">
           <div class="silhouette-card">
             <div class="silhouette-card__header">
@@ -494,14 +494,28 @@
             </div>
 
             <div class="silhouette-body-3d">
-              <model-viewer #modelViewer src="https://modelviewer.dev/shared-assets/models/NeilArmstrong.glb"
-                alt="Modelo 3D Astronauta" camera-controls touch-action="pan-y" interaction-prompt="auto"
-                shadow-intensity="0.4" exposure="1.2" environment-image="neutral" auto-rotate rotation-per-second="2deg"
-                camera-orbit="0deg 75deg 2.8m" camera-target="0m 0.9m 0m" field-of-view="28deg"
-                min-camera-orbit="auto auto 2m" max-camera-orbit="auto auto 4m" class="model-viewer-canvas"
+              <model-viewer #modelViewer
+                [src]="modeloUrl"
+                alt="Modelo 3D del cuerpo humano"
+                camera-controls
+                touch-action="pan-y"
+                interaction-prompt="auto"
+                shadow-intensity="0.8"
+                shadow-softness="0.6"
+                exposure="1"
+                environment-image="neutral"
+                auto-rotate
+                rotation-per-second="2deg"
+                scale="0.01 0.01 0.01"
+                camera-orbit="0deg 80deg 3.2m"
+                camera-target="0m 0.95m 0m"
+                field-of-view="30deg"
+                min-camera-orbit="auto auto 2.2m"
+                max-camera-orbit="auto auto 4.5m"
+                class="model-viewer-canvas"
                 (load)="onModelLoad()">
 
-                <button class="hotspot hotspot--purple" slot="hotspot-cuello" data-position="0m 1.35m 0.10m"
+                <button class="hotspot hotspot--purple" slot="hotspot-cuello" data-position="0m 1.58m 0.10m"
                   data-normal="0m 0m 1m" (mouseenter)="onHoverMeasure('cuello')" (mouseleave)="onLeaveMeasure()">
                   <div class="hotspot-annotation">
                     <span>Cuello</span>
@@ -509,7 +523,7 @@
                   </div>
                 </button>
 
-                <button class="hotspot hotspot--purple" slot="hotspot-pecho" data-position="0m 1.15m 0.15m"
+                <button class="hotspot hotspot--purple" slot="hotspot-pecho" data-position="0m 1.40m 0.16m"
                   data-normal="0m 0m 1m" (mouseenter)="onHoverMeasure('pecho')" (mouseleave)="onLeaveMeasure()">
                   <div class="hotspot-annotation">
                     <span>Pecho</span>
@@ -517,7 +531,7 @@
                   </div>
                 </button>
 
-                <button class="hotspot hotspot--green" slot="hotspot-brazo-izq" data-position="-0.22m 1.05m 0.02m"
+                <button class="hotspot hotspot--green" slot="hotspot-brazo-izq" data-position="-0.28m 1.28m 0.02m"
                   data-normal="-1m 0m 0m" (mouseenter)="onHoverMeasure('brazoIzq')" (mouseleave)="onLeaveMeasure()">
                   <div class="hotspot-annotation">
                     <span>Brazo I.</span>
@@ -525,7 +539,7 @@
                   </div>
                 </button>
 
-                <button class="hotspot hotspot--green" slot="hotspot-brazo-der" data-position="0.22m 1.05m 0.02m"
+                <button class="hotspot hotspot--green" slot="hotspot-brazo-der" data-position="0.28m 1.28m 0.02m"
                   data-normal="1m 0m 0m" (mouseenter)="onHoverMeasure('brazoDer')" (mouseleave)="onLeaveMeasure()">
                   <div class="hotspot-annotation">
                     <span>Brazo D.</span>
@@ -533,7 +547,7 @@
                   </div>
                 </button>
 
-                <button class="hotspot hotspot--orange" slot="hotspot-cintura" data-position="0m 0.85m 0.12m"
+                <button class="hotspot hotspot--orange" slot="hotspot-cintura" data-position="0m 1.08m 0.14m"
                   data-normal="0m 0m 1m" (mouseenter)="onHoverMeasure('cintura')" (mouseleave)="onLeaveMeasure()">
                   <div class="hotspot-annotation">
                     <span>Cintura</span>
@@ -541,7 +555,7 @@
                   </div>
                 </button>
 
-                <button class="hotspot hotspot--orange" slot="hotspot-cadera" data-position="0m 0.70m 0.12m"
+                <button class="hotspot hotspot--orange" slot="hotspot-cadera" data-position="0m 0.92m 0.14m"
                   data-normal="0m 0m 1m" (mouseenter)="onHoverMeasure('cadera')" (mouseleave)="onLeaveMeasure()">
                   <div class="hotspot-annotation">
                     <span>Cadera</span>
@@ -549,7 +563,7 @@
                   </div>
                 </button>
 
-                <button class="hotspot hotspot--blue" slot="hotspot-pierna-izq" data-position="-0.10m 0.50m 0.08m"
+                <button class="hotspot hotspot--blue" slot="hotspot-pierna-izq" data-position="-0.12m 0.55m 0.10m"
                   data-normal="0m 0m 1m" (mouseenter)="onHoverMeasure('piernaIzq')" (mouseleave)="onLeaveMeasure()">
                   <div class="hotspot-annotation">
                     <span>Pierna I.</span>
@@ -557,7 +571,7 @@
                   </div>
                 </button>
 
-                <button class="hotspot hotspot--blue" slot="hotspot-pierna-der" data-position="0.10m 0.50m 0.08m"
+                <button class="hotspot hotspot--blue" slot="hotspot-pierna-der" data-position="0.12m 0.55m 0.10m"
                   data-normal="0m 0m 1m" (mouseenter)="onHoverMeasure('piernaDer')" (mouseleave)="onLeaveMeasure()">
                   <div class="hotspot-annotation">
                     <span>Pierna D.</span>

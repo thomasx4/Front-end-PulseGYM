@@ -32,6 +32,13 @@ export class PhysicalHistoryDetailComponent implements OnInit, OnDestroy, AfterV
   avatarError: boolean = false;
   chartWidthStyle: string = '100%';
 
+  // Ruta del modelo 3D humano (Mixamo Idle.glb) ubicado en src/assets/models/
+  modeloUrl: string = 'assets/models/Idle.glb';
+
+  // Activa esto en true temporalmente (o desde consola: window['calibrar'] = true)
+  // para hacer clic sobre el modelo y obtener coordenadas exactas de hotspots.
+  calibrationMode: boolean = true;
+
   medidasSilueta = {
     cuello: 0,
     pecho: 0,
@@ -97,6 +104,25 @@ export class PhysicalHistoryDetailComponent implements OnInit, OnDestroy, AfterV
         setTimeout(() => this.adjustHotspots(), 300);
       });
 
+      // Herramienta de calibración de hotspots.
+      // Haz clic sobre el modelo con calibrationMode = true y revisa la consola.
+      model.addEventListener('click', (event: MouseEvent) => {
+        if (!this.calibrationMode) return;
+
+        const rect = model.getBoundingClientRect();
+        const hit = model.positionAndNormalFromPoint(
+          event.clientX - rect.left,
+          event.clientY - rect.top
+        );
+
+        if (hit) {
+          const pos = hit.position.toArray().map((n: number) => n.toFixed(2) + 'm').join(' ');
+          const normal = hit.normal.toArray().map((n: number) => n.toFixed(2) + 'm').join(' ');
+          console.log('%cdata-position="' + pos + '"', 'color: #2563eb; font-weight: bold;');
+          console.log('%cdata-normal="' + normal + '"', 'color: #16a34a; font-weight: bold;');
+        }
+      });
+
       if (model.loaded) {
         this.modelLoaded = true;
         setTimeout(() => this.adjustHotspots(), 300);
@@ -152,11 +178,11 @@ export class PhysicalHistoryDetailComponent implements OnInit, OnDestroy, AfterV
     };
   }
 
-cargarEvolucion(idSocio: number): void {
+  cargarEvolucion(idSocio: number): void {
     this.physicalHistoryService.getEvolucionBySocio(idSocio).subscribe({
       next: (data) => {
         this.evolutionData = data;
-        
+
         const totalPoints = data.evolucionPeso?.length || 0;
         if (totalPoints > 4) {
           const ratio = totalPoints / 4;
