@@ -19,7 +19,6 @@
     <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
 
         <!-- SECCIÓN 1: EMAIL (solo para admin/entrenador/recepcionista) -->
-
         <div class="form-section" *ngIf="!isSocio">
             <div class="section-header">
                 <h3>Credenciales de Acceso</h3>
@@ -68,9 +67,7 @@
             </div>
         </div>
 
-
         <!-- SECCIÓN 2: FOTO DE PERFIL -->
-
         <div class="form-section">
             <div class="section-header">
                 <h3>Fotografía de Perfil</h3>
@@ -117,9 +114,7 @@
             </div>
         </div>
 
-
         <!-- SECCIÓN 3: INFORMACIÓN PERSONAL -->
-
         <div class="form-section">
             <div class="section-header">
                 <h3>Información Personal</h3>
@@ -128,21 +123,31 @@
 
             <div class="form-row">
                 <div class="form-group">
-                    <label>Nombre Completo <span class="required">*</span></label>
-                    <input type="text" formControlName="nombre" placeholder="Ej. Alejandro Valdivia"
+                    <label>Nombre <span class="required">*</span></label>
+                    <input type="text" formControlName="nombre" placeholder="Ej. Alejandro" maxlength="50"
                         [class.error]="userForm.get('nombre')?.invalid && userForm.get('nombre')?.touched" />
                     <div class="form-error" *ngIf="userForm.get('nombre')?.invalid && userForm.get('nombre')?.touched">
                         <span *ngIf="userForm.get('nombre')?.errors?.['required']">El nombre es obligatorio</span>
+                        <span *ngIf="userForm.get('nombre')?.errors?.['minlength']">Mínimo 2 caracteres</span>
+                        <span *ngIf="userForm.get('nombre')?.errors?.['maxlength']">Máximo 50 caracteres
+                            permitidos</span>
+                        <span *ngIf="userForm.get('nombre')?.errors?.['pattern']">Solo se permiten letras y
+                            espacios</span>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label>Apellido <span class="required">*</span></label>
-                    <input type="text" formControlName="apellido" placeholder="Ej. Valdivia"
+                    <input type="text" formControlName="apellido" placeholder="Ej. Valdivia" maxlength="50"
                         [class.error]="userForm.get('apellido')?.invalid && userForm.get('apellido')?.touched" />
                     <div class="form-error"
                         *ngIf="userForm.get('apellido')?.invalid && userForm.get('apellido')?.touched">
                         <span *ngIf="userForm.get('apellido')?.errors?.['required']">El apellido es obligatorio</span>
+                        <span *ngIf="userForm.get('apellido')?.errors?.['minlength']">Mínimo 2 caracteres</span>
+                        <span *ngIf="userForm.get('apellido')?.errors?.['maxlength']">Máximo 50 caracteres
+                            permitidos</span>
+                        <span *ngIf="userForm.get('apellido')?.errors?.['pattern']">Solo se permiten letras y
+                            espacios</span>
                     </div>
                 </div>
             </div>
@@ -150,24 +155,26 @@
             <div class="form-row">
                 <div class="form-group">
                     <label>Documento de Identidad <span class="required">*</span></label>
-                    <input type="text" formControlName="documentoIdentidad" placeholder="Ej. 1234567890"
+                    <input type="text" formControlName="documentoIdentidad" placeholder="Ej. 1091203829" maxlength="10"
                         [class.error]="userForm.get('documentoIdentidad')?.invalid && userForm.get('documentoIdentidad')?.touched" />
                     <div class="form-error"
                         *ngIf="userForm.get('documentoIdentidad')?.invalid && userForm.get('documentoIdentidad')?.touched">
                         <span *ngIf="userForm.get('documentoIdentidad')?.errors?.['required']">El documento es
                             obligatorio</span>
-                        <span *ngIf="userForm.get('documentoIdentidad')?.errors?.['minlength']">Mínimo 6
-                            caracteres</span>
+                        <span *ngIf="userForm.get('documentoIdentidad')?.errors?.['pattern']">Debe ser un número válido
+                            de hasta 10 dígitos (sin letras ni espacios)</span>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label>Teléfono <span class="required">*</span></label>
-                    <input type="tel" formControlName="telefono" placeholder="Ej. +57 300 000 0000"
+                    <input type="tel" formControlName="telefono" placeholder="Ej. 3000000000" maxlength="10"
                         [class.error]="userForm.get('telefono')?.invalid && userForm.get('telefono')?.touched" />
                     <div class="form-error"
                         *ngIf="userForm.get('telefono')?.invalid && userForm.get('telefono')?.touched">
                         <span *ngIf="userForm.get('telefono')?.errors?.['required']">El teléfono es obligatorio</span>
+                        <span *ngIf="userForm.get('telefono')?.errors?.['pattern']">Debe ser exactamente un número de
+                            celular de 10 dígitos (sin prefijo ni espacios)</span>
                     </div>
                 </div>
             </div>
@@ -192,8 +199,10 @@
                         [class.error]="userForm.get('fechaNacimiento')?.invalid && userForm.get('fechaNacimiento')?.touched" />
                     <div class="form-error"
                         *ngIf="userForm.get('fechaNacimiento')?.invalid && userForm.get('fechaNacimiento')?.touched">
-                        <span *ngIf="userForm.get('fechaNacimiento')?.errors?.['required']">La fecha es
+                        <span *ngIf="userForm.get('fechaNacimiento')?.errors?.['required']">La fecha de nacimiento es
                             obligatoria</span>
+                        <span *ngIf="userForm.get('fechaNacimiento')?.errors?.['fechaFutura']">La fecha no puede ser en
+                            el futuro</span>
                     </div>
                 </div>
             </div>
@@ -206,6 +215,7 @@
                         <option value="">Seleccionar sede</option>
                         <option *ngFor="let sede of sedes" [value]="sede.id">{{ sede.nombre }}</option>
                     </select>
+                    <!-- Error de Sede asegurando visibilidad debajo del select -->
                     <div class="form-error" *ngIf="userForm.get('idSede')?.invalid && userForm.get('idSede')?.touched">
                         <span *ngIf="userForm.get('idSede')?.errors?.['required']">La sede es obligatoria</span>
                     </div>
@@ -213,9 +223,7 @@
             </div>
         </div>
 
-
         <!-- SECCIÓN 4: CONTACTO DE EMERGENCIA -->
-
         <div class="form-section">
             <div class="section-header">
                 <h3>Contacto de Emergencia</h3>
@@ -226,30 +234,36 @@
                 <div class="form-group">
                     <label>Nombre <span class="required">*</span></label>
                     <input type="text" formControlName="contactoEmergenciaNombre" placeholder="Ej. María Pérez"
+                        maxlength="50"
                         [class.error]="userForm.get('contactoEmergenciaNombre')?.invalid && userForm.get('contactoEmergenciaNombre')?.touched" />
                     <div class="form-error"
                         *ngIf="userForm.get('contactoEmergenciaNombre')?.invalid && userForm.get('contactoEmergenciaNombre')?.touched">
-                        <span *ngIf="userForm.get('contactoEmergenciaNombre')?.errors?.['required']">El nombre es
-                            obligatorio</span>
+                        <span *ngIf="userForm.get('contactoEmergenciaNombre')?.errors?.['required']">El nombre de
+                            emergencia es obligatorio</span>
+                        <span *ngIf="userForm.get('contactoEmergenciaNombre')?.errors?.['maxlength']">Máximo 50
+                            caracteres permitidos</span>
+                        <span *ngIf="userForm.get('contactoEmergenciaNombre')?.errors?.['pattern']">Solo se permiten
+                            letras y espacios</span>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label>Teléfono <span class="required">*</span></label>
-                    <input type="tel" formControlName="contactoEmergenciaTelefono" placeholder="Ej. +57 300 000 0000"
+                    <input type="tel" formControlName="contactoEmergenciaTelefono" placeholder="Ej. 3000000000"
+                        maxlength="10"
                         [class.error]="userForm.get('contactoEmergenciaTelefono')?.invalid && userForm.get('contactoEmergenciaTelefono')?.touched" />
                     <div class="form-error"
                         *ngIf="userForm.get('contactoEmergenciaTelefono')?.invalid && userForm.get('contactoEmergenciaTelefono')?.touched">
-                        <span *ngIf="userForm.get('contactoEmergenciaTelefono')?.errors?.['required']">El teléfono es
-                            obligatorio</span>
+                        <span *ngIf="userForm.get('contactoEmergenciaTelefono')?.errors?.['required']">El teléfono de
+                            emergencia es obligatorio</span>
+                        <span *ngIf="userForm.get('contactoEmergenciaTelefono')?.errors?.['pattern']">Debe ser
+                            exactamente un número de celular de 10 dígitos (sin prefijo ni espacios)</span>
                     </div>
                 </div>
             </div>
         </div>
 
-
         <!-- SECCIÓN 5: DETALLES DEL ROL -->
-
         <div class="form-section">
             <div class="section-header">
                 <h3>Detalles del Rol</h3>
@@ -260,18 +274,21 @@
             <div class="form-row"
                 *ngIf="authUserInfo?.rol?.toUpperCase() === 'SOCIO' || authUserInfo?.rol?.toUpperCase() === 'ENTRENADOR' || authUserInfo?.rol?.toUpperCase() === 'USER'">
                 <div class="form-group">
-                    <label>Objetivo Principal <span class="required" *ngIf="!isEditMode">*</span></label>
+                    <label>Objetivo Principal <span class="required">*</span></label>
                     <input type="text" formControlName="objetivoPrincipal" placeholder="Ej. Aumentar masa muscular"
+                        maxlength="150"
                         [class.error]="userForm.get('objetivoPrincipal')?.invalid && userForm.get('objetivoPrincipal')?.touched" />
                     <div class="form-error"
                         *ngIf="userForm.get('objetivoPrincipal')?.invalid && userForm.get('objetivoPrincipal')?.touched">
                         <span *ngIf="userForm.get('objetivoPrincipal')?.errors?.['required']">El objetivo es
                             obligatorio</span>
+                        <span *ngIf="userForm.get('objetivoPrincipal')?.errors?.['maxlength']">Máximo 150
+                            caracteres</span>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label>Nivel de Experiencia <span class="required" *ngIf="!isEditMode">*</span></label>
+                    <label>Nivel de Experiencia <span class="required">*</span></label>
                     <select formControlName="nivelExperiencia"
                         [class.error]="userForm.get('nivelExperiencia')?.invalid && userForm.get('nivelExperiencia')?.touched">
                         <option value="">Seleccionar nivel</option>
@@ -291,44 +308,92 @@
             <ng-container *ngIf="authUserInfo?.rol?.toUpperCase() === 'ENTRENADOR'">
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Fecha de Contratación <span class="required" *ngIf="!isEditMode">*</span></label>
-                        <input type="date" formControlName="fechaContratacion" />
+                        <label>Fecha de Contratación <span class="required">*</span></label>
+                        <input type="date" formControlName="fechaContratacion"
+                            [class.error]="userForm.get('fechaContratacion')?.invalid && userForm.get('fechaContratacion')?.touched" />
+                        <div class="form-error"
+                            *ngIf="userForm.get('fechaContratacion')?.invalid && userForm.get('fechaContratacion')?.touched">
+                            <span *ngIf="userForm.get('fechaContratacion')?.errors?.['required']">La fecha de
+                                contratación es obligatoria</span>
+                            <span *ngIf="userForm.get('fechaContratacion')?.errors?.['fechaFutura']">La fecha no puede
+                                ser en el futuro</span>
+                        </div>
                     </div>
 
                     <div class="form-group">
-                        <label>Especialidad <span class="required" *ngIf="!isEditMode">*</span></label>
-                        <input type="text" formControlName="especialidad"
-                            placeholder="Ej. Musculación y Powerlifting" />
+                        <label>Especialidad <span class="required">*</span></label>
+                        <input type="text" formControlName="especialidad" placeholder="Ej. Musculación y Powerlifting"
+                            maxlength="100"
+                            [class.error]="userForm.get('especialidad')?.invalid && userForm.get('especialidad')?.touched" />
+                        <div class="form-error"
+                            *ngIf="userForm.get('especialidad')?.invalid && userForm.get('especialidad')?.touched">
+                            <span *ngIf="userForm.get('especialidad')?.errors?.['required']">La especialidad es
+                                obligatoria</span>
+                            <span *ngIf="userForm.get('especialidad')?.errors?.['maxlength']">Máximo 100
+                                caracteres</span>
+                        </div>
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Años de Experiencia <span class="required" *ngIf="!isEditMode">*</span></label>
-                        <input type="number" formControlName="anosExperiencia" placeholder="Ej. 5" min="0" max="50" />
+                        <label>Años de Experiencia <span class="required">*</span></label>
+                        <input type="number" formControlName="anosExperiencia" placeholder="Ej. 5" min="0" max="50"
+                            [class.error]="userForm.get('anosExperiencia')?.invalid && userForm.get('anosExperiencia')?.touched" />
+                        <div class="form-error"
+                            *ngIf="userForm.get('anosExperiencia')?.invalid && userForm.get('anosExperiencia')?.touched">
+                            <span *ngIf="userForm.get('anosExperiencia')?.errors?.['required']">Los años de experiencia
+                                son obligatorios</span>
+                            <span
+                                *ngIf="userForm.get('anosExperiencia')?.errors?.['min'] || userForm.get('anosExperiencia')?.errors?.['max']">Debe
+                                estar entre 0 y 50 años</span>
+                        </div>
                     </div>
 
                     <div class="form-group">
-                        <label>Tarifa por Hora <span class="required" *ngIf="!isEditMode">*</span></label>
-                        <input type="number" formControlName="tarifaHora" placeholder="Ej. 45000" min="0" step="1000" />
+                        <label>Tarifa por Hora ($) <span class="required">*</span></label>
+                        <input type="number" formControlName="tarifaHora" placeholder="Ej. 45000" min="1" max="999999"
+                            step="1000" (keydown)="prevenirNegativos($event)"
+                            [class.error]="userForm.get('tarifaHora')?.invalid && userForm.get('tarifaHora')?.touched" />
+                        <div class="form-error"
+                            *ngIf="userForm.get('tarifaHora')?.invalid && userForm.get('tarifaHora')?.touched">
+                            <span *ngIf="userForm.get('tarifaHora')?.errors?.['required']">La tarifa por hora es
+                                obligatoria</span>
+                            <span
+                                *ngIf="userForm.get('tarifaHora')?.errors?.['min'] || userForm.get('tarifaHora')?.errors?.['max']">Ingrese
+                                una tarifa mayor a 0</span>
+                        </div>
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Horario de Disponibilidad <span class="required" *ngIf="!isEditMode">*</span></label>
+                        <label>Horario de Disponibilidad <span class="required">*</span></label>
                         <input type="text" formControlName="horarioDisponibilidad"
-                            placeholder="Ej. Lunes a Viernes 6:00 - 12:00" />
+                            placeholder="Ej. Lunes a Viernes 6:00 - 12:00" maxlength="100"
+                            [class.error]="userForm.get('horarioDisponibilidad')?.invalid && userForm.get('horarioDisponibilidad')?.touched" />
+                        <div class="form-error"
+                            *ngIf="userForm.get('horarioDisponibilidad')?.invalid && userForm.get('horarioDisponibilidad')?.touched">
+                            <span *ngIf="userForm.get('horarioDisponibilidad')?.errors?.['required']">El horario es
+                                obligatorio</span>
+                            <span *ngIf="userForm.get('horarioDisponibilidad')?.errors?.['maxlength']">Máximo 100
+                                caracteres</span>
+                        </div>
                     </div>
 
                     <div class="form-group">
-                        <label>Turno <span class="required" *ngIf="!isEditMode">*</span></label>
-                        <select formControlName="turno">
+                        <label>Turno <span class="required">*</span></label>
+                        <select formControlName="turno"
+                            [class.error]="userForm.get('turno')?.invalid && userForm.get('turno')?.touched">
                             <option value="">Seleccionar turno</option>
                             <option value="mañana">Mañana</option>
                             <option value="tarde">Tarde</option>
                             <option value="noche">Noche</option>
                         </select>
+                        <div class="form-error"
+                            *ngIf="userForm.get('turno')?.invalid && userForm.get('turno')?.touched">
+                            <span *ngIf="userForm.get('turno')?.errors?.['required']">El turno es obligatorio</span>
+                        </div>
                     </div>
                 </div>
             </ng-container>
@@ -337,8 +402,16 @@
             <div class="form-row"
                 *ngIf="authUserInfo?.rol?.toUpperCase() === 'ADMINISTRADOR' || authUserInfo?.rol?.toUpperCase() === 'ADMIN'">
                 <div class="form-group full-width">
-                    <label>Fecha de Contratación <span class="required" *ngIf="!isEditMode">*</span></label>
-                    <input type="date" formControlName="fechaContratacion" />
+                    <label>Fecha de Contratación <span class="required">*</span></label>
+                    <input type="date" formControlName="fechaContratacion"
+                        [class.error]="userForm.get('fechaContratacion')?.invalid && userForm.get('fechaContratacion')?.touched" />
+                    <div class="form-error"
+                        *ngIf="userForm.get('fechaContratacion')?.invalid && userForm.get('fechaContratacion')?.touched">
+                        <span *ngIf="userForm.get('fechaContratacion')?.errors?.['required']">La fecha de contratación
+                            es obligatoria</span>
+                        <span *ngIf="userForm.get('fechaContratacion')?.errors?.['fechaFutura']">La fecha no puede ser
+                            en el futuro</span>
+                    </div>
                 </div>
             </div>
 
@@ -346,25 +419,37 @@
             <ng-container *ngIf="authUserInfo?.rol?.toUpperCase() === 'RECEPCIONISTA'">
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Fecha de Contratación <span class="required" *ngIf="!isEditMode">*</span></label>
-                        <input type="date" formControlName="fechaContratacion" />
+                        <label>Fecha de Contratación <span class="required">*</span></label>
+                        <input type="date" formControlName="fechaContratacion"
+                            [class.error]="userForm.get('fechaContratacion')?.invalid && userForm.get('fechaContratacion')?.touched" />
+                        <div class="form-error"
+                            *ngIf="userForm.get('fechaContratacion')?.invalid && userForm.get('fechaContratacion')?.touched">
+                            <span *ngIf="userForm.get('fechaContratacion')?.errors?.['required']">La fecha de
+                                contratación es obligatoria</span>
+                            <span *ngIf="userForm.get('fechaContratacion')?.errors?.['fechaFutura']">La fecha no puede
+                                ser en el futuro</span>
+                        </div>
                     </div>
 
                     <div class="form-group">
-                        <label>Turno <span class="required" *ngIf="!isEditMode">*</span></label>
-                        <select formControlName="turno">
+                        <label>Turno <span class="required">*</span></label>
+                        <select formControlName="turno"
+                            [class.error]="userForm.get('turno')?.invalid && userForm.get('turno')?.touched">
                             <option value="">Seleccionar turno</option>
                             <option value="mañana">Mañana</option>
                             <option value="tarde">Tarde</option>
                             <option value="noche">Noche</option>
                         </select>
+                        <div class="form-error"
+                            *ngIf="userForm.get('turno')?.invalid && userForm.get('turno')?.touched">
+                            <span *ngIf="userForm.get('turno')?.errors?.['required']">El turno es obligatorio</span>
+                        </div>
                     </div>
                 </div>
             </ng-container>
         </div>
 
         <!-- BOTONES DE ACCIÓN -->
-
         <div class="form-actions">
             <button type="button" class="btn-cancel" (click)="volver()">Cancelar</button>
             <button type="submit" class="btn-submit" [disabled]="userForm.invalid || submitting">

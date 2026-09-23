@@ -137,8 +137,8 @@
                             </span>
                         </td>
 
-                        <td class="description-cell">
-                            {{ item.descripcionFalla }}
+                        <td class="description-cell" [title]="item.descripcionFalla">
+                            {{ cortarDescripcionFalla(item.descripcionFalla) }}
                         </td>
 
                         <td>

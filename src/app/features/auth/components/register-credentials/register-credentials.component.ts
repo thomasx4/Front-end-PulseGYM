@@ -21,8 +21,17 @@ export class RegisterCredentialsComponent {
 
   constructor(private fb: FormBuilder, private authService: AuthService) {
     this.form = this.fb.group({
-      username: ['', [Validators.required, Validators.minLength(3)]],
-      email: ['', [Validators.required, Validators.email]],
+      username: ['', [
+        Validators.required, 
+        Validators.minLength(3), 
+        Validators.maxLength(20), // Máximo 20 caracteres como solicitaste
+        Validators.pattern(/^[a-zA-Z0-9_\-]+$/) // Solo letras, números, guiones y guiones bajos sin espacios
+      ]],
+      email: ['', [
+        Validators.required, 
+        Validators.email,
+        Validators.maxLength(100)
+      ]],
       password: ['', [
         Validators.required,
         this.passwordRequirementsValidator
@@ -33,6 +42,13 @@ export class RegisterCredentialsComponent {
 
   onCerrar(): void {
     this.cerrar.emit();
+  }
+
+  // Prevenir tipeo de espacios en blanco en el username
+  validarUsernameKeydown(event: KeyboardEvent): void {
+    if (event.key === ' ') {
+      event.preventDefault();
+    }
   }
 
   passwordRequirementsValidator(control: AbstractControl): ValidationErrors | null {
@@ -57,7 +73,6 @@ export class RegisterCredentialsComponent {
     return Object.keys(errors).length > 0 ? errors : null;
   }
 
-  // Getters auxiliares para verificar cada regla individualmente en el template
   get passValue(): string {
     return this.form.get('password')?.value || '';
   }
@@ -81,6 +96,12 @@ export class RegisterCredentialsComponent {
   onSubmit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      Swal.fire({
+        title: 'Formulario Inválido',
+        text: 'Por favor complete correctamente todos los campos obligatorios antes de registrar.',
+        icon: 'warning',
+        confirmButtonColor: '#0E3B72'
+      });
       return;
     }
 

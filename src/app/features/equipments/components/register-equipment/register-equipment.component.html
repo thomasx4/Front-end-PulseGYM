@@ -1,7 +1,6 @@
 <div class="modal-backdrop" (click)="cerrar()">
   <div class="modal-dialog" (click)="$event.stopPropagation()">
     
-
     <header class="modal-header">
       <h2 class="modal-title">
         {{ equipoAEditar ? 'Editar Equipo' : 'Registrar Nuevo Equipo' }}
@@ -14,7 +13,6 @@
       </button>
     </header>
 
-
     <form [formGroup]="equipoForm" (ngSubmit)="guardarEquipo()" class="modal-body">
       
       <div *ngIf="errorMensaje" class="alert-error">
@@ -23,18 +21,25 @@
 
       <div class="form-grid">
         
+        <!-- NOMBRE DEL EQUIPO -->
         <div class="form-group form-group--full">
           <label for="nombre">Nombre del Equipo <span class="required">*</span></label>
           <input 
             type="text" 
             id="nombre" 
             formControlName="nombre" 
-            placeholder="Ingrese Nombre del Equipo" 
+            placeholder="Ej. Caminadora Profesional Pro" 
+            maxlength="100"
             class="form-input" 
             [class.input-error]="esCampoInvalido('nombre')" />
-          <span class="field-error" *ngIf="esCampoInvalido('nombre')">El nombre es obligatorio.</span>
+          <div class="field-error-container" *ngIf="esCampoInvalido('nombre')">
+            <span class="field-error" *ngIf="equipoForm.get('nombre')?.errors?.['required']">El nombre del equipo es obligatorio.</span>
+            <span class="field-error" *ngIf="equipoForm.get('nombre')?.errors?.['minlength']">Debe tener al menos 3 caracteres.</span>
+            <span class="field-error" *ngIf="equipoForm.get('nombre')?.errors?.['maxlength']">No puede exceder los 100 caracteres.</span>
+          </div>
         </div>
 
+        <!-- SEDE ASIGNADA -->
         <div class="form-group">
           <label for="idSede">Sede Asignada <span class="required">*</span></label>
           <select 
@@ -42,14 +47,17 @@
             formControlName="idSede" 
             class="form-select" 
             [class.input-error]="esCampoInvalido('idSede')">
-            <option value="" disabled selected>Seleccione Sede</option>
+            <option value="" disabled selected>Seleccione una sede</option>
             <option *ngFor="let s of sedes" [value]="s.idSede || s.id">
               {{ s.nombreSede || s.nombre }}
             </option>
           </select>
-          <span class="field-error" *ngIf="esCampoInvalido('idSede')">Selecciona una sede.</span>
+          <div class="field-error-container" *ngIf="esCampoInvalido('idSede')">
+            <span class="field-error">Debe seleccionar una sede operativa.</span>
+          </div>
         </div>
 
+        <!-- PROVEEDOR / ALIADO -->
         <div class="form-group">
           <label for="idProveedor">Proveedor / Aliado <span class="required">*</span></label>
           <select 
@@ -57,62 +65,85 @@
             formControlName="idProveedor" 
             class="form-select" 
             [class.input-error]="esCampoInvalido('idProveedor')">
-            <option value="" disabled selected>Seleccione Proveedor</option>
+            <option value="" disabled selected>Seleccione un proveedor</option>
             <option *ngFor="let p of proveedores" [value]="p.idProveedor">
               {{ p.nombreEmpresa }}
             </option>
           </select>
-          <span class="field-error" *ngIf="esCampoInvalido('idProveedor')">Selecciona un proveedor.</span>
+          <div class="field-error-container" *ngIf="esCampoInvalido('idProveedor')">
+            <span class="field-error">Debe seleccionar un proveedor autorizado.</span>
+          </div>
         </div>
 
+        <!-- MARCA -->
         <div class="form-group">
           <label for="marca">Marca <span class="required">*</span></label>
           <input 
             type="text" 
             id="marca" 
             formControlName="marca" 
-            placeholder="Ingrese la Marca" 
+            placeholder="Ej. Life Fitness" 
+            maxlength="50"
             class="form-input" 
             [class.input-error]="esCampoInvalido('marca')" />
-          <span class="field-error" *ngIf="esCampoInvalido('marca')">La marca es requerida.</span>
+          <div class="field-error-container" *ngIf="esCampoInvalido('marca')">
+            <span class="field-error" *ngIf="equipoForm.get('marca')?.errors?.['required']">La marca es obligatoria.</span>
+            <span class="field-error" *ngIf="equipoForm.get('marca')?.errors?.['maxlength']">Máximo 50 caracteres.</span>
+          </div>
         </div>
 
+        <!-- MODELO -->
         <div class="form-group">
           <label for="modelo">Modelo <span class="required">*</span></label>
           <input 
             type="text" 
             id="modelo" 
             formControlName="modelo" 
-            placeholder="Ingrese el Modelo del Equipo" 
+            placeholder="Ej. T5-Track Connect" 
+            maxlength="50"
             class="form-input" 
             [class.input-error]="esCampoInvalido('modelo')" />
-          <span class="field-error" *ngIf="esCampoInvalido('modelo')">El modelo es requerido.</span>
+          <div class="field-error-container" *ngIf="esCampoInvalido('modelo')">
+            <span class="field-error" *ngIf="equipoForm.get('modelo')?.errors?.['required']">El modelo es obligatorio.</span>
+            <span class="field-error" *ngIf="equipoForm.get('modelo')?.errors?.['maxlength']">Máximo 50 caracteres.</span>
+          </div>
         </div>
 
+        <!-- NÚMERO DE SERIE -->
         <div class="form-group">
           <label for="numeroSerie">Número de Serie <span class="required">*</span></label>
           <input 
             type="text" 
             id="numeroSerie" 
             formControlName="numeroSerie" 
-            placeholder="Ingrese el Número de Serie" 
+            placeholder="Ej. SN-987654321" 
+            maxlength="50"
             class="form-input" 
             [class.input-error]="esCampoInvalido('numeroSerie')" />
-          <span class="field-error" *ngIf="esCampoInvalido('numeroSerie')">El serial es requerido.</span>
+          <div class="field-error-container" *ngIf="esCampoInvalido('numeroSerie')">
+            <span class="field-error" *ngIf="equipoForm.get('numeroSerie')?.errors?.['required']">El número de serie es requerido.</span>
+            <span class="field-error" *ngIf="equipoForm.get('numeroSerie')?.errors?.['maxlength']">Máximo 50 caracteres.</span>
+          </div>
         </div>
 
+        <!-- UBICACIÓN EN SEDE -->
         <div class="form-group">
           <label for="ubicacion">Ubicación en Sede <span class="required">*</span></label>
           <input 
             type="text" 
             id="ubicacion" 
             formControlName="ubicacion" 
-            placeholder="Ingrese la Zona" 
+            placeholder="Ej. Zona Cardio - Piso 2" 
+            maxlength="100"
             class="form-input" 
             [class.input-error]="esCampoInvalido('ubicacion')" />
-          <span class="field-error" *ngIf="esCampoInvalido('ubicacion')">Ingresa la ubicación física.</span>
+          <div class="field-error-container" *ngIf="esCampoInvalido('ubicacion')">
+            <span class="field-error" *ngIf="equipoForm.get('ubicacion')?.errors?.['required']">La ubicación física es obligatoria.</span>
+            <span class="field-error" *ngIf="equipoForm.get('ubicacion')?.errors?.['maxlength']">Máximo 100 caracteres.</span>
+          </div>
         </div>
 
+        <!-- FECHA DE ADQUISICIÓN -->
         <div class="form-group">
           <label for="fechaAdquisicion">Fecha de Adquisición <span class="required">*</span></label>
           <input 
@@ -121,9 +152,12 @@
             formControlName="fechaAdquisicion" 
             class="form-input" 
             [class.input-error]="esCampoInvalido('fechaAdquisicion')" />
-          <span class="field-error" *ngIf="esCampoInvalido('fechaAdquisicion')">Fecha requerida.</span>
+          <div class="field-error-container" *ngIf="esCampoInvalido('fechaAdquisicion')">
+            <span class="field-error">Debe seleccionar una fecha de adquisición válida.</span>
+          </div>
         </div>
 
+        <!-- VENCIMIENTO GARANTÍA -->
         <div class="form-group">
           <label for="fechaGarantia">Vencimiento Garantía <span class="required">*</span></label>
           <input 
@@ -131,10 +165,14 @@
             id="fechaGarantia" 
             formControlName="fechaGarantia" 
             class="form-input" 
-            [class.input-error]="esCampoInvalido('fechaGarantia')" />
-          <span class="field-error" *ngIf="esCampoInvalido('fechaGarantia')">Fecha requerida.</span>
+            [class.input-error]="esCampoInvalido('fechaGarantia') || equipoForm.errors?.['garantiaInvalida']" />
+          <div class="field-error-container" *ngIf="esCampoInvalido('fechaGarantia') || equipoForm.errors?.['garantiaInvalida']">
+            <span class="field-error" *ngIf="equipoForm.get('fechaGarantia')?.errors?.['required']">La fecha de garantía es requerida.</span>
+            <span class="field-error" *ngIf="equipoForm.errors?.['garantiaInvalida'] && !equipoForm.get('fechaGarantia')?.errors?.['required']">La garantía no puede ser anterior a la compra.</span>
+          </div>
         </div>
 
+        <!-- ESTADO OPERATIVO -->
         <div class="form-group form-group--full">
           <label for="estado">Estado Operativo <span class="required">*</span></label>
           <select id="estado" formControlName="estado" class="form-select">

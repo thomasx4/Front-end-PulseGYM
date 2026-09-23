@@ -354,9 +354,13 @@ export class AssignMembershipComponent implements OnInit {
     return this.sociosAsignados.filter(s => s.selected).length;
   }
 
+  // VALIDACIÓN LOTE: Verificar que existan socios seleccionados
   cancelarSociosSeleccionados(): void {
     const seleccionados = this.sociosAsignados.filter(s => s.selected);
-    if (seleccionados.length === 0) return;
+    if (seleccionados.length === 0) {
+      Swal.fire('Atención', 'Debe seleccionar al menos un socio de la lista para realizar esta acción.', 'warning');
+      return;
+    }
 
     Swal.fire({
       title: '¿Cancelar membresías seleccionadas?',
@@ -405,7 +409,7 @@ export class AssignMembershipComponent implements OnInit {
       pagina: this.paginaSocioModalActual,
       tamanio: this.itemsPorPaginaSocioModal,
       busqueda: busquedaTerm || undefined,
-      estado: 'ACTIVO'
+      estado: 'ACTIVO' // VALIDACIÓN: Solo listar socios activos
     }).subscribe({
       next: (response: UserPageResponse<UsuarioPerfilResponseDTO>) => {
         this.totalElementosSocioModal = response.totalElements || 0;
@@ -665,6 +669,12 @@ export class AssignMembershipComponent implements OnInit {
   async confirmarAsignacion(socio: SocioUI) {
     if (!this.membresiaSeleccionada) return;
 
+    // VALIDACIÓN: Asegurar que el socio está ACTIVO
+    if (socio.estado && socio.estado !== 'ACTIVO') {
+      Swal.fire('No permitido', 'No se puede asignar una membresía a un socio con estado inactivo o suspendido.', 'warning');
+      return;
+    }
+
     const result = await Swal.fire({
       title: '¿Confirmar Asignación?',
       text: `¿Estás seguro de que deseas asignar la membresía ${this.membresiaSeleccionada.nombre} a ${socio.nombre}?`,
@@ -712,6 +722,18 @@ export class AssignMembershipComponent implements OnInit {
   async confirmarAsignacionFlexible(socio: SocioUI) {
     if (!this.membresiaSeleccionada) return;
 
+    // VALIDACIÓN: Asegurar que el socio está ACTIVO
+    if (socio.estado && socio.estado !== 'ACTIVO') {
+      Swal.fire('No permitido', 'No se puede asignar una membresía a un socio con estado inactivo o suspendido.', 'warning');
+      return;
+    }
+
+    // VALIDACIÓN: Rango de días flexibles (mínimo 1, máximo 365, enteros)
+    if (!this.diasFlexibles || this.diasFlexibles < 1 || this.diasFlexibles > 365 || isNaN(this.diasFlexibles)) {
+      Swal.fire('Días inválidos', 'La cantidad de días flexibles debe estar entre 1 y 365.', 'warning');
+      return;
+    }
+
     const result = await Swal.fire({
       title: '¿Confirmar Asignación Flexible?',
       text: `¿Estás seguro de asignar ${this.diasFlexibles} día(s) de la membresía ${this.membresiaSeleccionada.nombre} a ${socio.nombre}?`,
@@ -732,9 +754,9 @@ export class AssignMembershipComponent implements OnInit {
     const request: AsignacionFlexibleRequest = {
       idSocio: socio.id,
       idMembresia: this.membresiaSeleccionada.id,
-      cantidadDias: this.diasFlexibles,
+      cantidadDias: Math.floor(Number(this.diasFlexibles)),
       observaciones:
-        this.observacionesFlexible ||
+        this.observacionesFlexible.trim() ||
         `Asignación flexible desde panel admin - ${new Date().toLocaleDateString('es-ES')}`,
     };
 
@@ -760,8 +782,9 @@ export class AssignMembershipComponent implements OnInit {
   }
 
   async abrirModalRenovar(socio: SocioUI) {
+    // VALIDACIÓN: Verificar ID de membresía asignada al socio
     if (!socio.idSocioMembresia) {
-      this.mostrarAlertaError('No se puede renovar: falta el ID de la membresía.');
+      this.mostrarAlertaError('No se puede renovar: falta el ID de la membresía del socio.');
       return;
     }
 
@@ -788,15 +811,16 @@ export class AssignMembershipComponent implements OnInit {
     if (esFlexible) {
       const { value: diasIngresados, isConfirmed } = await Swal.fire({
         title: 'Renovar Membresía Flexible',
-        text: `Ingrese la cantidad de días a renovar para ${socio.nombre}:`,
+        text: `Ingrese la cantidad de días a renovar para ${socio.nombre} (1 - 365):`,
         input: 'number',
         inputValue: 15,
         showCancelButton: true,
         confirmButtonText: 'Renovar',
         cancelButtonText: 'Cancelar',
         inputValidator: (value) => {
-          if (!value || Number(value) <= 0) {
-            return 'Debe ingresar una cantidad de días válida mayor a 0';
+          const num = Number(value);
+          if (!value || isNaN(num) || num <= 0 || num > 365) {
+            return 'Debe ingresar una cantidad de días válida entre 1 y 365';
           }
           return null;
         },
@@ -831,8 +855,9 @@ export class AssignMembershipComponent implements OnInit {
   }
 
   async abrirModalSuspender(socio: SocioUI) {
+    // VALIDACIÓN: Verificar ID
     if (!socio.idSocioMembresia) {
-      this.mostrarAlertaError('No se puede suspender: falta el ID de la membresía.');
+      this.mostrarAlertaError('No se puede suspender: falta el ID de la membresía del socio.');
       return;
     }
 
@@ -840,15 +865,21 @@ export class AssignMembershipComponent implements OnInit {
       title: '¿Suspender Membresía?',
       text: `¿Estás seguro de que deseas suspender temporalmente el acceso a ${socio.nombre}?`,
       input: 'textarea',
-      inputPlaceholder: 'Escribe el motivo de la suspensión...',
+      inputPlaceholder: 'Escribe el motivo obligatorio de la suspensión...',
       showCancelButton: true,
       confirmButtonText: 'Suspender Membresía',
       cancelButtonText: 'Cancelar',
       confirmButtonColor: '#0f1c3f',
+      inputValidator: (value) => {
+        if (!value || value.trim().length < 3) {
+          return 'Debe proporcionar un motivo válido (mínimo 3 caracteres)';
+        }
+        return null;
+      }
     });
 
-    if (isConfirmed) {
-      this.ejecutarSuspender(socio, motivo || 'Suspensión manual');
+    if (isConfirmed && motivo) {
+      this.ejecutarSuspender(socio, motivo.trim());
     }
   }
 
@@ -879,8 +910,9 @@ export class AssignMembershipComponent implements OnInit {
   }
 
   async abrirModalCancelar(socio: SocioUI) {
+    // VALIDACIÓN: Verificar ID
     if (!socio.idSocioMembresia) {
-      this.mostrarAlertaError('No se puede cancelar: falta el ID de la membresía.');
+      this.mostrarAlertaError('No se puede cancelar: falta el ID de la membresía del socio.');
       return;
     }
 
@@ -893,10 +925,16 @@ export class AssignMembershipComponent implements OnInit {
       confirmButtonText: 'Eliminar / Cancelar',
       cancelButtonText: 'Cancelar',
       confirmButtonColor: '#ef4444',
+      inputValidator: (value) => {
+        if (!value || value.trim().length < 3) {
+          return 'Debe proporcionar un motivo válido (mínimo 3 caracteres)';
+        }
+        return null;
+      }
     });
 
-    if (isConfirmed) {
-      this.ejecutarCancelar(socio, motivo || 'Cancelación manual');
+    if (isConfirmed && motivo) {
+      this.ejecutarCancelar(socio, motivo.trim());
     }
   }
 
@@ -933,15 +971,16 @@ export class AssignMembershipComponent implements OnInit {
     if (esFlexible || !cantidadDias) {
       const { value: diasIngresados, isConfirmed } = await Swal.fire({
         title: 'Renovar Membresía Flexible',
-        text: 'Ingrese la cantidad de días para la renovación:',
+        text: 'Ingrese la cantidad de días para la renovación (1 - 365):',
         input: 'number',
         inputValue: item.cantidadDias || 15,
         showCancelButton: true,
         confirmButtonText: 'Renovar',
         cancelButtonText: 'Cancelar',
         inputValidator: (value) => {
-          if (!value || Number(value) <= 0) {
-            return 'Debe ingresar una cantidad de días válida mayor a 0';
+          const num = Number(value);
+          if (!value || isNaN(num) || num <= 0 || num > 365) {
+            return 'Debe ingresar una cantidad de días válida entre 1 y 365';
           }
           return null;
         },
@@ -1046,9 +1085,13 @@ export class AssignMembershipComponent implements OnInit {
     return index;
   }
 
+  // VALIDACIÓN LOTE: Verificar socios seleccionados para renovar
   async renovarSociosSeleccionados(): Promise<void> {
     const seleccionados = this.sociosAsignados.filter(s => s.selected);
-    if (seleccionados.length === 0) return;
+    if (seleccionados.length === 0) {
+      Swal.fire('Atención', 'Debe seleccionar al menos un socio para renovar en lote.', 'warning');
+      return;
+    }
 
     const esFlexible = this.membresiaSeleccionada?.esFlexible ?? false;
     let cantidadDias: number | undefined;
@@ -1056,15 +1099,16 @@ export class AssignMembershipComponent implements OnInit {
     if (esFlexible) {
       const { value: diasIngresados, isConfirmed } = await Swal.fire({
         title: 'Renovar Membresías Flexibles',
-        text: `Ingrese la cantidad de días a renovar para los ${seleccionados.length} socios seleccionados:`,
+        text: `Ingrese la cantidad de días a renovar (1 - 365) para los ${seleccionados.length} socios seleccionados:`,
         input: 'number',
         inputValue: 15,
         showCancelButton: true,
         confirmButtonText: 'Renovar todos',
         cancelButtonText: 'Cancelar',
         inputValidator: (value) => {
-          if (!value || Number(value) <= 0) {
-            return 'Debe ingresar una cantidad de días válida mayor a 0';
+          const num = Number(value);
+          if (!value || isNaN(num) || num <= 0 || num > 365) {
+            return 'Debe ingresar una cantidad de días válida entre 1 y 365';
           }
           return null;
         },
@@ -1114,27 +1158,37 @@ export class AssignMembershipComponent implements OnInit {
     }
   }
 
+  // VALIDACIÓN LOTE: Verificar socios seleccionados para suspender
   async suspenderSociosSeleccionados(): Promise<void> {
     const seleccionados = this.sociosAsignados.filter(s => s.selected);
-    if (seleccionados.length === 0) return;
+    if (seleccionados.length === 0) {
+      Swal.fire('Atención', 'Debe seleccionar al menos un socio para suspender en lote.', 'warning');
+      return;
+    }
 
     const { value: motivo, isConfirmed } = await Swal.fire({
       title: '¿Suspender membresías seleccionadas?',
       text: `Estás a punto de suspender temporalmente a ${seleccionados.length} socio(s) seleccionado(s).`,
       input: 'textarea',
-      inputPlaceholder: 'Escribe el motivo de la suspensión...',
+      inputPlaceholder: 'Escribe el motivo obligatorio de la suspensión...',
       showCancelButton: true,
       confirmButtonColor: '#92400e',
       cancelButtonColor: '#64748b',
       confirmButtonText: 'Sí, suspender todos',
-      cancelButtonText: 'Cancelar'
+      cancelButtonText: 'Cancelar',
+      inputValidator: (value) => {
+        if (!value || value.trim().length < 3) {
+          return 'Debe proporcionar un motivo válido (mínimo 3 caracteres)';
+        }
+        return null;
+      }
     });
 
-    if (isConfirmed) {
+    if (isConfirmed && motivo) {
       this.loading = true;
       const peticiones = seleccionados.map(s => this.membershipService.suspenderMembresia({
         idSocioMembresia: s.idSocioMembresia!,
-        motivo: motivo || 'Suspensión en lote desde panel admin'
+        motivo: motivo.trim()
       }));
 
       forkJoin(peticiones).subscribe({

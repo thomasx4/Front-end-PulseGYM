@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NotificationService } from '../../services/notification.service';
 import { PlantillaNotificacion, EnumCanalNotificacion, EnumEventoAsociado } from '../../models/notification.model';
 import Swal from 'sweetalert2';
@@ -9,43 +9,48 @@ import { forkJoin } from 'rxjs';
 @Component({
   selector: 'app-admin-plantillas',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './admin-plantillas.component.html',
   styleUrls: ['./admin-plantillas.component.scss']
 })
 export class AdminPlantillasComponent implements OnInit {
   private notificationService = inject(NotificationService);
+  private fb = inject(FormBuilder);
   private rolAdmin = 'ADMIN';
 
   plantillas: (PlantillaNotificacion & { selected?: boolean })[] = [];
   cargando = false;
   modalAbierto = false;
   esEdicion = false;
+  idPlantillaEditando: number | null = null;
 
   filtroBusqueda: string = '';
   filtroTipo: string = '';
   filtroEstado: boolean | null = null;
-  
-  ejemploNombre = '{nombre}';
-  ejemploEmail = '{email}';
 
   canalesDisponibles: EnumCanalNotificacion[] = ['EMAIL', 'WHATSAPP'];
   eventosDisponibles: EnumEventoAsociado[] = [
     'WELCOME', 'REGISTRO_USUARIO', 'LOGIN_USUARIO',  
     'PAYMENT_REMINDER', 'ACHIEVEMENT', 'MAINTENANCE_ALERT', 'PROMOTION', 'CHANGE_PASSWORD'
   ];
-  
-  plantillaForm: PlantillaNotificacion = {
-    nombre: '',
-    titulo: '',
-    descripcion: '',
-    contenido: '',
-    tipoPlantilla: 'EMAIL',
-    eventoAsociado: 'PROMOTION',
-    eventosAsociados: ['PROMOTION']
-  };
 
+  plantillaFormGroup!: FormGroup;
   vistaPreviaTexto = '';
+
+  constructor() {
+    this.initForm();
+  }
+
+  private initForm(): void {
+    this.plantillaFormGroup = this.fb.group({
+      nombre: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
+      titulo: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(150)]],
+      descripcion: ['', [Validators.maxLength(250)]],
+      tipoPlantilla: ['EMAIL', [Validators.required]],
+      eventoAsociado: ['PROMOTION', [Validators.required]],
+      contenido: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(1000)]]
+    });
+  }
 
   get plantillasFiltradas(): (PlantillaNotificacion & { selected?: boolean })[] {
     return this.plantillas.filter(p => {
@@ -54,7 +59,6 @@ export class AdminPlantillasComponent implements OnInit {
         (p.descripcion && p.descripcion.toLowerCase().includes(this.filtroBusqueda.toLowerCase()));
       
       const coincideTipo = !this.filtroTipo || p.tipoPlantilla === this.filtroTipo;
-      
       const coincideEstado = this.filtroEstado === null || p.estado === this.filtroEstado;
 
       return coincideTexto && coincideTipo && coincideEstado;
@@ -101,40 +105,66 @@ export class AdminPlantillasComponent implements OnInit {
 
   abrirModalCrear(): void {
     this.esEdicion = false;
-    this.plantillaForm = {
-      nombre: '',
-      titulo: '',
-      descripcion: '',
-      contenido: '',
+    this.idPlantillaEditando = null;
+    this.plantillaFormGroup.reset({
       tipoPlantilla: 'EMAIL',
-      eventoAsociado: 'PROMOTION',
-      eventosAsociados: ['PROMOTION']
-    };
+      eventoAsociado: 'PROMOTION'
+    });
+    this.vistaPreviaTexto = '';
     this.modalAbierto = true;
   }
 
   abrirModalEditar(plantilla: PlantillaNotificacion): void {
     this.esEdicion = true;
-    this.plantillaForm = { 
-      ...plantilla,
+    this.idPlantillaEditando = plantilla.idPlantilla || null;
+    
+    this.plantillaFormGroup.patchValue({
+      nombre: plantilla.nombre || '',
+      titulo: plantilla.titulo || '',
+      descripcion: plantilla.descripcion || '',
+      tipoPlantilla: plantilla.tipoPlantilla || 'EMAIL',
       eventoAsociado: plantilla.eventoAsociado || plantilla.eventosAsociados?.[0] || 'PROMOTION',
-      eventosAsociados: plantilla.eventosAsociados?.length ? plantilla.eventosAsociados : [plantilla.eventoAsociado || 'PROMOTION']
-    };
-    this.modalAbierto = true;
-  }
+      contenido: plantilla.contenido || ''
+    });
 
-  onEventoChange(nuevoEvento: EnumEventoAsociado): void {
-    this.plantillaForm.eventoAsociado = nuevoEvento;
-    this.plantillaForm.eventosAsociados = [nuevoEvento];
+    this.vistaPreviaTexto = '';
+    this.modalAbierto = true;
   }
 
   cerrarModal(): void {
     this.modalAbierto = false;
   }
 
+  esCampoInvalido(campo: string): boolean {
+    const control = this.plantillaFormGroup.get(campo);
+    return !!(control && control.invalid && (control.touched || control.dirty));
+  }
+
   guardarPlantilla(): void {
-    if (this.esEdicion && this.plantillaForm.idPlantilla) {
-      this.notificationService.actualizarPlantilla(this.rolAdmin, this.plantillaForm.idPlantilla, this.plantillaForm).subscribe({
+    if (this.plantillaFormGroup.invalid) {
+      this.plantillaFormGroup.markAllAsTouched();
+      Swal.fire({
+        icon: 'warning',
+        title: 'Formulario incompleto',
+        text: 'Por favor, revise los campos marcados en rojo y corrija los errores antes de continuar.',
+        confirmButtonColor: '#0e3b72'
+      });
+      return;
+    }
+
+    const formValue = this.plantillaFormGroup.value;
+    const payload: PlantillaNotificacion = {
+      nombre: formValue.nombre.trim(),
+      titulo: formValue.titulo.trim(),
+      descripcion: formValue.descripcion?.trim() || '',
+      contenido: formValue.contenido.trim(),
+      tipoPlantilla: formValue.tipoPlantilla,
+      eventoAsociado: formValue.eventoAsociado,
+      eventosAsociados: [formValue.eventoAsociado]
+    };
+
+    if (this.esEdicion && this.idPlantillaEditando) {
+      this.notificationService.actualizarPlantilla(this.rolAdmin, this.idPlantillaEditando, payload).subscribe({
         next: () => {
           this.cargarPlantillas();
           this.cerrarModal();
@@ -156,7 +186,7 @@ export class AdminPlantillasComponent implements OnInit {
         }
       });
     } else {
-      this.notificationService.crearPlantilla(this.rolAdmin, this.plantillaForm).subscribe({
+      this.notificationService.crearPlantilla(this.rolAdmin, payload).subscribe({
         next: () => {
           this.cargarPlantillas();
           this.cerrarModal();
@@ -230,7 +260,7 @@ export class AdminPlantillasComponent implements OnInit {
         });
         this.cargarPlantillas();
       },
-      error: (err) => {
+      error: () => {
         this.cargando = false;
         Swal.fire('Error', 'Ocurrió un error al actualizar algunas plantillas en lote.', 'error');
         this.cargarPlantillas();
@@ -271,7 +301,7 @@ export class AdminPlantillasComponent implements OnInit {
           });
           this.cargarPlantillas();
         },
-        error: (err) => {
+        error: () => {
           this.cargando = false;
           Swal.fire('Error', 'Error al eliminar las plantillas seleccionadas.', 'error');
           this.cargarPlantillas();
@@ -281,7 +311,10 @@ export class AdminPlantillasComponent implements OnInit {
   }
 
   generarVistaPrevia(): void {
-    this.notificationService.vistaPreviaPlantilla(this.rolAdmin, this.plantillaForm.contenido).subscribe({
+    const contenido = this.plantillaFormGroup.get('contenido')?.value;
+    if (!contenido) return;
+
+    this.notificationService.vistaPreviaPlantilla(this.rolAdmin, contenido).subscribe({
       next: (res) => {
         this.vistaPreviaTexto = res.contenido;
       },

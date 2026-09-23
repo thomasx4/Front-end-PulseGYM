@@ -51,10 +51,15 @@ export class CertificatesFormComponent implements OnInit {
     this.verificarModoEdicion();
   }
 
-  private initForm(): void {
+private initForm(): void {
     this.certificateForm = this.fb.group({
       idEntrenador: ['', Validators.required],
-      nombre: ['', [Validators.required, Validators.maxLength(100)]],
+      nombre: ['', [
+        Validators.required, 
+        Validators.minLength(3),
+        Validators.maxLength(100),
+        Validators.pattern(/^[a-zA-ZÁÉÍÓÚáéíóúÑñ0-9\s.,&()#-]+$/)
+      ]],
       urlPdf: [''],
     });
   }

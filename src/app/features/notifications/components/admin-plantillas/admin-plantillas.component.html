@@ -197,61 +197,92 @@
     </div>
 
     <!-- MODAL FORMULARIO -->
-    <div *ngIf="modalAbierto" class="modal-backdrop">
-        <div class="modal-container-custom">
+    <div *ngIf="modalAbierto" class="modal-backdrop" (click)="cerrarModal()">
+        <div class="modal-container-custom" (click)="$event.stopPropagation()">
             <div class="detail-header">
                 <h3>{{ esEdicion ? 'Editar Plantilla' : 'Nueva Plantilla' }}</h3>
                 <button class="close-btn" (click)="cerrarModal()">✕</button>
             </div>
 
-            <div class="modal-body-custom">
+            <form [formGroup]="plantillaFormGroup" (ngSubmit)="guardarPlantilla()" class="modal-body-custom">
                 <div class="form-grid-custom">
+                    
+                    <!-- NOMBRE -->
                     <div class="form-group-full">
-                        <label class="form-label">Nombre de la plantilla</label>
-                        <input [(ngModel)]="plantillaForm.nombre" type="text" placeholder="Ej: Recordatorio de pago"
-                            class="form-control-custom">
+                        <label class="form-label">Nombre de la plantilla <span class="required">*</span></label>
+                        <input formControlName="nombre" type="text" placeholder="Ej: Recordatorio de pago"
+                            class="form-control-custom" [class.input-error]="esCampoInvalido('nombre')">
+                        <div class="field-error-container" *ngIf="esCampoInvalido('nombre')">
+                            <span class="field-error" *ngIf="plantillaFormGroup.get('nombre')?.errors?.['required']">El nombre es obligatorio.</span>
+                            <span class="field-error" *ngIf="plantillaFormGroup.get('nombre')?.errors?.['minlength']">Debe tener al menos 3 caracteres.</span>
+                            <span class="field-error" *ngIf="plantillaFormGroup.get('nombre')?.errors?.['maxlength']">Máximo 100 caracteres.</span>
+                        </div>
                     </div>
 
+                    <!-- TÍTULO -->
                     <div class="form-group-full">
-                        <label class="form-label">Título del mensaje</label>
-                        <input [(ngModel)]="plantillaForm.titulo" type="text"
-                            placeholder="Ej: Su membresía está por vencer" class="form-control-custom">
+                        <label class="form-label">Título del mensaje <span class="required">*</span></label>
+                        <input formControlName="titulo" type="text"
+                            placeholder="Ej: Su membresía está por vencer" class="form-control-custom" [class.input-error]="esCampoInvalido('titulo')">
+                        <div class="field-error-container" *ngIf="esCampoInvalido('titulo')">
+                            <span class="field-error" *ngIf="plantillaFormGroup.get('titulo')?.errors?.['required']">El título del mensaje es obligatorio.</span>
+                            <span class="field-error" *ngIf="plantillaFormGroup.get('titulo')?.errors?.['minlength']">Debe tener al menos 3 caracteres.</span>
+                            <span class="field-error" *ngIf="plantillaFormGroup.get('titulo')?.errors?.['maxlength']">Máximo 150 caracteres.</span>
+                        </div>
                     </div>
 
+                    <!-- DESCRIPCIÓN -->
                     <div class="form-group-full">
                         <label class="form-label">Descripción corta</label>
-                        <input [(ngModel)]="plantillaForm.descripcion" type="text"
-                            placeholder="Breve detalle de la plantilla" class="form-control-custom">
+                        <input formControlName="descripcion" type="text"
+                            placeholder="Breve detalle de la plantilla" class="form-control-custom" [class.input-error]="esCampoInvalido('descripcion')">
+                        <div class="field-error-container" *ngIf="esCampoInvalido('descripcion')">
+                            <span class="field-error" *ngIf="plantillaFormGroup.get('descripcion')?.errors?.['maxlength']">Máximo 250 caracteres.</span>
+                        </div>
                     </div>
 
+                    <!-- CANAL Y EVENTO -->
                     <div class="form-row-half">
                         <div class="form-group-full">
-                            <label class="form-label">Canal</label>
-                            <select [(ngModel)]="plantillaForm.tipoPlantilla" class="form-control-custom">
+                            <label class="form-label">Canal <span class="required">*</span></label>
+                            <select formControlName="tipoPlantilla" class="form-control-custom" [class.input-error]="esCampoInvalido('tipoPlantilla')">
+                                <option value="" disabled selected>Seleccione canal</option>
                                 <option *ngFor="let c of canalesDisponibles" [value]="c">{{ c }}</option>
                             </select>
+                            <div class="field-error-container" *ngIf="esCampoInvalido('tipoPlantilla')">
+                                <span class="field-error">Debe seleccionar un canal de envío.</span>
+                            </div>
                         </div>
 
                         <div class="form-group-full">
-                            <label class="form-label">Evento Asociado</label>
-                            <select [ngModel]="plantillaForm.eventoAsociado" (ngModelChange)="onEventoChange($event)"
-                                class="form-control-custom">
+                            <label class="form-label">Evento Asociado <span class="required">*</span></label>
+                            <select formControlName="eventoAsociado" class="form-control-custom" [class.input-error]="esCampoInvalido('eventoAsociado')">
+                                <option value="" disabled selected>Seleccione evento</option>
                                 <option *ngFor="let e of eventosDisponibles" [value]="e">{{ e }}</option>
                             </select>
+                            <div class="field-error-container" *ngIf="esCampoInvalido('eventoAsociado')">
+                                <span class="field-error">Debe seleccionar un evento asociado.</span>
+                            </div>
                         </div>
                     </div>
 
+                    <!-- CONTENIDO -->
                     <div class="form-group-full">
                         <label class="form-label">
-                            Contenido del Mensaje <span style="color: #2563eb; font-weight: normal;">(Usa {{
-                                ejemploNombre }}, {{ ejemploEmail }}, etc.)</span>
+                            Contenido del Mensaje <span class="required">*</span> 
+                            <span class="variables-hint">(Usa &#123;nombre&#125;, &#123;email&#125;, etc.)</span>
                         </label>
-                        <textarea [(ngModel)]="plantillaForm.contenido" rows="5"
-                            placeholder="Escribe el cuerpo del mensaje aquí..." class="form-control-custom"></textarea>
+                        <textarea formControlName="contenido" rows="5"
+                            placeholder="Escribe el cuerpo del mensaje aquí..." class="form-control-custom" [class.input-error]="esCampoInvalido('contenido')"></textarea>
+                        <div class="field-error-container" *ngIf="esCampoInvalido('contenido')">
+                            <span class="field-error" *ngIf="plantillaFormGroup.get('contenido')?.errors?.['required']">El contenido del mensaje es obligatorio.</span>
+                            <span class="field-error" *ngIf="plantillaFormGroup.get('contenido')?.errors?.['minlength']">Debe contener al menos 10 caracteres.</span>
+                            <span class="field-error" *ngIf="plantillaFormGroup.get('contenido')?.errors?.['maxlength']">Máximo 1000 caracteres.</span>
+                        </div>
                     </div>
 
                     <div>
-                        <button (click)="generarVistaPrevia()" class="btn btn--outline-dark">
+                        <button type="button" (click)="generarVistaPrevia()" class="btn btn--outline-dark" [disabled]="!plantillaFormGroup.get('contenido')?.value">
                             Generar Vista Previa
                         </button>
                     </div>
@@ -261,13 +292,15 @@
                         <div [innerHTML]="vistaPreviaTexto" style="color: #334155; font-size: 0.85rem;"></div>
                     </div>
                 </div>
-            </div>
 
-            <div class="modal-footer-custom">
-                <button (click)="cerrarModal()" class="btn btn--outline-dark modal-btn-action">Cancelar</button>
-                <button (click)="guardarPlantilla()" class="btn btn--primary modal-btn-action">Guardar
-                    Plantilla</button>
-            </div>
+                <div class="modal-footer-custom">
+                    <button type="button" (click)="cerrarModal()" class="btn btn--outline-dark modal-btn-action">Cancelar</button>
+                    <!-- Bloqueo del botón de envío si el formulario es inválido -->
+                    <button type="submit" class="btn btn--primary modal-btn-action" [disabled]="plantillaFormGroup.invalid">
+                        {{ esEdicion ? 'Guardar Cambios' : 'Crear Plantilla' }}
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

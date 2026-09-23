@@ -1,17 +1,13 @@
 <div class="dashboard-container">
-    <!-- Componente de la barra lateral / Menú de navegación -->
-
     <div class="main-content-wrapper">
-        <!-- Cabecera superior global -->
-
         <div class="profile-layout">
             <div class="profile-main">
                 <div class="profile-wrapper">
-                    
-                    <!-- Barra superior para volver al Dashboard -->
+
                     <div class="admin-top-bar">
                         <button class="btn-back-admin" (click)="volverAlDashboard()">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
                                 <line x1="19" y1="12" x2="5" y2="12"></line>
                                 <polyline points="12 19 5 12 12 5"></polyline>
                             </svg>
@@ -28,7 +24,6 @@
                         <button (click)="refreshData()" class="btn-retry">Intentar de nuevo</button>
                     </div>
 
-                    <!-- Mensaje de éxito -->
                     <div *ngIf="mensajeExito" class="alert-success">
                         {{ mensajeExito }}
                     </div>
@@ -37,12 +32,13 @@
                     <div *ngIf="editando && !isLoading">
                         <header class="page-header">
                             <h1>Editar Perfil de Administrador</h1>
-                            <p class="subtitle">Actualiza tu información personal y mantén tus datos de contacto al día.</p>
+                            <p class="subtitle">Actualiza tu información personal y mantén tus datos de contacto al día.
+                            </p>
                         </header>
 
                         <div class="edit-container">
-                            <form (ngSubmit)="guardarCambios()" #profileForm="ngForm" class="edit-form">
-                                <!-- Foto de perfil centrada con Cloudinary -->
+                            <form [formGroup]="profileForm" (ngSubmit)="guardarCambios()" class="edit-form">
+
                                 <div class="form-avatar-section">
                                     <div class="form-avatar-wrapper">
                                         <div class="form-avatar">
@@ -54,16 +50,16 @@
                                             </span>
                                         </div>
 
-                                        <!-- Input oculto para seleccionar archivo -->
-                                        <input type="file" id="fileInput" accept="image/*" (change)="onFileSelected($event)"
-                                            style="display: none;" />
+                                        <input type="file" id="fileInput" accept="image/*"
+                                            (change)="onFileSelected($event)" style="display: none;" />
 
                                         <div class="btn-group">
                                             <button type="button" class="btn-upload-photo" (click)="openFileSelector()"
                                                 [disabled]="uploadingImage">
                                                 {{ userProfile.fotoUrl ? 'Cambiar foto' : 'Subir foto' }}
                                             </button>
-                                            <button *ngIf="selectedFile" type="button" class="btn-upload-photo btn-remove"
+                                            <button *ngIf="selectedFile" type="button"
+                                                class="btn-upload-photo btn-remove"
                                                 (click)="selectedFile = null; imagePreview = null;">
                                                 Cancelar
                                             </button>
@@ -81,14 +77,30 @@
                                 <!-- Nombre y Apellido -->
                                 <div class="form-row">
                                     <div class="form-group">
-                                        <label for="nombre">Nombre</label>
-                                        <input type="text" id="nombre" class="form-control" [(ngModel)]="userProfile.nombre"
-                                            name="nombre" placeholder="Tu nombre" required />
+                                        <label for="nombre">Nombre <span class="required-star">*</span></label>
+                                        <input type="text" id="nombre" class="form-control" formControlName="nombre"
+                                            placeholder="Tu nombre" maxlength="50" />
+                                        <div *ngIf="profileForm.get('nombre')?.invalid && profileForm.get('nombre')?.touched"
+                                            class="text-error">
+                                            <small *ngIf="profileForm.get('nombre')?.errors?.['required']">El nombre es
+                                                obligatorio.</small>
+                                            <small *ngIf="profileForm.get('nombre')?.errors?.['maxlength']">El nombre no
+                                                puede superar los 50 caracteres.</small>
+                                            <small *ngIf="profileForm.get('nombre')?.errors?.['pattern']">Solo se
+                                                permiten letras y espacios.</small>
+                                        </div>
                                     </div>
                                     <div class="form-group">
                                         <label for="apellido">Apellido</label>
-                                        <input type="text" id="apellido" class="form-control" [(ngModel)]="userProfile.apellido"
-                                            name="apellido" placeholder="Tu apellido" />
+                                        <input type="text" id="apellido" class="form-control" formControlName="apellido"
+                                            placeholder="Tu apellido" maxlength="50" />
+                                        <div *ngIf="profileForm.get('apellido')?.invalid && profileForm.get('apellido')?.touched"
+                                            class="text-error">
+                                            <small *ngIf="profileForm.get('apellido')?.errors?.['maxlength']">El
+                                                apellido no puede superar los 50 caracteres.</small>
+                                            <small *ngIf="profileForm.get('apellido')?.errors?.['pattern']">Solo se
+                                                permiten letras y espacios.</small>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -96,42 +108,65 @@
                                 <div class="form-row">
                                     <div class="form-group">
                                         <label for="email">Correo electrónico</label>
-                                        <input type="email" id="email" class="form-control" [(ngModel)]="userProfile.email"
-                                            name="email" placeholder="correo@ejemplo.com" required disabled readonly />
-                                        <small class="text-muted">El correo electrónico no se puede modificar</small>
+                                        <input type="email" id="email" class="form-control" formControlName="email"
+                                            placeholder="correo@ejemplo.com" readonly />
+                                        <small class="text-muted">El correo electrónico está protegido y no se puede
+                                            modificar</small>
                                     </div>
                                     <div class="form-group">
-                                        <label for="telefono">Teléfono</label>
-                                        <input type="tel" id="telefono" class="form-control" [(ngModel)]="userProfile.telefono"
-                                            name="telefono" placeholder="+57 300 000 0000" />
+                                        <label for="telefono">Teléfono <span class="required-star">*</span></label>
+                                        <input type="tel" id="telefono" class="form-control" formControlName="telefono"
+                                            placeholder="3000000000" maxlength="10" />
+                                        <div *ngIf="profileForm.get('telefono')?.invalid && profileForm.get('telefono')?.touched"
+                                            class="text-error">
+                                            <small *ngIf="profileForm.get('telefono')?.errors?.['required']">El teléfono
+                                                es obligatorio.</small>
+                                            <small *ngIf="profileForm.get('telefono')?.errors?.['pattern']">Debe
+                                                contener exactamente 10 números.</small>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <!-- Fecha y Sexo -->
                                 <div class="form-row">
                                     <div class="form-group">
-                                        <label for="fechaNacimiento">Fecha de nacimiento</label>
+                                        <label for="fechaNacimiento">Fecha de nacimiento <span
+                                                class="required-star">*</span></label>
                                         <input type="date" id="fechaNacimiento" class="form-control"
-                                            [(ngModel)]="userProfile.fechaNacimiento" name="fechaNacimiento" />
+                                            formControlName="fechaNacimiento" />
+                                        <div *ngIf="profileForm.get('fechaNacimiento')?.invalid && profileForm.get('fechaNacimiento')?.touched"
+                                            class="text-error">
+                                            <small>La fecha de nacimiento es obligatoria.</small>
+                                        </div>
                                     </div>
                                     <div class="form-group">
-                                        <label for="sexo">Sexo</label>
-                                        <select id="sexo" class="form-control" [(ngModel)]="userProfile.sexo" name="sexo">
+                                        <label for="sexo">Sexo <span class="required-star">*</span></label>
+                                        <select id="sexo" class="form-control" formControlName="sexo">
                                             <option value="">Seleccionar</option>
                                             <option value="MASCULINO">Masculino</option>
                                             <option value="FEMENINO">Femenino</option>
-                                            <option value="OTRO">Otro</option>
-                                            <option value="PREFIERO NO DECIR">Prefiero no decir</option>
                                         </select>
+                                        <div *ngIf="profileForm.get('sexo')?.invalid && profileForm.get('sexo')?.touched"
+                                            class="text-error">
+                                            <small>Por favor selecciona el sexo.</small>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <!-- Documento de Identidad -->
                                 <div class="form-group">
-                                    <label for="documentoIdentidad">Documento de identidad</label>
+                                    <label for="documentoIdentidad">Documento de identidad <span
+                                            class="required-star">*</span></label>
                                     <input type="text" id="documentoIdentidad" class="form-control"
-                                        [(ngModel)]="userProfile.documentoIdentidad" name="documentoIdentidad"
-                                        placeholder="Número de identificación" />
+                                        formControlName="documentoIdentidad"
+                                        placeholder="Número de identificación de 10 dígitos" maxlength="10" />
+                                    <div *ngIf="profileForm.get('documentoIdentidad')?.invalid && profileForm.get('documentoIdentidad')?.touched"
+                                        class="text-error">
+                                        <small *ngIf="profileForm.get('documentoIdentidad')?.errors?.['required']">El
+                                            documento es obligatorio.</small>
+                                        <small *ngIf="profileForm.get('documentoIdentidad')?.errors?.['pattern']">Debe
+                                            ser solo numérico y de minimo 6 y maximo 10 dígitos.</small>
+                                    </div>
                                 </div>
 
                                 <!-- Contacto de Emergencia -->
@@ -139,26 +174,48 @@
                                     <h4>Contacto de Emergencia</h4>
                                     <div class="form-row">
                                         <div class="form-group">
-                                            <label for="contactoEmergenciaNombre">Nombre del contacto</label>
+                                            <label for="contactoEmergenciaNombre">Nombre del contacto <span
+                                                    class="required-star">*</span></label>
                                             <input type="text" id="contactoEmergenciaNombre" class="form-control"
-                                                [(ngModel)]="userProfile.contactoEmergenciaNombre"
-                                                name="contactoEmergenciaNombre" placeholder="Nombre del contacto" />
+                                                formControlName="contactoEmergenciaNombre"
+                                                placeholder="Nombre del contacto" />
+                                            <div *ngIf="profileForm.get('contactoEmergenciaNombre')?.invalid && profileForm.get('contactoEmergenciaNombre')?.touched"
+                                                class="text-error">
+                                                <small
+                                                    *ngIf="profileForm.get('contactoEmergenciaNombre')?.errors?.['required']">Este
+                                                    campo es obligatorio.</small>
+                                                <small
+                                                    *ngIf="profileForm.get('contactoEmergenciaNombre')?.errors?.['invalidText']">Solo
+                                                    se permiten letras y espacios.</small>
+                                            </div>
                                         </div>
                                         <div class="form-group">
-                                            <label for="contactoEmergenciaTelefono">Teléfono de emergencia</label>
+                                            <label for="contactoEmergenciaTelefono">Teléfono de emergencia <span
+                                                    class="required-star">*</span></label>
                                             <input type="tel" id="contactoEmergenciaTelefono" class="form-control"
-                                                [(ngModel)]="userProfile.contactoEmergenciaTelefono"
-                                                name="contactoEmergenciaTelefono" placeholder="+57 300 000 0000" />
+                                                formControlName="contactoEmergenciaTelefono" placeholder="3000000000"
+                                                maxlength="10" />
+                                            <div *ngIf="profileForm.get('contactoEmergenciaTelefono')?.invalid && profileForm.get('contactoEmergenciaTelefono')?.touched"
+                                                class="text-error">
+                                                <small
+                                                    *ngIf="profileForm.get('contactoEmergenciaTelefono')?.errors?.['required']">Este
+                                                    campo es obligatorio.</small>
+                                                <small
+                                                    *ngIf="profileForm.get('contactoEmergenciaTelefono')?.errors?.['pattern']">Debe
+                                                    contener exactamente 10 números.</small>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Botones de acción -->
                                 <div class="form-actions">
-                                    <button type="button" class="btn-secondary" (click)="cancelarEdicion()">Cancelar</button>
+                                    <button type="button" class="btn-secondary"
+                                        (click)="cancelarEdicion()">Cancelar</button>
                                     <button type="submit" class="btn-primary"
-                                        [disabled]="!profileForm.valid || guardando || uploadingImage">
-                                        {{ uploadingImage ? 'Subiendo imagen...' : guardando ? 'Guardando...' : 'Guardar cambios' }}
+                                        [disabled]="profileForm.invalid || guardando || uploadingImage">
+                                        {{ uploadingImage ? 'Subiendo imagen...' : guardando ? 'Guardando...' : 'Guardar
+                                        cambios' }}
                                     </button>
                                 </div>
                             </form>
@@ -167,13 +224,14 @@
 
                     <!-- ========== MODO VISUALIZACIÓN ========== -->
                     <div *ngIf="!editando && !isLoading && !error">
-                        <!-- Tarjeta de Perfil Principal -->
                         <div class="card profile-card">
                             <div class="profile-top">
                                 <div class="profile-avatar-container">
                                     <div class="profile-avatar">
-                                        <img *ngIf="avatarUrl" [src]="avatarUrl" [alt]="userName" class="avatar-image" />
-                                        <span *ngIf="!avatarUrl">{{ getInitials(userProfile.nombre || userName) }}</span>
+                                        <img *ngIf="avatarUrl" [src]="avatarUrl" [alt]="userName"
+                                            class="avatar-image" />
+                                        <span *ngIf="!avatarUrl">{{ getInitials(userProfile.nombre || userName)
+                                            }}</span>
                                     </div>
                                 </div>
 
@@ -181,23 +239,26 @@
                                     <h2>{{ userProfile.nombreCompleto || userProfile.nombre || userName }}</h2>
                                     <div class="profile-badges">
                                         <span class="profile-badge">Administrador General</span>
-                                        <span class="profile-badge username">{{ '@' + (userProfile.username || 'admin') }}</span>
+                                        <span class="profile-badge username">{{ '@' + (userProfile.username || 'admin')
+                                            }}</span>
                                     </div>
                                 </div>
 
-                                <!-- Botones de acción: Editar y Ajustes -->
                                 <div class="profile-actions">
                                     <button class="btn-edit-profile" (click)="activarEdicion()">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2">
                                             <path d="M12 20h9" />
                                             <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
                                         </svg>
                                         Editar
                                     </button>
                                     <button class="btn-settings" (click)="irAjustes()" title="Ajustes">
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <circle cx="12" cy="12" r="3"/>
-                                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2">
+                                            <circle cx="12" cy="12" r="3" />
+                                            <path
+                                                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
                                         </svg>
                                     </button>
                                 </div>
@@ -205,8 +266,10 @@
 
                             <div class="profile-contact-row">
                                 <div class="contact-col">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="1.5">
+                                        <path
+                                            d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
                                         <polyline points="22,6 12,13 2,6" />
                                     </svg>
                                     <div>
@@ -216,8 +279,10 @@
                                 </div>
 
                                 <div class="contact-col">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="1.5">
+                                        <path
+                                            d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
                                     </svg>
                                     <div>
                                         <span class="contact-label">Teléfono</span>
@@ -226,7 +291,8 @@
                                 </div>
 
                                 <div class="contact-col">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="1.5">
                                         <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
                                         <line x1="16" y1="2" x2="16" y2="6" />
                                         <line x1="8" y1="2" x2="8" y2="6" />
@@ -234,12 +300,14 @@
                                     </svg>
                                     <div>
                                         <span class="contact-label">Edad</span>
-                                        <span class="contact-value">{{ userProfile.edad || 'No registrada' }} años</span>
+                                        <span class="contact-value">{{ userProfile.edad || 'No registrada' }}
+                                            años</span>
                                     </div>
                                 </div>
 
                                 <div class="contact-col">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="1.5">
                                         <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
                                         <circle cx="12" cy="10" r="3" />
                                     </svg>
@@ -251,9 +319,8 @@
                             </div>
                         </div>
 
-                        <!-- ===== GRID DE 2 COLUMNAS (ADMINISTRADOR) ===== -->
+                        <!-- Grid de 2 Columnas -->
                         <div class="profile-grid admin-grid">
-                            <!-- Columna 1: Información Personal y Corporativa -->
                             <div class="card info-card">
                                 <div class="card-header">
                                     <h3>Información Personal y del Sistema</h3>
@@ -261,11 +328,13 @@
                                 <div class="info-list">
                                     <div class="info-row">
                                         <span class="info-label">Nombre completo</span>
-                                        <span class="info-value bold">{{ (userProfile.nombre || '') + ' ' + (userProfile.apellido || '') || userName }}</span>
+                                        <span class="info-value bold">{{ (userProfile.nombre || '') + ' ' +
+                                            (userProfile.apellido || '') || userName }}</span>
                                     </div>
                                     <div class="info-row">
                                         <span class="info-label">Fecha de nacimiento</span>
-                                        <span class="info-value bold">{{ userProfile.fechaNacimiento || 'No registrada' }}</span>
+                                        <span class="info-value bold">{{ userProfile.fechaNacimiento || 'No registrada'
+                                            }}</span>
                                     </div>
                                     <div class="info-row">
                                         <span class="info-label">Sexo</span>
@@ -273,7 +342,8 @@
                                     </div>
                                     <div class="info-row">
                                         <span class="info-label">Teléfono</span>
-                                        <span class="info-value bold">{{ userProfile.telefono || 'No registrado' }}</span>
+                                        <span class="info-value bold">{{ userProfile.telefono || 'No registrado'
+                                            }}</span>
                                     </div>
                                     <div class="info-row">
                                         <span class="info-label">Correo electrónico</span>
@@ -281,7 +351,8 @@
                                     </div>
                                     <div class="info-row">
                                         <span class="info-label">Documento</span>
-                                        <span class="info-value bold">{{ userProfile.documentoIdentidad || 'No registrado' }}</span>
+                                        <span class="info-value bold">{{ userProfile.documentoIdentidad || 'No
+                                            registrado' }}</span>
                                     </div>
                                     <div class="info-row">
                                         <span class="info-label">Nivel de Acceso</span>
@@ -291,7 +362,8 @@
 
                                 <div class="goal-banner">
                                     <div class="goal-icon">
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb"
+                                            stroke-width="2">
                                             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                                             <path d="m9 12 2 2 4-4"></path>
                                         </svg>
@@ -304,12 +376,14 @@
                                 </div>
                             </div>
 
-                            <!-- Columna 2: Contactos de Emergencia -->
                             <div class="card contactos-card">
                                 <div class="card-header">
                                     <h3>Contactos de Emergencia</h3>
                                     <span class="badge-verificado">
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2.5">
+                                            <polyline points="20 6 9 17 4 12"></polyline>
+                                        </svg>
                                         Seguro y Activo
                                     </span>
                                 </div>
@@ -317,23 +391,28 @@
                                 <div class="contactos-list">
                                     <div *ngFor="let contacto of contactos" class="contacto-item">
                                         <div class="contacto-icon">
-                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2">
-                                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563eb"
+                                                stroke-width="2">
+                                                <path
+                                                    d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
                                             </svg>
                                         </div>
                                         <div class="contacto-details">
                                             <div class="contacto-head">
-                                                <span class="contacto-nombre">{{ contacto.nombre || 'Sin contacto' }}</span>
+                                                <span class="contacto-nombre">{{ contacto.nombre || 'Sin contacto'
+                                                    }}</span>
                                                 <span class="tag-parentesco">{{ contacto.parentesco || '--' }}</span>
                                             </div>
-                                            <span class="contacto-telefono">{{ contacto.telefono || 'No registrado' }}</span>
+                                            <span class="contacto-telefono">{{ contacto.telefono || 'No registrado'
+                                                }}</span>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div *ngIf="contactos.length === 0" class="empty-message-box">
                                     <div class="empty-icon-circle">
-                                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="1.5">
+                                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#2563eb"
+                                            stroke-width="1.5">
                                             <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
                                             <circle cx="9" cy="7" r="4"></circle>
                                             <line x1="19" y1="8" x2="19" y2="14"></line>
@@ -341,24 +420,28 @@
                                         </svg>
                                     </div>
                                     <p class="empty-title">Sin contacto de emergencia</p>
-                                    <p class="empty-subtitle">Agrega un número de confianza para mayor seguridad en el gimnasio.</p>
+                                    <p class="empty-subtitle">Agrega un número de confianza para mayor seguridad en el
+                                        gimnasio.</p>
                                 </div>
 
                                 <div class="protocol-card">
                                     <div class="protocol-header">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0f1c3f" stroke-width="2">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0f1c3f"
+                                            stroke-width="2">
                                             <circle cx="12" cy="12" r="10"></circle>
                                             <line x1="12" y1="16" x2="12" y2="12"></line>
                                             <line x1="12" y1="8" x2="12.01" y2="8"></line>
                                         </svg>
                                         <span>Protocolo Pulse Gym</span>
                                     </div>
-                                    <p class="protocol-desc">En caso de incidente en cualquiera de las sedes, el personal de gestión se comunicará de inmediato con el contacto registrado.</p>
+                                    <p class="protocol-desc">En caso de incidente en cualquiera de las sedes, el
+                                        personal de gestión se comunicará de inmediato con el contacto registrado.</p>
                                 </div>
 
                                 <div class="security-banner">
                                     <div class="shield-icon">
-                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2">
+                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563eb"
+                                            stroke-width="2">
                                             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                                             <path d="m9 12 2 2 4-4" />
                                         </svg>
@@ -377,7 +460,7 @@
     </div>
 </div>
 
-<!-- ========== MODAL DE ERROR ========== -->
+<!-- Modal de Error -->
 <div class="modal-overlay" *ngIf="mostrarModalError" (click)="cerrarModalError()">
     <div class="modal-content" (click)="$event.stopPropagation()">
         <div class="modal-icon error-icon">

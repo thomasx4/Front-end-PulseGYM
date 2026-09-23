@@ -72,22 +72,22 @@ export class PhysicalHistoryFormComponent implements OnInit {
       idSocio: [null, [Validators.required]],
       idRecepcionista: [null],
       fechaMedicion: [defaultDate],
-      pesoKg: [null, [Validators.required, Validators.min(0)]],
-      alturaCm: [null, [Validators.min(0), Validators.max(300)]],
+      pesoKg: [null, [Validators.required, Validators.min(20), Validators.max(400)]], // Ampliado hasta 400 kg
+      alturaCm: [null, [Validators.min(50), Validators.max(280)]], // Ampliado hasta 280 cm
       porcentajeGrasa: [null, [Validators.min(0), Validators.max(100)]],
       porcentajeMusculo: [null, [Validators.min(0), Validators.max(100)]],
-      cuelloCm: [null, [Validators.min(0)]],
-      cinturaEscapularCm: [null, [Validators.min(0)]],
-      cinturaCm: [null, [Validators.min(0)]],
-      caderaCm: [null, [Validators.min(0)]],
-      toraxCm: [null, [Validators.min(0)]],
-      pechoCm: [null, [Validators.min(0)]],
-      brazoIzqCm: [null, [Validators.min(0)]],
-      brazoDerCm: [null, [Validators.min(0)]],
-      piernaIzqCm: [null, [Validators.min(0)]],
-      piernaDerCm: [null, [Validators.min(0)]],
-      pantorrillaIzqCm: [null, [Validators.min(0)]],
-      pantorrillaDerCm: [null, [Validators.min(0)]]
+      cuelloCm: [null, [Validators.min(10), Validators.max(100)]], // Ampliado hasta 100 cm
+      cinturaEscapularCm: [null, [Validators.min(50), Validators.max(250)]], // Ampliado hasta 250 cm
+      cinturaCm: [null, [Validators.min(30), Validators.max(250)]], // Ampliado hasta 250 cm
+      caderaCm: [null, [Validators.min(40), Validators.max(250)]], // Ampliado hasta 250 cm
+      toraxCm: [null, [Validators.min(50), Validators.max(250)]], // Ampliado hasta 250 cm
+      pechoCm: [null, [Validators.min(50), Validators.max(250)]], // Ampliado hasta 250 cm
+      brazoIzqCm: [null, [Validators.min(10), Validators.max(100)]], // Ampliado hasta 100 cm
+      brazoDerCm: [null, [Validators.min(10), Validators.max(100)]], // Ampliado hasta 100 cm
+      piernaIzqCm: [null, [Validators.min(20), Validators.max(150)]], // Ampliado hasta 150 cm
+      piernaDerCm: [null, [Validators.min(20), Validators.max(150)]], // Ampliado hasta 150 cm
+      pantorrillaIzqCm: [null, [Validators.min(10), Validators.max(90)]], // Ampliado hasta 90 cm
+      pantorrillaDerCm: [null, [Validators.min(10), Validators.max(90)]] // Ampliado hasta 90 cm
     });
   }
 
@@ -195,7 +195,7 @@ export class PhysicalHistoryFormComponent implements OnInit {
   }
 
 
- private loadRecordData(id: number): void {
+  private loadRecordData(id: number): void {
     this.loading = true;
     this.physicalHistoryService.getAll().subscribe({
       next: (response) => {
@@ -280,7 +280,7 @@ export class PhysicalHistoryFormComponent implements OnInit {
       }
     });
   }
-  
+
   // --- AUXILIARES Y FOTOS ---
 
   getUserFoto(user: any): string | null {

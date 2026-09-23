@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NotificationService } from '../../services/notification.service';
 import { PlantillaDisenoEmail, EnumEventoAsociado, EnumCanalNotificacion } from '../../models/notification.model';
 import Swal from 'sweetalert2';
@@ -9,12 +9,13 @@ import { forkJoin } from 'rxjs';
 @Component({
   selector: 'app-admin-disenos',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './admin-disenos.component.html',
   styleUrls: ['./admin-disenos.component.scss']
 })
 export class AdminDisenosComponent implements OnInit {
   private notificationService = inject(NotificationService);
+  private fb = inject(FormBuilder);
   private rolAdmin = 'ADMIN';
 
   disenos: (PlantillaDisenoEmail & { selected?: boolean })[] = [];
@@ -31,16 +32,25 @@ export class AdminDisenosComponent implements OnInit {
     'PAYMENT_REMINDER', 'ACHIEVEMENT', 'MAINTENANCE_ALERT', 'PROMOTION', 'CHANGE_PASSWORD'
   ];
 
-  disenoForm: PlantillaDisenoEmail = {
-    nombre: '',
-    eventoAsociado: 'WELCOME',
-    canal: 'EMAIL',
-    colorPrincipal: '#2c4b77',
-    colorSecundario: '#8bb5d6',
-    tituloHeader: 'Pulse Gym',
-    subtituloHeader: 'Tu bienestar, nuestra pasión',
-    activo: true
-  };
+  disenoFormGroup!: FormGroup;
+
+  constructor() {
+    this.initForm();
+  }
+
+  private initForm(): void {
+    this.disenoFormGroup = this.fb.group({
+      idDiseno: [null],
+      nombre: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
+      eventoAsociado: ['WELCOME', [Validators.required]],
+      canal: ['EMAIL', [Validators.required]],
+      colorPrincipal: ['#2c4b77', [Validators.required, Validators.pattern(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/)]],
+      colorSecundario: ['#8bb5d6', [Validators.required, Validators.pattern(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/)]],
+      tituloHeader: ['Pulse Gym', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
+      subtituloHeader: ['Tu bienestar, nuestra pasión', [Validators.maxLength(150)]],
+      activo: [true]
+    });
+  }
 
   ngOnInit(): void {
     this.cargarDisenos();
@@ -97,8 +107,7 @@ export class AdminDisenosComponent implements OnInit {
 
   abrirModalCrear(): void {
     this.esEdicion = false;
-    this.disenoForm = {
-      nombre: '',
+    this.disenoFormGroup.reset({
       eventoAsociado: 'WELCOME',
       canal: 'EMAIL',
       colorPrincipal: '#2c4b77',
@@ -106,13 +115,13 @@ export class AdminDisenosComponent implements OnInit {
       tituloHeader: 'Pulse Gym',
       subtituloHeader: 'Tu bienestar, nuestra pasión',
       activo: true
-    };
+    });
     this.modalAbierto = true;
   }
 
   abrirModalEditar(diseno: PlantillaDisenoEmail): void {
     this.esEdicion = true;
-    this.disenoForm = { ...diseno };
+    this.disenoFormGroup.patchValue(diseno);
     this.modalAbierto = true;
   }
 
@@ -120,9 +129,27 @@ export class AdminDisenosComponent implements OnInit {
     this.modalAbierto = false;
   }
 
+  esCampoInvalido(campo: string): boolean {
+    const control = this.disenoFormGroup.get(campo);
+    return !!(control && control.invalid && (control.touched || control.dirty));
+  }
+
   guardarDiseno(): void {
-    if (this.esEdicion && this.disenoForm.idDiseno) {
-      this.notificationService.actualizarDiseno(this.rolAdmin, this.disenoForm.idDiseno, this.disenoForm).subscribe({
+    if (this.disenoFormGroup.invalid) {
+      this.disenoFormGroup.markAllAsTouched();
+      Swal.fire({
+        icon: 'warning',
+        title: 'Formulario incompleto',
+        text: 'Por favor, revise los campos marcados en rojo y corrija los errores antes de continuar.',
+        confirmButtonColor: '#0e3b72'
+      });
+      return;
+    }
+
+    const payload: PlantillaDisenoEmail = this.disenoFormGroup.value;
+
+    if (this.esEdicion && payload.idDiseno) {
+      this.notificationService.actualizarDiseno(this.rolAdmin, payload.idDiseno, payload).subscribe({
         next: () => { 
           this.cargarDisenos(); 
           this.cerrarModal(); 
@@ -144,7 +171,7 @@ export class AdminDisenosComponent implements OnInit {
         }
       });
     } else {
-      this.notificationService.crearDiseno(this.rolAdmin, this.disenoForm).subscribe({
+      this.notificationService.crearDiseno(this.rolAdmin, payload).subscribe({
         next: () => { 
           this.cargarDisenos(); 
           this.cerrarModal(); 
@@ -239,7 +266,7 @@ export class AdminDisenosComponent implements OnInit {
           });
           this.cargarDisenos();
         },
-        error: (err) => {
+        error: () => {
           this.cargando = false;
           Swal.fire('Error', 'Error al eliminar los diseños seleccionados.', 'error');
           this.cargarDisenos();

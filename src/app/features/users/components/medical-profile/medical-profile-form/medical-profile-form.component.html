@@ -2,8 +2,7 @@
     <!-- ENCABEZADO DE NAVEGACIÓN -->
     <div class="form-header-nav">
         <div class="breadcrumb">
-            <span>Perfiles Médicos</span> &gt; <span class="current">{{ isEditMode ? 'Editar Perfil' : 'Registrar
-                Perfil' }}</span>
+            <span>Perfiles Médicos</span> &gt; <span class="current">{{ isEditMode ? 'Editar Perfil' : 'Registrar Perfil' }}</span>
         </div>
         <button type="button" class="btn-back" (click)="volverALista()">
             ← Volver a la lista
@@ -22,11 +21,10 @@
             <div class="form-column">
                 <h3 class="column-title">Información Física</h3>
 
-                <!-- ASIGNACIÓN DE USUARIO (ESTILO DOCUMENTOS LEGALES) -->
+                <!-- ASIGNACIÓN DE USUARIO -->
                 <div class="form-group" *ngIf="!isEditMode">
                     <label class="form-label">Usuario Asignado <span class="required">*</span></label>
 
-                    <!-- Estado 1: Sin usuario seleccionado -->
                     <div *ngIf="!selectedUsuario" class="assign-partner-placeholder">
                         <div class="placeholder-text">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -48,7 +46,28 @@
                         </button>
                     </div>
 
-                    <!-- Estado 2: Usuario seleccionado (Card elegante) -->
+                    <!-- CUADRO INFORMATIVO DE MEDIDAS FÍSICAS DEL SOCIO -->
+                    <div class="physical-info-notice" *ngIf="selectedUsuario && !isEditMode"
+                        [ngClass]="{'has-history': tieneHistorialFisico, 'no-history': !tieneHistorialFisico}">
+                        <div class="notice-icon">
+                            <svg *ngIf="tieneHistorialFisico" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                            </svg>
+                            <svg *ngIf="!tieneHistorialFisico" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                        </div>
+                        <div class="notice-text">
+                            <span class="notice-title">{{ tieneHistorialFisico ? 'Historial físico encontrado' : 'Sin historial físico previo' }}</span>
+                            <p>{{ mensajeEstadoHistorial }}</p>
+                        </div>
+                    </div>
+
                     <div *ngIf="selectedUsuario" class="partner-selected-card">
                         <div class="partner-info">
                             <div class="partner-avatar">
@@ -61,8 +80,7 @@
                             </div>
                             <div class="partner-details">
                                 <div class="name-rol-row">
-                                    <span class="partner-name">{{ selectedUsuario.nombre }} {{ selectedUsuario.apellido
-                                        }}</span>
+                                    <span class="partner-name">{{ selectedUsuario.nombre }} {{ selectedUsuario.apellido }}</span>
                                     <span class="role-badge" [ngClass]="getRolClass(selectedUsuario.rol)">
                                         {{ getRolLabel(selectedUsuario.rol) }}
                                     </span>
@@ -94,17 +112,29 @@
                     <label class="form-label">Peso (kg)</label>
                     <input type="number" step="0.01" class="form-control" formControlName="pesoKg"
                         placeholder="Ej. 75.50" />
+                    <div class="form-error"
+                        *ngIf="profileForm.get('pesoKg')?.invalid && profileForm.get('pesoKg')?.touched">
+                        <small>Debe estar entre 20 y 400 kg.</small>
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Estatura (cm)</label>
                     <input type="number" class="form-control" formControlName="estaturaCm" placeholder="Ej. 175" />
+                    <div class="form-error"
+                        *ngIf="profileForm.get('estaturaCm')?.invalid && profileForm.get('estaturaCm')?.touched">
+                        <small>Debe estar entre 50 y 280 cm.</small>
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Porcentaje de Grasa (%)</label>
                     <input type="number" step="0.1" class="form-control" formControlName="porcentajeGrasa"
                         placeholder="Ej. 18.5" />
+                    <div class="form-error"
+                        *ngIf="profileForm.get('porcentajeGrasa')?.invalid && profileForm.get('porcentajeGrasa')?.touched">
+                        <small>Debe estar entre 0% y 100%.</small>
+                    </div>
                 </div>
             </div>
 
@@ -114,20 +144,32 @@
 
                 <div class="form-group">
                     <label class="form-label">Alergias</label>
-                    <input type="text" class="form-control" formControlName="alergias"
+                    <input type="text" class="form-control" formControlName="alergias" maxlength="200"
                         placeholder="Ej. Polen, Penicilina..." />
+                    <div class="form-error"
+                        *ngIf="profileForm.get('alergias')?.invalid && profileForm.get('alergias')?.touched">
+                        <small>Máximo 200 caracteres.</small>
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Condiciones Crónicas</label>
-                    <input type="text" class="form-control" formControlName="condicionesCronicas"
+                    <input type="text" class="form-control" formControlName="condicionesCronicas" maxlength="200"
                         placeholder="Ej. Asma, Hipertensión..." />
+                    <div class="form-error"
+                        *ngIf="profileForm.get('condicionesCronicas')?.invalid && profileForm.get('condicionesCronicas')?.touched">
+                        <small>Máximo 200 caracteres.</small>
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Lesiones Previas</label>
-                    <textarea class="form-control textarea-control" formControlName="lesionesPrevias"
+                    <textarea class="form-control textarea-control" formControlName="lesionesPrevias" maxlength="500"
                         placeholder="Describa lesiones previas o escriba 'No registradas'..." rows="4"></textarea>
+                    <div class="form-error"
+                        *ngIf="profileForm.get('lesionesPrevias')?.invalid && profileForm.get('lesionesPrevias')?.touched">
+                        <small>Máximo 500 caracteres.</small>
+                    </div>
                 </div>
             </div>
 
@@ -136,7 +178,7 @@
         <!-- BOTONES DE ACCIÓN -->
         <div class="form-actions">
             <button type="button" class="btn-cancel" (click)="volverALista()">Cancelar</button>
-            <button type="submit" class="btn-submit" [disabled]="loading">
+            <button type="submit" class="btn-submit" [disabled]="loading || profileForm.invalid">
                 {{ isEditMode ? 'Guardar Cambios' : 'Registrar Perfil' }}
             </button>
         </div>
@@ -147,7 +189,6 @@
 <div class="modal-overlay" *ngIf="showPartnerModal" (click)="cerrarModalSeleccionSocio()">
     <div class="modal-partner-container" (click)="$event.stopPropagation()">
 
-        <!-- HEADER MODAL -->
         <div class="modal-partner-header">
             <h2>Asignar usuario al perfil médico</h2>
             <button type="button" class="modal-close-btn" (click)="cerrarModalSeleccionSocio()">
@@ -158,7 +199,6 @@
             </button>
         </div>
 
-        <!-- BUSCADOR -->
         <div class="modal-partner-search">
             <div class="search-input-wrapper">
                 <input type="text" placeholder="Buscar por nombre, teléfono o rol..." [(ngModel)]="searchUsuario"
@@ -171,8 +211,7 @@
             </div>
         </div>
 
-        <!-- TABLA DE USUARIOS -->
- <div class="modal-partner-table-wrapper">
+        <div class="modal-partner-table-wrapper">
             <table class="partner-table">
                 <thead>
                     <tr>
@@ -183,14 +222,12 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Fila de Carga -->
                     <tr *ngIf="loadingModalUsers">
                         <td colspan="4" class="empty-table-msg">
                             Cargando usuarios...
                         </td>
                     </tr>
 
-                    <!-- Datos de Usuarios -->
                     <ng-container *ngIf="!loadingModalUsers">
                         <tr *ngFor="let usuario of usuarios">
                             <td>
@@ -200,7 +237,8 @@
                                             [src]="getUsuarioFoto(usuario)" [alt]="usuario.nombre"
                                             class="partner-table-avatar__img" crossOrigin="anonymous"
                                             (error)="onModalAvatarError(usuario.idUsuario)" />
-                                        <span *ngIf="!getUsuarioFoto(usuario) || hasModalAvatarError(usuario.idUsuario)">
+                                        <span
+                                            *ngIf="!getUsuarioFoto(usuario) || hasModalAvatarError(usuario.idUsuario)">
                                             {{ getInitials(usuario.nombre, usuario.apellido) }}
                                         </span>
                                     </div>
@@ -216,7 +254,8 @@
                                 <span class="partner-table-contact">{{ usuario.telefono || usuario.email || 'Sin contacto' }}</span>
                             </td>
                             <td class="text-right">
-                                <button type="button" class="btn-assign-row" (click)="seleccionarSocioDesdeModal(usuario)">
+                                <button type="button" class="btn-assign-row"
+                                    (click)="seleccionarSocioDesdeModal(usuario)">
                                     Asignar
                                 </button>
                             </td>
@@ -231,7 +270,6 @@
             </table>
         </div>
 
-        <!-- PAGINACIÓN MODAL -->
         <div class="modal-partner-footer" *ngIf="totalPaginasModal > 0">
             <div class="pagination-controls">
                 <button type="button" class="btn-page-arrow" [disabled]="paginaModalActual === 0"

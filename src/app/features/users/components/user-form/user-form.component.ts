@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { UserService } from '../../../../core/services/user.service';
 import { SedeService } from '../../../../core/services/sede.service';
@@ -42,36 +42,54 @@ export class UserFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.initForm();
-    this.cargarSedes();
+    this.cargarSedesYPreasignar();
     this.verificarRolUsuario();
     this.verificarModoEdicion();
   }
 
   private initForm(): void {
+    const telefonoExactoPattern = /^[0-9]{10}$/;
+    const documentoPattern = /^[0-9]{6,10}$/;
+    const textoSimplePattern = /^[a-zA-ZÁÉÍÓÚáéíóúÑñ0-9\s.,#-]+$/;
+
     this.userForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      nombre: ['', Validators.required],
-      apellido: ['', Validators.required],
+      nombre: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50), Validators.pattern(/^[a-zA-ZÁÉÍÓÚáéíóúÑñ\s]+$/)]],
+      apellido: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50), Validators.pattern(/^[a-zA-ZÁÉÍÓÚáéíóúÑñ\s]+$/)]],
       sexo: ['', Validators.required],
-      documentoIdentidad: ['', [Validators.required, Validators.minLength(6)]],
-      telefono: ['', Validators.required],
-      fechaNacimiento: ['', Validators.required],
+      documentoIdentidad: ['', [Validators.required, Validators.pattern(documentoPattern)]],
+      telefono: ['', [Validators.required, Validators.pattern(telefonoExactoPattern)]],
+      fechaNacimiento: ['', [Validators.required, this.validarFechaNoFutura]],
       idSede: ['', Validators.required],
-      contactoEmergenciaNombre: ['', Validators.required],
-      contactoEmergenciaTelefono: ['', Validators.required],
+      contactoEmergenciaNombre: ['', [Validators.required, Validators.maxLength(50), Validators.pattern(/^[a-zA-ZÁÉÍÓÚáéíóúÑñ\s]+$/)]],
+      contactoEmergenciaTelefono: ['', [Validators.required, Validators.pattern(telefonoExactoPattern)]],
       fotoUrl: [''],
-      objetivoPrincipal: [''],
+      objetivoPrincipal: ['', [Validators.maxLength(150), Validators.pattern(textoSimplePattern)]],
       nivelExperiencia: [''],
       fechaContratacion: [''],
-      especialidad: [''],
-      anosExperiencia: [''],
-      horarioDisponibilidad: [''],
-      tarifaHora: [''],
+      especialidad: ['', [Validators.maxLength(100), Validators.pattern(textoSimplePattern)]],
+      anosExperiencia: ['', [Validators.min(0), Validators.max(50)]],
+      horarioDisponibilidad: ['', [Validators.maxLength(100)]],
+      tarifaHora: ['', [Validators.min(0), Validators.max(999999)]],
       turno: ['']
     });
   }
 
-  private cargarSedes(): void {
+  private validarFechaNoFutura(control: AbstractControl): ValidationErrors | null {
+    const valor = control.value;
+    if (!valor) return null;
+
+    const fechaIngresada = new Date(valor);
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+
+    if (fechaIngresada > hoy) {
+      return { fechaFutura: true };
+    }
+    return null;
+  }
+
+  private cargarSedesYPreasignar(): void {
     this.sedeService.obtenerSedes().subscribe({
       next: (response: any) => {
         let sedesData = [];
@@ -85,9 +103,25 @@ export class UserFormComponent implements OnInit {
         }
 
         this.sedes = sedesData.map((sede: any) => ({
-          id: sede.idSede || sede.id,           
+          id: sede.idSede || sede.id,
           nombre: sede.nombreSede || sede.nombre
         }));
+
+        if (this.userId && this.valoresOriginales._nombreSedeTemp) {
+          const sedeEncontrada = this.sedes.find(s => s.nombre.toLowerCase() === this.valoresOriginales._nombreSedeTemp.toLowerCase());
+          if (sedeEncontrada) {
+            this.userForm.get('idSede')?.setValue(sedeEncontrada.id);
+            this.valoresOriginales.idSede = sedeEncontrada.id;
+          }
+        } else {
+          const currentUser: any = this.authService.getUser();
+          if (currentUser && currentUser.idSede && !this.isEditMode) {
+            const sedeEncontrada = this.sedes.find(s => s.id === currentUser.idSede);
+            if (sedeEncontrada) {
+              this.userForm.get('idSede')?.setValue(currentUser.idSede);
+            }
+          }
+        }
       },
       error: () => {
         this.sedes = [];
@@ -102,7 +136,7 @@ export class UserFormComponent implements OnInit {
   }
 
   private verificarRolUsuario(): void {
-    const user = this.authService.getUser();
+    const user: any = this.authService.getUser();
     if (user) {
       const rol = user.role?.toUpperCase();
       this.isSocio = rol === 'USER' || rol === 'SOCIO';
@@ -119,6 +153,10 @@ export class UserFormComponent implements OnInit {
           email: user.email,
           rol: user.role
         };
+      }
+
+      if (user.idSede && !this.isEditMode) {
+        this.userForm.get('idSede')?.setValue(user.idSede);
       }
     }
   }
@@ -140,6 +178,15 @@ export class UserFormComponent implements OnInit {
       next: (response: any) => {
         const data = response.data || response;
         if (data) {
+          let sedeIdAsignar = data.idSede;
+
+          if (!sedeIdAsignar && data.nombreSede && this.sedes.length > 0) {
+            const matchSede = this.sedes.find(s => s.nombre.toLowerCase() === data.nombreSede.toLowerCase());
+            if (matchSede) {
+              sedeIdAsignar = matchSede.id;
+            }
+          }
+
           this.valoresOriginales = {
             email: data.email,
             nombre: data.nombre,
@@ -148,7 +195,8 @@ export class UserFormComponent implements OnInit {
             documentoIdentidad: data.documentoIdentidad,
             telefono: data.telefono,
             fechaNacimiento: data.fechaNacimiento?.split('T')[0] || '',
-            idSede: data.idSede,
+            idSede: sedeIdAsignar,
+            _nombreSedeTemp: data.nombreSede,
             contactoEmergenciaNombre: data.contactoEmergenciaNombre,
             contactoEmergenciaTelefono: data.contactoEmergenciaTelefono,
             fotoUrl: data.fotoUrl || '',
@@ -187,7 +235,7 @@ export class UserFormComponent implements OnInit {
             this.userForm.get('email')?.clearValidators();
           }
 
-          this.aplicarValidacionesPorRol(data.rol, true);
+          this.aplicarValidacionesPorRol(data.rol, false);
         }
         this.loading = false;
       },
@@ -231,6 +279,10 @@ export class UserFormComponent implements OnInit {
 
         this.emailVerificado = true;
 
+        if (userData.idSede) {
+          this.userForm.get('idSede')?.setValue(userData.idSede);
+        }
+
         Swal.fire({
           icon: 'success',
           title: 'Usuario Verificado',
@@ -258,7 +310,6 @@ export class UserFormComponent implements OnInit {
 
   private aplicarValidacionesPorRol(rol: string, esEdicion: boolean = false): void {
     const rolUpper = rol?.toUpperCase();
-
     this.limpiarValidaciones();
 
     const isSocio = rolUpper === 'SOCIO' || rolUpper === 'USER';
@@ -266,29 +317,27 @@ export class UserFormComponent implements OnInit {
     const isAdmin = rolUpper === 'ADMINISTRADOR' || rolUpper === 'ADMIN';
     const isRecepcionista = rolUpper === 'RECEPCIONISTA';
 
-    if (!esEdicion) {
-      if (isSocio || isEntrenador) {
-        this.userForm.get('objetivoPrincipal')?.setValidators([Validators.required]);
-        this.userForm.get('nivelExperiencia')?.setValidators([Validators.required]);
-      }
+    if (isSocio || isEntrenador) {
+      this.userForm.get('objetivoPrincipal')?.setValidators([Validators.required, Validators.maxLength(150)]);
+      this.userForm.get('nivelExperiencia')?.setValidators([Validators.required]);
+    }
 
-      if (isEntrenador) {
-        this.userForm.get('fechaContratacion')?.setValidators([Validators.required]);
-        this.userForm.get('especialidad')?.setValidators([Validators.required]);
-        this.userForm.get('anosExperiencia')?.setValidators([Validators.required]);
-        this.userForm.get('horarioDisponibilidad')?.setValidators([Validators.required]);
-        this.userForm.get('tarifaHora')?.setValidators([Validators.required]);
-        this.userForm.get('turno')?.setValidators([Validators.required]);
-      }
+    if (isEntrenador) {
+      this.userForm.get('fechaContratacion')?.setValidators([Validators.required, this.validarFechaNoFutura]);
+      this.userForm.get('especialidad')?.setValidators([Validators.required, Validators.maxLength(100)]);
+      this.userForm.get('anosExperiencia')?.setValidators([Validators.required, Validators.min(0), Validators.max(50)]);
+      this.userForm.get('horarioDisponibilidad')?.setValidators([Validators.required, Validators.maxLength(100)]);
+      this.userForm.get('tarifaHora')?.setValidators([Validators.required, Validators.min(1), Validators.max(999999)]);
+      this.userForm.get('turno')?.setValidators([Validators.required]);
+    }
 
-      if (isAdmin) {
-        this.userForm.get('fechaContratacion')?.setValidators([Validators.required]);
-      }
+    if (isAdmin) {
+      this.userForm.get('fechaContratacion')?.setValidators([Validators.required, this.validarFechaNoFutura]);
+    }
 
-      if (isRecepcionista) {
-        this.userForm.get('fechaContratacion')?.setValidators([Validators.required]);
-        this.userForm.get('turno')?.setValidators([Validators.required]);
-      }
+    if (isRecepcionista) {
+      this.userForm.get('fechaContratacion')?.setValidators([Validators.required, this.validarFechaNoFutura]);
+      this.userForm.get('turno')?.setValidators([Validators.required]);
     }
 
     Object.keys(this.userForm.controls).forEach(key => {
@@ -409,7 +458,7 @@ export class UserFormComponent implements OnInit {
       fechaNacimiento: formValues.fechaNacimiento,
       contactoEmergenciaNombre: formValues.contactoEmergenciaNombre,
       contactoEmergenciaTelefono: formValues.contactoEmergenciaTelefono,
-      idSede: parseInt(formValues.idSede)
+      idSede: parseInt(formValues.idSede, 10)
     };
 
     const rol = this.authUserInfo?.rol?.toUpperCase();
@@ -422,7 +471,7 @@ export class UserFormComponent implements OnInit {
     if (rol === 'ENTRENADOR') {
       payload.fechaContratacion = formValues.fechaContratacion;
       payload.especialidad = formValues.especialidad;
-      payload.anosExperiencia = parseInt(formValues.anosExperiencia);
+      payload.anosExperiencia = parseInt(formValues.anosExperiencia, 10);
       payload.horarioDisponibilidad = formValues.horarioDisponibilidad;
       payload.tarifaHora = parseFloat(formValues.tarifaHora);
       payload.turno = formValues.turno;
@@ -456,7 +505,7 @@ export class UserFormComponent implements OnInit {
       if (valorActual !== undefined && valorActual !== null && valorActual !== '') {
         if (String(valorActual) !== String(valorOriginal)) {
           if (campo === 'idSede') {
-            payload[campo] = parseInt(valorActual);
+            payload[campo] = parseInt(valorActual, 10);
           } else {
             payload[campo] = valorActual;
           }
@@ -480,7 +529,7 @@ export class UserFormComponent implements OnInit {
       if (valorActual !== undefined && valorActual !== null && valorActual !== '') {
         if (String(valorActual) !== String(valorOriginal)) {
           if (campo === 'anosExperiencia') {
-            payload[campo] = parseInt(valorActual);
+            payload[campo] = parseInt(valorActual, 10);
           } else if (campo === 'tarifaHora') {
             payload[campo] = parseFloat(valorActual);
           } else {
@@ -504,8 +553,8 @@ export class UserFormComponent implements OnInit {
 
       Swal.fire({
         icon: 'warning',
-        title: 'Formulario incompleto',
-        text: 'Por favor completa todos los campos obligatorios',
+        title: 'Formulario incompleto o con errores',
+        text: 'Por favor verifica los campos marcados en rojo',
         confirmButtonColor: '#0f1c3f'
       });
       return;
@@ -707,5 +756,11 @@ export class UserFormComponent implements OnInit {
         });
       }
     });
+  }
+
+  prevenirNegativos(event: KeyboardEvent): void {
+    if (event.key === '-' || event.key === 'e' || event.key === 'E') {
+      event.preventDefault();
+    }
   }
 }

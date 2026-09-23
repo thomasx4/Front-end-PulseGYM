@@ -30,7 +30,7 @@ export class ProgresoComponent implements OnInit {
   // ==========================================
   // PAGINACIÓN
   // ==========================================
-  readonly TAMANIO_PAGINA: number = 10;
+  readonly TAMANIO_PAGINA: number = 8;
   paginaActual: number = 1;
 
   get totalPaginas(): number {
