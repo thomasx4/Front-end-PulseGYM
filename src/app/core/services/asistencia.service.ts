@@ -3,7 +3,6 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
-// Payload que se envía al backend
 export interface RegistroSesionPayload {
   idRutina: number;
   duracionMinutos: number;
@@ -20,14 +19,12 @@ export interface DetalleSesionPayload {
   observaciones: string | null;
 }
 
-// Respuesta del backend
 export interface SesionRegistrada {
   idSesion?: number;
   mensaje?: string;
   [key: string]: any;
 }
 
-// Rutina del día (para precargar el formulario)
 export interface RutinaDelDia {
   idRutina: number;
   nombre: string;
@@ -62,27 +59,15 @@ export class AsistenciaService {
 
   constructor(private http: HttpClient) { }
 
-  /**
-   * Registra la sesión del día
-   * POST /pg-ms-users/api/v1/seguimiento/sesion
-   */
   registrarSesion(payload: RegistroSesionPayload): Observable<SesionRegistrada> {
     return this.http.post<SesionRegistrada>(`${this.apiUrl}/sesion`, payload);
   }
 
-  /**
-   * Obtiene la última rutina generada para precargar el formulario
-   * GET /pg-ms-users/api/v1/rutinas/ultima
-   */
   getUltimaRutina(): Observable<RutinaDelDia> {
     const url = `${environment.apiUrl}/pg-ms-users/api/v1/rutinas/ultima`;
     return this.http.get<RutinaDelDia>(url);
   }
 
-  /**
-   * Obtiene una rutina específica por ID
-   * GET /pg-ms-users/api/v1/rutinas/{id}
-   */
   getRutinaById(id: number | string): Observable<RutinaDelDia> {
     const url = `${environment.apiUrl}/pg-ms-users/api/v1/rutinas/${id}`;
     return this.http.get<RutinaDelDia>(url);
