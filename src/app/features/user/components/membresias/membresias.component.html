@@ -4,12 +4,6 @@
     <div class="membresias-main">
         <app-header></app-header>
 
-        <div class="main-container">
-            <!-- Estado de Carga -->
-            <div *ngIf="isLoading" class="state-container">
-                <p>Cargando membresías...</p>
-            </div>
-
             <!-- VISTA 1: LISTADO DE MEMBRESÍAS -->
             <ng-container *ngIf="!isLoading && !error && vistaActual === 'listado'">
                 <header class="page-header">

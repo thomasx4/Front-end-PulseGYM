@@ -74,14 +74,6 @@
                     </div>
                 </section>
 
-                <!-- Loader de carga de planes -->
-                <div *ngIf="isLoading" class="loading-state">
-                    <div class="spinner-container">
-                        <div class="spinner-border" role="status"></div>
-                    </div>
-                    <p>Cargando tus planes nutricionales...</p>
-                </div>
-
                 <!-- Grid de Planes -->
                 <section class="planes-grid" *ngIf="!isLoading && planes.length > 0">
                     <div class="plan-card" *ngFor="let plan of planes">

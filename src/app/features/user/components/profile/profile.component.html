@@ -4,11 +4,6 @@
     <div class="profile-main">
         <app-header></app-header>
 
-        <div class="profile-wrapper">
-            <div *ngIf="isLoading" class="state-container">
-                <p>Cargando tu perfil...</p>
-            </div>
-
             <div *ngIf="error && !isLoading" class="state-container error">
                 <p>{{ error }}</p>
                 <button (click)="refreshData()" class="btn-retry">Intentar de nuevo</button>
@@ -542,7 +537,6 @@
             </div>
         </div>
     </div>
-</div>
 
 <!-- ========== MODAL DE ERROR ========== -->
 <div class="modal-overlay" *ngIf="mostrarModalError" (click)="cerrarModalError()">
