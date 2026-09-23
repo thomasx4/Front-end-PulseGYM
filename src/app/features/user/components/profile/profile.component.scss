@@ -1452,3 +1452,18 @@
         display: block;
     }
 }
+
+.required-star {
+    color: #dc2626;
+    margin-left: 2px;
+}
+
+/* ============================================
+   ESTILOS DE ERROR PARA CAMPOS DE FORMULARIO
+   ============================================ */
+.text-error {
+    color: #dc2626;
+    font-size: 12px;
+    margin-top: 4px;
+    display: block;
+}
