@@ -27,6 +27,7 @@ interface EjercicioFormulario {
 
 interface ProgresoGuardado {
   fecha: string;
+  idUsuario: number;
   idRutina: number;
   duracionMinutos: number;
   observaciones: string;
@@ -60,6 +61,8 @@ export class AsistenciaComponent implements OnInit, OnDestroy {
   public modalErrorMessage: string = '';
   public modalErrorTitulo: string = 'Algo salio mal';
 
+  public isSidebarOpen: boolean = false;
+
   public estadosDisponibles = [
     { value: 'COMPLETADO', label: 'Completado' },
     { value: 'PARCIAL', label: 'Parcial' },
@@ -86,6 +89,9 @@ export class AsistenciaComponent implements OnInit, OnDestroy {
     }
   }
 
+  // ==========================================
+  // Cargar usuario actual
+  // ==========================================
   cargarUsuario(): void {
     this.authService.getCurrentUser().subscribe({
       next: (user: any) => {
@@ -120,6 +126,20 @@ export class AsistenciaComponent implements OnInit, OnDestroy {
     });
   }
 
+  // ==========================================
+  // Sidebar movil
+  // ==========================================
+  toggleSidebar(): void {
+    this.isSidebarOpen = !this.isSidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.isSidebarOpen = false;
+  }
+
+  // ==========================================
+  // Helpers de fecha
+  // ==========================================
   private getFechaHoy(): string {
     const hoy = new Date();
     const y = hoy.getFullYear();
@@ -128,6 +148,9 @@ export class AsistenciaComponent implements OnInit, OnDestroy {
     return `${y}-${m}-${d}`;
   }
 
+  // ==========================================
+  // Programa el reset exacto a las 12:00 AM
+  // ==========================================
   programarCambioDeDia(): void {
     if (this.midnightTimeoutId) {
       clearTimeout(this.midnightTimeoutId);
@@ -159,6 +182,9 @@ export class AsistenciaComponent implements OnInit, OnDestroy {
     this.cargarRutinaDelDia();
   }
 
+  // ==========================================
+  // Verifica si ya se registro la sesion hoy
+  // ==========================================
   verificarSesionDelDia(): void {
     const data = localStorage.getItem(this.STORAGE_SESION_REGISTRADA);
     if (!data) {
@@ -189,6 +215,9 @@ export class AsistenciaComponent implements OnInit, OnDestroy {
     }
   }
 
+  // ==========================================
+  // Cargar rutina del dia
+  // ==========================================
   cargarRutinaDelDia(): void {
     this.isLoading = true;
 
@@ -223,10 +252,8 @@ export class AsistenciaComponent implements OnInit, OnDestroy {
           expandido: false
         }));
 
-        this.restaurarProgreso();
-
-        this.isLoading = false;
-        this.verificarSesionDelDia();
+        // Cargar estado de hoy desde el backend
+        this.cargarSesionDeHoy();
       },
       error: (error: any) => {
         this.isLoading = false;
@@ -248,6 +275,77 @@ export class AsistenciaComponent implements OnInit, OnDestroy {
     });
   }
 
+  // ==========================================
+  // Cargar sesion de hoy desde el backend
+  // ==========================================
+  cargarSesionDeHoy(): void {
+    if (!this.rutina) {
+      this.restaurarProgreso();
+      this.isLoading = false;
+      return;
+    }
+
+    this.asistenciaService.getMiHistorial().subscribe({
+      next: (historial: any) => {
+        if (!historial || !Array.isArray(historial) || historial.length === 0) {
+          this.restaurarProgreso();
+          this.isLoading = false;
+          return;
+        }
+
+        const hoy = this.getFechaHoy();
+
+        const sesionHoy = historial.find((s: any) => {
+          const fechaSesion = s.fechaSesion ? s.fechaSesion.substring(0, 10) : '';
+          return fechaSesion === hoy;
+        });
+
+        if (!sesionHoy) {
+          this.restaurarProgreso();
+          this.isLoading = false;
+          return;
+        }
+
+        this.duracionMinutos = sesionHoy.duracionMinutos || 60;
+        this.observaciones = sesionHoy.observaciones || '';
+
+        sesionHoy.detalles?.forEach((det: any) => {
+          const ej = this.ejercicios.find(
+            e => e.idDetalleRutina === det.idDetalleRutina
+          );
+
+          if (ej) {
+            ej.seriesCompletadas = det.seriesCompletadas ?? ej.seriesObjetivo;
+            ej.repeticionesRealizadas = det.repeticionesRealizadas ?? ej.repeticionesMax;
+            ej.pesoUsado = det.pesoUsado ?? ej.pesoSugerido;
+            ej.estado = det.estado || 'COMPLETADO';
+            ej.observaciones = det.observaciones || '';
+          }
+        });
+
+        this.sesionYaRegistradaHoy = true;
+        this.fechaUltimoRegistro = sesionHoy.fechaSesion?.substring(0, 10) || hoy;
+
+        const registro = {
+          fecha: hoy,
+          idUsuario: this.userId,
+          timestamp: Date.now()
+        };
+        localStorage.setItem(this.STORAGE_SESION_REGISTRADA, JSON.stringify(registro));
+
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.warn('No se pudo cargar historial. Usando localStorage:', err);
+        this.restaurarProgreso();
+        this.isLoading = false;
+      }
+    });
+  }
+
+  // ==========================================
+  // Modales
+  // ==========================================
   abrirModalNoRutina(): void {
     this.showNoRutinaModal = true;
   }
@@ -271,11 +369,15 @@ export class AsistenciaComponent implements OnInit, OnDestroy {
     this.showErrorModal = false;
   }
 
+  // ==========================================
+  // Persistencia
+  // ==========================================
   guardarProgreso(): void {
     if (!this.rutina) return;
 
     const progreso: ProgresoGuardado = {
       fecha: this.getFechaHoy(),
+      idUsuario: this.userId,
       idRutina: this.rutina.idRutina,
       duracionMinutos: this.duracionMinutos,
       observaciones: this.observaciones,
@@ -297,6 +399,10 @@ export class AsistenciaComponent implements OnInit, OnDestroy {
 
       if (progreso.fecha !== hoy) {
         localStorage.removeItem(this.STORAGE_PROGRESO);
+        return;
+      }
+
+      if (progreso.idUsuario && Number(progreso.idUsuario) !== Number(this.userId)) {
         return;
       }
 
@@ -329,6 +435,9 @@ export class AsistenciaComponent implements OnInit, OnDestroy {
     }
   }
 
+  // ==========================================
+  // Duracion de la sesion
+  // ==========================================
   incrementarDuracion(): void {
     if (this.duracionMinutos < 300) {
       this.duracionMinutos += 5;
@@ -356,6 +465,9 @@ export class AsistenciaComponent implements OnInit, OnDestroy {
     this.guardarProgreso();
   }
 
+  // ==========================================
+  // Toggle y cambios en ejercicios
+  // ==========================================
   toggleEjercicio(index: number): void {
     this.ejercicios[index].expandido = !this.ejercicios[index].expandido;
     this.guardarProgreso();
@@ -414,6 +526,9 @@ export class AsistenciaComponent implements OnInit, OnDestroy {
     this.guardarProgreso();
   }
 
+  // ==========================================
+  // Estadisticas
+  // ==========================================
   get totalCompletados(): number {
     return this.ejercicios.filter(e => e.estado === 'COMPLETADO').length;
   }
@@ -450,8 +565,6 @@ export class AsistenciaComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Validacion eliminada: ya no bloquea por seriesCompletadas = 0
-
     this.isRegistrando = true;
 
     const detalles: DetalleSesionPayload[] = this.ejercicios.map(ej => ({
@@ -480,7 +593,6 @@ export class AsistenciaComponent implements OnInit, OnDestroy {
           timestamp: Date.now()
         };
         localStorage.setItem(this.STORAGE_SESION_REGISTRADA, JSON.stringify(registro));
-        // NO se borra el progreso, se conserva por si se recarga
 
         this.sesionYaRegistradaHoy = true;
         this.fechaUltimoRegistro = registro.fecha;
@@ -534,15 +646,5 @@ export class AsistenciaComponent implements OnInit, OnDestroy {
 
   volver(): void {
     this.router.navigate(['/user/']);
-  }
-
-    public isSidebarOpen: boolean = false;
-
-      toggleSidebar(): void {
-    this.isSidebarOpen = !this.isSidebarOpen;
-  }
-
-  closeSidebar(): void {
-    this.isSidebarOpen = false;
   }
 }

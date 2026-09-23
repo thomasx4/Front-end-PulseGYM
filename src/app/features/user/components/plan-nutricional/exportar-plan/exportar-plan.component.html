@@ -65,12 +65,6 @@
                 </label>
             </div>
 
-            <!-- Indicador de Carga / Spinner al exportar masivo -->
-            <div *ngIf="isLoading" class="state-container">
-                <div class="spinner"></div>
-                <p>Generando y comprimiendo archivos PDF, por favor espera...</p>
-            </div>
-
             <!-- Contenido -->
             <ng-container *ngIf="!errorMessage">
                 <!-- Grid de planes -->

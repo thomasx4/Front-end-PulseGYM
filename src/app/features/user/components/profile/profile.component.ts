@@ -34,6 +34,8 @@ export class ProfileComponent implements OnInit {
   modalErrorMessage: string = '';
   errorAccion: (() => void) | null = null;
 
+  isSidebarOpen: boolean = false;
+
   userProfile: any = {
     nombre: '',
     apellido: '',
@@ -117,7 +119,6 @@ export class ProfileComponent implements OnInit {
     this.router.navigate(['/user/detalle-medico']);
   }
 
-  //  Navegar a ajustes
   irAjustes(): void {
     this.router.navigate(['/user/ajustes']);
   }
@@ -165,22 +166,22 @@ export class ProfileComponent implements OnInit {
     });
 
     this.userService.getPerfilMedico().subscribe({
-    next: (data: any) => {
+      next: (data: any) => {
         if (data) {
-            this.perfilMedico = {
-                pesoKg: data.pesoKg || 0,
-                estaturaCm: data.estaturaCm || 0,
-                alergias: data.alergias || '',
-                condicionesCronicas: data.condicionesCronicas || '',
-                fechaActualizacion: data.fechaActualizacion || new Date().toISOString()
-            };
-            this.actualizarMedidas();
+          this.perfilMedico = {
+            pesoKg: data.pesoKg || 0,
+            estaturaCm: data.estaturaCm || 0,
+            alergias: data.alergias || '',
+            condicionesCronicas: data.condicionesCronicas || '',
+            fechaActualizacion: data.fechaActualizacion || new Date().toISOString()
+          };
+          this.actualizarMedidas();
         }
-    },
-    error: (err: any) => {
+      },
+      error: (err: any) => {
         console.warn('perfil-medico fallo:', err.status);
-    }
-});
+      }
+    });
 
     this.userService.getHistorialFisico().subscribe({
       next: (data: any) => {
@@ -222,105 +223,103 @@ export class ProfileComponent implements OnInit {
     this.sedeNombre = 'Sede Principal';
   }
 
- usarDatosDelToken(): void {
-  const nombre = this.userUsername || this.userName || 'Usuario';
+  usarDatosDelToken(): void {
+    const nombre = this.userUsername || this.userName || 'Usuario';
 
-  this.userProfile = {
-    ...this.userProfile,
-    nombre: nombre,
-    apellido: '',
-    nombreCompleto: nombre,
-    email: this.userEmail || '',
-    telefono: '',
-    documentoIdentidad: '',
-    fechaNacimiento: '',
-    edad: 0,
-    sexo: '',
-    tipoMembresia: this.tipoMembresia || 'Miembro',
-    objetivo: 'Mejorar condicion fisica',
-    fotoUrl: '',
-    contactoEmergenciaNombre: '',
-    contactoEmergenciaTelefono: '',
-    idSede: 0,
-    nombreSede: '',               
-    nivelExperiencia: 'intermedio',
-    username: nombre
-  };
+    this.userProfile = {
+      ...this.userProfile,
+      nombre: nombre,
+      apellido: '',
+      nombreCompleto: nombre,
+      email: this.userEmail || '',
+      telefono: '',
+      documentoIdentidad: '',
+      fechaNacimiento: '',
+      edad: 0,
+      sexo: '',
+      tipoMembresia: this.tipoMembresia || 'Miembro',
+      objetivo: 'Mejorar condicion fisica',
+      fotoUrl: '',
+      contactoEmergenciaNombre: '',
+      contactoEmergenciaTelefono: '',
+      idSede: 0,
+      nombreSede: '',
+      nivelExperiencia: 'intermedio',
+      username: nombre
+    };
 
-  this.avatarUrl = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(nombre) + '&background=0F1C3F&color=fff&bold=true';
-  this.sedeNombre = 'Sede no asignada';
-  this.profileBackup = { ...this.userProfile };
-}
+    this.avatarUrl = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(nombre) + '&background=0F1C3F&color=fff&bold=true';
+    this.sedeNombre = 'Sede no asignada';
+    this.profileBackup = { ...this.userProfile };
+  }
 
   procesarPerfil(data: any): void {
-  // Construir nombre completo correctamente
-  const nombre = (data.nombre || '').trim();
-  const apellido = (data.apellido || '').trim();
+    const nombre = (data.nombre || '').trim();
+    const apellido = (data.apellido || '').trim();
 
-  let nombreCompleto = '';
-  if (nombre && apellido) {
-    nombreCompleto = `${nombre} ${apellido}`;
-  } else if (nombre) {
-    nombreCompleto = nombre;
-  } else if (apellido) {
-    nombreCompleto = apellido;
-  } else {
-    nombreCompleto = data.nombreCompleto || this.userUsername || this.userName || 'Usuario';
+    let nombreCompleto = '';
+    if (nombre && apellido) {
+      nombreCompleto = `${nombre} ${apellido}`;
+    } else if (nombre) {
+      nombreCompleto = nombre;
+    } else if (apellido) {
+      nombreCompleto = apellido;
+    } else {
+      nombreCompleto = data.nombreCompleto || this.userUsername || this.userName || 'Usuario';
+    }
+
+    let nivelExperiencia = data.nivelExperiencia || 'intermedio';
+    const nivelesValidos = ['novato', 'intermedio', 'avanzado'];
+    if (!nivelesValidos.includes(nivelExperiencia)) {
+      nivelExperiencia = 'intermedio';
+    }
+
+    const sexo = data.sexo || '';
+
+    this.userProfile = {
+      ...this.userProfile,
+      nombre: nombre,
+      apellido: apellido,
+      nombreCompleto: nombreCompleto.trim(),
+      email: data.email || this.userEmail || '',
+      telefono: data.telefono || '',
+      documentoIdentidad: data.documentoIdentidad || '',
+      fechaNacimiento: data.fechaNacimiento || '',
+      edad: this.calcularEdad(data.fechaNacimiento),
+      sexo: sexo,
+      objetivo: data.objetivoPrincipal || 'Mejorar condicion fisica',
+      fotoUrl: data.fotoUrl || data.urlFoto || '',
+      contactoEmergenciaNombre: data.contactoEmergenciaNombre || '',
+      contactoEmergenciaTelefono: data.contactoEmergenciaTelefono || '',
+      idSede: data.idSede || 0,
+      nombreSede: data.nombreSede || '',
+      nivelExperiencia: nivelExperiencia,
+      tipoMembresia: this.tipoMembresia || this.userProfile.tipoMembresia,
+      username: data.username || this.userUsername || this.userName
+    };
+
+    this.sedeNombre = data.nombreSede || 'Sede no asignada';
+
+    if (nombreCompleto.trim()) {
+      this.userName = nombreCompleto.trim();
+    }
+
+    if (this.userProfile.fotoUrl) {
+      this.avatarUrl = this.userProfile.fotoUrl;
+    } else {
+      this.avatarUrl = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(this.userName) + '&background=0F1C3F&color=fff&bold=true';
+    }
+
+    if (data.contactoEmergenciaNombre) {
+      this.contactos = [{
+        nombre: data.contactoEmergenciaNombre,
+        telefono: data.contactoEmergenciaTelefono,
+        parentesco: 'Emergencia'
+      }];
+    }
+
+    this.profileBackup = { ...this.userProfile };
   }
-
-  let nivelExperiencia = data.nivelExperiencia || 'intermedio';
-  const nivelesValidos = ['novato', 'intermedio', 'avanzado'];
-  if (!nivelesValidos.includes(nivelExperiencia)) {
-    nivelExperiencia = 'intermedio';
-  }
-
-  const sexo = data.sexo || '';
-
-  this.userProfile = {
-    ...this.userProfile,
-    nombre: nombre,
-    apellido: apellido,
-    nombreCompleto: nombreCompleto.trim(),
-    email: data.email || this.userEmail || '',
-    telefono: data.telefono || '',
-    documentoIdentidad: data.documentoIdentidad || '',
-    fechaNacimiento: data.fechaNacimiento || '',
-    edad: this.calcularEdad(data.fechaNacimiento),
-    sexo: sexo,
-    objetivo: data.objetivoPrincipal || 'Mejorar condicion fisica',
-    fotoUrl: data.fotoUrl || data.urlFoto || '',
-    contactoEmergenciaNombre: data.contactoEmergenciaNombre || '',
-    contactoEmergenciaTelefono: data.contactoEmergenciaTelefono || '',
-    idSede: data.idSede || 0,
-    nombreSede: data.nombreSede || '',
-    nivelExperiencia: nivelExperiencia,
-    tipoMembresia: this.tipoMembresia || this.userProfile.tipoMembresia,
-    username: data.username || this.userUsername || this.userName
-  };
-
-  this.sedeNombre = data.nombreSede || 'Sede no asignada';
-
-  //  Actualizar userName con el nombre completo
-  if (nombreCompleto.trim()) {
-    this.userName = nombreCompleto.trim();
-  }
-
-  if (this.userProfile.fotoUrl) {
-    this.avatarUrl = this.userProfile.fotoUrl;
-  } else {
-    this.avatarUrl = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(this.userName) + '&background=0F1C3F&color=fff&bold=true';
-  }
-
-  if (data.contactoEmergenciaNombre) {
-    this.contactos = [{
-      nombre: data.contactoEmergenciaNombre,
-      telefono: data.contactoEmergenciaTelefono,
-      parentesco: 'Emergencia'
-    }];
-  }
-
-  this.profileBackup = { ...this.userProfile };
-}
 
   actualizarMedidas(): void {
     const peso = this.historialFisico.pesoKg || this.perfilMedico.pesoKg || 0;
@@ -378,12 +377,12 @@ export class ProfileComponent implements OnInit {
       const file = input.files[0];
 
       if (!file.type.startsWith('image/')) {
-        this.error = 'Por favor selecciona una imagen valida (JPG, PNG, etc.)';
+        this.mostrarErrorModal('Por favor selecciona una imagen valida (JPG, PNG, etc.)');
         return;
       }
 
       if (file.size > 5 * 1024 * 1024) {
-        this.error = 'La imagen no puede superar los 5MB';
+        this.mostrarErrorModal('La imagen no puede superar los 5MB');
         return;
       }
 
@@ -415,14 +414,8 @@ export class ProfileComponent implements OnInit {
 
     const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${environment.cloudinary.cloudName}/image/upload`;
 
-    console.log('Subiendo imagen a Cloudinary...');
-    console.log('Cloud Name:', environment.cloudinary.cloudName);
-    console.log('Upload Preset:', environment.cloudinary.uploadPreset);
-
     this.uploadToCloudinary(cloudinaryUrl, formData).subscribe({
       next: (response: any) => {
-        console.log('Cloudinary response:', response);
-
         const imageUrl = response.secure_url || response.url;
 
         if (imageUrl) {
@@ -443,8 +436,6 @@ export class ProfileComponent implements OnInit {
 
           this.userService.updateUserProfile(dataToSend).subscribe({
             next: (updateResponse: any) => {
-              console.log('Perfil actualizado con foto:', updateResponse);
-
               if (updateResponse && updateResponse.fotoUrl) {
                 this.userProfile.fotoUrl = updateResponse.fotoUrl;
                 this.avatarUrl = updateResponse.fotoUrl;
@@ -532,7 +523,7 @@ export class ProfileComponent implements OnInit {
     }
 
     if (!this.userProfile.nombre || this.userProfile.nombre.trim() === '') {
-      this.error = 'El nombre es obligatorio.';
+      this.mostrarErrorModal('El nombre es obligatorio.');
       return;
     }
 
@@ -559,12 +550,8 @@ export class ProfileComponent implements OnInit {
       fotoUrl: this.userProfile.fotoUrl || ''
     };
 
-    console.log('Enviando datos al backend:', JSON.stringify(dataToSend, null, 2));
-
     this.userService.updateUserProfile(dataToSend).subscribe({
       next: (response: any) => {
-        console.log('Respuesta del backend:', response);
-
         if (response) {
           this.guardando = false;
           this.editando = false;
@@ -580,17 +567,23 @@ export class ProfileComponent implements OnInit {
           }, 1500);
         } else {
           this.guardando = false;
-          this.error = 'Error al guardar los cambios. Verifica los datos e intentalo de nuevo.';
+          this.mostrarErrorModal('Error al guardar los cambios. Verifica los datos e intentalo de nuevo.');
         }
       },
       error: (err: any) => {
         console.error('Error al actualizar perfil:', err);
         let mensajeError = 'Error al guardar los cambios. Intenta de nuevo.';
-        if (err.error && err.error.message) {
+
+        if (err.status === 400) {
+          mensajeError = err.error?.message || 'Datos invalidos. Verifica la informacion.';
+        } else if (err.status === 401) {
+          mensajeError = 'Tu sesion ha expirado. Inicia sesion nuevamente.';
+        } else if (err.error?.message) {
           mensajeError = err.error.message;
         }
-        this.error = mensajeError;
+
         this.guardando = false;
+        this.mostrarErrorModal(mensajeError);
       }
     });
   }
@@ -630,12 +623,6 @@ export class ProfileComponent implements OnInit {
     console.log('Busqueda:', query);
   }
 
-    // ⬇️ Pega esto junto, tal cual:
-  isSidebarOpen: boolean = false;
-
-  // ==========================================
-  // Sidebar móvil
-  // ==========================================
   toggleSidebar(): void {
     this.isSidebarOpen = !this.isSidebarOpen;
   }
