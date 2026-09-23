@@ -1,13 +1,17 @@
-<div class="historial-layout">
+<div class="dashboard-container">
+    <!-- Overlay oscuro para dispositivos móviles cuando el menú lateral está abierto -->
     <div class="sidebar-overlay" *ngIf="isSidebarOpen" (click)="closeSidebar()"></div>
 
+    <!-- Barra lateral con enlace al estado de apertura -->
     <app-navbar [isOpen]="isSidebarOpen" (closeMenu)="closeSidebar()"></app-navbar>
 
-    <div class="historial-main">
+    <div class="physical-detail-main">
+        <!-- Cabecera superior con evento para controlar el menú hamburguesa -->
         <app-header (toggleMenu)="toggleSidebar()"></app-header>
 
-
-        <div class="historial-wrapper" *ngIf="!isLoading && !error && historialCompleto.length > 0 && ultimaMedicion">
+        <!-- CONTENIDO PRINCIPAL -->
+        <div class="physical-detail-page"
+            *ngIf="!isLoading && !error && historialCompleto.length > 0 && ultimaMedicion">
 
             <!-- ENCABEZADO Y ACCIONES -->
             <div class="page-header">
@@ -39,8 +43,9 @@
             <div class="socio-profile-card">
                 <div class="socio-profile-card__left">
                     <div class="avatar-circle">
-                        <img *ngIf="userAvatar" [src]="userAvatar" [alt]="userName" class="avatar-circle__img" />
-                        <span *ngIf="!userAvatar">{{ userName.charAt(0).toUpperCase() }}</span>
+                        <img *ngIf="userAvatar && !hasAvatarError()" [src]="userAvatar" [alt]="userName"
+                            class="avatar-circle__img" crossOrigin="anonymous" (error)="onAvatarError()" />
+                        <span *ngIf="!userAvatar || hasAvatarError()">{{ getInitials(userName) }}</span>
                     </div>
                     <div class="socio-info">
                         <div class="socio-info__header">
@@ -58,14 +63,14 @@
                                 </svg>
                                 {{ userEmail || 'Sin correo' }}
                             </span>
-                            <span class="contact-item" *ngIf="userPhone">
+                            <span class="contact-item">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                     stroke-width="2">
                                     <path
                                         d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
                                     </path>
                                 </svg>
-                                {{ userPhone }}
+                                {{ userPhone || 'Sin teléfono' }}
                             </span>
                         </div>
                     </div>
@@ -131,8 +136,8 @@
                             <span class="kpi-title">Altura</span>
                         </div>
                         <div class="kpi-detail-card__body">
-                            <span class="kpi-num">{{ ultimaMedicion?.alturaCm | number:'1.0-2' }}
-                                <small>cm</small></span>
+                            <span class="kpi-num">{{ ultimaMedicion?.alturaCm ? (ultimaMedicion?.alturaCm |
+                                number:'1.0-2') : '--' }} <small>cm</small></span>
                             <span class="badge-status badge-status--blue">Normal</span>
                         </div>
                     </div>
@@ -195,14 +200,14 @@
                                 <h3 class="chart-title">Evolución del Progreso</h3>
                             </div>
                             <span class="chart-scroll-hint"
-                                *ngIf="evolucionData && evolucionData.peso && evolucionData.peso.length > 4">
+                                *ngIf="evolucionData && evolucionData.evolucionPeso && evolucionData.evolucionPeso.length > 4">
                                 ← Desliza para ver más historial →
                             </span>
                         </div>
 
                         <div class="chart-scroll-container" #chartScrollContainer>
                             <div class="chart-container-wrapper" [ngStyle]="{'width': chartWidthStyle}">
-                                <canvas id="evolucionChart"></canvas>
+                                <canvas #chartCanvas></canvas>
                             </div>
                         </div>
                     </div>
@@ -261,7 +266,8 @@
                                     </div>
                                     <div class="pro-card__info">
                                         <span class="pro-card__label">Altura</span>
-                                        <span class="pro-card__value">{{ ultimaMedicion?.alturaCm | number:'1.0-2' }}
+                                        <span class="pro-card__value">{{ ultimaMedicion?.alturaCm ?
+                                            (ultimaMedicion?.alturaCm | number:'1.0-2') : '--' }}
                                             <small>cm</small></span>
                                     </div>
                                 </div>
@@ -304,7 +310,8 @@
                                     </div>
                                     <div class="pro-card__info">
                                         <span class="pro-card__label">Cuello</span>
-                                        <span class="pro-card__value">{{ ultimaMedicion?.cuelloCm | number:'1.2-2' }}
+                                        <span class="pro-card__value">{{ ultimaMedicion?.cuelloCm ?
+                                            (ultimaMedicion?.cuelloCm | number:'1.2-2') : 'N/A' }}
                                             <small>cm</small></span>
                                     </div>
                                 </div>
@@ -318,8 +325,9 @@
                                     </div>
                                     <div class="pro-card__info">
                                         <span class="pro-card__label">Cintura Escapular</span>
-                                        <span class="pro-card__value">{{ ultimaMedicion?.cinturaEscapularCm |
-                                            number:'1.2-2' }} <small>cm</small></span>
+                                        <span class="pro-card__value">{{ ultimaMedicion?.cinturaEscapularCm ?
+                                            (ultimaMedicion?.cinturaEscapularCm | number:'1.2-2') : 'N/A' }}
+                                            <small>cm</small></span>
                                     </div>
                                 </div>
 
@@ -346,7 +354,8 @@
                                     </div>
                                     <div class="pro-card__info">
                                         <span class="pro-card__label">Cadera</span>
-                                        <span class="pro-card__value">{{ ultimaMedicion?.caderaCm | number:'1.2-2' }}
+                                        <span class="pro-card__value">{{ ultimaMedicion?.caderaCm ?
+                                            (ultimaMedicion?.caderaCm | number:'1.2-2') : 'N/A' }}
                                             <small>cm</small></span>
                                     </div>
                                 </div>
@@ -362,7 +371,8 @@
                                     </div>
                                     <div class="pro-card__info">
                                         <span class="pro-card__label">Tórax</span>
-                                        <span class="pro-card__value">{{ ultimaMedicion?.toraxCm | number:'1.2-2' }}
+                                        <span class="pro-card__value">{{ ultimaMedicion?.toraxCm ?
+                                            (ultimaMedicion?.toraxCm | number:'1.2-2') : 'N/A' }}
                                             <small>cm</small></span>
                                     </div>
                                 </div>
@@ -421,9 +431,10 @@
                                     </div>
                                     <div class="pro-card__info">
                                         <span class="pro-card__label">Pantorrillas (Izq / Der)</span>
-                                        <span class="pro-card__value">{{ ultimaMedicion?.pantorrillaIzqCm |
-                                            number:'1.1-1' }} / {{ ultimaMedicion?.pantorrillaDerCm | number:'1.1-1' }}
-                                            <small>cm</small></span>
+                                        <span class="pro-card__value">{{ ultimaMedicion?.pantorrillaIzqCm ?
+                                            (ultimaMedicion?.pantorrillaIzqCm | number:'1.1-1') : 'N/A' }} / {{
+                                            ultimaMedicion?.pantorrillaDerCm ? (ultimaMedicion?.pantorrillaDerCm |
+                                            number:'1.1-1') : 'N/A' }} <small>cm</small></span>
                                     </div>
                                 </div>
                             </div>
@@ -451,29 +462,31 @@
                                 <div class="comp-item">
                                     <span class="comp-label">Peso</span>
                                     <span class="comp-val"
-                                        [ngClass]="comparacion.peso?.includes('-') ? 'text-green' : 'text-red'">
-                                        {{ comparacion.peso }}
+                                        [ngClass]="comparacion.peso <= 0 ? 'text-green' : 'text-red'">
+                                        {{ comparacion.peso > 0 ? '+' : '' }}{{ comparacion.peso | number:'1.2-2' }} kg
                                     </span>
                                 </div>
                                 <div class="comp-item">
                                     <span class="comp-label">Grasa Corporal</span>
                                     <span class="comp-val"
-                                        [ngClass]="comparacion.grasa?.includes('-') ? 'text-green' : 'text-red'">
-                                        {{ comparacion.grasa }}
+                                        [ngClass]="comparacion.grasa <= 0 ? 'text-green' : 'text-red'">
+                                        {{ comparacion.grasa > 0 ? '+' : '' }}{{ comparacion.grasa | number:'1.2-2' }} %
                                     </span>
                                 </div>
                                 <div class="comp-item">
                                     <span class="comp-label">Masa Muscular</span>
                                     <span class="comp-val"
-                                        [ngClass]="comparacion.musculo?.includes('+') ? 'text-green' : 'text-red'">
-                                        {{ comparacion.musculo }}
+                                        [ngClass]="comparacion.musculo >= 0 ? 'text-green' : 'text-red'">
+                                        {{ comparacion.musculo > 0 ? '+' : '' }}{{ comparacion.musculo | number:'1.2-2'
+                                        }} %
                                     </span>
                                 </div>
                                 <div class="comp-item">
                                     <span class="comp-label">Cintura</span>
                                     <span class="comp-val"
-                                        [ngClass]="comparacion.cintura?.includes('-') ? 'text-green' : 'text-red'">
-                                        {{ comparacion.cintura }}
+                                        [ngClass]="comparacion.cintura <= 0 ? 'text-green' : 'text-red'">
+                                        {{ comparacion.cintura > 0 ? '+' : '' }}{{ comparacion.cintura | number:'1.2-2'
+                                        }} cm
                                     </span>
                                 </div>
                             </div>
@@ -503,19 +516,16 @@
                         </div>
 
                         <div class="silhouette-body-3d">
-                            <model-viewer #modelViewer
-                                src="https://modelviewer.dev/shared-assets/models/NeilArmstrong.glb"
-                                alt="Modelo 3D Astronauta" camera-controls touch-action="pan-y"
-                                interaction-prompt="auto" shadow-intensity="0.4" exposure="1.2"
-                                environment-image="neutral" auto-rotate rotation-per-second="2deg"
-                                camera-orbit="0deg 75deg 2.8m" camera-target="0m 0.9m 0m" field-of-view="28deg"
-                                min-camera-orbit="auto auto 2m" max-camera-orbit="auto auto 4m"
-                                class="model-viewer-canvas" (load)="onModelLoad()">
+                            <model-viewer #modelViewer [src]="modeloUrl" alt="Modelo 3D del cuerpo humano"
+                                camera-controls touch-action="pan-y" interaction-prompt="auto" shadow-intensity="0.8"
+                                shadow-softness="0.6" exposure="1" environment-image="neutral" auto-rotate
+                                rotation-per-second="2deg" scale="0.01 0.01 0.01" camera-orbit="0deg 80deg 3.2m"
+                                camera-target="0m 0.95m 0m" field-of-view="30deg" min-camera-orbit="auto auto 2.2m"
+                                max-camera-orbit="auto auto 4.5m" class="model-viewer-canvas" (load)="onModelLoad()">
 
                                 <button class="hotspot hotspot--purple" slot="hotspot-cuello"
-                                    data-position="0m 1.35m 0.10m" data-normal="0m 0m 1m"
-                                    (mouseenter)="onHoverMeasure('cuello')" (mouseleave)="onLeaveMeasure()"
-                                    *ngIf="medidasSilueta.cuello != null && medidasSilueta.cuello > 0">
+                                    data-position="0m 1.58m 0.10m" data-normal="0m 0m 1m"
+                                    (mouseenter)="onHoverMeasure('cuello')" (mouseleave)="onLeaveMeasure()">
                                     <div class="hotspot-annotation">
                                         <span>Cuello</span>
                                         <strong>{{ medidasSilueta.cuello }} cm</strong>
@@ -523,9 +533,8 @@
                                 </button>
 
                                 <button class="hotspot hotspot--purple" slot="hotspot-pecho"
-                                    data-position="0m 1.15m 0.15m" data-normal="0m 0m 1m"
-                                    (mouseenter)="onHoverMeasure('pecho')" (mouseleave)="onLeaveMeasure()"
-                                    *ngIf="medidasSilueta.pecho != null && medidasSilueta.pecho > 0">
+                                    data-position="0m 1.40m 0.16m" data-normal="0m 0m 1m"
+                                    (mouseenter)="onHoverMeasure('pecho')" (mouseleave)="onLeaveMeasure()">
                                     <div class="hotspot-annotation">
                                         <span>Pecho</span>
                                         <strong>{{ medidasSilueta.pecho }} cm</strong>
@@ -533,9 +542,8 @@
                                 </button>
 
                                 <button class="hotspot hotspot--green" slot="hotspot-brazo-izq"
-                                    data-position="-0.22m 1.05m 0.02m" data-normal="-1m 0m 0m"
-                                    (mouseenter)="onHoverMeasure('brazoIzq')" (mouseleave)="onLeaveMeasure()"
-                                    *ngIf="medidasSilueta.brazoIzq != null && medidasSilueta.brazoIzq > 0">
+                                    data-position="-0.28m 1.28m 0.02m" data-normal="-1m 0m 0m"
+                                    (mouseenter)="onHoverMeasure('brazoIzq')" (mouseleave)="onLeaveMeasure()">
                                     <div class="hotspot-annotation">
                                         <span>Brazo I.</span>
                                         <strong>{{ medidasSilueta.brazoIzq }} cm</strong>
@@ -543,9 +551,8 @@
                                 </button>
 
                                 <button class="hotspot hotspot--green" slot="hotspot-brazo-der"
-                                    data-position="0.22m 1.05m 0.02m" data-normal="1m 0m 0m"
-                                    (mouseenter)="onHoverMeasure('brazoDer')" (mouseleave)="onLeaveMeasure()"
-                                    *ngIf="medidasSilueta.brazoDer != null && medidasSilueta.brazoDer > 0">
+                                    data-position="0.28m 1.28m 0.02m" data-normal="1m 0m 0m"
+                                    (mouseenter)="onHoverMeasure('brazoDer')" (mouseleave)="onLeaveMeasure()">
                                     <div class="hotspot-annotation">
                                         <span>Brazo D.</span>
                                         <strong>{{ medidasSilueta.brazoDer }} cm</strong>
@@ -553,9 +560,8 @@
                                 </button>
 
                                 <button class="hotspot hotspot--orange" slot="hotspot-cintura"
-                                    data-position="0m 0.85m 0.12m" data-normal="0m 0m 1m"
-                                    (mouseenter)="onHoverMeasure('cintura')" (mouseleave)="onLeaveMeasure()"
-                                    *ngIf="medidasSilueta.cintura != null && medidasSilueta.cintura > 0">
+                                    data-position="0m 1.08m 0.14m" data-normal="0m 0m 1m"
+                                    (mouseenter)="onHoverMeasure('cintura')" (mouseleave)="onLeaveMeasure()">
                                     <div class="hotspot-annotation">
                                         <span>Cintura</span>
                                         <strong>{{ medidasSilueta.cintura }} cm</strong>
@@ -563,9 +569,8 @@
                                 </button>
 
                                 <button class="hotspot hotspot--orange" slot="hotspot-cadera"
-                                    data-position="0m 0.70m 0.12m" data-normal="0m 0m 1m"
-                                    (mouseenter)="onHoverMeasure('cadera')" (mouseleave)="onLeaveMeasure()"
-                                    *ngIf="medidasSilueta.cadera != null && medidasSilueta.cadera > 0">
+                                    data-position="0m 0.92m 0.14m" data-normal="0m 0m 1m"
+                                    (mouseenter)="onHoverMeasure('cadera')" (mouseleave)="onLeaveMeasure()">
                                     <div class="hotspot-annotation">
                                         <span>Cadera</span>
                                         <strong>{{ medidasSilueta.cadera }} cm</strong>
@@ -573,9 +578,8 @@
                                 </button>
 
                                 <button class="hotspot hotspot--blue" slot="hotspot-pierna-izq"
-                                    data-position="-0.10m 0.50m 0.08m" data-normal="0m 0m 1m"
-                                    (mouseenter)="onHoverMeasure('piernaIzq')" (mouseleave)="onLeaveMeasure()"
-                                    *ngIf="medidasSilueta.piernaIzq != null && medidasSilueta.piernaIzq > 0">
+                                    data-position="-0.12m 0.55m 0.10m" data-normal="0m 0m 1m"
+                                    (mouseenter)="onHoverMeasure('piernaIzq')" (mouseleave)="onLeaveMeasure()">
                                     <div class="hotspot-annotation">
                                         <span>Pierna I.</span>
                                         <strong>{{ medidasSilueta.piernaIzq }} cm</strong>
@@ -583,9 +587,8 @@
                                 </button>
 
                                 <button class="hotspot hotspot--blue" slot="hotspot-pierna-der"
-                                    data-position="0.10m 0.50m 0.08m" data-normal="0m 0m 1m"
-                                    (mouseenter)="onHoverMeasure('piernaDer')" (mouseleave)="onLeaveMeasure()"
-                                    *ngIf="medidasSilueta.piernaDer != null && medidasSilueta.piernaDer > 0">
+                                    data-position="0.12m 0.55m 0.10m" data-normal="0m 0m 1m"
+                                    (mouseenter)="onHoverMeasure('piernaDer')" (mouseleave)="onLeaveMeasure()">
                                     <div class="hotspot-annotation">
                                         <span>Pierna D.</span>
                                         <strong>{{ medidasSilueta.piernaDer }} cm</strong>
@@ -622,7 +625,7 @@
                                     </div>
                                     <div class="s-measure-item">
                                         <span class="s-label">Pecho</span>
-                                        <span class="s-val text-purple">{{ ultimaMedicion?.pechoCm || 'N/A' }} cm</span>
+                                        <span class="s-val text-purple">{{ ultimaMedicion?.pechoCm || 0 }} cm</span>
                                     </div>
                                 </div>
                             </div>
@@ -638,8 +641,7 @@
                                 <div class="s-measure-grid">
                                     <div class="s-measure-item">
                                         <span class="s-label">Cintura</span>
-                                        <span class="s-val text-orange">{{ ultimaMedicion?.cinturaCm || 'N/A' }}
-                                            cm</span>
+                                        <span class="s-val text-orange">{{ ultimaMedicion?.cinturaCm || 0 }} cm</span>
                                     </div>
                                     <div class="s-measure-item">
                                         <span class="s-label">Cadera</span>
@@ -660,8 +662,8 @@
                                 <div class="s-measure-grid">
                                     <div class="s-measure-item">
                                         <span class="s-label">Izq / Der</span>
-                                        <span class="s-val text-green-dark">{{ ultimaMedicion?.brazoIzqCm || 'N/A' }} /
-                                            {{ ultimaMedicion?.brazoDerCm || 'N/A' }} cm</span>
+                                        <span class="s-val text-green-dark">{{ ultimaMedicion?.brazoIzqCm || 0 }} / {{
+                                            ultimaMedicion?.brazoDerCm || 0 }} cm</span>
                                     </div>
                                 </div>
                             </div>
@@ -677,8 +679,8 @@
                                 <div class="s-measure-grid">
                                     <div class="s-measure-item">
                                         <span class="s-label">Pierna (I/D)</span>
-                                        <span class="s-val text-blue-dark">{{ ultimaMedicion?.piernaIzqCm || 'N/A' }} /
-                                            {{ ultimaMedicion?.piernaDerCm || 'N/A' }} cm</span>
+                                        <span class="s-val text-blue-dark">{{ ultimaMedicion?.piernaIzqCm || 0 }} / {{
+                                            ultimaMedicion?.piernaDerCm || 0 }} cm</span>
                                     </div>
                                     <div class="s-measure-item">
                                         <span class="s-label">Pantorrilla (I/D)</span>
