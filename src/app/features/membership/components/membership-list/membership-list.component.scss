@@ -9,7 +9,9 @@
     overflow-x: hidden;
     box-sizing: border-box;
 
-    *, *::before, *::after {
+    *,
+    *::before,
+    *::after {
         box-sizing: inherit;
     }
 }
@@ -140,21 +142,35 @@
             &--delete {
                 background-color: #fca5a5;
                 color: #7f1d1d;
-                &:hover { background-color: #f87171; color: #fff; }
+
+                &:hover {
+                    background-color: #f87171;
+                    color: #fff;
+                }
             }
 
             &--clear {
                 background-color: #334155;
                 color: #f8fafc;
-                &:hover { background-color: #475569; }
+
+                &:hover {
+                    background-color: #475569;
+                }
             }
         }
     }
 }
 
 @keyframes slideDown {
-    from { opacity: 0; transform: translateY(-8px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* ==========================================================================
@@ -215,7 +231,7 @@
         height: 0;
         position: absolute;
 
-        &:checked ~ .checkmark {
+        &:checked~.checkmark {
             background-color: var(--color-primary);
             border-color: var(--color-primary);
 
@@ -224,7 +240,7 @@
             }
         }
 
-        &:indeterminate ~ .checkmark {
+        &:indeterminate~.checkmark {
             background-color: var(--color-primary);
             border-color: var(--color-primary);
 
@@ -267,7 +283,7 @@
         }
     }
 
-    &:hover input ~ .checkmark {
+    &:hover input~.checkmark {
         border-color: var(--color-primary);
     }
 }
@@ -314,7 +330,9 @@
                     background-color: var(--color-bg-card);
                 }
 
-                &::placeholder { color: var(--color-text-muted); }
+                &::placeholder {
+                    color: var(--color-text-muted);
+                }
             }
         }
 
@@ -352,7 +370,9 @@
 /* ==========================================================================
    PLANES GRID
    ========================================================================== */
-.plans-section { margin-bottom: 40px; }
+.plans-section {
+    margin-bottom: 40px;
+}
 
 .loading-state {
     display: flex;
@@ -380,12 +400,15 @@
 }
 
 @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .plans-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    /* Forzamos exactamente 3 columnas para que queden 3 arriba y 3 abajo con 6 ítems */
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 24px;
     align-items: stretch;
     width: 100%;
@@ -580,7 +603,9 @@
             background: var(--color-primary);
             color: #ffffff;
 
-            &:hover { background: var(--color-primary-hover); }
+            &:hover {
+                background: var(--color-primary-hover);
+            }
         }
 
         .btn-outline {
@@ -677,7 +702,9 @@
     border-bottom: 1px solid var(--color-border);
     gap: 16px;
 
-    .section-subtitle { margin: 0; }
+    .section-subtitle {
+        margin: 0;
+    }
 }
 
 .table-controls {
@@ -789,8 +816,13 @@
     tbody tr {
         transition: background-color 0.2s ease;
 
-        &:hover { background-color: var(--color-bg-hover); }
-        &:last-child td { border-bottom: none; }
+        &:hover {
+            background-color: var(--color-bg-hover);
+        }
+
+        &:last-child td {
+            border-bottom: none;
+        }
     }
 }
 
@@ -848,10 +880,12 @@
         background: #e0e7ff;
         color: #4338ca;
     }
+
     &.tier-elite {
         background: #fef3c7;
         color: #92400e;
     }
+
     &.tier-vip {
         background: #fce4ec;
         color: #9a1f3c;
@@ -874,12 +908,18 @@
 
     &.active {
         color: var(--color-success);
-        .status-dot { background: var(--color-success); }
+
+        .status-dot {
+            background: var(--color-success);
+        }
     }
 
     &.cancelled {
         color: var(--color-text-muted);
-        .status-dot { background: var(--color-text-muted); }
+
+        .status-dot {
+            background: var(--color-text-muted);
+        }
     }
 }
 
@@ -991,7 +1031,9 @@
         height: 38px;
         box-sizing: border-box;
 
-        &::placeholder { color: var(--color-text-muted); }
+        &::placeholder {
+            color: var(--color-text-muted);
+        }
 
         &:focus {
             outline: none;
@@ -1021,7 +1063,9 @@
             transform: translateY(-1px);
         }
 
-        svg { flex-shrink: 0; }
+        svg {
+            flex-shrink: 0;
+        }
     }
 }
 
@@ -1038,17 +1082,21 @@
         max-width: 1800px;
     }
 
-    .page-header .page-title { font-size: 34px; }
+    .page-header .page-title {
+        font-size: 34px;
+    }
 
     .plans-grid {
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 32px;
     }
 
     .plan-card {
         padding: 28px;
 
-        &__price-amount { font-size: 32px; }
+        &__price-amount {
+            font-size: 32px;
+        }
     }
 }
 
@@ -1056,7 +1104,9 @@
    2. DESKTOP GRANDE (1400px - 1599px)
    ========================================================================== */
 @media (min-width: 1400px) and (max-width: 1599px) {
-    .membership-management { padding: 36px 40px; }
+    .membership-management {
+        padding: 36px 40px;
+    }
 
     .plans-grid {
         grid-template-columns: repeat(3, 1fr);
@@ -1068,7 +1118,9 @@
    3. DESKTOP ESTÁNDAR (1200px - 1399px)
    ========================================================================== */
 @media (min-width: 1200px) and (max-width: 1399px) {
-    .membership-management { padding: 32px 32px; }
+    .membership-management {
+        padding: 32px 32px;
+    }
 
     .plans-grid {
         grid-template-columns: repeat(3, 1fr);
@@ -1080,10 +1132,17 @@
    4. LAPTOP (992px - 1199px)
    ========================================================================== */
 @media (max-width: 1199px) and (min-width: 992px) {
-    .membership-management { padding: 28px 24px; }
+    .membership-management {
+        padding: 28px 24px;
+    }
 
-    .page-header .page-title { font-size: 26px; }
-    .section-subtitle { font-size: 18px; }
+    .page-header .page-title {
+        font-size: 26px;
+    }
+
+    .section-subtitle {
+        font-size: 18px;
+    }
 
     .plans-grid {
         grid-template-columns: repeat(3, 1fr);
@@ -1093,11 +1152,18 @@
     .plan-card {
         padding: 22px 20px;
 
-        &__price-amount { font-size: 26px; }
-        &__title { font-size: 12px; }
+        &__price-amount {
+            font-size: 26px;
+        }
+
+        &__title {
+            font-size: 12px;
+        }
     }
 
-    .table-controls .filter-group { flex: 1 1 160px; }
+    .table-controls .filter-group {
+        flex: 1 1 160px;
+    }
 }
 
 /* ==========================================================================
@@ -1109,8 +1175,13 @@
         max-width: 100%;
     }
 
-    .page-header .page-title { font-size: 24px; }
-    .section-subtitle { font-size: 18px; }
+    .page-header .page-title {
+        font-size: 24px;
+    }
+
+    .section-subtitle {
+        font-size: 18px;
+    }
 
     /* Planes: 2 columnas */
     .plans-grid {
@@ -1121,18 +1192,28 @@
     .plan-card {
         padding: 22px 20px;
 
-        &__price-amount { font-size: 26px; }
-        &__title { font-size: 12px; }
+        &__price-amount {
+            font-size: 26px;
+        }
+
+        &__title {
+            font-size: 12px;
+        }
     }
 
-    .filters-plans__row .filter-group { flex: 1 1 160px; }
+    .filters-plans__row .filter-group {
+        flex: 1 1 160px;
+    }
 
-    .table-controls .filter-group { flex: 1 1 160px; }
+    .table-controls .filter-group {
+        flex: 1 1 160px;
+    }
 
     .members-table {
         min-width: 800px;
 
-        th, td {
+        th,
+        td {
             padding: 12px 16px;
             font-size: 13px;
         }
@@ -1147,9 +1228,14 @@
             font-size: 13px;
         }
 
-        .member-name { font-size: 13px; }
+        .member-name {
+            font-size: 13px;
+        }
+
         .member-email,
-        .member-phone { font-size: 11px; }
+        .member-phone {
+            font-size: 11px;
+        }
     }
 }
 
@@ -1158,18 +1244,29 @@
    🔥 AQUÍ SE CAMBIA A 1 COLUMNA
    ========================================================================== */
 @media (max-width: 767px) and (min-width: 600px) {
-    .membership-management { padding: 20px 16px; }
+    .membership-management {
+        padding: 20px 16px;
+    }
 
     .page-header {
         flex-direction: column;
         align-items: stretch;
         gap: 12px;
 
-        .btn-primary { width: 100%; justify-content: center; }
+        .btn-primary {
+            width: 100%;
+            justify-content: center;
+        }
     }
 
-    .page-header .page-title { font-size: 22px; }
-    .section-subtitle { font-size: 16px; margin-bottom: 12px; }
+    .page-header .page-title {
+        font-size: 22px;
+    }
+
+    .section-subtitle {
+        font-size: 16px;
+        margin-bottom: 12px;
+    }
 
     /* 🔥 GRID: 1 columna real - una tarjeta debajo de otra */
     .plans-grid {
@@ -1183,22 +1280,45 @@
         padding: 20px 18px !important;
         width: 100% !important;
 
-        &__price-amount { font-size: 26px !important; }
-        &__title { font-size: 12px !important; }
-        &__benefits li { font-size: 13px !important; }
-        &__actions button { font-size: 13px !important; padding: 10px 14px !important; }
+        &__price-amount {
+            font-size: 26px !important;
+        }
+
+        &__title {
+            font-size: 12px !important;
+        }
+
+        &__benefits li {
+            font-size: 13px !important;
+        }
+
+        &__actions button {
+            font-size: 13px !important;
+            padding: 10px 14px !important;
+        }
     }
 
     .filters-plans__row {
         flex-direction: column;
         align-items: stretch;
 
-        .filter-group { flex: 1 1 100%; }
-        .filter-group--btn { width: 100%; }
-        .btn-clear-filters { width: 100%; }
+        .filter-group {
+            flex: 1 1 100%;
+        }
+
+        .filter-group--btn {
+            width: 100%;
+        }
+
+        .btn-clear-filters {
+            width: 100%;
+        }
     }
 
-    .table-header { padding: 16px 16px; gap: 12px; }
+    .table-header {
+        padding: 16px 16px;
+        gap: 12px;
+    }
 
     .table-controls {
         flex-direction: column;
@@ -1210,8 +1330,13 @@
             width: 100%;
         }
 
-        .filter-group--btn { width: 100%; }
-        .btn-clear-filters { width: 100%; }
+        .filter-group--btn {
+            width: 100%;
+        }
+
+        .btn-clear-filters {
+            width: 100%;
+        }
     }
 
     .search-with-button {
@@ -1219,19 +1344,28 @@
         align-items: stretch;
         gap: 6px;
 
-        input { width: 100%; }
-        .btn-search { width: 100%; justify-content: center; }
+        input {
+            width: 100%;
+        }
+
+        .btn-search {
+            width: 100%;
+            justify-content: center;
+        }
     }
 
     .members-table {
         min-width: 750px;
 
-        th, td {
+        th,
+        td {
             padding: 10px 12px;
             font-size: 12px;
         }
 
-        th { font-size: 10px; }
+        th {
+            font-size: 10px;
+        }
     }
 
     .table-footer {
@@ -1240,7 +1374,9 @@
         gap: 10px;
         text-align: center;
 
-        .table-info { text-align: center; }
+        .table-info {
+            text-align: center;
+        }
     }
 }
 
@@ -1249,7 +1385,9 @@
    🔥 1 COLUMNA
    ========================================================================== */
 @media (max-width: 599px) and (min-width: 480px) {
-    .membership-management { padding: 16px 14px; }
+    .membership-management {
+        padding: 16px 14px;
+    }
 
     .page-header {
         flex-direction: column;
@@ -1264,8 +1402,14 @@
         }
     }
 
-    .page-header .page-title { font-size: 20px; }
-    .section-subtitle { font-size: 15px; margin-bottom: 10px; }
+    .page-header .page-title {
+        font-size: 20px;
+    }
+
+    .section-subtitle {
+        font-size: 15px;
+        margin-bottom: 10px;
+    }
 
     /* 🔥 GRID: 1 COLUMNA */
     .plans-grid {
@@ -1279,18 +1423,33 @@
         padding: 20px 16px !important;
         width: 100% !important;
 
-        &__header { padding-right: 28px; }
-        &__title { font-size: 12px; letter-spacing: 0.5px; }
-        &__price-amount { font-size: 26px !important; }
+        &__header {
+            padding-right: 28px;
+        }
+
+        &__title {
+            font-size: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        &__price-amount {
+            font-size: 26px !important;
+        }
 
         &__benefits {
             gap: 10px;
             margin-bottom: 18px;
 
-            li { font-size: 13px; gap: 8px; }
+            li {
+                font-size: 13px;
+                gap: 8px;
+            }
         }
 
-        &__actions button { font-size: 13px; padding: 10px 14px; }
+        &__actions button {
+            font-size: 13px;
+            padding: 10px 14px;
+        }
     }
 
     .bulk-actions-bar {
@@ -1299,7 +1458,9 @@
         align-items: stretch;
         gap: 8px;
 
-        .bulk-info { font-size: 0.8rem; }
+        .bulk-info {
+            font-size: 0.8rem;
+        }
 
         .bulk-buttons {
             flex-direction: column;
@@ -1319,7 +1480,10 @@
         gap: 8px;
         margin-bottom: 14px;
 
-        .select-counter { font-size: 0.75rem; text-align: center; }
+        .select-counter {
+            font-size: 0.75rem;
+            text-align: center;
+        }
     }
 
     .filters-plans {
@@ -1329,25 +1493,41 @@
             flex-direction: column;
             align-items: stretch;
 
-            .filter-group { flex: 1 1 100%; }
-            .filter-group--btn { width: 100%; }
-            .btn-clear-filters { width: 100%; }
+            .filter-group {
+                flex: 1 1 100%;
+            }
+
+            .filter-group--btn {
+                width: 100%;
+            }
+
+            .btn-clear-filters {
+                width: 100%;
+            }
         }
     }
 
-    .table-header { padding: 14px 14px; }
+    .table-header {
+        padding: 14px 14px;
+    }
 
-    .table-controls { gap: 8px; }
+    .table-controls {
+        gap: 8px;
+    }
 
     .members-table {
         min-width: 700px;
 
-        th, td {
+        th,
+        td {
             padding: 8px 10px;
             font-size: 11px;
         }
 
-        th { font-size: 9px; letter-spacing: 0.4px; }
+        th {
+            font-size: 9px;
+            letter-spacing: 0.4px;
+        }
     }
 
     .member-info {
@@ -1359,15 +1539,26 @@
             font-size: 11px;
         }
 
-        .member-name { font-size: 11px; }
+        .member-name {
+            font-size: 11px;
+        }
+
         .member-email,
-        .member-phone { font-size: 9px; }
+        .member-phone {
+            font-size: 9px;
+        }
     }
 
     .plan-tier,
-    .status-badge { font-size: 10px; padding: 3px 8px; }
+    .status-badge {
+        font-size: 10px;
+        padding: 3px 8px;
+    }
 
-    .days-badge { font-size: 9px; padding: 2px 7px; }
+    .days-badge {
+        font-size: 9px;
+        padding: 2px 7px;
+    }
 
     .pagination .page-btn,
     .membresias-pagination .page-btn {
@@ -1382,7 +1573,9 @@
    🔥 1 COLUMNA - Las tarjetas van una debajo de otra
    ========================================================================== */
 @media (max-width: 479px) {
-    .membership-management { padding: 14px 12px; }
+    .membership-management {
+        padding: 14px 12px;
+    }
 
     .page-header {
         flex-direction: column;
@@ -1398,8 +1591,16 @@
         }
     }
 
-    .page-header .page-title { font-size: 18px; letter-spacing: -0.3px; }
-    .section-subtitle { font-size: 14px; margin-bottom: 10px; letter-spacing: 0; }
+    .page-header .page-title {
+        font-size: 18px;
+        letter-spacing: -0.3px;
+    }
+
+    .section-subtitle {
+        font-size: 14px;
+        margin-bottom: 10px;
+        letter-spacing: 0;
+    }
 
     /* 🔥 GRID: 1 COLUMNA OBLIGATORIA */
     .plans-grid {
@@ -1492,7 +1693,9 @@
     .bulk-actions-bar {
         padding: 10px 12px;
 
-        .bulk-info { font-size: 0.75rem; }
+        .bulk-info {
+            font-size: 0.75rem;
+        }
 
         .bulk-buttons .btn-bulk {
             font-size: 0.72rem;
@@ -1503,9 +1706,13 @@
     .select-all-bar {
         padding: 10px 12px;
 
-        .select-all-label { font-size: 0.8rem; }
+        .select-all-label {
+            font-size: 0.8rem;
+        }
 
-        .select-counter { font-size: 0.7rem; }
+        .select-counter {
+            font-size: 0.7rem;
+        }
     }
 
     .filters-plans {
@@ -1514,6 +1721,7 @@
 
         &__row {
             .filter-group {
+
                 select,
                 input {
                     height: 36px;
@@ -1521,7 +1729,9 @@
                 }
             }
 
-            .filter-group--btn { width: 100%; }
+            .filter-group--btn {
+                width: 100%;
+            }
 
             .btn-clear-filters {
                 height: 36px;
@@ -1536,24 +1746,41 @@
         gap: 10px;
     }
 
-    .table-controls { gap: 8px; }
-
-    .table-controls .filter-group {
-        .filter-label { font-size: 10px; }
-
-        select,
-        input { height: 36px; font-size: 12px; }
+    .table-controls {
+        gap: 8px;
     }
 
-    .table-controls .filter-group--btn { width: 100%; }
+    .table-controls .filter-group {
+        .filter-label {
+            font-size: 10px;
+        }
 
-    .search-with-button input { font-size: 12px; padding: 0.5rem 0.8rem; }
-    .search-with-button .btn-search { font-size: 12px; padding: 0.5rem 0.8rem; }
+        select,
+        input {
+            height: 36px;
+            font-size: 12px;
+        }
+    }
+
+    .table-controls .filter-group--btn {
+        width: 100%;
+    }
+
+    .search-with-button input {
+        font-size: 12px;
+        padding: 0.5rem 0.8rem;
+    }
+
+    .search-with-button .btn-search {
+        font-size: 12px;
+        padding: 0.5rem 0.8rem;
+    }
 
     .members-table {
         min-width: 650px;
 
-        th, td {
+        th,
+        td {
             padding: 8px 10px;
             font-size: 11px;
         }
@@ -1573,14 +1800,29 @@
             font-size: 10px;
         }
 
-        .member-name { font-size: 11px; }
+        .member-name {
+            font-size: 11px;
+        }
+
         .member-email,
-        .member-phone { font-size: 9px; }
+        .member-phone {
+            font-size: 9px;
+        }
     }
 
-    .plan-tier { font-size: 9px; padding: 2px 7px; }
-    .status-badge { font-size: 10px; }
-    .days-badge { font-size: 9px; padding: 2px 6px; }
+    .plan-tier {
+        font-size: 9px;
+        padding: 2px 7px;
+    }
+
+    .status-badge {
+        font-size: 10px;
+    }
+
+    .days-badge {
+        font-size: 9px;
+        padding: 2px 6px;
+    }
 
     .table-footer {
         padding: 12px;
@@ -1588,7 +1830,10 @@
         align-items: stretch;
         gap: 8px;
 
-        .table-info { font-size: 11px; text-align: center; }
+        .table-info {
+            font-size: 11px;
+            text-align: center;
+        }
     }
 
     .pagination .page-btn,
@@ -1604,10 +1849,17 @@
    9. MÓVIL MUY PEQUEÑO (≤ 360px)
    ========================================================================== */
 @media (max-width: 360px) {
-    .membership-management { padding: 12px 10px; }
+    .membership-management {
+        padding: 12px 10px;
+    }
 
-    .page-header .page-title { font-size: 17px; }
-    .section-subtitle { font-size: 13px; }
+    .page-header .page-title {
+        font-size: 17px;
+    }
+
+    .section-subtitle {
+        font-size: 13px;
+    }
 
     /* 🔥 1 COLUMNA */
     .plans-grid {
@@ -1619,28 +1871,58 @@
     .plan-card {
         padding: 16px 12px !important;
 
-        &__header { padding-right: 28px !important; }
-        &__badge { font-size: 8px !important; padding: 3px 8px !important; }
-        &__title { font-size: 11px !important; }
-        &__price-amount { font-size: 22px !important; }
-        &__benefits li { font-size: 11.5px !important; gap: 6px !important; }
-        &__actions button { font-size: 11.5px !important; padding: 8px 10px !important; }
+        &__header {
+            padding-right: 28px !important;
+        }
+
+        &__badge {
+            font-size: 8px !important;
+            padding: 3px 8px !important;
+        }
+
+        &__title {
+            font-size: 11px !important;
+        }
+
+        &__price-amount {
+            font-size: 22px !important;
+        }
+
+        &__benefits li {
+            font-size: 11.5px !important;
+            gap: 6px !important;
+        }
+
+        &__actions button {
+            font-size: 11.5px !important;
+            padding: 8px 10px !important;
+        }
     }
 
     .members-table {
         min-width: 600px;
 
-        th, td { padding: 6px 8px; font-size: 10px; }
+        th,
+        td {
+            padding: 6px 8px;
+            font-size: 10px;
+        }
     }
 
-    .member-info .member-avatar { width: 26px; height: 26px; font-size: 9px; }
+    .member-info .member-avatar {
+        width: 26px;
+        height: 26px;
+        font-size: 9px;
+    }
 }
 
 /* ==========================================================================
    10. ORIENTACIÓN HORIZONTAL EN MÓVIL
    ========================================================================== */
 @media (max-height: 500px) and (orientation: landscape) and (max-width: 991px) {
-    .membership-management { padding: 12px 16px; }
+    .membership-management {
+        padding: 12px 16px;
+    }
 
     /* En horizontal sí pueden ir 2-3 columnas */
     .plans-grid {
@@ -1651,21 +1933,27 @@
     .plan-card {
         padding: 16px 14px !important;
 
-        &__price-amount { font-size: 22px !important; }
+        &__price-amount {
+            font-size: 22px !important;
+        }
     }
 
     .table-controls {
         flex-direction: row;
         align-items: flex-end;
 
-        .filter-group { flex: 1 1 140px; }
+        .filter-group {
+            flex: 1 1 140px;
+        }
     }
 }
 
 /* ==========================================================================
    11. RETINA / DPI ALTO
    ========================================================================== */
-@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+@media (-webkit-min-device-pixel-ratio: 2),
+(min-resolution: 192dpi) {
+
     .plan-card,
     .members-table,
     .filters-plans {

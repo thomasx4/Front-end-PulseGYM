@@ -123,12 +123,6 @@
                     </div>
                 </div>
 
-                <!-- SPINNER DE CARGA MASIVA -->
-                <div *ngIf="loading && pagosList.length === 0" class="state-container">
-                    <div class="spinner"></div>
-                    <p>Cargando transacciones...</p>
-                </div>
-
                 <!-- TABLA + PANEL LATERAL -->
                 <div class="main-content-layout" [class.with-detail]="selectedPayment" *ngIf="!loading || pagosList.length > 0">
                     <div class="table-card-wrapper">
