@@ -812,3 +812,110 @@
         line-height: 1.45;
     }
 }
+
+/* ========== RESPONSIVE MÓVIL / TABLET ========== */
+@media (max-width: 768px) {
+    .profile-wrapper {
+        padding: 16px 14px 30px;
+    }
+
+    .profile-card {
+        padding: 24px 18px 0;
+    }
+
+    .profile-top {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        min-height: 0;
+    }
+
+    .profile-avatar-container {
+        margin-right: 0;
+    }
+
+    .profile-avatar {
+        width: 96px;
+        height: 96px;
+        font-size: 32px;
+    }
+
+    .profile-main-info {
+        padding-right: 0;
+        width: 100%;
+
+        h2 {
+            font-size: 21px;
+        }
+    }
+
+    .profile-badges {
+        justify-content: center;
+    }
+
+    .profile-actions {
+        position: static;
+        width: 100%;
+        margin-top: 14px;
+        justify-content: center;
+    }
+
+    .profile-contact-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .contact-col:not(:last-child)::after {
+        display: none;
+    }
+
+    .contact-col {
+        padding: 16px;
+    }
+
+    .profile-grid.admin-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .info-row {
+        flex-wrap: wrap;
+    }
+
+    .info-value.bold {
+        text-align: left;
+    }
+
+    .edit-container {
+        padding: 20px 16px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .form-section {
+        padding: 16px;
+    }
+
+    .form-actions {
+        justify-content: stretch;
+
+        button {
+            flex: 1;
+        }
+    }
+
+    .modal-content {
+        padding: 28px 22px 24px;
+    }
+}
+
+@media (max-width: 480px) {
+    .profile-contact-row {
+        grid-template-columns: 1fr;
+    }
+
+    .page-header h1 {
+        font-size: 22px;
+    }
+}
