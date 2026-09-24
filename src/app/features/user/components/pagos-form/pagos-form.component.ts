@@ -46,6 +46,11 @@ export class PagosFormComponent implements OnInit, AfterViewInit {
           this.inicializarPaymentBrick();
         } else {
           console.warn('⚠️ No se encontró una membresía activa asociada al usuario.');
+          Swal.fire(
+            'Sin membresía asignada',
+            'No tienes una membresía asignada, así que no es posible registrar un pago. Elige un plan primero.',
+            'warning'
+          ).then(() => this.router.navigate(['/user/membresias']));
         }
       },
       error: (err) => {

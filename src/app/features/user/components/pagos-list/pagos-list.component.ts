@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
 import { UserPaymentService } from '../../../../core/services/user-payment.service';
+import { UserService } from '../../../../core/services/users.service';
 import { PagoSocio, FiltroPagosRequest } from '../../models/user-pagos.model';
 import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory } from '@capacitor/filesystem';
@@ -40,10 +41,21 @@ export class PagosListComponent implements OnInit {
     fechaFin: null
   };
 
-  constructor(private userPaymentService: UserPaymentService, private router: Router) {}
+  constructor(
+    private userPaymentService: UserPaymentService,
+    private userService: UserService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.cargarDatosPagos();
+    this.cargarEstadoMembresia();
+  }
+
+  cargarEstadoMembresia(): void {
+    this.userService.getMiMembresia().subscribe((res) => {
+      this.membresiaActiva = res;
+    });
   }
 
   cargarDatosPagos(): void {

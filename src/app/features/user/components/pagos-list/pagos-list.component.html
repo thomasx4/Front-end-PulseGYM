@@ -34,7 +34,8 @@
                             </svg>
                             Exportar todos (ZIP)
                         </button>
-                        <button type="button" class="btn btn--primary" routerLink="/user/pagos/form">
+                        <button type="button" class="btn btn--primary" routerLink="/user/pagos/form"
+                            *ngIf="membresiaActiva?.activa">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2.5">
                                 <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -61,15 +62,28 @@
                 </div>
 
                 <!-- TARJETA DE MEMBRESÍA ACTUAL -->
-                <div class="membresia-status-banner" *ngIf="membresiaActiva">
+                <div class="membresia-status-banner" *ngIf="membresiaActiva?.activa">
                     <div class="banner-info">
                         <span class="badge-activo">{{ membresiaActiva.estado || 'ACTIVA' }}</span>
                         <h3>{{ membresiaActiva.nombreMembresia }}</h3>
-                        <p>Vence el: <strong>{{ membresiaActiva.fechaVencimiento | date:'dd MMM yyyy' }}</strong></p>
+                        <p>Próximo pago: <strong>{{ membresiaActiva.fechaVencimiento | date:'dd MMM yyyy' }}</strong></p>
                     </div>
                     <div class="banner-action">
-                        <span class="price-label">Valor plan:</span>
-                        <span class="price-value">${{ membresiaActiva.precioReal | number:'1.2-2' }}</span>
+                        <span class="price-label">Días restantes:</span>
+                        <span class="price-value">{{ membresiaActiva.diasRestantes }}</span>
+                    </div>
+                </div>
+
+                <!-- SIN MEMBRESÍA ASIGNADA -->
+                <div class="membresia-status-banner membresia-status-banner--empty"
+                    *ngIf="membresiaActiva && !membresiaActiva.activa">
+                    <div class="banner-info">
+                        <span class="badge-activo">SIN MEMBRESÍA</span>
+                        <h3>No tienes una membresía activa</h3>
+                        <p>{{ membresiaActiva.mensaje || 'Elige un plan para poder registrar un pago.' }}</p>
+                    </div>
+                    <div class="banner-action">
+                        <a routerLink="/user/membresias" class="btn btn--secondary-export">Ver planes</a>
                     </div>
                 </div>
 
