@@ -38,7 +38,7 @@ export class RegisterSupplierComponent {
       contactoNombre: ['', [Validators.required, Validators.minLength(3)]],
       telefono: ['', [
         Validators.required,
-        Validators.pattern(/^\+?[0-9\s\-]{7,15}$/)
+        Validators.pattern(/^[0-9]{6,10}$/)
       ]],
       email: ['', [
         Validators.required,
@@ -50,6 +50,13 @@ export class RegisterSupplierComponent {
   esCampoInvalido(campo: string): boolean {
     const control = this.proveedorForm.get(campo);
     return !!(control && control.invalid && (control.touched || control.dirty));
+  }
+
+  soloNumerosTelefono(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const digits = input.value.replace(/\D/g, '').slice(0, 10);
+    input.value = digits;
+    this.proveedorForm.get('telefono')?.setValue(digits, { emitEvent: false });
   }
 
   guardarProveedor(): void {
