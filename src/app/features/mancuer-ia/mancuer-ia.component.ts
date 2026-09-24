@@ -99,7 +99,8 @@ export class MancuerIaComponent implements OnInit, OnDestroy {
     this.aiService.getHistory().subscribe({
       next: (data) => {
         if (data.messages && data.messages.length > 0) {
-          this.messages = data.messages;
+          // Validación: Mantener máximo 50 mensajes en memoria para optimizar rendimiento
+          this.messages = data.messages.slice(-50);
           this.scrollToBottom();
         }
       }
@@ -166,10 +167,29 @@ export class MancuerIaComponent implements OnInit, OnDestroy {
     if (this.isRateLimited) return;
 
     const messageToSend = text || this.userInput;
-    if (!messageToSend.trim() || this.isBusy) return;
+    
+    // Validación: Contenido vacío, espacios o exceso de caracteres
+    if (!messageToSend || !messageToSend.trim() || this.isBusy) return;
+
+    if (messageToSend.length > 1000) {
+      Swal.fire({
+        title: 'Mensaje demasiado largo',
+        text: 'El mensaje no puede superar los 1000 caracteres.',
+        icon: 'warning',
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#0e3b72'
+      });
+      return;
+    }
 
     const userMsg: ChatMessage = { role: 'user', content: messageToSend, ts: Date.now() };
     this.messages.push(userMsg);
+    
+    // Validación de longitud del historial local
+    if (this.messages.length > 50) {
+      this.messages = this.messages.slice(-50);
+    }
+
     this.scrollToBottom();
 
     if (!text) {
@@ -233,11 +253,7 @@ export class MancuerIaComponent implements OnInit, OnDestroy {
             `,
             icon: 'warning',
             confirmButtonText: 'Entendido',
-            customClass: {
-              popup: 'custom-swal-popup',
-              confirmButton: 'custom-swal-confirm-btn'
-            },
-            buttonsStyling: false
+            confirmButtonColor: '#0e3b72'
           });
         } else {
           const errorMsg: ChatMessage = { role: 'error', content: 'Error al comunicarse con MancuerIA: ' + errorText, ts: Date.now() };
@@ -260,12 +276,8 @@ export class MancuerIaComponent implements OnInit, OnDestroy {
       showCancelButton: true,
       confirmButtonText: 'Sí, limpiar',
       cancelButtonText: 'Cancelar',
-      customClass: {
-        popup: 'custom-swal-popup',
-        confirmButton: 'custom-swal-confirm-btn',
-        cancelButton: 'custom-swal-cancel-btn'
-      },
-      buttonsStyling: false
+      confirmButtonColor: '#0e3b72',
+      cancelButtonColor: '#64748b'
     }).then((result) => {
       if (result.isConfirmed) {
         this.aiService.clearHistory().subscribe({
@@ -277,12 +289,24 @@ export class MancuerIaComponent implements OnInit, OnDestroy {
               text: 'El historial se ha vaciado correctamente.',
               icon: 'success',
               timer: 1800,
-              showConfirmButton: false,
-              customClass: { popup: 'custom-swal-popup' }
+              showConfirmButton: false
             });
           }
         });
       }
     });
+  }
+
+  // (Añade estas propiedades dentro de la clase MancuerIaComponent)
+  showMcpModal: boolean = false;
+
+// (Añade estos métodos al final de tu clase en el TypeScript)
+  openMcpInfoModal() {
+    this.showMcpModal = true;
+    this.logMessage('Abrió la guía de información del MCP', 'ok');
+  }
+
+  closeMcpInfoModal() {
+    this.showMcpModal = false;
   }
 }

@@ -4,6 +4,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../../../environments/environment.prod';
 import { UserService, FiltrosPerfiles } from '../../../../../core/services/user.service';
+import { PhysicalHistoryService } from '../../../../../core/services/physical-history.service';
+import { PhysicalHistory } from '../../../../../core/models/physical-history';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -30,6 +32,10 @@ export class MedicalProfileFormComponent implements OnInit {
   totalPaginasModal: number = 0;
   loadingModalUsers: boolean = false;
 
+  // Estados del cuadro informativo de medidas físicas
+  tieneHistorialFisico: boolean = false;
+  mensajeEstadoHistorial: string = '';
+
   avatarSelectedError: boolean = false;
   modalAvatarErrors: Set<number> = new Set<number>();
 
@@ -38,7 +44,8 @@ export class MedicalProfileFormComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private http: HttpClient,
-    private userService: UserService
+    private userService: UserService,
+    private physicalHistoryService: PhysicalHistoryService
   ) {}
 
   ngOnInit(): void {
@@ -54,12 +61,12 @@ export class MedicalProfileFormComponent implements OnInit {
 
   initForm(): void {
     this.profileForm = this.fb.group({
-      pesoKg: [null, [Validators.min(0)]],
-      estaturaCm: [null, [Validators.min(0)]],
+      pesoKg: [null, [Validators.min(20), Validators.max(400)]],
+      estaturaCm: [null, [Validators.min(50), Validators.max(280)]],
       porcentajeGrasa: [null, [Validators.min(0), Validators.max(100)]],
-      alergias: [''],
-      condicionesCronicas: [''],
-      lesionesPrevias: [''],
+      alergias: ['', [Validators.maxLength(200)]],
+      condicionesCronicas: ['', [Validators.maxLength(200)]],
+      lesionesPrevias: ['', [Validators.maxLength(500)]],
       idUsuario: ['', Validators.required]
     });
   }
@@ -230,6 +237,47 @@ export class MedicalProfileFormComponent implements OnInit {
     this.profileForm.patchValue({ idUsuario: usuario.idUsuario });
     this.cerrarModalSeleccionSocio();
 
+    // Obtener datos del historial físico si existen
+    const idSocio = usuario.idUsuario || usuario.id;
+    if (idSocio) {
+      this.physicalHistoryService.getAll().subscribe({
+        next: (response) => {
+          const records: any[] = response || [];
+          const historialesSocio = records.filter((r: any) => r.idSocio === idSocio);
+
+          if (historialesSocio.length > 0) {
+            historialesSocio.sort((a, b) => new Date(b.fechaMedicion || '').getTime() - new Date(a.fechaMedicion || '').getTime());
+            const ultimoHistorial = historialesSocio[0];
+
+            this.tieneHistorialFisico = true;
+            this.mensajeEstadoHistorial = 'El usuario cuenta con historial físico. Se han completado el peso, la estatura y el porcentaje de grasa con su última medición.';
+
+            const grasaEncontrada = ultimoHistorial.porcentajeGrasa ?? ultimoHistorial.grasaCorporal ?? ultimoHistorial.porcentajeGrasaCorporal ?? null;
+
+            this.profileForm.patchValue({
+              pesoKg: ultimoHistorial.pesoKg || null,
+              estaturaCm: ultimoHistorial.alturaCm || ultimoHistorial.estaturaCm || null,
+              porcentajeGrasa: grasaEncontrada
+            });
+          } else {
+            this.tieneHistorialFisico = false;
+            this.mensajeEstadoHistorial = 'El usuario no tiene medidas registradas aún. Los campos se dejan en blanco.';
+
+            this.profileForm.patchValue({
+              pesoKg: null,
+              estaturaCm: null,
+              porcentajeGrasa: null
+            });
+          }
+        },
+        error: () => {
+          this.tieneHistorialFisico = false;
+          this.mensajeEstadoHistorial = 'No se pudo verificar el historial físico. Los campos se han dejado en blanco.';
+          this.profileForm.patchValue({ pesoKg: null, estaturaCm: null, porcentajeGrasa: null });
+        }
+      });
+    }
+
     Swal.fire({
       icon: 'success',
       title: 'Usuario asignado',
@@ -241,8 +289,10 @@ export class MedicalProfileFormComponent implements OnInit {
 
   limpiarSeleccion(): void {
     this.selectedUsuario = null;
+    this.tieneHistorialFisico = false;
+    this.mensajeEstadoHistorial = '';
     this.avatarSelectedError = false;
-    this.profileForm.patchValue({ idUsuario: '' });
+    this.profileForm.patchValue({ idUsuario: '', pesoKg: null, estaturaCm: null, porcentajeGrasa: null });
   }
 
   // --- AVATARES Y ROLES ---
@@ -297,14 +347,13 @@ export class MedicalProfileFormComponent implements OnInit {
   guardarPerfil(): void {
     if (this.profileForm.invalid) {
       this.profileForm.markAllAsTouched();
-      Swal.fire('Atención', 'Por favor asigna un usuario y completa los campos correctamente.', 'warning');
+      Swal.fire('Atención', 'Por favor asigna un usuario y completa los campos correctamente bajo los rangos permitidos.', 'warning');
       return;
     }
 
     this.loading = true;
     const formValues = this.profileForm.getRawValue();
     
-    // El backend espera idSocio en lugar de idUsuario según el modelo de perfiles médicos
     const payload = {
       pesoKg: formValues.pesoKg,
       estaturaCm: formValues.estaturaCm,

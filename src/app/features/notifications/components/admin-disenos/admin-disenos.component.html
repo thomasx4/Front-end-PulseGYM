@@ -150,72 +150,102 @@
     </div>
 
     <!-- MODAL FORMULARIO -->
-    <div *ngIf="modalAbierto" class="modal-backdrop">
-        <div class="modal-container-custom">
+    <div *ngIf="modalAbierto" class="modal-backdrop" (click)="cerrarModal()">
+        <div class="modal-container-custom" (click)="$event.stopPropagation()">
             <div class="detail-header">
                 <h3>{{ esEdicion ? 'Editar Diseño' : 'Nuevo Diseño' }}</h3>
                 <button class="close-btn" (click)="cerrarModal()">✕</button>
             </div>
 
-            <div class="modal-body-custom">
+            <form [formGroup]="disenoFormGroup" (ngSubmit)="guardarDiseno()" class="modal-body-custom">
                 <div class="form-grid-custom">
+                    
+                    <!-- NOMBRE / IDENTIFICADOR -->
                     <div class="form-group-full">
-                        <label class="form-label">Identificador (Nombre)</label>
-                        <input [(ngModel)]="disenoForm.nombre" type="text" placeholder="Ej: Diseño corporativo"
-                            class="form-control-custom">
-                    </div>
-
-                    <div class="form-row-half">
-                        <div class="form-group-full">
-                            <label class="form-label">Color Principal</label>
-                            <div class="color-picker-wrapper">
-                                <input [(ngModel)]="disenoForm.colorPrincipal" type="color" class="color-input">
-                                <input [(ngModel)]="disenoForm.colorPrincipal" type="text" class="form-control-custom">
-                            </div>
-                        </div>
-                        <div class="form-group-full">
-                            <label class="form-label">Color Secundario</label>
-                            <div class="color-picker-wrapper">
-                                <input [(ngModel)]="disenoForm.colorSecundario" type="color" class="color-input">
-                                <input [(ngModel)]="disenoForm.colorSecundario" type="text" class="form-control-custom">
-                            </div>
+                        <label class="form-label">Identificador (Nombre) <span class="required">*</span></label>
+                        <input formControlName="nombre" type="text" placeholder="Ej: Diseño corporativo"
+                            class="form-control-custom" [class.input-error]="esCampoInvalido('nombre')">
+                        <div class="field-error-container" *ngIf="esCampoInvalido('nombre')">
+                            <span class="field-error" *ngIf="disenoFormGroup.get('nombre')?.errors?.['required']">El nombre es obligatorio.</span>
+                            <span class="field-error" *ngIf="disenoFormGroup.get('nombre')?.errors?.['minlength']">Debe tener al menos 3 caracteres.</span>
+                            <span class="field-error" *ngIf="disenoFormGroup.get('nombre')?.errors?.['maxlength']">Máximo 100 caracteres.</span>
                         </div>
                     </div>
 
+                    <!-- COLORES -->
                     <div class="form-row-half">
                         <div class="form-group-full">
-                            <label class="form-label">Canal</label>
-                            <select [(ngModel)]="disenoForm.canal" class="form-control-custom">
+                            <label class="form-label">Color Principal <span class="required">*</span></label>
+                            <div class="color-picker-wrapper">
+                                <input formControlName="colorPrincipal" type="color" class="color-input">
+                                <input formControlName="colorPrincipal" type="text" class="form-control-custom" [class.input-error]="esCampoInvalido('colorPrincipal')">
+                            </div>
+                            <div class="field-error-container" *ngIf="esCampoInvalido('colorPrincipal')">
+                                <span class="field-error">Formato hexadecimal inválido (ej: #2c4b77).</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group-full">
+                            <label class="form-label">Color Secundario <span class="required">*</span></label>
+                            <div class="color-picker-wrapper">
+                                <input formControlName="colorSecundario" type="color" class="color-input">
+                                <input formControlName="colorSecundario" type="text" class="form-control-custom" [class.input-error]="esCampoInvalido('colorSecundario')">
+                            </div>
+                            <div class="field-error-container" *ngIf="esCampoInvalido('colorSecundario')">
+                                <span class="field-error">Formato hexadecimal inválido (ej: #8bb5d6).</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CANAL Y EVENTO -->
+                    <div class="form-row-half">
+                        <div class="form-group-full">
+                            <label class="form-label">Canal <span class="required">*</span></label>
+                            <select formControlName="canal" class="form-control-custom" [class.input-error]="esCampoInvalido('canal')">
                                 <option value="EMAIL">EMAIL</option>
                                 <option value="WHATSAPP">WHATSAPP</option>
                             </select>
                         </div>
+
                         <div class="form-group-full">
-                            <label class="form-label">Evento Asociado</label>
-                            <select [(ngModel)]="disenoForm.eventoAsociado" class="form-control-custom">
+                            <label class="form-label">Evento Asociado <span class="required">*</span></label>
+                            <select formControlName="eventoAsociado" class="form-control-custom" [class.input-error]="esCampoInvalido('eventoAsociado')">
                                 <option *ngFor="let e of eventosDisponibles" [value]="e">{{ e }}</option>
                             </select>
                         </div>
                     </div>
 
+                    <!-- TÍTULO HEADER -->
                     <div class="form-group-full">
-                        <label class="form-label">Título Header</label>
-                        <input [(ngModel)]="disenoForm.tituloHeader" type="text" placeholder="Ej: Pulse Gym"
-                            class="form-control-custom">
+                        <label class="form-label">Título Header <span class="required">*</span></label>
+                        <input formControlName="tituloHeader" type="text" placeholder="Ej: Pulse Gym"
+                            class="form-control-custom" [class.input-error]="esCampoInvalido('tituloHeader')">
+                        <div class="field-error-container" *ngIf="esCampoInvalido('tituloHeader')">
+                            <span class="field-error" *ngIf="disenoFormGroup.get('tituloHeader')?.errors?.['required']">El título es obligatorio.</span>
+                            <span class="field-error" *ngIf="disenoFormGroup.get('tituloHeader')?.errors?.['minlength']">Debe tener al menos 2 caracteres.</span>
+                            <span class="field-error" *ngIf="disenoFormGroup.get('tituloHeader')?.errors?.['maxlength']">Máximo 100 caracteres.</span>
+                        </div>
                     </div>
 
+                    <!-- SUBTÍTULO HEADER -->
                     <div class="form-group-full">
                         <label class="form-label">Subtítulo Header</label>
-                        <input [(ngModel)]="disenoForm.subtituloHeader" type="text"
-                            placeholder="Ej: Tu bienestar, nuestra pasión" class="form-control-custom">
+                        <input formControlName="subtituloHeader" type="text"
+                            placeholder="Ej: Tu bienestar, nuestra pasión" class="form-control-custom" [class.input-error]="esCampoInvalido('subtituloHeader')">
+                        <div class="field-error-container" *ngIf="esCampoInvalido('subtituloHeader')">
+                            <span class="field-error" *ngIf="disenoFormGroup.get('subtituloHeader')?.errors?.['maxlength']">Máximo 150 caracteres.</span>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="modal-footer-custom">
-                <button (click)="cerrarModal()" class="btn btn--outline-dark modal-btn-action">Cancelar</button>
-                <button (click)="guardarDiseno()" class="btn btn--primary modal-btn-action">Guardar</button>
-            </div>
+                <div class="modal-footer-custom">
+                    <button type="button" (click)="cerrarModal()" class="btn btn--outline-dark modal-btn-action">Cancelar</button>
+                    <!-- Botón bloqueado si el formulario es inválido -->
+                    <button type="submit" class="btn btn--primary modal-btn-action" [disabled]="disenoFormGroup.invalid">
+                        {{ esEdicion ? 'Guardar Cambios' : 'Crear Diseño' }}
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

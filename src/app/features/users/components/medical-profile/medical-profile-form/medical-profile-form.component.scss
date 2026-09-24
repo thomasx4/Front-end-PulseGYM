@@ -803,3 +803,56 @@
         max-width: none;
     }
 }
+
+/* CUADRO INFORMATIVO DE HISTORIAL FÍSICO */
+.physical-info-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 0.775rem;
+    margin-bottom: 4px;
+    border: 1px solid transparent;
+
+    &.no-history {
+        background-color: #fffbeb;
+        border-color: #fde68a;
+        color: #92400e;
+
+        .notice-icon svg {
+            stroke: #d97706;
+        }
+    }
+
+    &.has-history {
+        background-color: #eff6ff;
+        border-color: #bfdbfe;
+        color: #1e40af;
+
+        .notice-icon svg {
+            stroke: #3b82f6;
+        }
+    }
+
+    .notice-icon {
+        flex-shrink: 0;
+        margin-top: 1px;
+    }
+
+    .notice-text {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+
+        .notice-title {
+            font-weight: 700;
+        }
+
+        p {
+            margin: 0;
+            line-height: 1.35;
+            opacity: 0.9;
+        }
+    }
+}

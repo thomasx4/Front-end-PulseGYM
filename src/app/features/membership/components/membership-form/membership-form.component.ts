@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MembershipService } from '../../../../core/services/membership.service';
 import Swal from 'sweetalert2';
 
@@ -70,8 +71,11 @@ export class MembershipFormComponent implements OnInit {
   private router = inject(Router);
   private membershipService = inject(MembershipService);
   private destroyRef = inject(DestroyRef);
+  private fb = inject(FormBuilder);
 
+  membershipForm!: FormGroup;
   plan: Plan = this.crearPlanInicial();
+  beneficiosArray: string[] = [];
   nuevoBeneficio: string = '';
   esEdicion: boolean = false;
   planId: number | null = null;
@@ -79,6 +83,7 @@ export class MembershipFormComponent implements OnInit {
   loading: boolean = false;
 
   ngOnInit(): void {
+    this.buildForm();
     this.route.params
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((params) => {
@@ -91,6 +96,38 @@ export class MembershipFormComponent implements OnInit {
           this.resetearPlan();
         }
       });
+  }
+
+  buildForm(): void {
+    this.membershipForm = this.fb.group({
+      // Ajustado a maxLength(50) para evitar el error de base de datos character varying(50)
+      nombre: ['', [Validators.required, Validators.maxLength(50), Validators.pattern(/^[a-zA-ZÁÉÍÓÚáéíóúÑñ0-9\s\-]+$/)]],
+      cantidad: [1, [Validators.required, Validators.min(1), Validators.max(365)]],
+      tipoDuracion: ['MES', [Validators.required]],
+      precioPorDia: [0, [Validators.required, Validators.min(1000), Validators.max(100000)]],
+      descripcion: ['', [Validators.maxLength(255)]],
+      incluyeIA: [false],
+      esFlexible: [false],
+      activo: [true]
+    });
+
+    // Sincronizar en tiempo real con el objeto local para la vista previa fluida
+    this.membershipForm.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((values) => {
+        this.plan = {
+          ...this.plan,
+          ...values,
+          beneficios: this.beneficiosArray
+        };
+      });
+  }
+
+  validarCaracteresNumericos(event: KeyboardEvent): void {
+    const teclasInvalidas = ['e', 'E', '+', '-', '.'];
+    if (teclasInvalidas.includes(event.key)) {
+      event.preventDefault();
+    }
   }
 
   private crearPlanInicial(): Plan {
@@ -112,7 +149,7 @@ export class MembershipFormComponent implements OnInit {
     
     this.membershipService.getMembresiaById(id).subscribe({
       next: (data: MembresiaResponseDTO) => {
-        const beneficiosArray = data.beneficios
+        this.beneficiosArray = data.beneficios
           ? data.beneficios.split(',').map((b) => b.trim()).filter(Boolean)
           : [];
 
@@ -123,13 +160,23 @@ export class MembershipFormComponent implements OnInit {
           tipoDuracion: data.tipoDuracion || 'MES',
           precioPorDia: data.precioPorDia || 0,
           descripcion: this.generarDescripcion(data),
-          beneficios: beneficiosArray,
+          beneficios: this.beneficiosArray,
           incluyeIA: data.incluyeIA ?? false,
           esFlexible: data.esFlexible ?? false,
           activo: data.activo ?? true,
         };
 
-        // Cargar socios (opcional)
+        this.membershipForm.patchValue({
+          nombre: this.plan.nombre,
+          cantidad: this.plan.cantidad,
+          tipoDuracion: this.plan.tipoDuracion,
+          precioPorDia: this.plan.precioPorDia,
+          descripcion: data.beneficios || '',
+          incluyeIA: this.plan.incluyeIA,
+          esFlexible: this.plan.esFlexible,
+          activo: this.plan.activo
+        });
+
         this.membershipService.getMembresiaConSociosActivos(id).subscribe({
           next: (sociosData: any) => {
             const socios = sociosData?.sociosAsignados || sociosData?.data || [];
@@ -142,26 +189,43 @@ export class MembershipFormComponent implements OnInit {
           }
         });
       },
-      error: (error: Error) => {
+      error: (error: any) => {
         console.error('Error al cargar el plan:', error);
         this.loading = false;
-        Swal.fire('Error', 'No se pudo cargar la membresía', 'error');
+        const msg = error.error?.message || 'No se pudo cargar la membresía.';
+        Swal.fire('Error', msg, 'error');
       }
     });
   }
 
   get precioTotalCalculado(): number {
-    const diasPorUnidad = DIAS_POR_UNIDAD[this.plan.tipoDuracion] || 30;
-    return this.plan.precioPorDia * diasPorUnidad * this.plan.cantidad;
+    const cantidad = this.membershipForm.get('cantidad')?.value || 1;
+    const tipo = this.membershipForm.get('tipoDuracion')?.value || 'MES';
+    const precioDia = this.membershipForm.get('precioPorDia')?.value || 0;
+    const diasPorUnidad = DIAS_POR_UNIDAD[tipo] || 30;
+    return precioDia * diasPorUnidad * cantidad;
   }
 
-  get formularioValido(): boolean {
-    return (
-      this.plan.nombre.trim().length > 0 &&
-      this.plan.cantidad > 0 &&
-      this.plan.precioPorDia > 0 &&
-      this.plan.beneficios.length > 0
-    );
+  agregarBeneficio(): void {
+    const beneficio = this.nuevoBeneficio.trim();
+    if (!beneficio) return;
+    if (beneficio.length > 50) {
+      Swal.fire('Aviso', 'Cada beneficio individual no puede superar los 50 caracteres por restricciones del sistema.', 'warning');
+      return;
+    }
+    if (this.beneficiosArray.includes(beneficio)) {
+      Swal.fire('Aviso', 'Este beneficio ya ha sido agregado.', 'warning');
+      return;
+    }
+
+    this.beneficiosArray.push(beneficio);
+    this.plan.beneficios = [...this.beneficiosArray];
+    this.nuevoBeneficio = '';
+  }
+
+  eliminarBeneficio(index: number): void {
+    this.beneficiosArray.splice(index, 1);
+    this.plan.beneficios = [...this.beneficiosArray];
   }
 
   eliminarMembresia(): void {
@@ -187,10 +251,6 @@ export class MembershipFormComponent implements OnInit {
             </tr>
           </table>
         </div>
-        <div style="text-align: left; font-size: 13px; color: #64748b; padding: 8px 0;">
-          <p>1. Al eliminar esta membresía, los <strong>${this.totalSocios} socios activos</strong> pasarán a no tener membresías asignadas.</p>
-          <p>2. El plan "<strong>${this.escapeHtml(this.plan.nombre)}</strong>" dejará de estar disponible de forma permanente.</p>
-        </div>
       `,
       icon: 'warning',
       showCancelButton: true,
@@ -212,12 +272,13 @@ export class MembershipFormComponent implements OnInit {
               this.router.navigate(['/dashboard-admin/memberships/list']);
             });
           },
-          error: (error: { error?: { message?: string } }) => {
+          error: (error: any) => {
             this.loading = false;
+            const mensaje = error.error?.message || error.error || 'No se pudo eliminar la membresía por restricciones del servidor.';
             Swal.fire({
               icon: 'error',
-              title: 'Error',
-              text: error.error?.message || 'No se pudo eliminar la membresía.',
+              title: 'Error de Eliminación',
+              text: mensaje,
             });
           }
         });
@@ -225,31 +286,29 @@ export class MembershipFormComponent implements OnInit {
     });
   }
 
-  agregarBeneficio(): void {
-    const beneficio = this.nuevoBeneficio.trim();
-    if (beneficio) {
-      this.plan.beneficios.push(beneficio);
-      this.nuevoBeneficio = '';
-    }
-  }
-
-  eliminarBeneficio(index: number): void {
-    this.plan.beneficios.splice(index, 1);
-  }
-
   guardar(): void {
-    if (!this.formularioValido) return;
+    if (this.membershipForm.invalid) {
+      this.membershipForm.markAllAsTouched();
+      Swal.fire('Formulario Inválido', 'Por favor complete correctamente todos los campos obligatorios y revise las longitudes permitidas.', 'warning');
+      return;
+    }
 
+    if (this.beneficiosArray.length === 0) {
+      Swal.fire('Faltan Beneficios', 'Debe agregar al menos un beneficio para la membresía.', 'warning');
+      return;
+    }
+
+    const formValues = this.membershipForm.value;
     const request: MembresiaRequestDTO = {
-      nombre: this.plan.nombre.trim(),
-      cantidad: this.plan.cantidad,
-      tipoDuracion: this.plan.tipoDuracion,
-      incluyeIA: this.plan.incluyeIA,
-      esFlexible: this.plan.esFlexible,
-      precioPorDia: this.plan.precioPorDia,
-      beneficios: this.plan.beneficios.join(', '),
+      nombre: formValues.nombre.trim(),
+      cantidad: Number(formValues.cantidad),
+      tipoDuracion: formValues.tipoDuracion,
+      incluyeIA: Boolean(formValues.incluyeIA),
+      esFlexible: Boolean(formValues.esFlexible),
+      precioPorDia: Number(formValues.precioPorDia),
+      beneficios: this.beneficiosArray.join(', '),
       restricciones: 'No acumulable',
-      activo: this.plan.activo,
+      activo: Boolean(formValues.activo),
     };
 
     const accion = this.esEdicion ? 'actualizar' : 'crear';
@@ -257,7 +316,7 @@ export class MembershipFormComponent implements OnInit {
 
     Swal.fire({
       title: `¿Confirmar ${this.esEdicion ? 'actualización' : 'creación'}?`,
-      text: `¿Estás seguro de que deseas ${accion} el plan "${this.plan.nombre}"?`,
+      text: `¿Estás seguro de que deseas ${accion} el plan "${request.nombre}"?`,
       icon: 'question',
       showCancelButton: true,
       confirmButtonText: `Sí, ${accion}`,
@@ -274,7 +333,7 @@ export class MembershipFormComponent implements OnInit {
             this.loading = false;
             this.mostrarExito(mensajeExito);
           },
-          error: (err) => {
+          error: (err: any) => {
             this.loading = false;
             this.mostrarError(err);
           }
@@ -288,14 +347,14 @@ export class MembershipFormComponent implements OnInit {
   }
 
   getBadgeClass(nombre: string): string {
-    const nombreUpper = nombre.toUpperCase();
+    const nombreUpper = (nombre || '').toUpperCase();
     return (nombreUpper.includes('STANDARD') || nombreUpper.includes('PREMIUM'))
       ? 'badge-essential'
       : 'badge-premium';
   }
 
   getBadgeText(nombre: string): string {
-    const nombreUpper = nombre.toUpperCase();
+    const nombreUpper = (nombre || '').toUpperCase();
     return (nombreUpper.includes('STANDARD') || nombreUpper.includes('PREMIUM'))
       ? 'PREMIUM'
       : 'PLAN';
@@ -314,6 +373,15 @@ export class MembershipFormComponent implements OnInit {
   }
 
   resetearPlan(): void {
+    this.membershipForm.reset({
+      cantidad: 1,
+      tipoDuracion: 'MES',
+      precioPorDia: 0,
+      incluyeIA: false,
+      esFlexible: false,
+      activo: true
+    });
+    this.beneficiosArray = [];
     this.plan = this.crearPlanInicial();
   }
 
@@ -334,15 +402,26 @@ export class MembershipFormComponent implements OnInit {
     });
   }
 
-  private mostrarError(error: { error?: { message?: string } }): void {
+  private mostrarError(error: any): void {
+    let mensajeError = 'Ocurrió un error al guardar el plan.';
+    if (error.error) {
+      if (typeof error.error === 'string') {
+        mensajeError = error.error;
+      } else if (error.error.message) {
+        mensajeError = error.error.message;
+      } else if (error.error.error) {
+        mensajeError = error.error.error;
+      }
+    }
     Swal.fire({
       icon: 'error',
-      title: 'Error',
-      text: error.error?.message || 'Ocurrió un error al guardar el plan.',
+      title: 'Error de Servidor',
+      text: mensajeError,
     });
   }
 
   private escapeHtml(text: string): string {
+    if (!text) return '';
     return text
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')

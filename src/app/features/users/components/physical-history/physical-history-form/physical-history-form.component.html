@@ -18,15 +18,16 @@
 
       <h1 class="form-title">{{ isEditMode ? 'Editar Medición Física' : 'Registrar Medición Física' }}</h1>
       <p class="form-subtitle">
-        {{ isEditMode ? 'Modifica los datos de la medición registrada. Deja en blanco los campos que no deseas cambiar.' : 'Completa los datos para registrar una nueva medición física del usuario.' }}
+        {{ isEditMode ? 'Modifica los datos de la medición registrada. Deja en blanco los campos que no deseas cambiar.'
+        : 'Completa los datos para registrar una nueva medición física del usuario.' }}
       </p>
     </div>
 
-    <div class="form-header__actions">
+<div class="form-header__actions">
       <button type="button" class="btn btn--secondary" (click)="onCancel()">
         Cancelar
       </button>
-      <button type="button" class="btn btn--primary" (click)="onSubmit()" [disabled]="submitting">
+      <button type="button" class="btn btn--primary" (click)="onSubmit()" [disabled]="submitting || form.invalid">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
           <polyline points="17 21 17 13 7 13 7 21"></polyline>
@@ -85,15 +86,9 @@
         <div *ngIf="selectedSocio" class="partner-selected-card">
           <div class="partner-info">
             <div class="partner-avatar">
-              <img 
-                *ngIf="getUserFoto(selectedSocio) && !selectedSocio._avatarError" 
-                [src]="getUserFoto(selectedSocio)" 
-                [alt]="selectedSocio.nombre" 
-                class="avatar-img" 
-                crossOrigin="anonymous" 
-                loading="lazy"
-                (error)="onImageError(selectedSocio)"
-              />
+              <img *ngIf="getUserFoto(selectedSocio) && !selectedSocio._avatarError" [src]="getUserFoto(selectedSocio)"
+                [alt]="selectedSocio.nombre" class="avatar-img" crossOrigin="anonymous" loading="lazy"
+                (error)="onImageError(selectedSocio)" />
               <span *ngIf="!getUserFoto(selectedSocio) || selectedSocio._avatarError">
                 {{ (selectedSocio.nombre?.charAt(0) || '?') }}{{ (selectedSocio.apellido?.charAt(0) || '?') }}
               </span>
@@ -101,7 +96,8 @@
             <div class="partner-details">
               <div class="name-rol-row">
                 <span class="partner-name">{{ selectedSocio.nombre }} {{ selectedSocio.apellido }}</span>
-                <span class="role-badge" [ngClass]="getBadgeClass(selectedSocio)">{{ getRolNombre(selectedSocio) }}</span>
+                <span class="role-badge" [ngClass]="getBadgeClass(selectedSocio)">{{ getRolNombre(selectedSocio)
+                  }}</span>
               </div>
               <span class="partner-email">{{ selectedSocio.email || 'Sin correo' }}</span>
               <span class="partner-phone" *ngIf="selectedSocio.telefono">{{ selectedSocio.telefono }}</span>
@@ -155,26 +151,24 @@
         <div *ngIf="selectedRecepcionista" class="partner-selected-card">
           <div class="partner-info">
             <div class="partner-avatar partner-avatar--reception">
-              <img 
-                *ngIf="getUserFoto(selectedRecepcionista) && !selectedRecepcionista._avatarError" 
-                [src]="getUserFoto(selectedRecepcionista)" 
-                [alt]="selectedRecepcionista.nombre" 
-                class="avatar-img" 
-                crossOrigin="anonymous" 
-                loading="lazy"
-                (error)="onImageError(selectedRecepcionista)"
-              />
+              <img *ngIf="getUserFoto(selectedRecepcionista) && !selectedRecepcionista._avatarError"
+                [src]="getUserFoto(selectedRecepcionista)" [alt]="selectedRecepcionista.nombre" class="avatar-img"
+                crossOrigin="anonymous" loading="lazy" (error)="onImageError(selectedRecepcionista)" />
               <span *ngIf="!getUserFoto(selectedRecepcionista) || selectedRecepcionista._avatarError">
-                {{ (selectedRecepcionista.nombre?.charAt(0) || '?') }}{{ (selectedRecepcionista.apellido?.charAt(0) || '?') }}
+                {{ (selectedRecepcionista.nombre?.charAt(0) || '?') }}{{ (selectedRecepcionista.apellido?.charAt(0) ||
+                '?') }}
               </span>
             </div>
             <div class="partner-details">
               <div class="name-rol-row">
-                <span class="partner-name">{{ selectedRecepcionista.nombre }} {{ selectedRecepcionista.apellido }}</span>
-                <span class="role-badge" [ngClass]="getBadgeClass(selectedRecepcionista)">{{ getRolNombre(selectedRecepcionista) }}</span>
+                <span class="partner-name">{{ selectedRecepcionista.nombre }} {{ selectedRecepcionista.apellido
+                  }}</span>
+                <span class="role-badge" [ngClass]="getBadgeClass(selectedRecepcionista)">{{
+                  getRolNombre(selectedRecepcionista) }}</span>
               </div>
               <span class="partner-email">{{ selectedRecepcionista.email || 'Sin correo' }}</span>
-              <span class="partner-phone" *ngIf="selectedRecepcionista.telefono">{{ selectedRecepcionista.telefono }}</span>
+              <span class="partner-phone" *ngIf="selectedRecepcionista.telefono">{{ selectedRecepcionista.telefono
+                }}</span>
             </div>
           </div>
           <div class="partner-card-actions">
@@ -206,24 +200,45 @@
     <div class="form-section">
       <h3 class="section-title">Composición Corporal</h3>
       <div class="form-grid form-grid--4-col">
+        <!-- Peso -->
         <div class="form-group">
           <label class="form-label">Peso (kg) <span class="required">*</span></label>
           <input type="number" step="0.01" formControlName="pesoKg" class="form-control" placeholder="75.5" />
+          <div class="form-error" *ngIf="form.get('pesoKg')?.invalid && form.get('pesoKg')?.touched">
+            <small *ngIf="form.get('pesoKg')?.errors?.['required']">El peso es obligatorio.</small>
+            <small *ngIf="form.get('pesoKg')?.errors?.['min'] || form.get('pesoKg')?.errors?.['max']">Debe ser entre 20
+              y 300 kg.</small>
+          </div>
         </div>
 
+        <!-- Estatura -->
         <div class="form-group">
           <label class="form-label">Estatura (cm)</label>
           <input type="number" step="0.1" formControlName="alturaCm" class="form-control" placeholder="175.0" />
+          <div class="form-error" *ngIf="form.get('alturaCm')?.invalid && form.get('alturaCm')?.touched">
+            <small>Debe estar entre 50 y 250 cm.</small>
+          </div>
         </div>
 
+        <!-- Grasa Corporal -->
         <div class="form-group">
           <label class="form-label">Grasa Corporal (%)</label>
-          <input type="number" step="0.01" formControlName="porcentajeGrasa" class="form-control" placeholder="Autocalculado si es 0" />
+          <input type="number" step="0.01" formControlName="porcentajeGrasa" class="form-control"
+            placeholder="Autocalculado si es 0" />
+          <div class="form-error" *ngIf="form.get('porcentajeGrasa')?.invalid && form.get('porcentajeGrasa')?.touched">
+            <small>Debe estar entre 0% y 100%.</small>
+          </div>
         </div>
 
+        <!-- Masa Muscular -->
         <div class="form-group">
           <label class="form-label">Masa Muscular (%)</label>
-          <input type="number" step="0.01" formControlName="porcentajeMusculo" class="form-control" placeholder="Autocalculado si es 0" />
+          <input type="number" step="0.01" formControlName="porcentajeMusculo" class="form-control"
+            placeholder="Autocalculado si es 0" />
+          <div class="form-error"
+            *ngIf="form.get('porcentajeMusculo')?.invalid && form.get('porcentajeMusculo')?.touched">
+            <small>Debe estar entre 0% y 100%.</small>
+          </div>
         </div>
       </div>
     </div>
@@ -232,68 +247,120 @@
     <div class="form-section">
       <h3 class="section-title">Medidas Corporales (cm)</h3>
       <div class="form-grid form-grid--4-col">
+        <!-- Cuello -->
         <div class="form-group">
           <label class="form-label">Cuello</label>
           <input type="number" step="0.01" formControlName="cuelloCm" class="form-control" placeholder="38.0" />
+          <div class="form-error" *ngIf="form.get('cuelloCm')?.invalid && form.get('cuelloCm')?.touched">
+            <small>Valor fuera de rango (10-80 cm).</small>
+          </div>
         </div>
 
+        <!-- Cintura Escapular -->
         <div class="form-group">
           <label class="form-label">Cintura Escapular</label>
-          <input type="number" step="0.01" formControlName="cinturaEscapularCm" class="form-control" placeholder="110.0" />
+          <input type="number" step="0.01" formControlName="cinturaEscapularCm" class="form-control"
+            placeholder="110.0" />
+          <div class="form-error"
+            *ngIf="form.get('cinturaEscapularCm')?.invalid && form.get('cinturaEscapularCm')?.touched">
+            <small>Valor fuera de rango (50-200 cm).</small>
+          </div>
         </div>
 
+        <!-- Cintura -->
         <div class="form-group">
           <label class="form-label">Cintura</label>
           <input type="number" step="0.01" formControlName="cinturaCm" class="form-control" placeholder="82.0" />
+          <div class="form-error" *ngIf="form.get('cinturaCm')?.invalid && form.get('cinturaCm')?.touched">
+            <small>Valor fuera de rango (30-200 cm).</small>
+          </div>
         </div>
 
+        <!-- Cadera -->
         <div class="form-group">
           <label class="form-label">Cadera</label>
           <input type="number" step="0.01" formControlName="caderaCm" class="form-control" placeholder="95.0" />
+          <div class="form-error" *ngIf="form.get('caderaCm')?.invalid && form.get('caderaCm')?.touched">
+            <small>Valor fuera de rango (40-200 cm).</small>
+          </div>
         </div>
       </div>
 
       <div class="form-grid form-grid--4-col margin-top">
+        <!-- Tórax -->
         <div class="form-group">
           <label class="form-label">Tórax</label>
           <input type="number" step="0.01" formControlName="toraxCm" class="form-control" placeholder="95.0" />
+          <div class="form-error" *ngIf="form.get('toraxCm')?.invalid && form.get('toraxCm')?.touched">
+            <small>Valor fuera de rango (50-200 cm).</small>
+          </div>
         </div>
 
+        <!-- Pecho -->
         <div class="form-group">
           <label class="form-label">Pecho</label>
           <input type="number" step="0.01" formControlName="pechoCm" class="form-control" placeholder="98.5" />
+          <div class="form-error" *ngIf="form.get('pechoCm')?.invalid && form.get('pechoCm')?.touched">
+            <small>Valor fuera de rango (50-200 cm).</small>
+          </div>
         </div>
 
+        <!-- Brazo Izquierdo -->
         <div class="form-group">
           <label class="form-label">Brazo Izquierdo</label>
           <input type="number" step="0.01" formControlName="brazoIzqCm" class="form-control" placeholder="32.0" />
+          <div class="form-error" *ngIf="form.get('brazoIzqCm')?.invalid && form.get('brazoIzqCm')?.touched">
+            <small>Valor fuera de rango (10-80 cm).</small>
+          </div>
         </div>
 
+        <!-- Brazo Derecho -->
         <div class="form-group">
           <label class="form-label">Brazo Derecho</label>
           <input type="number" step="0.01" formControlName="brazoDerCm" class="form-control" placeholder="32.5" />
+          <div class="form-error" *ngIf="form.get('brazoDerCm')?.invalid && form.get('brazoDerCm')?.touched">
+            <small>Valor fuera de rango (10-80 cm).</small>
+          </div>
         </div>
       </div>
 
       <div class="form-grid form-grid--4-col margin-top">
+        <!-- Pierna Izquierda -->
         <div class="form-group">
           <label class="form-label">Pierna Izquierda</label>
           <input type="number" step="0.01" formControlName="piernaIzqCm" class="form-control" placeholder="55.0" />
+          <div class="form-error" *ngIf="form.get('piernaIzqCm')?.invalid && form.get('piernaIzqCm')?.touched">
+            <small>Valor fuera de rango (20-120 cm).</small>
+          </div>
         </div>
 
+        <!-- Pierna Derecha -->
         <div class="form-group">
           <label class="form-label">Pierna Derecha</label>
           <input type="number" step="0.01" formControlName="piernaDerCm" class="form-control" placeholder="55.5" />
+          <div class="form-error" *ngIf="form.get('piernaDerCm')?.invalid && form.get('piernaDerCm')?.touched">
+            <small>Valor fuera de rango (20-120 cm).</small>
+          </div>
         </div>
 
+        <!-- Pantorrilla Izquierda -->
         <div class="form-group">
           <label class="form-label">Pantorrilla Izquierda</label>
           <input type="number" step="0.01" formControlName="pantorrillaIzqCm" class="form-control" placeholder="36.0" />
+          <div class="form-error"
+            *ngIf="form.get('pantorrillaIzqCm')?.invalid && form.get('pantorrillaIzqCm')?.touched">
+            <small>Valor fuera de rango (10-70 cm).</small>
+          </div>
         </div>
 
+        <!-- Pantorrilla Derecha -->
         <div class="form-group">
           <label class="form-label">Pantorrilla Derecha</label>
           <input type="number" step="0.01" formControlName="pantorrillaDerCm" class="form-control" placeholder="36.5" />
+          <div class="form-error"
+            *ngIf="form.get('pantorrillaDerCm')?.invalid && form.get('pantorrillaDerCm')?.touched">
+            <small>Valor fuera de rango (10-70 cm).</small>
+          </div>
         </div>
       </div>
     </div>
@@ -302,17 +369,20 @@
   <!-- BANNER INFORMATIVO INFERIOR -->
   <div class="info-banner" [class.info-banner--success]="isEditMode">
     <div class="info-banner__icon">
-      <svg *ngIf="!isEditMode" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <svg *ngIf="!isEditMode" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="2">
         <circle cx="12" cy="12" r="10"></circle>
         <line x1="12" y1="16" x2="12" y2="12"></line>
         <line x1="12" y1="8" x2="12.01" y2="8"></line>
       </svg>
-      <svg *ngIf="isEditMode" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <svg *ngIf="isEditMode" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="2.5">
         <polyline points="20 6 9 17 4 12"></polyline>
       </svg>
     </div>
     <span class="info-banner__text">
-      {{ isEditMode ? 'Deja en blanco los campos que no deseas modificar. Solo se actualizarán los campos con valor.' : 'Si dejas en blanco o en 0 la Grasa Corporal y Masa Muscular, el sistema los calculará automáticamente.' }}
+      {{ isEditMode ? 'Deja en blanco los campos que no deseas modificar. Solo se actualizarán los campos con valor.' :
+      'Si dejas en blanco o en 0 la Grasa Corporal y Masa Muscular, el sistema los calculará automáticamente.' }}
     </span>
   </div>
 </div>
@@ -332,8 +402,10 @@
 
     <div class="modal-partner-search">
       <div class="search-input-wrapper">
-        <input type="text" placeholder="Buscar usuario por nombre, correo o teléfono..." [(ngModel)]="searchSocio" (keyup.enter)="filtrarSociosModal()" />
-        <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <input type="text" placeholder="Buscar usuario por nombre, correo o teléfono..." [(ngModel)]="searchSocio"
+          (keyup.enter)="filtrarSociosModal()" />
+        <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2">
           <circle cx="11" cy="11" r="8"></circle>
           <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
         </svg>
@@ -364,15 +436,9 @@
               <td>
                 <div class="partner-cell">
                   <div class="partner-table-avatar">
-                    <img 
-                      *ngIf="getUserFoto(socio) && !socio._avatarError" 
-                      [src]="getUserFoto(socio)" 
-                      [alt]="socio.nombre" 
-                      class="avatar-img" 
-                      crossOrigin="anonymous" 
-                      loading="lazy"
-                      (error)="onImageError(socio)"
-                    />
+                    <img *ngIf="getUserFoto(socio) && !socio._avatarError" [src]="getUserFoto(socio)"
+                      [alt]="socio.nombre" class="avatar-img" crossOrigin="anonymous" loading="lazy"
+                      (error)="onImageError(socio)" />
                     <span *ngIf="!getUserFoto(socio) || socio._avatarError">
                       {{ (socio.nombre?.charAt(0) || '?') }}{{ (socio.apellido?.charAt(0) || '?') }}
                     </span>
@@ -404,13 +470,16 @@
 
     <div class="modal-partner-footer" *ngIf="totalPaginasSocioModal > 0">
       <div class="pagination-controls">
-        <button type="button" class="btn-page-arrow" [disabled]="paginaSocioModalActual === 0" (click)="paginaAnteriorSocioModal()">‹</button>
+        <button type="button" class="btn-page-arrow" [disabled]="paginaSocioModalActual === 0"
+          (click)="paginaAnteriorSocioModal()">‹</button>
 
-        <button type="button" *ngFor="let pag of paginasVisiblesSocioModal" class="btn-page-num" [class.active]="pag === paginaSocioModalActual" (click)="irPaginaSocioModal(pag)">
+        <button type="button" *ngFor="let pag of paginasVisiblesSocioModal" class="btn-page-num"
+          [class.active]="pag === paginaSocioModalActual" (click)="irPaginaSocioModal(pag)">
           {{ pag + 1 }}
         </button>
 
-        <button type="button" class="btn-page-arrow" [disabled]="paginaSocioModalActual >= totalPaginasSocioModal - 1" (click)="paginaSiguienteSocioModal()">›</button>
+        <button type="button" class="btn-page-arrow" [disabled]="paginaSocioModalActual >= totalPaginasSocioModal - 1"
+          (click)="paginaSiguienteSocioModal()">›</button>
       </div>
     </div>
   </div>
@@ -431,8 +500,10 @@
 
     <div class="modal-partner-search">
       <div class="search-input-wrapper">
-        <input type="text" placeholder="Buscar por nombre, correo o teléfono..." [(ngModel)]="searchRecepcionista" (keyup.enter)="filtrarRecepcionistasModal()" />
-        <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <input type="text" placeholder="Buscar por nombre, correo o teléfono..." [(ngModel)]="searchRecepcionista"
+          (keyup.enter)="filtrarRecepcionistasModal()" />
+        <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2">
           <circle cx="11" cy="11" r="8"></circle>
           <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
         </svg>
@@ -463,15 +534,8 @@
               <td>
                 <div class="partner-cell">
                   <div class="partner-table-avatar partner-table-avatar--reception">
-                    <img 
-                      *ngIf="getUserFoto(rec) && !rec._avatarError" 
-                      [src]="getUserFoto(rec)" 
-                      [alt]="rec.nombre" 
-                      class="avatar-img" 
-                      crossOrigin="anonymous" 
-                      loading="lazy"
-                      (error)="onImageError(rec)"
-                    />
+                    <img *ngIf="getUserFoto(rec) && !rec._avatarError" [src]="getUserFoto(rec)" [alt]="rec.nombre"
+                      class="avatar-img" crossOrigin="anonymous" loading="lazy" (error)="onImageError(rec)" />
                     <span *ngIf="!getUserFoto(rec) || rec._avatarError">
                       {{ (rec.nombre?.charAt(0) || '?') }}{{ (rec.apellido?.charAt(0) || '?') }}
                     </span>
@@ -503,13 +567,17 @@
 
     <div class="modal-partner-footer" *ngIf="totalPaginasRecepcionistaModal > 0">
       <div class="pagination-controls">
-        <button type="button" class="btn-page-arrow" [disabled]="paginaRecepcionistaModalActual === 0" (click)="paginaAnteriorRecepcionistaModal()">‹</button>
+        <button type="button" class="btn-page-arrow" [disabled]="paginaRecepcionistaModalActual === 0"
+          (click)="paginaAnteriorRecepcionistaModal()">‹</button>
 
-        <button type="button" *ngFor="let pag of paginasVisiblesRecepcionistaModal" class="btn-page-num" [class.active]="pag === paginaRecepcionistaModalActual" (click)="irPaginaRecepcionistaModal(pag)">
+        <button type="button" *ngFor="let pag of paginasVisiblesRecepcionistaModal" class="btn-page-num"
+          [class.active]="pag === paginaRecepcionistaModalActual" (click)="irPaginaRecepcionistaModal(pag)">
           {{ pag + 1 }}
         </button>
 
-        <button type="button" class="btn-page-arrow" [disabled]="paginaRecepcionistaModalActual >= totalPaginasRecepcionistaModal - 1" (click)="paginaSiguienteRecepcionistaModal()">›</button>
+        <button type="button" class="btn-page-arrow"
+          [disabled]="paginaRecepcionistaModalActual >= totalPaginasRecepcionistaModal - 1"
+          (click)="paginaSiguienteRecepcionistaModal()">›</button>
       </div>
     </div>
   </div>

@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { UserService } from '../../../../core/services/users.service';
 import { AuthService } from '../../../../core/services/auth.service';
@@ -36,6 +37,8 @@ export class ProfileComponent implements OnInit {
 
   isSidebarOpen: boolean = false;
 
+  profileForm!: FormGroup;
+
   userProfile: any = {
     nombre: '',
     apellido: '',
@@ -57,66 +60,40 @@ export class ProfileComponent implements OnInit {
     username: ''
   };
 
-  perfilMedico: any = {
-    pesoKg: 0,
-    estaturaCm: 0,
-    alergias: '',
-    condicionesCronicas: '',
-    fechaActualizacion: ''
-  };
-
-  historialFisico: any = {
-    pesoKg: 0,
-    porcentajeGrasa: 0,
-    porcentajeMusculo: 0,
-    cinturaCm: 0,
-    pechoCm: 0,
-    brazoIzqCm: 0,
-    brazoDerCm: 0,
-    piernaIzqCm: 0,
-    piernaDerCm: 0
-  };
-
-  medidas: any = {
-    peso: 0,
-    pesoCambio: '',
-    masaMuscular: 0,
-    masaMuscularCambio: '',
-    grasaCorporal: 0,
-    grasaCorporalCambio: '',
-    imc: 0,
-    imcEstado: 'Normal',
-    fechaActualizacion: ''
-  };
+  perfilMedico: any = { pesoKg: 0, estaturaCm: 0, alergias: '', condicionesCronicas: '', fechaActualizacion: '' };
+  historialFisico: any = { pesoKg: 0, porcentajeGrasa: 0, porcentajeMusculo: 0 };
+  medidas: any = { peso: 0, masaMuscular: 0, grasaCorporal: 0, imc: 0, imcEstado: 'Normal', fechaActualizacion: '' };
 
   contactos: any[] = [];
   profileBackup: any = {};
 
-  nivelesExperiencia = [
-    { value: 'novato', label: 'Novato' },
-    { value: 'intermedio', label: 'Intermedio' },
-    { value: 'avanzado', label: 'Avanzado' }
-  ];
-
-  opcionesSexo = [
-    { value: 'MASCULINO', label: 'Masculino' },
-    { value: 'FEMENINO', label: 'Femenino' },
-    { value: 'OTRO', label: 'Otro' },
-    { value: 'PREFIERO NO DECIR', label: 'Prefiero no decir' }
-  ];
-
   constructor(
     private userService: UserService,
     private authService: AuthService,
-    private router: Router
-  ) { }
+    private router: Router,
+    private fb: FormBuilder
+  ) {
+    this.buildForm();
+  }
 
   ngOnInit(): void {
     this.loadUserInfo();
   }
 
-  verPerfilMedico(): void {
-    this.router.navigate(['/user/detalle-medico']);
+  buildForm(): void {
+    this.profileForm = this.fb.group({
+      nombre: ['', [Validators.required, Validators.maxLength(50), Validators.pattern(/^[a-zA-ZÁÉÍÓÚáéíóúÑñ\s]+$/)]],
+      apellido: ['', [Validators.maxLength(50), Validators.pattern(/^[a-zA-ZÁÉÍÓÚáéíóúÑñ\s]*$/)]],
+      email: [{ value: '', disabled: true }, [Validators.required, Validators.email]],
+      telefono: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
+      documentoIdentidad: ['', [Validators.required, Validators.pattern(/^\d{6,10}$/)]],
+      fechaNacimiento: ['', [Validators.required]],
+      sexo: ['', [Validators.required]],
+      nivelExperiencia: ['intermedio'],
+      objetivo: [''],
+      contactoEmergenciaNombre: ['', [Validators.required, Validators.maxLength(50), Validators.pattern(/^[a-zA-ZÁÉÍÓÚáéíóúÑñ\s]+$/)]],
+      contactoEmergenciaTelefono: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]]
+    });
   }
 
   irAjustes(): void {
@@ -177,32 +154,6 @@ export class ProfileComponent implements OnInit {
           };
           this.actualizarMedidas();
         }
-      },
-      error: (err: any) => {
-        console.warn('perfil-medico fallo:', err.status);
-      }
-    });
-
-    this.userService.getHistorialFisico().subscribe({
-      next: (data: any) => {
-        if (data && data.length > 0) {
-          const historialData = data[0] || data;
-          this.historialFisico = {
-            pesoKg: historialData.pesoKg || 0,
-            porcentajeGrasa: historialData.porcentajeGrasa || 0,
-            porcentajeMusculo: historialData.porcentajeMusculo || 0,
-            cinturaCm: historialData.cinturaCm || 0,
-            pechoCm: historialData.pechoCm || 0,
-            brazoIzqCm: historialData.brazoIzqCm || 0,
-            brazoDerCm: historialData.brazoDerCm || 0,
-            piernaIzqCm: historialData.piernaIzqCm || 0,
-            piernaDerCm: historialData.piernaDerCm || 0
-          };
-          this.actualizarMedidas();
-        }
-      },
-      error: (err: any) => {
-        console.warn('historial-fisico fallo:', err.status);
       }
     });
 
@@ -212,15 +163,8 @@ export class ProfileComponent implements OnInit {
           this.tipoMembresia = data.nombreMembresia || data.tipo || data.nombre || '';
           this.userProfile.tipoMembresia = this.tipoMembresia;
         }
-        this.isLoading = false;
-      },
-      error: (err: any) => {
-        console.warn('membresia fallo:', err.status);
-        this.isLoading = false;
       }
     });
-
-    this.sedeNombre = 'Sede Principal';
   }
 
   usarDatosDelToken(): void {
@@ -236,9 +180,9 @@ export class ProfileComponent implements OnInit {
       documentoIdentidad: '',
       fechaNacimiento: '',
       edad: 0,
-      sexo: '',
+      sexo: 'MASCULINO',
       tipoMembresia: this.tipoMembresia || 'Miembro',
-      objetivo: 'Mejorar condicion fisica',
+      objetivo: 'Mejorar condición física',
       fotoUrl: '',
       contactoEmergenciaNombre: '',
       contactoEmergenciaTelefono: '',
@@ -248,33 +192,21 @@ export class ProfileComponent implements OnInit {
       username: nombre
     };
 
+    this.profileForm.patchValue(this.userProfile);
     this.avatarUrl = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(nombre) + '&background=0F1C3F&color=fff&bold=true';
-    this.sedeNombre = 'Sede no asignada';
+    this.sedeNombre = 'Sede Principal';
     this.profileBackup = { ...this.userProfile };
   }
 
   procesarPerfil(data: any): void {
     const nombre = (data.nombre || '').trim();
     const apellido = (data.apellido || '').trim();
-
-    let nombreCompleto = '';
-    if (nombre && apellido) {
-      nombreCompleto = `${nombre} ${apellido}`;
-    } else if (nombre) {
-      nombreCompleto = nombre;
-    } else if (apellido) {
-      nombreCompleto = apellido;
-    } else {
-      nombreCompleto = data.nombreCompleto || this.userUsername || this.userName || 'Usuario';
-    }
+    let nombreCompleto = nombre && apellido ? `${nombre} ${apellido}` : (nombre || apellido || this.userUsername || 'Usuario');
 
     let nivelExperiencia = data.nivelExperiencia || 'intermedio';
-    const nivelesValidos = ['novato', 'intermedio', 'avanzado'];
-    if (!nivelesValidos.includes(nivelExperiencia)) {
+    if (!['novato', 'intermedio', 'avanzado'].includes(nivelExperiencia)) {
       nivelExperiencia = 'intermedio';
     }
-
-    const sexo = data.sexo || '';
 
     this.userProfile = {
       ...this.userProfile,
@@ -286,8 +218,8 @@ export class ProfileComponent implements OnInit {
       documentoIdentidad: data.documentoIdentidad || '',
       fechaNacimiento: data.fechaNacimiento || '',
       edad: this.calcularEdad(data.fechaNacimiento),
-      sexo: sexo,
-      objetivo: data.objetivoPrincipal || 'Mejorar condicion fisica',
+      sexo: data.sexo || '',
+      objetivo: data.objetivoPrincipal || 'Mejorar condición física',
       fotoUrl: data.fotoUrl || data.urlFoto || '',
       contactoEmergenciaNombre: data.contactoEmergenciaNombre || '',
       contactoEmergenciaTelefono: data.contactoEmergenciaTelefono || '',
@@ -298,17 +230,14 @@ export class ProfileComponent implements OnInit {
       username: data.username || this.userUsername || this.userName
     };
 
-    this.sedeNombre = data.nombreSede || 'Sede no asignada';
+    this.profileForm.patchValue(this.userProfile);
+    this.sedeNombre = data.nombreSede || 'Sede Principal';
 
     if (nombreCompleto.trim()) {
       this.userName = nombreCompleto.trim();
     }
 
-    if (this.userProfile.fotoUrl) {
-      this.avatarUrl = this.userProfile.fotoUrl;
-    } else {
-      this.avatarUrl = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(this.userName) + '&background=0F1C3F&color=fff&bold=true';
-    }
+    this.avatarUrl = this.userProfile.fotoUrl || ('https://ui-avatars.com/api/?name=' + encodeURIComponent(this.userName) + '&background=0F1C3F&color=fff&bold=true');
 
     if (data.contactoEmergenciaNombre) {
       this.contactos = [{
@@ -334,12 +263,9 @@ export class ProfileComponent implements OnInit {
     }
 
     this.medidas = {
-      peso: peso,
-      pesoCambio: '',
+      peso,
       masaMuscular: musculo,
-      masaMuscularCambio: '',
       grasaCorporal: grasa,
-      grasaCorporalCambio: '',
       imc: Math.round(imc * 10) / 10,
       imcEstado: this.getImcEstado(imc),
       fechaActualizacion: new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
@@ -348,6 +274,7 @@ export class ProfileComponent implements OnInit {
 
   activarEdicion(): void {
     this.profileBackup = { ...this.userProfile };
+    this.profileForm.patchValue(this.userProfile);
     this.editando = true;
     this.mensajeExito = null;
     this.error = null;
@@ -357,6 +284,7 @@ export class ProfileComponent implements OnInit {
 
   cancelarEdicion(): void {
     this.userProfile = { ...this.profileBackup };
+    this.profileForm.patchValue(this.userProfile);
     this.editando = false;
     this.mensajeExito = null;
     this.error = null;
@@ -366,46 +294,32 @@ export class ProfileComponent implements OnInit {
 
   openFileSelector(): void {
     const fileInput = document.getElementById('fileInput') as HTMLInputElement;
-    if (fileInput) {
-      fileInput.click();
-    }
+    if (fileInput) fileInput.click();
   }
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
-
       if (!file.type.startsWith('image/')) {
-        this.mostrarErrorModal('Por favor selecciona una imagen valida (JPG, PNG, etc.)');
+        this.mostrarErrorModal('Por favor selecciona una imagen válida (JPG, PNG)');
         return;
       }
-
       if (file.size > 5 * 1024 * 1024) {
         this.mostrarErrorModal('La imagen no puede superar los 5MB');
         return;
       }
-
       this.selectedFile = file;
-
       const reader = new FileReader();
-      reader.onload = (e) => {
-        this.imagePreview = e.target?.result as string;
-      };
+      reader.onload = (e) => this.imagePreview = e.target?.result as string;
       reader.readAsDataURL(file);
-
       this.error = null;
     }
   }
 
   uploadImage(): void {
-    if (!this.selectedFile) {
-      this.mostrarErrorModal('Por favor selecciona una imagen');
-      return;
-    }
-
+    if (!this.selectedFile) return;
     this.uploadingImage = true;
-    this.error = null;
 
     const formData = new FormData();
     formData.append('file', this.selectedFile);
@@ -417,191 +331,120 @@ export class ProfileComponent implements OnInit {
     this.uploadToCloudinary(cloudinaryUrl, formData).subscribe({
       next: (response: any) => {
         const imageUrl = response.secure_url || response.url;
-
         if (imageUrl) {
-          const dataToSend = {
-            nombre: this.userProfile.nombre || '',
-            apellido: this.userProfile.apellido || '',
-            email: this.userProfile.email || '',
-            telefono: this.userProfile.telefono || '',
-            documentoIdentidad: this.userProfile.documentoIdentidad || '',
-            fechaNacimiento: this.userProfile.fechaNacimiento || '',
-            sexo: this.userProfile.sexo || '',
-            objetivoPrincipal: this.userProfile.objetivo || '',
-            contactoEmergenciaNombre: this.userProfile.contactoEmergenciaNombre || '',
-            contactoEmergenciaTelefono: this.userProfile.contactoEmergenciaTelefono || '',
-            nivelExperiencia: this.userProfile.nivelExperiencia || 'intermedio',
-            fotoUrl: imageUrl
-          };
-
-          this.userService.updateUserProfile(dataToSend).subscribe({
-            next: (updateResponse: any) => {
-              if (updateResponse && updateResponse.fotoUrl) {
-                this.userProfile.fotoUrl = updateResponse.fotoUrl;
-                this.avatarUrl = updateResponse.fotoUrl;
-              } else if (updateResponse) {
-                this.userProfile.fotoUrl = imageUrl;
-                this.avatarUrl = imageUrl;
-              }
-
-              this.guardando = false;
-              this.editando = false;
-              this.selectedFile = null;
-              this.imagePreview = null;
-              this.uploadingImage = false;
-              this.mensajeExito = 'Foto de perfil actualizada correctamente';
-
-              setTimeout(() => {
-                this.mensajeExito = null;
-                this.loadProfileData();
-              }, 1500);
-            },
-            error: (updateErr: any) => {
-              console.error('Error al actualizar perfil:', updateErr);
-              this.uploadingImage = false;
-              this.mostrarErrorModal('Error al guardar la foto en el perfil', () => this.uploadImage());
-            }
-          });
+          this.userProfile.fotoUrl = imageUrl;
+          this.guardarCambiosEnServidor(imageUrl);
         } else {
           this.uploadingImage = false;
-          this.mostrarErrorModal('No se pudo obtener la URL de la imagen', () => this.uploadImage());
+          this.mostrarErrorModal('No se pudo obtener la URL de la imagen');
         }
       },
-      error: (err: any) => {
-        console.error('Error al subir a Cloudinary:', err);
+      error: () => {
         this.uploadingImage = false;
-        let mensaje = 'Error al subir la imagen a Cloudinary.';
-        if (err.status === 400) {
-          mensaje = 'La imagen no es valida. Verifica el formato o el upload preset.';
-        }
-        this.mostrarErrorModal(mensaje, () => this.uploadImage());
+        this.mostrarErrorModal('Error al subir la imagen a Cloudinary.');
       }
     });
   }
 
   uploadToCloudinary(url: string, formData: FormData): Observable<any> {
     return new Observable((observer: any) => {
-      fetch(url, {
-        method: 'POST',
-        body: formData
-      })
-        .then((response: any) => response.json())
-        .then((data: any) => {
-          observer.next(data);
-          observer.complete();
-        })
-        .catch((error: any) => {
-          observer.error(error);
-        });
+      fetch(url, { method: 'POST', body: formData })
+        .then(res => res.json())
+        .then(data => { observer.next(data); observer.complete(); })
+        .catch(err => observer.error(err));
     });
   }
 
-  mostrarErrorModal(mensaje: string, accionReintentar?: () => void): void {
-    this.modalErrorMessage = mensaje;
-    this.errorAccion = accionReintentar || null;
-    this.mostrarModalError = true;
-  }
-
-  cerrarModalError(): void {
-    this.mostrarModalError = false;
-    this.errorAccion = null;
-  }
-
-  reintentarSubida(): void {
-    this.cerrarModalError();
-    if (this.errorAccion) {
-      this.errorAccion();
-    } else {
-      this.uploadImage();
-    }
-  }
-
   guardarCambios(): void {
+    if (this.profileForm.invalid) {
+      this.profileForm.markAllAsTouched();
+      this.error = 'Por favor completa correctamente todos los campos obligatorios.';
+      return;
+    }
+
     if (this.selectedFile) {
       this.uploadImage();
       return;
     }
 
-    if (!this.userProfile.nombre || this.userProfile.nombre.trim() === '') {
-      this.mostrarErrorModal('El nombre es obligatorio.');
-      return;
-    }
+    this.guardarCambiosEnServidor(this.userProfile.fotoUrl);
+  }
 
+  guardarCambiosEnServidor(fotoUrl: string): void {
     this.guardando = true;
     this.error = null;
     this.mensajeExito = null;
 
-    const nivelValido = this.userProfile.nivelExperiencia || 'intermedio';
-    const nivelesPermitidos = ['novato', 'intermedio', 'avanzado'];
-    const nivelFinal = nivelesPermitidos.includes(nivelValido) ? nivelValido : 'intermedio';
-
+    const formValues = this.profileForm.value;
     const dataToSend = {
-      nombre: this.userProfile.nombre || '',
-      apellido: this.userProfile.apellido || '',
+      nombre: formValues.nombre || '',
+      apellido: formValues.apellido || '',
       email: this.userProfile.email || '',
-      telefono: this.userProfile.telefono || '',
-      documentoIdentidad: this.userProfile.documentoIdentidad || '',
-      fechaNacimiento: this.userProfile.fechaNacimiento || '',
-      sexo: this.userProfile.sexo || '',
-      objetivoPrincipal: this.userProfile.objetivo || '',
-      contactoEmergenciaNombre: this.userProfile.contactoEmergenciaNombre || '',
-      contactoEmergenciaTelefono: this.userProfile.contactoEmergenciaTelefono || '',
-      nivelExperiencia: nivelFinal,
-      fotoUrl: this.userProfile.fotoUrl || ''
+      telefono: formValues.telefono || '',
+      documentoIdentidad: formValues.documentoIdentidad || '',
+      fechaNacimiento: formValues.fechaNacimiento || '',
+      sexo: formValues.sexo || '',
+      objetivoPrincipal: formValues.objetivo || '',
+      contactoEmergenciaNombre: formValues.contactoEmergenciaNombre || '',
+      contactoEmergenciaTelefono: formValues.contactoEmergenciaTelefono || '',
+      nivelExperiencia: formValues.nivelExperiencia || 'intermedio',
+      fotoUrl: fotoUrl || ''
     };
 
     this.userService.updateUserProfile(dataToSend).subscribe({
       next: (response: any) => {
-        if (response) {
-          this.guardando = false;
-          this.editando = false;
-          this.profileBackup = { ...this.userProfile };
-          this.userProfile.nombreCompleto = (this.userProfile.nombre || '') + ' ' + (this.userProfile.apellido || '');
-          if (this.userProfile.nombreCompleto.trim()) {
-            this.userName = this.userProfile.nombreCompleto.trim();
-          }
-          this.mensajeExito = 'Datos actualizados correctamente';
-          setTimeout(() => {
-            this.mensajeExito = null;
-            this.loadProfileData();
-          }, 1500);
-        } else {
-          this.guardando = false;
-          this.mostrarErrorModal('Error al guardar los cambios. Verifica los datos e intentalo de nuevo.');
+        this.guardando = false;
+        this.uploadingImage = false;
+        this.editando = false;
+        this.selectedFile = null;
+        this.imagePreview = null;
+
+        if (response && response.fotoUrl) {
+          this.userProfile.fotoUrl = response.fotoUrl;
+          this.avatarUrl = response.fotoUrl;
         }
+
+        this.userProfile = { ...this.userProfile, ...formValues };
+        this.profileBackup = { ...this.userProfile };
+        this.mensajeExito = 'Datos actualizados correctamente';
+
+        setTimeout(() => {
+          this.mensajeExito = null;
+          this.loadProfileData();
+        }, 1500);
       },
       error: (err: any) => {
-        console.error('Error al actualizar perfil:', err);
-        let mensajeError = 'Error al guardar los cambios. Intenta de nuevo.';
-
-        if (err.status === 400) {
-          mensajeError = err.error?.message || 'Datos invalidos. Verifica la informacion.';
-        } else if (err.status === 401) {
-          mensajeError = 'Tu sesion ha expirado. Inicia sesion nuevamente.';
-        } else if (err.error?.message) {
-          mensajeError = err.error.message;
-        }
-
         this.guardando = false;
-        this.mostrarErrorModal(mensajeError);
+        this.uploadingImage = false;
+        let mensaje = 'Error al guardar los cambios. Intenta de nuevo.';
+        if (err.error?.message) mensaje = err.error.message;
+        this.error = mensaje;
       }
     });
   }
 
-  calcularEdad(fechaNacimiento: string): number {
-    if (!fechaNacimiento) return 0;
+  mostrarErrorModal(mensaje: string, accion?: () => void): void {
+    this.modalErrorMessage = mensaje;
+    this.errorAccion = accion || null;
+    this.mostrarModalError = true;
+  }
+
+  cerrarModalError(): void {
+    this.mostrarModalError = false;
+  }
+
+  calcularEdad(fecha: string): number {
+    if (!fecha) return 0;
     const hoy = new Date();
-    const nacimiento = new Date(fechaNacimiento);
+    const nacimiento = new Date(fecha);
     let edad = hoy.getFullYear() - nacimiento.getFullYear();
     const mes = hoy.getMonth() - nacimiento.getMonth();
-    if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) {
-      edad--;
-    }
+    if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) edad--;
     return edad;
   }
 
   getImcEstado(imc: number): string {
-    if (!imc || imc === 0) return 'Normal';
+    if (!imc) return 'Normal';
     if (imc < 18.5) return 'Bajo peso';
     if (imc < 25) return 'Normal';
     if (imc < 30) return 'Sobrepeso';
@@ -611,23 +454,10 @@ export class ProfileComponent implements OnInit {
   getInitials(nombre: string): string {
     if (!nombre) return '?';
     const partes = nombre.trim().split(' ');
-    if (partes.length === 1) return partes[0].charAt(0).toUpperCase();
-    return (partes[0].charAt(0) + partes[partes.length - 1].charAt(0)).toUpperCase();
+    return partes.length === 1 ? partes[0].charAt(0).toUpperCase() : (partes[0].charAt(0) + partes[partes.length - 1].charAt(0)).toUpperCase();
   }
 
-  refreshData(): void {
-    this.loadProfileData();
-  }
-
-  onSearch(query: string): void {
-    console.log('Busqueda:', query);
-  }
-
-  toggleSidebar(): void {
-    this.isSidebarOpen = !this.isSidebarOpen;
-  }
-
-  closeSidebar(): void {
-    this.isSidebarOpen = false;
-  }
+  refreshData(): void { this.loadProfileData(); }
+  toggleSidebar(): void { this.isSidebarOpen = !this.isSidebarOpen; }
+  closeSidebar(): void { this.isSidebarOpen = false; }
 }

@@ -88,22 +88,29 @@
             </div>
 
             <!-- SI NO ESTÁ BLOQUEADO: Muestra el input normal -->
-            <div class="input-wrapper" *ngIf="!isRateLimited">
-                <svg class="input-icon-sparkle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path
-                        d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z">
-                    </path>
-                </svg>
-                <textarea [(ngModel)]="userInput" (keydown.enter)="$event.preventDefault(); send()"
-                    placeholder="Escriba su consulta o instrucción operativa..." rows="1" [disabled]="isBusy">
-                </textarea>
-                <button class="send-btn" (click)="send()" [disabled]="isBusy || !userInput.trim()"
-                    title="Enviar mensaje">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="22" y1="2" x2="11" y2="13"></line>
-                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            <div class="input-container-wrapper" *ngIf="!isRateLimited">
+                <div class="input-wrapper">
+                    <svg class="input-icon-sparkle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path
+                            d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z">
+                        </path>
                     </svg>
-                </button>
+                    <textarea [(ngModel)]="userInput" (keydown.enter)="$event.preventDefault(); send()"
+                        placeholder="Escriba su consulta o instrucción operativa..." rows="1" [disabled]="isBusy"
+                        maxlength="1000">
+                    </textarea>
+                    <button class="send-btn" (click)="send()" [disabled]="isBusy || !userInput.trim()"
+                        title="Enviar mensaje">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                        </svg>
+                    </button>
+                </div>
+                <!-- CONTADOR DE CARACTERES -->
+                <div class="char-counter" [class.near-limit]="userInput.length > 900">
+                    {{ userInput.length }}/1000
+                </div>
             </div>
         </div>
 
@@ -122,6 +129,16 @@
                     <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                 </svg>
                 Limpiar historial
+            </button>
+
+            <!-- NUEVO BOTÓN: Información sobre el MCP -->
+            <button class="action-btn secondary" (click)="openMcpInfoModal()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                Información sobre el MCP
             </button>
         </div>
 
@@ -178,4 +195,74 @@
         </div>
     </div>
 
+</div>
+
+<!-- MODAL DE INFORMACIÓN SOBRE EL MCP Y GUÍA DE CONSULTAS -->
+<div class="custom-modal-backdrop" *ngIf="showMcpModal" (click)="closeMcpInfoModal()">
+    <div class="custom-modal-container animate-pop-in" (click)="$event.stopPropagation()">
+        
+        <div class="modal-header">
+            <div class="modal-title-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"></path>
+                    <path d="M12 6v6l4 2"></path>
+                </svg>
+                <h3>Guía de Consultas — MancuerIA & MCP</h3>
+            </div>
+            <button class="modal-close-btn" (click)="closeMcpInfoModal()" title="Cerrar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+
+        <div class="modal-body">
+            <p class="modal-intro">
+                El asistente inteligente procesa tus consultas mediante un orquestador interno conectado al sistema operativo del gimnasio. Aquí tienes los temas exactos que puedes preguntarle:
+            </p>
+
+            <div class="info-section-grid">
+                
+                <!-- Agente Operacional -->
+                <div class="info-card">
+                    <h4>Agente Operacional</h4>
+                    <ul>
+                        <li><strong>Equipos:</strong> Estados, sedes, reportes de fallas críticas y mantenimiento.</li>
+                        <li><strong>Asistencias:</strong> Registros diarios y control de accesos de socios.</li>
+                        <li><strong>Proveedores:</strong> Listados y datos de contacto corporativos.</li>
+                    </ul>
+                </div>
+
+                <!-- Agente de Analítica -->
+                <div class="info-card">
+                    <h4>Agente de Analítica</h4>
+                    <ul>
+                        <li><strong>Ingresos:</strong> Reportes financieros de membresías, cobros y periodos específicos.</li>
+                        <li><strong>Mora:</strong> Socios con pagos pendientes o atrasados.</li>
+                        <li><strong>Afluencia:</strong> Conteo físico de entradas al establecimiento.</li>
+                    </ul>
+                </div>
+
+            </div>
+
+            <div class="info-alert-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <div>
+                    <strong>¿Qué temas no responde?</strong>
+                    <span>Cualquier asunto ajeno al gimnasio (clima, cultura general) o preguntas internas de configuración técnica del modelo.</span>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="modal-footer">
+            <button class="modal-action-btn" (click)="closeMcpInfoModal()">Entendido</button>
+        </div>
+
+    </div>
 </div>

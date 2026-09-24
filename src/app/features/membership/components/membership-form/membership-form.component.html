@@ -18,12 +18,13 @@
             </p>
         </div>
         <div class="form-header__right">
-            <!-- BOTÓN CANCELAR (Primero) -->
-            <button class="btn-outline" (click)="cancelar()" [disabled]="loading">
+            <!-- BOTÓN CANCELAR -->
+            <button class="btn-outline" (click)="cancelar()" [disabled]="loading" type="button">
                 Cancelar
             </button>
             <!-- BOTÓN GUARDAR -->
-            <button class="btn-primary" (click)="guardar()" [disabled]="!formularioValido || loading">
+            <button class="btn-primary" (click)="guardar()" [disabled]="membershipForm.invalid || loading"
+                type="button">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
                     <polyline points="17 21 17 13 7 13 7 21" />
@@ -31,8 +32,9 @@
                 </svg>
                 {{ esEdicion ? 'Guardar Cambios' : 'Crear Membresía' }}
             </button>
-            <!-- BOTÓN ELIMINAR (Último, solo en modo edición) -->
-            <button class="btn-danger" *ngIf="esEdicion" (click)="eliminarMembresia()" [disabled]="loading">
+            <!-- BOTÓN ELIMINAR -->
+            <button class="btn-danger" *ngIf="esEdicion" (click)="eliminarMembresia()" [disabled]="loading"
+                type="button">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M3 6h18" />
                     <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
@@ -42,8 +44,8 @@
         </div>
     </div>
 
-    <!-- FORMULARIO -->
-    <div class="form-grid">
+    <!-- FORMULARIO REACTIVO -->
+    <form [formGroup]="membershipForm" class="form-grid">
 
         <!-- COLUMNA IZQUIERDA: FORMULARIO -->
         <div class="form-column">
@@ -53,20 +55,37 @@
                 <h2 class="section-title">Información General</h2>
 
                 <div class="form-group">
-                    <label for="nombrePlan">NOMBRE DEL PLAN</label>
-                    <input type="text" id="nombrePlan" [(ngModel)]="plan.nombre" placeholder="Ej: 1 mes básica"
-                        class="form-control" [disabled]="loading" />
+                    <label for="nombrePlan">NOMBRE DEL PLAN <span class="required-star">*</span></label>
+                    <input type="text" id="nombrePlan" formControlName="nombre" placeholder="Ej: 1 mes básica"
+                        class="form-control" [readonly]="loading" maxlength="50" />
+                    <div *ngIf="membershipForm.get('nombre')?.invalid && membershipForm.get('nombre')?.touched"
+                        class="text-error">
+                        <small *ngIf="membershipForm.get('nombre')?.errors?.['required']">El nombre del plan es
+                            obligatorio.</small>
+                        <small *ngIf="membershipForm.get('nombre')?.errors?.['maxlength']">Máximo 50 caracteres
+                            permitidos por la base de datos.</small>
+                        <small *ngIf="membershipForm.get('nombre')?.errors?.['pattern']">Caracteres no válidos
+                            permitidos.</small>
+                    </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="cantidad">CANTIDAD</label>
-                        <input type="number" id="cantidad" [(ngModel)]="plan.cantidad" min="1" max="365" placeholder="1"
-                            class="form-control" [disabled]="loading" />
+                        <label for="cantidad">CANTIDAD <span class="required-star">*</span></label>
+                        <input type="number" id="cantidad" formControlName="cantidad" min="1" max="365" placeholder="1"
+                            class="form-control" [readonly]="loading" (keydown)="validarCaracteresNumericos($event)" />
+                        <div *ngIf="membershipForm.get('cantidad')?.invalid && membershipForm.get('cantidad')?.touched"
+                            class="text-error">
+                            <small *ngIf="membershipForm.get('cantidad')?.errors?.['required']">Campo
+                                obligatorio.</small>
+                            <small *ngIf="membershipForm.get('cantidad')?.errors?.['min']">Mínimo 1.</small>
+                            <small *ngIf="membershipForm.get('cantidad')?.errors?.['max']">Máximo 365.</small>
+                        </div>
                     </div>
                     <div class="form-group">
-                        <label for="tipoDuracion">TIPO DURACIÓN</label>
-                        <select id="tipoDuracion" [(ngModel)]="plan.tipoDuracion" class="form-control" [disabled]="loading">
+                        <label for="tipoDuracion">TIPO DURACIÓN <span class="required-star">*</span></label>
+                        <select id="tipoDuracion" formControlName="tipoDuracion" class="form-control"
+                            [attr.disabled]="loading ? true : null">
                             <option value="DIA">Día(s)</option>
                             <option value="SEMANA">Semana(s)</option>
                             <option value="MES">Mes(es)</option>
@@ -79,15 +98,25 @@
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="precioPorDia">PRECIO POR DÍA (COP)</label>
+                        <label for="precioPorDia">PRECIO POR DÍA (COP) <span class="required-star">*</span></label>
                         <div class="input-prefix">
                             <span class="prefix">$</span>
-                            <input type="number" id="precioPorDia" [(ngModel)]="plan.precioPorDia" placeholder="2300"
-                                class="form-control" [disabled]="loading" />
+                            <input type="number" id="precioPorDia" formControlName="precioPorDia" placeholder="2300"
+                                class="form-control" [readonly]="loading" min="1000" max="100000"
+                                (keydown)="validarCaracteresNumericos($event)" />
+                        </div>
+                        <div *ngIf="membershipForm.get('precioPorDia')?.invalid && membershipForm.get('precioPorDia')?.touched"
+                            class="text-error">
+                            <small *ngIf="membershipForm.get('precioPorDia')?.errors?.['required']">El precio por día es
+                                obligatorio.</small>
+                            <small *ngIf="membershipForm.get('precioPorDia')?.errors?.['min']">El precio mínimo por día
+                                es $1,000.</small>
+                            <small *ngIf="membershipForm.get('precioPorDia')?.errors?.['max']">El precio máximo por día
+                                permitido es $100,000.</small>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="precioTotal">PRECIO TOTAL (COP)</label>
+                        <label for="precioTotal">PRECIO TOTAL (COP CALCULADO)</label>
                         <div class="input-prefix">
                             <input type="text" id="precioTotal" [value]="formatearPrecio(precioTotalCalculado)"
                                 class="form-control" disabled />
@@ -97,20 +126,27 @@
 
                 <div class="form-group">
                     <label for="descripcion">DESCRIPCIÓN DEL PLAN</label>
-                    <textarea id="descripcion" [(ngModel)]="plan.descripcion"
-                        placeholder="Descripción detallada del plan..." class="form-control" rows="3" [disabled]="loading"></textarea>
+                    <textarea id="descripcion" formControlName="descripcion"
+                        placeholder="Descripción detallada del plan..." class="form-control" rows="3"
+                        [readonly]="loading" maxlength="255"></textarea>
+                    <div *ngIf="membershipForm.get('descripcion')?.invalid && membershipForm.get('descripcion')?.touched"
+                        class="text-error">
+                        <small *ngIf="membershipForm.get('descripcion')?.errors?.['maxlength']">Máximo 255
+                            caracteres.</small>
+                    </div>
                 </div>
             </div>
 
             <!-- BENEFICIOS -->
             <div class="form-section">
-                <h2 class="section-title">Beneficios del Plan</h2>
+                <h2 class="section-title">Beneficios del Plan <span class="required-star">*</span></h2>
 
                 <div class="benefits-list">
-                    <div class="benefit-item" *ngFor="let beneficio of plan.beneficios; let i = index">
+                    <div class="benefit-item" *ngFor="let beneficio of beneficiosArray; let i = index">
                         <span class="benefit-dot"></span>
                         <span class="benefit-text">{{ beneficio }}</span>
-                        <button class="benefit-remove" (click)="eliminarBeneficio(i)" type="button" [disabled]="loading">
+                        <button class="benefit-remove" (click)="eliminarBeneficio(i)" type="button"
+                            [disabled]="loading">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2">
                                 <line x1="18" y1="6" x2="6" y2="18" />
@@ -119,10 +155,14 @@
                         </button>
                     </div>
                 </div>
+                <div *ngIf="beneficiosArray.length === 0" class="text-error mb-2">
+                    <small>Debe registrar al menos un beneficio.</small>
+                </div>
 
                 <div class="add-benefit">
-                    <input type="text" [(ngModel)]="nuevoBeneficio" placeholder="Agregar nuevo beneficio..."
-                        class="form-control" (keyup.enter)="agregarBeneficio()" [disabled]="loading" />
+                    <input type="text" [(ngModel)]="nuevoBeneficio" [ngModelOptions]="{standalone: true}"
+                        placeholder="Agregar nuevo beneficio..." class="form-control" (keyup.enter)="agregarBeneficio()"
+                        [disabled]="loading" maxlength="100" />
                     <button class="btn-add" (click)="agregarBeneficio()" type="button" [disabled]="loading">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2">
@@ -172,19 +212,19 @@
             <!-- CONFIGURACIÓN ADICIONAL -->
             <div class="config-card">
                 <h3 class="config-card__title">Configuración Adicional</h3>
-                <div class="toggle-group">
+                <div class="toggle-group" formGroupName="config-card">
                     <label class="toggle-item">
-                        <input type="checkbox" [(ngModel)]="plan.incluyeIA" [disabled]="loading" />
+                        <input type="checkbox" formControlName="incluyeIA" [attr.disabled]="loading ? true : null" />
                         <span class="toggle-slider"></span>
                         <span class="toggle-label">Incluye Asistente IA</span>
                     </label>
                     <label class="toggle-item">
-                        <input type="checkbox" [(ngModel)]="plan.esFlexible" [disabled]="loading" />
+                        <input type="checkbox" formControlName="esFlexible" [attr.disabled]="loading ? true : null" />
                         <span class="toggle-slider"></span>
                         <span class="toggle-label">Membresía Flexible (días personalizados)</span>
                     </label>
                     <label class="toggle-item">
-                        <input type="checkbox" [(ngModel)]="plan.activo" [disabled]="loading" />
+                        <input type="checkbox" formControlName="activo" [attr.disabled]="loading ? true : null" />
                         <span class="toggle-slider"></span>
                         <span class="toggle-label">Plan Activo</span>
                     </label>
@@ -204,5 +244,5 @@
 
         </div>
 
-    </div>
+    </form>
 </div>

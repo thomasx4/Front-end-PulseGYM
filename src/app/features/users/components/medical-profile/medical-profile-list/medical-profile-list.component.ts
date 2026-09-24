@@ -64,6 +64,17 @@ export class MedicalProfileListComponent implements OnInit {
     });
   }
 
+  cortarTextoDosPalabras(texto: string): string {
+    if (!texto || texto.trim() === '') {
+      return 'Ninguna';
+    }
+    const palabras = texto.trim().split(/\s+/);
+    if (palabras.length <= 2) {
+      return texto;
+    }
+    return `${palabras[0]} ${palabras[1]}...`;
+  }
+
   isSeleccionado(id: number): boolean {
     return this.idsSeleccionados.has(id);
   }

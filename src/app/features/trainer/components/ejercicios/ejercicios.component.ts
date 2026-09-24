@@ -83,7 +83,7 @@ export class EjerciciosComponent implements OnInit {
   constructor(
     private ejerciciosService: EjerciciosService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.cargarCatalogos();
@@ -411,16 +411,30 @@ export class EjerciciosComponent implements OnInit {
   }
 
   guardar(): void {
-    if (!this.form.nombre.trim()) {
+    const nombreTrim = this.form.nombre.trim();
+
+    if (!nombreTrim) {
       this.mostrarError('Campos incompletos', 'El nombre es obligatorio.');
       return;
     }
+
+    if (nombreTrim.length > 100) {
+      this.mostrarError('Título muy extenso', 'El nombre del ejercicio no puede superar los 100 caracteres.');
+      return;
+    }
+
     if (!this.form.grupoMuscular) {
       this.mostrarError('Campos incompletos', 'El grupo muscular es obligatorio.');
       return;
     }
+
     if (this.form.dificultad < 1 || this.form.dificultad > 5) {
-      this.mostrarError('Dificultad invalida', 'La dificultad debe estar entre 1 y 5.');
+      this.mostrarError('Dificultad inválida', 'La dificultad debe estar entre 1 y 5.');
+      return;
+    }
+
+    if (this.form.caloriasPorMinuto < 0) {
+      this.mostrarError('Valor inválido', 'Las calorías por minuto no pueden ser un valor negativo.');
       return;
     }
 
@@ -431,7 +445,7 @@ export class EjerciciosComponent implements OnInit {
         const activoFinal = this.modoEdicion ? this.form.activo : true;
 
         const payload: CrearEjercicioPayload = {
-          nombre: this.form.nombre.trim(),
+          nombre: nombreTrim,
           grupoMuscular: this.form.grupoMuscular,
           equipoNecesario: this.form.equipoNecesario || 'Sin equipo',
           explicacionTecnica: this.form.explicacionTecnica || '',
@@ -545,14 +559,14 @@ export class EjerciciosComponent implements OnInit {
   }
 
   // Agrega esta propiedad pública en la clase EjerciciosComponent:
-public isSidebarOpen: boolean = false;
+  public isSidebarOpen: boolean = false;
 
-// Y añade estos métodos al final de la clase:
-toggleSidebar(): void {
-  this.isSidebarOpen = !this.isSidebarOpen;
-}
+  // Y añade estos métodos al final de la clase:
+  toggleSidebar(): void {
+    this.isSidebarOpen = !this.isSidebarOpen;
+  }
 
-closeSidebar(): void {
-  this.isSidebarOpen = false;
-}
+  closeSidebar(): void {
+    this.isSidebarOpen = false;
+  }
 }

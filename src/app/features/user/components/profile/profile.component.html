@@ -17,6 +17,7 @@
         </div>
 
         <!-- ========== MODO EDICION ========== -->
+        <!-- ========== MODO EDICION ========== -->
         <div *ngIf="editando && !isLoading">
             <header class="page-header">
                 <h1>Editar Perfil</h1>
@@ -24,11 +25,12 @@
             </header>
 
             <div class="edit-container">
-                <form (ngSubmit)="guardarCambios()" #profileForm="ngForm" class="edit-form">
+                <form [formGroup]="profileForm" (ngSubmit)="guardarCambios()" class="edit-form">
 
-                    <!-- Mensaje de error en modo edicion -->
+                    <!-- Mensaje de error general -->
                     <div *ngIf="error" class="alert-error">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
                             <circle cx="12" cy="12" r="10" />
                             <line x1="12" y1="8" x2="12" y2="12" />
                             <line x1="12" y1="16" x2="12.01" y2="16" />
@@ -36,13 +38,12 @@
                         {{ error }}
                     </div>
 
-                    <!-- Foto de perfil centrada con Cloudinary -->
+                    <!-- Foto de perfil -->
                     <div class="form-avatar-section">
                         <div class="form-avatar-wrapper">
                             <div class="form-avatar">
                                 <img *ngIf="imagePreview || userProfile.fotoUrl"
-                                    [src]="imagePreview || userProfile.fotoUrl" [alt]="userName"
-                                    class="avatar-image" />
+                                    [src]="imagePreview || userProfile.fotoUrl" [alt]="userName" class="avatar-image" />
                                 <span *ngIf="!imagePreview && !userProfile.fotoUrl">
                                     {{ getInitials(userProfile.nombre || userName) }}
                                 </span>
@@ -63,7 +64,7 @@
                             </div>
 
                             <small class="text-muted" *ngIf="selectedFile">
-                                Archivo seleccionado: {{ selectedFile.name }}
+                                Archivo seleccionado: {{ selectedFile?.name }}
                             </small>
                             <small class="text-muted" *ngIf="uploadingImage">
                                 Subiendo imagen...
@@ -74,70 +75,103 @@
                     <!-- Nombre y Apellido -->
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="nombre">Nombre</label>
-                            <input type="text" id="nombre" class="form-control" [(ngModel)]="userProfile.nombre"
-                                name="nombre" placeholder="Tu nombre" required />
+                            <label for="nombre">Nombre <span class="required-star">*</span></label>
+                            <input type="text" id="nombre" class="form-control" formControlName="nombre"
+                                placeholder="Tu nombre" maxlength="50" />
+                            <div *ngIf="profileForm.get('nombre')?.invalid && profileForm.get('nombre')?.touched"
+                                class="text-error">
+                                <small *ngIf="profileForm.get('nombre')?.errors?.['required']">El nombre es
+                                    obligatorio.</small>
+                                <small *ngIf="profileForm.get('nombre')?.errors?.['maxlength']">Máximo 50
+                                    caracteres.</small>
+                                <small *ngIf="profileForm.get('nombre')?.errors?.['pattern']">Solo se permiten letras y
+                                    espacios.</small>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label for="apellido">Apellido</label>
-                            <input type="text" id="apellido" class="form-control" [(ngModel)]="userProfile.apellido"
-                                name="apellido" placeholder="Tu apellido" />
+                            <input type="text" id="apellido" class="form-control" formControlName="apellido"
+                                placeholder="Tu apellido" maxlength="50" />
+                            <div *ngIf="profileForm.get('apellido')?.invalid && profileForm.get('apellido')?.touched"
+                                class="text-error">
+                                <small *ngIf="profileForm.get('apellido')?.errors?.['maxlength']">Máximo 50
+                                    caracteres.</small>
+                                <small *ngIf="profileForm.get('apellido')?.errors?.['pattern']">Solo se permiten letras
+                                    y espacios.</small>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Email y Telefono -->
+                    <!-- Email y Teléfono -->
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="email">Correo electronico</label>
-                            <input type="email" id="email" class="form-control" [(ngModel)]="userProfile.email"
-                                name="email" placeholder="correo@ejemplo.com" required disabled readonly />
-                            <small class="text-muted">El correo electronico no se puede modificar</small>
+                            <label for="email">Correo electrónico</label>
+                            <input type="email" id="email" class="form-control" formControlName="email"
+                                placeholder="correo@ejemplo.com" readonly />
+                            <small class="text-muted">El correo electrónico está protegido y no se puede
+                                modificar</small>
                         </div>
                         <div class="form-group">
-                            <label for="telefono">Telefono</label>
-                            <input type="tel" id="telefono" class="form-control"
-                                inputmode="numeric"
-                                pattern="[0-9]*"
-                                maxlength="15"
-                                [(ngModel)]="userProfile.telefono"
-                                name="telefono"
-                                placeholder="3001234567" />
+                            <label for="telefono">Teléfono <span class="required-star">*</span></label>
+                            <input type="tel" id="telefono" class="form-control" formControlName="telefono"
+                                placeholder="3000000000" maxlength="10" />
+                            <div *ngIf="profileForm.get('telefono')?.invalid && profileForm.get('telefono')?.touched"
+                                class="text-error">
+                                <small *ngIf="profileForm.get('telefono')?.errors?.['required']">El teléfono es
+                                    obligatorio.</small>
+                                <small *ngIf="profileForm.get('telefono')?.errors?.['pattern']">Debe contener
+                                    exactamente 10 números.</small>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Fecha y Sexo -->
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="fechaNacimiento">Fecha de nacimiento</label>
+                            <label for="fechaNacimiento">Fecha de nacimiento <span
+                                    class="required-star">*</span></label>
                             <input type="date" id="fechaNacimiento" class="form-control"
-                                [(ngModel)]="userProfile.fechaNacimiento" name="fechaNacimiento" />
+                                formControlName="fechaNacimiento" />
+                            <div *ngIf="profileForm.get('fechaNacimiento')?.invalid && profileForm.get('fechaNacimiento')?.touched"
+                                class="text-error">
+                                <small>La fecha de nacimiento es obligatoria.</small>
+                            </div>
                         </div>
                         <div class="form-group">
-                            <label for="sexo">Sexo</label>
-                            <select id="sexo" class="form-control" [(ngModel)]="userProfile.sexo" name="sexo">
+                            <label for="sexo">Sexo <span class="required-star">*</span></label>
+                            <select id="sexo" class="form-control" formControlName="sexo">
                                 <option value="">Seleccionar</option>
                                 <option value="MASCULINO">Masculino</option>
                                 <option value="FEMENINO">Femenino</option>
+                                <option value="OTRO">Otro</option>
+                                <option value="PREFIERO NO DECIR">Prefiero no decir</option>
                             </select>
+                            <div *ngIf="profileForm.get('sexo')?.invalid && profileForm.get('sexo')?.touched"
+                                class="text-error">
+                                <small>Por favor selecciona el sexo.</small>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Documento y Experiencia -->
+                    <!-- Documento y Nivel de Experiencia -->
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="documentoIdentidad">Documento de identidad</label>
+                            <label for="documentoIdentidad">Documento de identidad <span
+                                    class="required-star">*</span></label>
                             <input type="text" id="documentoIdentidad" class="form-control"
-                                inputmode="numeric"
-                                pattern="[0-9]*"
-                                maxlength="20"
-                                [(ngModel)]="userProfile.documentoIdentidad"
-                                name="documentoIdentidad"
-                                placeholder="Numero de identificacion" />
+                                formControlName="documentoIdentidad" placeholder="Número de identificación"
+                                maxlength="10" />
+                            <div *ngIf="profileForm.get('documentoIdentidad')?.invalid && profileForm.get('documentoIdentidad')?.touched"
+                                class="text-error">
+                                <small *ngIf="profileForm.get('documentoIdentidad')?.errors?.['required']">El documento
+                                    es obligatorio.</small>
+                                <small *ngIf="profileForm.get('documentoIdentidad')?.errors?.['pattern']">Debe ser
+                                    numérico (de 6 a 10 dígitos).</small>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label for="nivelExperiencia">Nivel de experiencia</label>
-                            <select id="nivelExperiencia" class="form-control"
-                                [(ngModel)]="userProfile.nivelExperiencia" name="nivelExperiencia">
+                            <select id="nivelExperiencia" class="form-control" formControlName="nivelExperiencia">
                                 <option value="novato">Novato</option>
                                 <option value="intermedio">Intermedio</option>
                                 <option value="avanzado">Avanzado</option>
@@ -145,41 +179,61 @@
                         </div>
                     </div>
 
-                    <!-- Objetivo -->
+                    <!-- Objetivo Principal -->
                     <div class="form-group">
                         <label for="objetivo">Objetivo principal</label>
-                        <input type="text" id="objetivo" class="form-control" [(ngModel)]="userProfile.objetivo"
-                            name="objetivo" placeholder="Ej: Ganar masa muscular, perder peso, etc." />
+                        <input type="text" id="objetivo" class="form-control" formControlName="objetivo"
+                            placeholder="Ej: Ganar masa muscular, perder peso, etc." maxlength="100" />
                     </div>
 
+                    <!-- Contacto de Emergencia -->
                     <!-- Contacto de Emergencia -->
                     <div class="form-section">
                         <h4>Contacto de Emergencia</h4>
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="contactoEmergenciaNombre">Nombre del contacto</label>
+                                <label for="contactoEmergenciaNombre">Nombre del contacto <span
+                                        class="required-star">*</span></label>
+                                <!-- Añadido maxlength="50" aquí -->
                                 <input type="text" id="contactoEmergenciaNombre" class="form-control"
-                                    [(ngModel)]="userProfile.contactoEmergenciaNombre"
-                                    name="contactoEmergenciaNombre" placeholder="Nombre del contacto" />
+                                    formControlName="contactoEmergenciaNombre" placeholder="Nombre del contacto"
+                                    maxlength="50" />
+                                <div *ngIf="profileForm.get('contactoEmergenciaNombre')?.invalid && profileForm.get('contactoEmergenciaNombre')?.touched"
+                                    class="text-error">
+                                    <small
+                                        *ngIf="profileForm.get('contactoEmergenciaNombre')?.errors?.['required']">Este
+                                        campo es obligatorio.</small>
+                                    <small
+                                        *ngIf="profileForm.get('contactoEmergenciaNombre')?.errors?.['maxlength']">Máximo
+                                        50 caracteres.</small>
+                                    <small *ngIf="profileForm.get('contactoEmergenciaNombre')?.errors?.['pattern']">Solo
+                                        se permiten letras y espacios.</small>
+                                </div>
                             </div>
                             <div class="form-group">
-                                <label for="contactoEmergenciaTelefono">Telefono de emergencia</label>
+                                <label for="contactoEmergenciaTelefono">Teléfono de emergencia <span
+                                        class="required-star">*</span></label>
                                 <input type="tel" id="contactoEmergenciaTelefono" class="form-control"
-                                    inputmode="numeric"
-                                    pattern="[0-9]*"
-                                    maxlength="10"
-                                    [(ngModel)]="userProfile.contactoEmergenciaTelefono"
-                                    name="contactoEmergenciaTelefono"
-                                    placeholder="3001234567" />
+                                    formControlName="contactoEmergenciaTelefono" placeholder="3000000000"
+                                    maxlength="10" />
+                                <div *ngIf="profileForm.get('contactoEmergenciaTelefono')?.invalid && profileForm.get('contactoEmergenciaTelefono')?.touched"
+                                    class="text-error">
+                                    <small
+                                        *ngIf="profileForm.get('contactoEmergenciaTelefono')?.errors?.['required']">Este
+                                        campo es obligatorio.</small>
+                                    <small
+                                        *ngIf="profileForm.get('contactoEmergenciaTelefono')?.errors?.['pattern']">Debe
+                                        contener exactamente 10 números.</small>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Botones de accion -->
+                    <!-- Botones de acción -->
                     <div class="form-actions">
                         <button type="button" class="btn-secondary" (click)="cancelarEdicion()">Cancelar</button>
                         <button type="submit" class="btn-primary"
-                            [disabled]="!profileForm.valid || guardando || uploadingImage">
+                            [disabled]="profileForm.invalid || guardando || uploadingImage">
                             {{ uploadingImage ? 'Subiendo imagen...' : guardando ? 'Guardando...' : 'Guardar cambios' }}
                         </button>
                     </div>
@@ -210,16 +264,19 @@
                     <!-- Botones de accion: Editar y Ajustes -->
                     <div class="profile-actions">
                         <button class="btn-edit-profile" (click)="activarEdicion()">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
                                 <path d="M12 20h9" />
                                 <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
                             </svg>
                             Editar
                         </button>
                         <button class="btn-settings" (click)="irAjustes()" title="Ajustes">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="3"/>
-                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <circle cx="12" cy="12" r="3" />
+                                <path
+                                    d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
                             </svg>
                         </button>
                     </div>
@@ -406,8 +463,7 @@
                         <div class="clipboard-icon">
                             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#2563eb"
                                 stroke-width="1.5">
-                                <path
-                                    d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+                                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
                                 <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
                                 <line x1="9" y1="12" x2="15" y2="12" />
                                 <line x1="9" y1="16" x2="13" y2="16" />

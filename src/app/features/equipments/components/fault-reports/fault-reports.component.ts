@@ -69,6 +69,18 @@ export class FaultReportsComponent implements OnInit {
     });
   }
 
+  // ⭐ Función para limitar la descripción de la falla a máximo 3 palabras
+  cortarDescripcionFalla(descripcion: string): string {
+    if (!descripcion || descripcion.trim() === '') {
+      return 'Sin descripción';
+    }
+    const palabras = descripcion.trim().split(/\s+/);
+    if (palabras.length <= 3) {
+      return descripcion;
+    }
+    return `${palabras[0]} ${palabras[1]} ${palabras[2]}...`;
+  }
+
   get reportesSeleccionadosCount(): number {
     return this.reportes.filter(r => r.selected).length;
   }

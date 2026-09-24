@@ -4,7 +4,8 @@
         <div>
             <h1 class="form-title">{{ isEditMode ? 'Editar Certificación' : 'Nueva Certificación' }}</h1>
             <p class="form-subtitle">
-                {{ isEditMode ? 'Actualiza la información de la certificación registrada.' : 'Registra una nueva certificación para un entrenador.' }}
+                {{ isEditMode ? 'Actualiza la información de la certificación registrada.' : 'Registra una nueva
+                certificación para un entrenador.' }}
             </p>
         </div>
         <button class="btn-back" (click)="volver()">
@@ -103,10 +104,17 @@
                     <div class="form-group full-width">
                         <label>Nombre de la Certificación <span class="required">*</span></label>
                         <input type="text" formControlName="nombre"
-                            placeholder="Ej. Certificación Crossfit Nivel 2, RCP & Primeros Auxilios" />
+                            placeholder="Ej. Certificación Crossfit Nivel 2, RCP & Primeros Auxilios" maxlength="100" />
                         <div class="form-error"
                             *ngIf="certificateForm.get('nombre')?.invalid && certificateForm.get('nombre')?.touched">
-                            <span>El nombre de la certificación es obligatorio.</span>
+                            <small *ngIf="certificateForm.get('nombre')?.errors?.['required']">El nombre de la
+                                certificación es obligatorio.</small>
+                            <small *ngIf="certificateForm.get('nombre')?.errors?.['minlength']">El nombre debe tener al
+                                menos 3 caracteres.</small>
+                            <small *ngIf="certificateForm.get('nombre')?.errors?.['maxlength']">El nombre no puede
+                                superar los 100 caracteres.</small>
+                            <small *ngIf="certificateForm.get('nombre')?.errors?.['pattern']">El nombre contiene
+                                caracteres no válidos.</small>
                         </div>
                     </div>
                 </div>
@@ -115,8 +123,8 @@
             <!-- SECCIÓN: ARCHIVO PDF -->
             <div class="form-section">
                 <div class="section-header">
-                    
-                    <h3>                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+
+                    <h3> <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2" style="vertical-align: middle; margin-right: 8px;">
                             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                             <polyline points="14 2 14 8 20 8"></polyline>
@@ -154,8 +162,10 @@
                                     <polyline points="14 2 14 8 20 8" />
                                 </svg>
                                 <div>
-                                    <span class="file-name">{{ selectedFile ? selectedFile.name : 'Certificación cargada.pdf' }}</span>
-                                    <span class="file-size" *ngIf="selectedFile">{{ (selectedFile.size / 1024 / 1024).toFixed(2) }} MB</span>
+                                    <span class="file-name">{{ selectedFile ? selectedFile.name : 'Certificación
+                                        cargada.pdf' }}</span>
+                                    <span class="file-size" *ngIf="selectedFile">{{ (selectedFile.size / 1024 /
+                                        1024).toFixed(2) }} MB</span>
                                     <a class="file-size" *ngIf="!selectedFile && existingUrl" [href]="existingUrl"
                                         target="_blank" (click)="$event.stopPropagation()">Ver PDF actual</a>
                                 </div>
@@ -248,11 +258,13 @@
                                             {{ getInitials(entrenador.nombre, entrenador.apellido) }}
                                         </span>
                                     </div>
-                                    <span class="partner-table-name">{{ entrenador.nombre }} {{ entrenador.apellido }}</span>
+                                    <span class="partner-table-name">{{ entrenador.nombre }} {{ entrenador.apellido
+                                        }}</span>
                                 </div>
                             </td>
                             <td>
-                                <span class="partner-table-contact">{{ entrenador.telefono || entrenador.email || 'Sin contacto' }}</span>
+                                <span class="partner-table-contact">{{ entrenador.telefono || entrenador.email || 'Sin
+                                    contacto' }}</span>
                             </td>
                             <td class="text-right">
                                 <button type="button" class="btn-assign-row"

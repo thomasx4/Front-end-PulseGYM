@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { UserService } from '../../../../core/services/users.service';
 import { AuthService } from '../../../../core/services/auth.service';
@@ -32,6 +33,9 @@ export class ProfileComponent implements OnInit {
   mostrarModalError: boolean = false;
   modalErrorMessage: string = '';
   errorAccion: (() => void) | null = null;
+
+  // Formulario reactivo con validaciones idénticas a admin
+  profileForm!: FormGroup;
 
   // Variables para el control del menú hamburguesa / sidebar
   public isSidebarOpen: boolean = false;
@@ -67,11 +71,28 @@ export class ProfileComponent implements OnInit {
   constructor(
     private userService: UserService,
     private authService: AuthService,
-    private router: Router
-  ) { }
+    private router: Router,
+    private fb: FormBuilder
+  ) {
+    this.buildForm();
+  }
 
   ngOnInit(): void {
     this.loadUserInfo();
+  }
+
+  buildForm(): void {
+    this.profileForm = this.fb.group({
+      nombre: ['', [Validators.required, Validators.maxLength(50), Validators.pattern(/^[a-zA-ZÁÉÍÓÚáéíóúÑñ\s]+$/)]],
+      apellido: ['', [Validators.maxLength(50), Validators.pattern(/^[a-zA-ZÁÉÍÓÚáéíóúÑñ\s]*$/)]],
+      email: [{ value: '', disabled: true }, [Validators.required, Validators.email]],
+      telefono: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
+      documentoIdentidad: ['', [Validators.required, Validators.pattern(/^\d{6,10}$/)]],
+      fechaNacimiento: ['', [Validators.required]],
+      sexo: ['', [Validators.required]],
+      contactoEmergenciaNombre: ['', [Validators.required, Validators.maxLength(50), Validators.pattern(/^[a-zA-ZÁÉÍÓÚáéíóúÑñ\s]+$/)]],
+      contactoEmergenciaTelefono: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]]
+    });
   }
 
   // Métodos de control del menú lateral (sidebar)
@@ -150,10 +171,11 @@ export class ProfileComponent implements OnInit {
       contactoEmergenciaNombre: '',
       contactoEmergenciaTelefono: '',
       idSede: 0,
-      nombreSede: '',                
+      nombreSede: '',
       username: nombre
     };
 
+    this.profileForm.patchValue(this.userProfile);
     this.avatarUrl = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(nombre) + '&background=0F1C3F&color=fff&bold=true';
     this.sedeNombre = 'Sede Principal';
     this.profileBackup = { ...this.userProfile };
@@ -195,6 +217,7 @@ export class ProfileComponent implements OnInit {
       username: data.username || this.userUsername || this.userName
     };
 
+    this.profileForm.patchValue(this.userProfile);
     this.sedeNombre = data.nombreSede || 'Sede Principal';
 
     if (nombreCompleto.trim()) {
@@ -220,6 +243,7 @@ export class ProfileComponent implements OnInit {
 
   activarEdicion(): void {
     this.profileBackup = { ...this.userProfile };
+    this.profileForm.patchValue(this.userProfile);
     this.editando = true;
     this.mensajeExito = null;
     this.error = null;
@@ -229,6 +253,7 @@ export class ProfileComponent implements OnInit {
 
   cancelarEdicion(): void {
     this.userProfile = { ...this.profileBackup };
+    this.profileForm.patchValue(this.userProfile);
     this.editando = false;
     this.mensajeExito = null;
     this.error = null;
@@ -291,16 +316,17 @@ export class ProfileComponent implements OnInit {
         const imageUrl = response.secure_url || response.url;
 
         if (imageUrl) {
+          const formValues = this.profileForm.value;
           const dataToSend = {
-            nombre: this.userProfile.nombre || '',
-            apellido: this.userProfile.apellido || '',
+            nombre: formValues.nombre || '',
+            apellido: formValues.apellido || '',
             email: this.userProfile.email || '',
-            telefono: this.userProfile.telefono || '',
-            documentoIdentidad: this.userProfile.documentoIdentidad || '',
-            fechaNacimiento: this.userProfile.fechaNacimiento || '',
-            sexo: this.userProfile.sexo || '',
-            contactoEmergenciaNombre: this.userProfile.contactoEmergenciaNombre || '',
-            contactoEmergenciaTelefono: this.userProfile.contactoEmergenciaTelefono || '',
+            telefono: formValues.telefono || '',
+            documentoIdentidad: formValues.documentoIdentidad || '',
+            fechaNacimiento: formValues.fechaNacimiento || '',
+            sexo: formValues.sexo || '',
+            contactoEmergenciaNombre: formValues.contactoEmergenciaNombre || '',
+            contactoEmergenciaTelefono: formValues.contactoEmergenciaTelefono || '',
             fotoUrl: imageUrl
           };
 
@@ -326,9 +352,14 @@ export class ProfileComponent implements OnInit {
                 this.loadProfileData();
               }, 1500);
             },
-            error: (updateErr: any) => {
+            error: (err: any) => {
               this.uploadingImage = false;
-              this.mostrarErrorModal('Error al guardar la foto en el perfil', () => this.uploadImage());
+              let mensajeError = 'Error al guardar la foto en el perfil';
+              if (err.error) {
+                if (typeof err.error === 'string') mensajeError = err.error;
+                else if (err.error.message) mensajeError = err.error.message;
+              }
+              this.mostrarErrorModal(mensajeError, () => this.uploadImage());
             }
           });
         } else {
@@ -385,13 +416,15 @@ export class ProfileComponent implements OnInit {
   }
 
   guardarCambios(): void {
-    if (this.selectedFile) {
-      this.uploadImage();
+    if (this.profileForm.invalid) {
+      this.profileForm.markAllAsTouched();
+      this.error = 'Por favor completa correctamente todos los campos obligatorios.';
       return;
     }
 
-    if (!this.userProfile.nombre || this.userProfile.nombre.trim() === '') {
-      this.error = 'El nombre es obligatorio.';
+  
+    if (this.selectedFile) {
+      this.uploadImage();
       return;
     }
 
@@ -399,16 +432,17 @@ export class ProfileComponent implements OnInit {
     this.error = null;
     this.mensajeExito = null;
 
+    const formValues = this.profileForm.value;
     const dataToSend = {
-      nombre: this.userProfile.nombre || '',
-      apellido: this.userProfile.apellido || '',
+      nombre: formValues.nombre || '',
+      apellido: formValues.apellido || '',
       email: this.userProfile.email || '',
-      telefono: this.userProfile.telefono || '',
-      documentoIdentidad: this.userProfile.documentoIdentidad || '',
-      fechaNacimiento: this.userProfile.fechaNacimiento || '',
-      sexo: this.userProfile.sexo || '',
-      contactoEmergenciaNombre: this.userProfile.contactoEmergenciaNombre || '',
-      contactoEmergenciaTelefono: this.userProfile.contactoEmergenciaTelefono || '',
+      telefono: formValues.telefono || '',
+      documentoIdentidad: formValues.documentoIdentidad || '',
+      fechaNacimiento: formValues.fechaNacimiento || '',
+      sexo: formValues.sexo || '',
+      contactoEmergenciaNombre: formValues.contactoEmergenciaNombre || '',
+      contactoEmergenciaTelefono: formValues.contactoEmergenciaTelefono || '',
       fotoUrl: this.userProfile.fotoUrl || ''
     };
 
@@ -417,8 +451,9 @@ export class ProfileComponent implements OnInit {
         if (response) {
           this.guardando = false;
           this.editando = false;
+          this.userProfile = { ...this.userProfile, ...formValues };
           this.profileBackup = { ...this.userProfile };
-          this.userProfile.nombreCompleto = (this.userProfile.nombre || '') + ' ' + (this.userProfile.apellido || '');
+          this.userProfile.nombreCompleto = (formValues.nombre || '') + ' ' + (formValues.apellido || '');
           if (this.userProfile.nombreCompleto.trim()) {
             this.userName = this.userProfile.nombreCompleto.trim();
           }
@@ -434,8 +469,12 @@ export class ProfileComponent implements OnInit {
       },
       error: (err: any) => {
         let mensajeError = 'Error al guardar los cambios. Intenta de nuevo.';
-        if (err.error && err.error.message) {
-          mensajeError = err.error.message;
+        if (err.error) {
+          if (typeof err.error === 'string') {
+            mensajeError = err.error;
+          } else if (err.error.message) {
+            mensajeError = err.error.message;
+          }
         }
         this.error = mensajeError;
         this.guardando = false;
@@ -467,7 +506,10 @@ export class ProfileComponent implements OnInit {
   }
 
   volverAlDashboard(): void {
-    // Cambiado para volver al dashboard correcto del entrenador
     this.router.navigate(['/trainer/dashboard']);
+  }
+
+  get esFormularioInvalido(): boolean {
+    return this.profileForm.invalid || this.guardando || this.uploadingImage;
   }
 }

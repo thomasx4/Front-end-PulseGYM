@@ -37,7 +37,7 @@
                     <button type="button" class="btn btn--secondary" (click)="onCancel()">
                         Cancelar
                     </button>
-                    <button type="button" class="btn btn--primary" (click)="onSubmit()" [disabled]="submitting">
+                    <button type="button" class="btn btn--primary" (click)="onSubmit()" [disabled]="submitting || form.invalid">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
                             <polyline points="17 21 17 13 7 13 7 21"></polyline>
@@ -217,24 +217,41 @@
                 <div class="form-section">
                     <h3 class="section-title">Composición Corporal</h3>
                     <div class="form-grid form-grid--4-col">
+                        <!-- Peso -->
                         <div class="form-group">
                             <label class="form-label">Peso (kg) <span class="required">*</span></label>
                             <input type="number" step="0.01" formControlName="pesoKg" class="form-control" placeholder="75.5" />
+                            <div class="form-error" *ngIf="form.get('pesoKg')?.invalid && form.get('pesoKg')?.touched">
+                                <small *ngIf="form.get('pesoKg')?.errors?.['required']">El peso es obligatorio.</small>
+                                <small *ngIf="form.get('pesoKg')?.errors?.['min'] || form.get('pesoKg')?.errors?.['max']">Debe ser entre 20 y 400 kg.</small>
+                            </div>
                         </div>
 
+                        <!-- Estatura -->
                         <div class="form-group">
                             <label class="form-label">Estatura (cm)</label>
                             <input type="number" step="0.1" formControlName="alturaCm" class="form-control" placeholder="175.0" />
+                            <div class="form-error" *ngIf="form.get('alturaCm')?.invalid && form.get('alturaCm')?.touched">
+                                <small>Debe estar entre 50 y 280 cm.</small>
+                            </div>
                         </div>
 
+                        <!-- Grasa Corporal -->
                         <div class="form-group">
                             <label class="form-label">Grasa Corporal (%)</label>
                             <input type="number" step="0.01" formControlName="porcentajeGrasa" class="form-control" placeholder="Autocalculado si es 0" />
+                            <div class="form-error" *ngIf="form.get('porcentajeGrasa')?.invalid && form.get('porcentajeGrasa')?.touched">
+                                <small>Debe estar entre 0% y 100%.</small>
+                            </div>
                         </div>
 
+                        <!-- Masa Muscular -->
                         <div class="form-group">
                             <label class="form-label">Masa Muscular (%)</label>
                             <input type="number" step="0.01" formControlName="porcentajeMusculo" class="form-control" placeholder="Autocalculado si es 0" />
+                            <div class="form-error" *ngIf="form.get('porcentajeMusculo')?.invalid && form.get('porcentajeMusculo')?.touched">
+                                <small>Debe estar entre 0% y 100%.</small>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -243,68 +260,116 @@
                 <div class="form-section">
                     <h3 class="section-title">Medidas Corporales (cm)</h3>
                     <div class="form-grid form-grid--4-col">
+                        <!-- Cuello -->
                         <div class="form-group">
                             <label class="form-label">Cuello</label>
                             <input type="number" step="0.01" formControlName="cuelloCm" class="form-control" placeholder="38.0" />
+                            <div class="form-error" *ngIf="form.get('cuelloCm')?.invalid && form.get('cuelloCm')?.touched">
+                                <small>Valor fuera de rango (10-100 cm).</small>
+                            </div>
                         </div>
 
+                        <!-- Cintura Escapular -->
                         <div class="form-group">
                             <label class="form-label">Cintura Escapular</label>
                             <input type="number" step="0.01" formControlName="cinturaEscapularCm" class="form-control" placeholder="110.0" />
+                            <div class="form-error" *ngIf="form.get('cinturaEscapularCm')?.invalid && form.get('cinturaEscapularCm')?.touched">
+                                <small>Valor fuera de rango (50-250 cm).</small>
+                            </div>
                         </div>
 
+                        <!-- Cintura -->
                         <div class="form-group">
                             <label class="form-label">Cintura</label>
                             <input type="number" step="0.01" formControlName="cinturaCm" class="form-control" placeholder="82.0" />
+                            <div class="form-error" *ngIf="form.get('cinturaCm')?.invalid && form.get('cinturaCm')?.touched">
+                                <small>Valor fuera de rango (30-250 cm).</small>
+                            </div>
                         </div>
 
+                        <!-- Cadera -->
                         <div class="form-group">
                             <label class="form-label">Cadera</label>
                             <input type="number" step="0.01" formControlName="caderaCm" class="form-control" placeholder="95.0" />
+                            <div class="form-error" *ngIf="form.get('caderaCm')?.invalid && form.get('caderaCm')?.touched">
+                                <small>Valor fuera de rango (40-250 cm).</small>
+                            </div>
                         </div>
                     </div>
 
                     <div class="form-grid form-grid--4-col margin-top">
+                        <!-- Tórax -->
                         <div class="form-group">
                             <label class="form-label">Tórax</label>
                             <input type="number" step="0.01" formControlName="toraxCm" class="form-control" placeholder="95.0" />
+                            <div class="form-error" *ngIf="form.get('toraxCm')?.invalid && form.get('toraxCm')?.touched">
+                                <small>Valor fuera de rango (50-250 cm).</small>
+                            </div>
                         </div>
 
+                        <!-- Pecho -->
                         <div class="form-group">
                             <label class="form-label">Pecho</label>
                             <input type="number" step="0.01" formControlName="pechoCm" class="form-control" placeholder="98.5" />
+                            <div class="form-error" *ngIf="form.get('pechoCm')?.invalid && form.get('pechoCm')?.touched">
+                                <small>Valor fuera de rango (50-250 cm).</small>
+                            </div>
                         </div>
 
+                        <!-- Brazo Izquierdo -->
                         <div class="form-group">
                             <label class="form-label">Brazo Izquierdo</label>
                             <input type="number" step="0.01" formControlName="brazoIzqCm" class="form-control" placeholder="32.0" />
+                            <div class="form-error" *ngIf="form.get('brazoIzqCm')?.invalid && form.get('brazoIzqCm')?.touched">
+                                <small>Valor fuera de rango (10-100 cm).</small>
+                            </div>
                         </div>
 
+                        <!-- Brazo Derecho -->
                         <div class="form-group">
                             <label class="form-label">Brazo Derecho</label>
                             <input type="number" step="0.01" formControlName="brazoDerCm" class="form-control" placeholder="32.5" />
+                            <div class="form-error" *ngIf="form.get('brazoDerCm')?.invalid && form.get('brazoDerCm')?.touched">
+                                <small>Valor fuera de rango (10-100 cm).</small>
+                            </div>
                         </div>
                     </div>
 
                     <div class="form-grid form-grid--4-col margin-top">
+                        <!-- Pierna Izquierda -->
                         <div class="form-group">
                             <label class="form-label">Pierna Izquierda</label>
                             <input type="number" step="0.01" formControlName="piernaIzqCm" class="form-control" placeholder="55.0" />
+                            <div class="form-error" *ngIf="form.get('piernaIzqCm')?.invalid && form.get('piernaIzqCm')?.touched">
+                                <small>Valor fuera de rango (20-150 cm).</small>
+                            </div>
                         </div>
 
+                        <!-- Pierna Derecha -->
                         <div class="form-group">
                             <label class="form-label">Pierna Derecha</label>
                             <input type="number" step="0.01" formControlName="piernaDerCm" class="form-control" placeholder="55.5" />
+                            <div class="form-error" *ngIf="form.get('piernaDerCm')?.invalid && form.get('piernaDerCm')?.touched">
+                                <small>Valor fuera de rango (20-150 cm).</small>
+                            </div>
                         </div>
 
+                        <!-- Pantorrilla Izquierda -->
                         <div class="form-group">
                             <label class="form-label">Pantorrilla Izquierda</label>
                             <input type="number" step="0.01" formControlName="pantorrillaIzqCm" class="form-control" placeholder="36.0" />
+                            <div class="form-error" *ngIf="form.get('pantorrillaIzqCm')?.invalid && form.get('pantorrillaIzqCm')?.touched">
+                                <small>Valor fuera de rango (10-90 cm).</small>
+                            </div>
                         </div>
 
+                        <!-- Pantorrilla Derecha -->
                         <div class="form-group">
                             <label class="form-label">Pantorrilla Derecha</label>
                             <input type="number" step="0.01" formControlName="pantorrillaDerCm" class="form-control" placeholder="36.5" />
+                            <div class="form-error" *ngIf="form.get('pantorrillaDerCm')?.invalid && form.get('pantorrillaDerCm')?.touched">
+                                <small>Valor fuera de rango (10-90 cm).</small>
+                            </div>
                         </div>
                     </div>
                 </div>
