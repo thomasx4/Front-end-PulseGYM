@@ -61,6 +61,57 @@
                         </div>
                     </div>
 
+                    <!-- Seguridad / Huella digital -->
+                    <div class="form-section">
+                        <div class="section-header">
+                            <div class="section-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 11c0 3.5-1 6-1.5 8" />
+                                    <path d="M8.5 20c.6-1.2 1.5-3.5 1.5-6.5a2 2 0 0 1 4 0c0 .8-.05 1.5-.13 2.2" />
+                                    <path d="M5 19c1-2.5 1.5-5 1.5-7A5.5 5.5 0 0 1 17.9 9.5" />
+                                    <path d="M12 3.5a8.5 8.5 0 0 1 7.5 4.5" />
+                                    <path d="M8.5 4.2A8.5 8.5 0 0 0 4 12" />
+                                    <path d="M14 14.5a2 2 0 0 0-4 0c0 3-1 5.5-2.3 7.5" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h2>Seguridad</h2>
+                                <p>Gestiona la huella digital para marcar tu asistencia en el gimnasio</p>
+                            </div>
+                        </div>
+
+                        <div class="preferencias-grid">
+                            <div class="preferencia-item">
+                                <div class="preferencia-info">
+                                    <div class="preferencia-icon dark-mode">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M12 11c0 3.5-1 6-1.5 8" />
+                                            <path d="M8.5 20c.6-1.2 1.5-3.5 1.5-6.5a2 2 0 0 1 4 0c0 .8-.05 1.5-.13 2.2" />
+                                            <path d="M5 19c1-2.5 1.5-5 1.5-7A5.5 5.5 0 0 1 17.9 9.5" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h4>Huella digital</h4>
+                                        <p *ngIf="huellaActivaEnDispositivo">Activada en este dispositivo. Úsala en la entrada del gimnasio para marcar tu asistencia.</p>
+                                        <p *ngIf="!huellaActivaEnDispositivo">No has activado tu huella para marcar asistencia en este dispositivo.</p>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn-huella-toggle" *ngIf="!huellaActivaEnDispositivo"
+                                    (click)="abrirActivarHuella()">
+                                    Activar
+                                </button>
+                                <button type="button" class="btn-huella-toggle btn-huella-toggle--eliminar" *ngIf="huellaActivaEnDispositivo"
+                                    (click)="abrirEliminarHuella()">
+                                    Eliminar
+                                </button>
+                            </div>
+                        </div>
+
+                        <a class="link-asistencia-huella" *ngIf="huellaActivaEnDispositivo" routerLink="/asistencia-huella">
+                            Ir a la pantalla de asistencia con huella
+                        </a>
+                    </div>
+
                     <!-- Notificaciones -->
                     <div class="form-section">
                         <div class="section-header">
@@ -357,5 +408,25 @@
         <div class="modal-actions flex-wrap-actions">
             <button class="modal-btn modal-btn-primary" (click)="irAGuardar()">Ir a guardar</button>
         </div>
+    </div>
+</div>
+
+<!-- Modal de Huella Digital -->
+<div class="modal-overlay" *ngIf="mostrarModalHuella" (click)="cerrarModalHuella()">
+    <div class="modal-content huella-modal" (click)="$event.stopPropagation()">
+        <button type="button" class="huella-modal__cerrar" (click)="cerrarModalHuella()"
+            [disabled]="huellaEstado === 'escaneando'" aria-label="Cerrar">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+        </button>
+
+        <h3>{{ modoHuella === 'activar' ? 'Activar huella digital' : 'Eliminar huella digital' }}</h3>
+
+        <app-fingerprint-scanner [estado]="huellaEstado" [mensaje]="huellaMensaje"
+            (escanear)="onEscanearHuella()"></app-fingerprint-scanner>
+
+        <p class="huella-modal__hint" *ngIf="huellaEstado === 'idle'">Toca el sensor para escanear</p>
     </div>
 </div>

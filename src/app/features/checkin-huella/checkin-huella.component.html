@@ -1,0 +1,28 @@
+<div class="checkin-page">
+    <div class="checkin-card">
+        <div class="checkin-brand">
+            <h1>Pulse GYM</h1>
+            <p>Registro de asistencia con huella digital</p>
+        </div>
+
+        <app-fingerprint-scanner [estado]="estado" [mensaje]="mensaje" (escanear)="onEscanear()">
+        </app-fingerprint-scanner>
+
+        <p class="checkin-hora" *ngIf="estado === 'exito' && horaRegistro">
+            Entrada registrada a las {{ horaRegistro }}
+        </p>
+
+        <p class="checkin-hint" *ngIf="estado === 'idle' && huellaDisponible">
+            Toca el sensor para marcar tu asistencia
+        </p>
+
+        <div class="checkin-sin-huella" *ngIf="!huellaDisponible">
+            <p>
+                Para usar esta pantalla primero debes activar tu huella desde tu perfil.
+            </p>
+            <a routerLink="/auth/login">Iniciar sesión y activarla en Ajustes</a>
+        </div>
+
+        <a class="checkin-volver" routerLink="/">Volver al inicio</a>
+    </div>
+</div>

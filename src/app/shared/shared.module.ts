@@ -9,6 +9,7 @@ import { SidebarComponent } from './components/main-layout/sidebar/sidebar.compo
 import { StatCardComponent } from './components/stat-card/stat-card.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { LoadingSpinnerComponent } from './components/loading-spinner/loading-spinner.component';
+import { FingerprintScannerComponent } from './components/fingerprint-scanner/fingerprint-scanner.component';
 
 @NgModule({
   declarations: [
@@ -18,7 +19,8 @@ import { LoadingSpinnerComponent } from './components/loading-spinner/loading-sp
     SidebarComponent,
     StatCardComponent,
     NavbarComponent,
-    LoadingSpinnerComponent
+    LoadingSpinnerComponent,
+    FingerprintScannerComponent
   ],
   imports: [
     CommonModule,
@@ -31,7 +33,8 @@ import { LoadingSpinnerComponent } from './components/loading-spinner/loading-sp
     StatusBadgeComponent,
     StatCardComponent,
     NavbarComponent,
-    LoadingSpinnerComponent
+    LoadingSpinnerComponent,
+    FingerprintScannerComponent
   ]
 })
 export class SharedModule { }
