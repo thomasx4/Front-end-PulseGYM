@@ -11,10 +11,12 @@ import { PoliticasPageComponent } from './features/landing/pages/politicas-page/
 import { AjustesComponent } from './features/ajustes/ajustes.component';
 import { ProfileComponent } from './features/profile/profile.component';
 import { pendingChangesGuard } from './core/guards/pending-changes.guard';
+import { CheckinHuellaComponent } from './features/checkin-huella/checkin-huella.component';
 
 const routes: Routes = [
     { path: '', component: LandingPageComponent },
     { path: 'politicas', component: PoliticasPageComponent },
+    { path: 'asistencia-huella', component: CheckinHuellaComponent },
 
     {
         path: 'auth',

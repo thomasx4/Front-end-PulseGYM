@@ -1,0 +1,95 @@
+:host {
+    display: block;
+    min-height: 100vh;
+}
+
+.checkin-page {
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: radial-gradient(circle at top, #1a2b5c 0%, #0f1c3f 60%, #0a1530 100%);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+.checkin-card {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 48px 40px 36px;
+    max-width: 380px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+    text-align: center;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+}
+
+.checkin-brand {
+    h1 {
+        margin: 0;
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: #0f1c3f;
+        letter-spacing: 0.02em;
+    }
+
+    p {
+        margin: 4px 0 0;
+        font-size: 0.85rem;
+        color: #64748b;
+    }
+}
+
+.checkin-hora {
+    margin: -0.5rem 0 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #10b981;
+}
+
+.checkin-hint {
+    margin: -0.5rem 0 0;
+    font-size: 0.8rem;
+    color: #94a3b8;
+}
+
+.checkin-sin-huella {
+    background: #fef2f2;
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    p {
+        margin: 0;
+        font-size: 0.82rem;
+        color: #b91c1c;
+        line-height: 1.4;
+    }
+
+    a {
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #0f1c3f;
+        text-decoration: underline;
+        cursor: pointer;
+    }
+}
+
+.checkin-volver {
+    margin-top: 0.25rem;
+    font-size: 0.8rem;
+    color: #94a3b8;
+    text-decoration: none;
+    cursor: pointer;
+
+    &:hover {
+        color: #475569;
+        text-decoration: underline;
+    }
+}
