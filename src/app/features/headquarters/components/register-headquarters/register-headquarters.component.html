@@ -13,58 +13,94 @@
       </button>
     </header>
 
-    <form (ngSubmit)="guardarSede()" class="modal-body">
+    <form [formGroup]="sedeForm" (ngSubmit)="guardarSede()" class="modal-body">
       
       <div *ngIf="errorMensaje" class="alert-error">
         {{ errorMensaje }}
       </div>
 
+      <!-- Nombre de la Sede -->
       <div class="form-group">
         <label for="nombreSede">Nombre de la Sede <span class="required">*</span></label>
         <input 
           type="text" 
           id="nombreSede" 
-          [(ngModel)]="nombreSede" 
-          name="nombreSede" 
+          formControlName="nombreSede" 
           placeholder="Ej: Sede Norte" 
           class="form-input" 
-          required />
+          [class.input-error]="esCampoInvalido('nombreSede')" />
+
+        <span class="field-error" *ngIf="esCampoInvalido('nombreSede')">
+          <ng-container *ngIf="sedeForm.get('nombreSede')?.errors?.['required']">
+            El nombre de la sede es obligatorio.
+          </ng-container>
+          <ng-container *ngIf="sedeForm.get('nombreSede')?.errors?.['minlength']">
+            Debe tener al menos 3 caracteres.
+          </ng-container>
+        </span>
       </div>
 
+      <!-- Ciudad -->
       <div class="form-group">
         <label for="ciudad">Ciudad <span class="required">*</span></label>
         <input 
           type="text" 
           id="ciudad" 
-          [(ngModel)]="ciudad" 
-          name="ciudad" 
+          formControlName="ciudad" 
           placeholder="Ej: Bogotá" 
           class="form-input" 
-          required />
+          [class.input-error]="esCampoInvalido('ciudad')" />
+
+        <span class="field-error" *ngIf="esCampoInvalido('ciudad')">
+          <ng-container *ngIf="sedeForm.get('ciudad')?.errors?.['required']">
+            La ciudad es obligatoria.
+          </ng-container>
+          <ng-container *ngIf="sedeForm.get('ciudad')?.errors?.['minlength']">
+            Debe tener al menos 3 caracteres.
+          </ng-container>
+        </span>
       </div>
 
+      <!-- Dirección -->
       <div class="form-group">
         <label for="direccion">Dirección <span class="required">*</span></label>
         <input 
           type="text" 
           id="direccion" 
-          [(ngModel)]="direccion" 
-          name="direccion" 
+          formControlName="direccion" 
           placeholder="Ej: Calle 67 #67-67" 
           class="form-input" 
-          required />
+          [class.input-error]="esCampoInvalido('direccion')" />
+
+        <span class="field-error" *ngIf="esCampoInvalido('direccion')">
+          <ng-container *ngIf="sedeForm.get('direccion')?.errors?.['required']">
+            La dirección es obligatoria.
+          </ng-container>
+          <ng-container *ngIf="sedeForm.get('direccion')?.errors?.['minlength']">
+            Debe tener al menos 5 caracteres.
+          </ng-container>
+        </span>
       </div>
 
+      <!-- Teléfono / Celular -->
       <div class="form-group">
         <label for="telefono">Teléfono / Celular <span class="required">*</span></label>
         <input 
           type="text" 
           id="telefono" 
-          [(ngModel)]="telefono" 
-          name="telefono" 
-          placeholder="Ej: 3676766767" 
+          formControlName="telefono" 
+          placeholder="Ej: +57 300 123 4567" 
           class="form-input" 
-          required />
+          [class.input-error]="esCampoInvalido('telefono')" />
+
+        <span class="field-error" *ngIf="esCampoInvalido('telefono')">
+          <ng-container *ngIf="sedeForm.get('telefono')?.errors?.['required']">
+            El teléfono es obligatorio.
+          </ng-container>
+          <ng-container *ngIf="sedeForm.get('telefono')?.errors?.['pattern']">
+            Ingresa un número de teléfono válido (Ej: +57 300 123 4567).
+          </ng-container>
+        </span>
       </div>
 
       <footer class="modal-footer">

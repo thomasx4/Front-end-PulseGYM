@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
 
 import { HeadquartersRoutingModule } from './headquarters-routing.module';
 import { HeadquartersListComponent } from './components/headquarters-list/headquarters-list.component'; 
@@ -14,7 +15,8 @@ import { RegisterHeadquartersComponent } from './components/register-headquarter
   imports: [
     CommonModule,
     FormsModule,
-    HeadquartersRoutingModule
+    HeadquartersRoutingModule,
+    ReactiveFormsModule
   ],
   exports: [
     HeadquartersListComponent

@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Sede } from '../../models/sede.model';
 import { HeadquarterService } from '../../../../core/services/headquarter.service';
 import Swal from 'sweetalert2';
@@ -14,32 +15,41 @@ export class RegisterHeadquartersComponent implements OnInit {
   @Output() cerrarModal = new EventEmitter<void>();
   @Output() sedeGuardada = new EventEmitter<void>();
 
-  nombreSede: string = '';
-  ciudad: string = '';
-  direccion: string = '';
-  telefono: string = '';
-  cantidadEquipos: number = 0;
-
+  sedeForm!: FormGroup;
   cargando: boolean = false;
   errorMensaje: string = '';
   esEdicion: boolean = false;
 
-  constructor(private headquarterService: HeadquarterService) {}
+  constructor(
+    private fb: FormBuilder,
+    private headquarterService: HeadquarterService
+  ) {}
 
   ngOnInit(): void {
-    if (this.sedeAEditar) {
-      this.esEdicion = true;
-      this.nombreSede = this.sedeAEditar.nombreSede || '';
-      this.ciudad = this.sedeAEditar.ciudad || '';
-      this.direccion = this.sedeAEditar.direccion || '';
-      this.telefono = this.sedeAEditar.telefono || '';
-      this.cantidadEquipos = this.sedeAEditar.cantidadEquipos ?? 0;
-    }
+    this.esEdicion = !!this.sedeAEditar;
+    this.initForm();
+  }
+
+  private initForm(): void {
+    this.sedeForm = this.fb.group({
+      nombreSede: [this.sedeAEditar?.nombreSede || '', [Validators.required, Validators.minLength(3)]],
+      ciudad: [this.sedeAEditar?.ciudad || '', [Validators.required, Validators.minLength(3)]],
+      direccion: [this.sedeAEditar?.direccion || '', [Validators.required, Validators.minLength(5)]],
+      telefono: [this.sedeAEditar?.telefono || '', [
+        Validators.required,
+        Validators.pattern(/^\+?[0-9\s\-]{7,15}$/)
+      ]]
+    });
+  }
+
+  esCampoInvalido(campo: string): boolean {
+    const control = this.sedeForm.get(campo);
+    return !!(control && control.invalid && (control.touched || control.dirty));
   }
 
   guardarSede(): void {
-    if (!this.nombreSede.trim() || !this.ciudad.trim() || !this.direccion.trim() || !this.telefono.trim()) {
-      this.errorMensaje = 'Por favor completa todos los campos obligatorios (*).';
+    if (this.sedeForm.invalid) {
+      this.sedeForm.markAllAsTouched();
       return;
     }
 
@@ -47,11 +57,11 @@ export class RegisterHeadquartersComponent implements OnInit {
     this.errorMensaje = '';
 
     const payload: Sede = {
-      nombreSede: this.nombreSede.trim(),
-      ciudad: this.ciudad.trim(),
-      direccion: this.direccion.trim(),
-      telefono: this.telefono.trim(),
-      cantidadEquipos: Number(this.cantidadEquipos) || 0
+      nombreSede: this.sedeForm.value.nombreSede.trim(),
+      ciudad: this.sedeForm.value.ciudad.trim(),
+      direccion: this.sedeForm.value.direccion.trim(),
+      telefono: this.sedeForm.value.telefono.trim(),
+      cantidadEquipos: this.sedeAEditar?.cantidadEquipos ?? 0
     };
 
     if (this.esEdicion && this.sedeAEditar?.idSede) {
