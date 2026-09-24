@@ -85,12 +85,14 @@
       <!-- Teléfono / Celular -->
       <div class="form-group">
         <label for="telefono">Teléfono / Celular <span class="required">*</span></label>
-        <input 
-          type="text" 
-          id="telefono" 
-          formControlName="telefono" 
-          placeholder="Ej: +57 300 123 4567" 
-          class="form-input" 
+        <input
+          type="text"
+          id="telefono"
+          formControlName="telefono"
+          placeholder="Ej: 3001234567"
+          maxlength="10"
+          (input)="soloNumerosTelefono($event)"
+          class="form-input"
           [class.input-error]="esCampoInvalido('telefono')" />
 
         <span class="field-error" *ngIf="esCampoInvalido('telefono')">
@@ -98,7 +100,7 @@
             El teléfono es obligatorio.
           </ng-container>
           <ng-container *ngIf="sedeForm.get('telefono')?.errors?.['pattern']">
-            Ingresa un número de teléfono válido (Ej: +57 300 123 4567).
+            El teléfono debe tener entre 6 y 10 números.
           </ng-container>
         </span>
       </div>

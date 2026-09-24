@@ -37,7 +37,7 @@ export class RegisterHeadquartersComponent implements OnInit {
       direccion: [this.sedeAEditar?.direccion || '', [Validators.required, Validators.minLength(5)]],
       telefono: [this.sedeAEditar?.telefono || '', [
         Validators.required,
-        Validators.pattern(/^\+?[0-9\s\-]{7,15}$/)
+        Validators.pattern(/^[0-9]{6,10}$/)
       ]]
     });
   }
@@ -45,6 +45,13 @@ export class RegisterHeadquartersComponent implements OnInit {
   esCampoInvalido(campo: string): boolean {
     const control = this.sedeForm.get(campo);
     return !!(control && control.invalid && (control.touched || control.dirty));
+  }
+
+  soloNumerosTelefono(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const digits = input.value.replace(/\D/g, '').slice(0, 10);
+    input.value = digits;
+    this.sedeForm.get('telefono')?.setValue(digits, { emitEvent: false });
   }
 
   guardarSede(): void {
