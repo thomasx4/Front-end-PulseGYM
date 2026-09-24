@@ -34,7 +34,10 @@ export class AjustesComponent implements OnInit {
 
     this.ajustesForm = this.fb.group({
       modoOscuro: [this.isDarkMode],
-      canalNotificacion: ['AMBOS']
+      canalNotificacion: ['AMBOS'],
+      logrosHabilitado: [true],
+      mantenimientosHabilitado: [true],
+      promocionesHabilitado: [true]
     });
   }
 
@@ -60,7 +63,10 @@ export class AjustesComponent implements OnInit {
 
         const loadedValues = {
           modoOscuro: this.isDarkMode,
-          canalNotificacion: data.preferencia || 'AMBOS'
+          canalNotificacion: data.preferencia || 'AMBOS',
+          logrosHabilitado: data.logrosHabilitado ?? true,
+          mantenimientosHabilitado: data.mantenimientosHabilitado ?? true,
+          promocionesHabilitado: data.promocionesHabilitado ?? true
         };
 
         this.ajustesForm.patchValue(loadedValues);
@@ -73,7 +79,10 @@ export class AjustesComponent implements OnInit {
         this.isLoading = false;
         const defaultValues = {
           modoOscuro: this.isDarkMode,
-          canalNotificacion: 'AMBOS'
+          canalNotificacion: 'AMBOS',
+          logrosHabilitado: true,
+          mantenimientosHabilitado: true,
+          promocionesHabilitado: true
         };
         this.ajustesForm.patchValue(defaultValues);
         this.initialFormValues = JSON.stringify(this.ajustesForm.value);
@@ -140,9 +149,9 @@ export class AjustesComponent implements OnInit {
 
     const payload = {
       preferencia: formValue.canalNotificacion,
-      logrosHabilitado: false,
-      mantenimientosHabilitado: false,
-      promocionesHabilitado: false
+      logrosHabilitado: formValue.logrosHabilitado,
+      mantenimientosHabilitado: formValue.mantenimientosHabilitado,
+      promocionesHabilitado: formValue.promocionesHabilitado
     };
 
     console.log('Guardando preferencias:', payload);

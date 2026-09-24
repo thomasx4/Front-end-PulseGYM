@@ -338,6 +338,10 @@ $warning: #d97706;
     gap: 1rem;
     width: 100%;
     box-sizing: border-box;
+
+    &.tipos-notificacion {
+        margin-top: 0.85rem;
+    }
 }
 
 .preferencia-item {
@@ -377,6 +381,21 @@ $warning: #d97706;
             &.dark-mode {
                 background: #e2e8f0;
                 color: #1e293b;
+            }
+
+            &.logros {
+                background: #fef3c7;
+                color: #d97706;
+            }
+
+            &.mantenimiento {
+                background: #e5e7eb;
+                color: #6b7280;
+            }
+
+            &.promocion {
+                background: #fee2e2;
+                color: #dc2626;
             }
         }
 
