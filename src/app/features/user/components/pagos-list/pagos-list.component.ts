@@ -4,9 +4,7 @@ import Swal from 'sweetalert2';
 import { UserPaymentService } from '../../../../core/services/user-payment.service';
 import { UserService } from '../../../../core/services/users.service';
 import { PagoSocio, FiltroPagosRequest } from '../../models/user-pagos.model';
-import { Capacitor } from '@capacitor/core';
-import { Filesystem, Directory } from '@capacitor/filesystem';
-import { Share } from '@capacitor/share';
+import { FileDownloadService } from '../../../../core/services/file-download.service';
 import { lastValueFrom } from 'rxjs';
 import JSZip from 'jszip';
 
@@ -44,7 +42,8 @@ export class PagosListComponent implements OnInit {
   constructor(
     private userPaymentService: UserPaymentService,
     private userService: UserService,
-    private router: Router
+    private router: Router,
+    private fileDownloadService: FileDownloadService
   ) {}
 
   ngOnInit(): void {
@@ -232,49 +231,10 @@ export class PagosListComponent implements OnInit {
   }
 
   private async procesarArchivoIndividual(blob: Blob, fileName: string): Promise<void> {
-    try {
-      if (Capacitor.isNativePlatform()) {
-        try {
-          await Filesystem.requestPermissions();
-        } catch (permErr) {
-          console.warn('Permisos no disponibles o denegados automáticamente:', permErr);
-        }
-
-        const reader = new FileReader();
-        reader.readAsDataURL(blob);
-        reader.onloadend = async () => {
-          const base64data = reader.result as string;
-          const base64Content = base64data.includes(',') ? base64data.split(',')[1] : base64data;
-
-          try {
-            const savedFile = await Filesystem.writeFile({
-              path: fileName,
-              data: base64Content,
-              directory: Directory.Cache
-            });
-
-            await Share.share({
-              title: 'Comprobante de Pago Pulse Gym',
-              url: savedFile.uri,
-              dialogTitle: 'Abrir o guardar comprobante'
-            });
-          } catch (fsError: any) {
-            console.error('Error al guardar archivo en móvil:', fsError);
-            Swal.fire('Error', 'No se pudo abrir el comprobante en el dispositivo: ' + (fsError.message || fsError), 'error');
-          }
-        };
-      } else {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = fileName;
-        a.click();
-        window.URL.revokeObjectURL(url);
-      }
-    } catch (err) {
-      console.error('Error procesando el PDF:', err);
-      Swal.fire('Error', 'Ocurrió un error al procesar el comprobante', 'error');
-    }
+    await this.fileDownloadService.saveAndShare(blob, fileName, {
+      title: 'Comprobante de Pago Pulse Gym',
+      dialogTitle: 'Abrir o guardar comprobante'
+    });
   }
 
     // ⬇️ Pega esto junto, tal cual:

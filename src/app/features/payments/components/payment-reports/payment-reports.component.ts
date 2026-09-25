@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { PaymentService } from '../../../../core/services/payment.service';
+import { FileDownloadService } from '../../../../core/services/file-download.service';
 
 @Component({
   selector: 'app-payment-reports',
@@ -36,7 +37,10 @@ export class PaymentReportsComponent implements OnInit {
     { valor: 12, nombre: 'Diciembre' }
   ];
 
-  constructor(private paymentService: PaymentService) { }
+  constructor(
+    private paymentService: PaymentService,
+    private fileDownloadService: FileDownloadService
+  ) { }
 
   ngOnInit(): void {
     this.cargarIngresosDiarios();
@@ -94,8 +98,8 @@ export class PaymentReportsComponent implements OnInit {
   exportarDiarioPdf(): void {
     this.exportando = true;
     this.paymentService.exportarIngresosDiariosPdf(this.fechaDiaria).subscribe({
-      next: (blob) => {
-        this.descargarArchivo(blob, `Ingresos_Diarios_${this.fechaDiaria}.pdf`);
+      next: async (blob) => {
+        await this.descargarArchivo(blob, `Ingresos_Diarios_${this.fechaDiaria}.pdf`);
         this.exportando = false;
       },
       error: () => this.exportando = false
@@ -105,8 +109,8 @@ export class PaymentReportsComponent implements OnInit {
   exportarDiarioExcel(): void {
     this.exportando = true;
     this.paymentService.exportarIngresosDiariosExcel(this.fechaDiaria).subscribe({
-      next: (blob) => {
-        this.descargarArchivo(blob, `Ingresos_Diarios_${this.fechaDiaria}.xlsx`);
+      next: async (blob) => {
+        await this.descargarArchivo(blob, `Ingresos_Diarios_${this.fechaDiaria}.xlsx`);
         this.exportando = false;
       },
       error: () => this.exportando = false
@@ -116,8 +120,8 @@ export class PaymentReportsComponent implements OnInit {
   exportarMensualPdf(): void {
     this.exportando = true;
     this.paymentService.exportarIngresosMensualesPdf(this.mesMensual, this.anioMensual).subscribe({
-      next: (blob) => {
-        this.descargarArchivo(blob, `Ingresos_Mensuales_${this.mesMensual}_${this.anioMensual}.pdf`);
+      next: async (blob) => {
+        await this.descargarArchivo(blob, `Ingresos_Mensuales_${this.mesMensual}_${this.anioMensual}.pdf`);
         this.exportando = false;
       },
       error: () => this.exportando = false
@@ -127,20 +131,18 @@ export class PaymentReportsComponent implements OnInit {
   exportarMensualExcel(): void {
     this.exportando = true;
     this.paymentService.exportarIngresosMensualesExcel(this.mesMensual, this.anioMensual).subscribe({
-      next: (blob) => {
-        this.descargarArchivo(blob, `Ingresos_Mensuales_${this.mesMensual}_${this.anioMensual}.xlsx`);
+      next: async (blob) => {
+        await this.descargarArchivo(blob, `Ingresos_Mensuales_${this.mesMensual}_${this.anioMensual}.xlsx`);
         this.exportando = false;
       },
       error: () => this.exportando = false
     });
   }
 
-  private descargarArchivo(blob: Blob, nombreArchivo: string): void {
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = nombreArchivo;
-    a.click();
-    window.URL.revokeObjectURL(url);
+  private async descargarArchivo(blob: Blob, nombreArchivo: string): Promise<void> {
+    await this.fileDownloadService.saveAndShare(blob, nombreArchivo, {
+      title: 'Reporte de Ingresos Pulse Gym',
+      dialogTitle: 'Abrir o compartir reporte'
+    });
   }
 }

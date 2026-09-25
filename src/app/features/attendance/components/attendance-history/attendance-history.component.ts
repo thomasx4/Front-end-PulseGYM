@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AttendanceService } from '../../../../core/services/attendance.service';
 import { HistorialAccesoItem, HistorialAccesoResponse, FiltrosHistorial } from '../../models/attendance.model';
+import { FileDownloadService } from '../../../../core/services/file-download.service';
 
 @Component({
   selector: 'app-attendance-history',
@@ -32,7 +33,10 @@ export class AttendanceHistoryComponent implements OnInit {
   tipoReporteExport: 'SEMANAL' | 'MENSUAL' = 'SEMANAL';
   fechaReferenciaExport: string = new Date().toISOString().slice(0, 10);
 
-  constructor(private attendanceService: AttendanceService) { }
+  constructor(
+    private attendanceService: AttendanceService,
+    private fileDownloadService: FileDownloadService
+  ) { }
 
   ngOnInit(): void {
     this.cargarHistorial();
@@ -179,16 +183,14 @@ export class AttendanceHistoryComponent implements OnInit {
       : this.attendanceService.exportarTendenciaExcel(this.tipoReporteExport, this.fechaReferenciaExport);
 
     peticion.subscribe({
-      next: (blob: Blob) => {
+      next: async (blob: Blob) => {
         const ext = formato === 'pdf' ? 'pdf' : 'xlsx';
         const nombreArchivo = `Reporte_Tendencia_${this.tipoReporteExport}_${this.fechaReferenciaExport}.${ext}`;
 
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = nombreArchivo;
-        a.click();
-        window.URL.revokeObjectURL(url);
+        await this.fileDownloadService.saveAndShare(blob, nombreArchivo, {
+          title: 'Reporte de Tendencia Pulse Gym',
+          dialogTitle: 'Abrir o compartir reporte'
+        });
 
         this.isExporting = false;
         this.mostrarModalExport = false;
