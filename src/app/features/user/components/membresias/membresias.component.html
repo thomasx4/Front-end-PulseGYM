@@ -6,6 +6,8 @@
     <div class="membresias-main">
         <app-header (toggleMenu)="toggleSidebar()"></app-header>
 
+        <div class="main-container">
+
             <!-- VISTA 1: LISTADO DE MEMBRESÍAS -->
             <ng-container *ngIf="!isLoading && !error && vistaActual === 'listado'">
                 <header class="page-header">
@@ -264,3 +266,7 @@
                     </div>
                 </div>
             </ng-container>
+
+        </div>
+    </div>
+</div>

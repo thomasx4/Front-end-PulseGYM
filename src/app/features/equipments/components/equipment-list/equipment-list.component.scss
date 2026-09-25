@@ -110,10 +110,10 @@
     justify-content: center;
     flex-shrink: 0;
 
-    &--blue { background: #eff6ff; color: #2563eb; }
-    &--green { background: #f0fdf4; color: #16a34a; }
-    &--amber { background: #fef3c7; color: #d97706; }
-    &--rose { background: #fff1f2; color: #e11d48; }
+    &--blue { background: var(--color-info-bg, #eff6ff); color: var(--color-info, #2563eb); }
+    &--green { background: var(--color-success-bg, #f0fdf4); color: var(--color-success, #16a34a); }
+    &--amber { background: var(--color-warning-bg, #fef3c7); color: var(--color-warning, #d97706); }
+    &--rose { background: var(--color-error-bg, #fff1f2); color: var(--color-error, #e11d48); }
   }
 
   &__content {
@@ -334,19 +334,19 @@
       text-overflow: ellipsis;
 
       &--operativo {
-        background-color: #dcfce7;
+        background-color: var(--color-success-bg, #dcfce7);
         color: #15803d;
         &:hover { background-color: #bbf7d0; }
       }
 
       &--mantenimiento {
-        background-color: #fef3c7;
+        background-color: var(--color-warning-bg, #fef3c7);
         color: #b45309;
         &:hover { background-color: #fde68a; }
       }
 
       &--fuera {
-        background-color: #fee2e2;
+        background-color: var(--color-error-bg, #fee2e2);
         color: #b91c1c;
         &:hover { background-color: #fecaca; }
       }
@@ -478,8 +478,8 @@
   }
 
   &__badge-code {
-    background: #eef2ff;
-    color: #4338ca;
+    background: var(--color-info-bg, #eef2ff);
+    color: var(--color-info, #4338ca);
     font-size: 0.65rem;
     font-weight: 800;
     padding: 2px 6px;
@@ -522,10 +522,10 @@
       padding: 4px 12px;
     }
 
-    &--operativo { background: #dcfce7; color: #15803d; }
-    &--mantenimiento { background: #fef3c7; color: #b45309; }
-    &--fuera { background: #fee2e2; color: #b91c1c; }
-    &--retirado { background: #f3f4f6; color: #4b5563; }
+    &--operativo { background: var(--color-success-bg, #dcfce7); color: var(--color-success, #15803d); }
+    &--mantenimiento { background: var(--color-warning-bg, #fef3c7); color: var(--color-warning, #b45309); }
+    &--fuera { background: var(--color-error-bg, #fee2e2); color: var(--color-error, #b91c1c); }
+    &--retirado { background: var(--color-bg-hover, #f3f4f6); color: var(--color-text-secondary, #4b5563); }
   }
 
   &__body {

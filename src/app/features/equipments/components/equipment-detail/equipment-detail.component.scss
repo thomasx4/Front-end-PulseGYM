@@ -142,18 +142,18 @@
   }
 
   &--operativo {
-    background: #dcfce7;
-    color: #15803d;
+    background: var(--color-success-bg, #dcfce7);
+    color: var(--color-success, #15803d);
   }
 
   &--mantenimiento {
-    background: #fef3c7;
-    color: #b45309;
+    background: var(--color-warning-bg, #fef3c7);
+    color: var(--color-warning, #b45309);
   }
 
   &--fuera {
-    background: #fee2e2;
-    color: #b91c1c;
+    background: var(--color-error-bg, #fee2e2);
+    color: var(--color-error, #b91c1c);
   }
 
   &__info {
@@ -237,15 +237,15 @@
   }
 
   &--falla {
-    background: #fff1f2;
-    border-color: #fecdd3;
+    background: var(--color-error-bg, #fff1f2);
+    border-color: var(--color-error, #fecdd3);
 
     .detail-card__label {
-      color: #e11d48;
+      color: var(--color-error, #e11d48);
     }
 
     .detail-card__value {
-      color: #9f1239;
+      color: var(--color-error, #9f1239);
     }
   }
 
@@ -353,8 +353,8 @@
 
 .btn-report-toggle {
   background: transparent;
-  border: 1px solid #e11d48;
-  color: #e11d48;
+  border: 1px solid var(--color-error, #e11d48);
+  color: var(--color-error, #e11d48);
   font-size: 0.7rem;
   font-weight: 800;
   padding: 3px 8px;
@@ -364,7 +364,7 @@
   white-space: nowrap;
 
   &:hover {
-    background: #e11d48;
+    background: var(--color-error, #e11d48);
     color: #ffffff;
   }
 }
@@ -400,12 +400,12 @@
   }
 
   .form-textarea-sm.input-error {
-    border: 1px solid #ef4444 !important;
-    background-color: #fef2f2;
+    border: 1px solid var(--color-error, #ef4444) !important;
+    background-color: var(--color-error-bg, #fef2f2);
   }
 
   .error-text {
-    color: #ef4444;
+    color: var(--color-error, #ef4444);
     font-size: 0.7rem;
     margin-top: 0.25rem;
     display: block;
@@ -416,7 +416,7 @@
   .form-textarea-sm {
     width: 100%;
     padding: 6px 10px;
-    border: 1px solid #fecdd3;
+    border: 1px solid var(--color-error, #fecdd3);
     border-radius: 8px;
     font-size: 0.8rem;
     outline: none;
@@ -425,7 +425,7 @@
     box-sizing: border-box;
 
     &:focus {
-      border-color: #e11d48;
+      border-color: var(--color-error, #e11d48);
     }
   }
 
@@ -436,7 +436,7 @@
 
   .btn-submit-falla {
     width: 100%;
-    background: #e11d48;
+    background: var(--color-error, #e11d48);
     color: #ffffff;
     border: none;
     padding: 8px 14px;
@@ -451,7 +451,7 @@
     }
 
     &:hover:not(:disabled) {
-      background: #be123c;
+      background: var(--color-error, #be123c);
     }
 
     &:disabled {
@@ -567,8 +567,8 @@
     align-items: flex-start;
     gap: 6px;
     font-size: 0.7rem;
-    color: #2563eb;
-    background: #eff6ff;
+    color: var(--color-info, #2563eb);
+    background: var(--color-info-bg, #eff6ff);
     padding: 6px 8px;
     border-radius: 6px;
     margin-top: 4px;
@@ -609,13 +609,13 @@
   }
 
   &--preventivo {
-    background: #dbeafe;
-    color: #1e40af;
+    background: var(--color-info-bg, #dbeafe);
+    color: var(--color-info, #1e40af);
   }
 
   &--correctivo {
-    background: #fef3c7;
-    color: #92400e;
+    background: var(--color-warning-bg, #fef3c7);
+    color: var(--color-warning, #92400e);
   }
 }
 

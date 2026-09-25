@@ -386,8 +386,8 @@
   }
 
   .method-tag {
-    background: #f3e8ff;
-    color: #7e22ce;
+    background: rgba(126, 34, 206, 0.14);
+    color: #a855f7;
     padding: 0.25rem 0.5rem;
     border-radius: 6px;
     font-size: 0.68rem;
@@ -755,9 +755,9 @@
       white-space: nowrap;
 
       &--danger {
-        background-color: #fee2e2;
-        color: #b91c1c;
-        &:hover { background-color: #fecaca; }
+        background-color: var(--color-error-bg, #fee2e2);
+        color: var(--color-error, #b91c1c);
+        &:hover { background-color: var(--color-error, #fecaca); }
       }
 
       &--clear {
@@ -821,8 +821,8 @@
 // Añadir clases para errores en inputs y botones deshabilitados dentro del modal
 .form-control-custom {
     &.input-error {
-        border-color: #f43f5e;
-        background-color: #fff1f2;
+        border-color: var(--color-error, #f43f5e);
+        background-color: var(--color-error-bg, #fff1f2);
     }
 }
 

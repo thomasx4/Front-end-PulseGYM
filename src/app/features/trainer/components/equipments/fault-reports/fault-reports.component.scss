@@ -295,21 +295,21 @@
             transition: all 0.2s ease;
 
             &--revision {
-                background-color: #fef3c7;
-                color: #b45309;
-                &:hover { background-color: #fde68a; }
+                background-color: var(--color-warning-bg, #fef3c7);
+                color: var(--color-warning, #b45309);
+                &:hover { background-color: var(--color-warning, #fde68a); }
             }
 
             &--repair {
-                background-color: #e0e7ff;
-                color: #3730a3;
-                &:hover { background-color: #c7d2fe; }
+                background-color: var(--color-info-bg, #e0e7ff);
+                color: var(--color-info, #3730a3);
+                &:hover { background-color: var(--color-info, #c7d2fe); }
             }
 
             &--resolved {
-                background-color: #d1fae5;
-                color: #065f46;
-                &:hover { background-color: #a7f3d0; }
+                background-color: var(--color-success-bg, #d1fae5);
+                color: var(--color-success, #065f46);
+                &:hover { background-color: var(--color-success, #a7f3d0); }
             }
 
             &--clear {
@@ -450,13 +450,13 @@
     white-space: nowrap;
 
     &--alta {
-        background: #fee2e2;
-        color: #b91c1c;
+        background: var(--color-error-bg, #fee2e2);
+        color: var(--color-error, #b91c1c);
     }
 
     &--media {
-        background: #fef3c7;
-        color: #b45309;
+        background: var(--color-warning-bg, #fef3c7);
+        color: var(--color-warning, #b45309);
     }
 
     &--baja {
@@ -475,23 +475,23 @@
     cursor: pointer;
 
     &--pending {
-        background: #fee2e2;
-        color: #991b1b;
+        background: var(--color-error-bg, #fee2e2);
+        color: var(--color-error, #991b1b);
     }
 
     &--revision {
-        background: #fef3c7;
-        color: #92400e;
+        background: var(--color-warning-bg, #fef3c7);
+        color: var(--color-warning, #92400e);
     }
 
     &--repair {
-        background: #e0e7ff;
-        color: #3730a3;
+        background: var(--color-info-bg, #e0e7ff);
+        color: var(--color-info, #3730a3);
     }
 
     &--resolved {
-        background: #d1fae5;
-        color: #065f46;
+        background: var(--color-success-bg, #d1fae5);
+        color: var(--color-success, #065f46);
     }
 }
 

@@ -100,18 +100,18 @@
         flex-shrink: 0;
 
         &--blue {
-            background: #d6e3ff;
-            color: #00254f;
+            background: var(--color-info-bg, #d6e3ff);
+            color: var(--color-info, #00254f);
         }
 
         &--purple {
-            background: #dedfff;
-            color: #4f589c;
+            background: rgba(79, 88, 156, 0.16);
+            color: #a5abe0;
         }
 
         &--grey {
-            background: #e3e1e1;
-            color: #42464f;
+            background: var(--color-bg-hover, #e3e1e1);
+            color: var(--color-text-secondary, #42464f);
         }
     }
 
@@ -388,13 +388,13 @@
             flex-shrink: 0;
 
             &--blue {
-                background: #d6e3ff;
-                color: #00254f;
+                background: var(--color-info-bg, #d6e3ff);
+                color: var(--color-info, #00254f);
             }
 
             &--purple {
-                background: #dedfff;
-                color: #4f589c;
+                background: rgba(79, 88, 156, 0.16);
+                color: #a5abe0;
             }
         }
 
@@ -601,16 +601,16 @@
         display: flex;
         align-items: flex-start;
         gap: 8px;
-        background: #fffbeb;
+        background: var(--color-warning-bg, #fffbeb);
         padding: 8px 10px;
         border-radius: 8px;
-        border: 1px solid #fef3c7;
+        border: 1px solid var(--color-warning, #fef3c7);
 
         .alert-dot {
             width: 7px;
             height: 7px;
             border-radius: 50%;
-            background-color: #f59e0b;
+            background-color: var(--color-warning, #f59e0b);
             margin-top: 4px;
             flex-shrink: 0;
         }

@@ -247,8 +247,8 @@ $success-color: #10b981;
         }
 
         .required-badge {
-            background: #fef2f2;
-            color: #dc2626;
+            background: var(--color-error-bg, #fef2f2);
+            color: var(--color-error, #dc2626);
             font-size: 0.65rem;
             font-weight: 600;
             text-transform: uppercase;
@@ -259,7 +259,7 @@ $success-color: #10b981;
         }
 
         .optional-badge {
-            background: #f1f5f9;
+            background: var(--color-bg-hover, #f1f5f9);
             color: var(--color-text-secondary, $text-secondary);
             font-size: 0.65rem;
             font-weight: 600;
@@ -385,7 +385,7 @@ $success-color: #10b981;
         align-items: center;
         gap: 0.6rem;
         padding: 0.75rem 2rem;
-        background: #0f1c3f;
+        background: var(--color-primary, #0f1c3f);
         color: #ffffff;
         border: none;
         border-radius: 10px;
@@ -484,13 +484,13 @@ $success-color: #10b981;
     margin: 0 auto 20px;
 
     &.error-icon {
-        background: #fef2f2;
+        background: var(--color-error-bg, #fef2f2);
         color: $error-color;
         svg { stroke: $error-color; }
     }
 
     &.success-icon {
-        background: #d1fae5;
+        background: var(--color-success-bg, #d1fae5);
         color: $success-color;
         svg { stroke: $success-color; }
     }
@@ -529,7 +529,7 @@ $success-color: #10b981;
     transition: $transition;
 
     &-primary {
-        background: #0f1c3f;
+        background: var(--color-primary, #0f1c3f);
         color: #ffffff;
 
         &:hover {

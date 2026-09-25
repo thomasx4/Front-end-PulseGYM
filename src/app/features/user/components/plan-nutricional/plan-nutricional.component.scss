@@ -130,8 +130,8 @@ $transition: all 0.2s ease-in-out;
         gap: 1rem;
 
         .feature-icon {
-            background-color: #eff6ff;
-            color: $primary-color;
+            background-color: var(--color-info-bg, #eff6ff);
+            color: var(--color-info, $primary-color);
             padding: 0.75rem;
             border-radius: 10px;
             display: flex;
@@ -383,9 +383,9 @@ $transition: all 0.2s ease-in-out;
     margin: 0 auto 16px;
 
     &.error-icon {
-        background: #fef2f2;
-        color: #dc2626;
-        svg { stroke: #dc2626; }
+        background: var(--color-error-bg, #fef2f2);
+        color: var(--color-error, #dc2626);
+        svg { stroke: var(--color-error, #dc2626); }
     }
 }
 
@@ -419,9 +419,9 @@ $transition: all 0.2s ease-in-out;
     transition: $transition;
 
     &-secondary {
-        background: #f1f5f9;
-        color: #0f172a;
-        &:hover { background: #e2e8f0; }
+        background: var(--color-bg-hover, #f1f5f9);
+        color: var(--color-text-primary, #0f172a);
+        &:hover { background: var(--color-border, #e2e8f0); }
     }
 
     &-primary {
@@ -436,11 +436,11 @@ $transition: all 0.2s ease-in-out;
 }
 
 .modal-icon.warning-icon {
-    background: #ffffff;
-    color: #0f1c3f;
+    background: var(--color-bg-card, #ffffff);
+    color: var(--color-primary, #0f1c3f);
 
     svg {
-        stroke: #0f1c3f;
+        stroke: var(--color-primary, #0f1c3f);
     }
 }
 

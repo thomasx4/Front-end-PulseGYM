@@ -455,12 +455,12 @@
     display: inline-block;
 
     &.estado-activo {
-        background: #dcfce7;
+        background: var(--color-success-bg, #dcfce7);
         color: #15803d;
     }
 
     &.estado-vencido {
-        background: #fee2e2;
+        background: var(--color-error-bg, #fee2e2);
         color: #b91c1c;
     }
 

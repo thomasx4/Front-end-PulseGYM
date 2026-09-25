@@ -331,17 +331,17 @@ app-attendance-goal-card {
     text-overflow: ellipsis;
 
     &--pdf {
-        background: #fef2f2;
-        color: #991b1b;
-        border-color: #fecaca;
-        &:hover:not(:disabled) { background: #fee2e2; }
+        background: var(--color-error-bg, #fef2f2);
+        color: var(--color-error, #991b1b);
+        border-color: var(--color-error, #fecaca);
+        &:hover:not(:disabled) { background: var(--color-error-bg, #fee2e2); }
     }
 
     &--excel {
-        background: #f0fdf4;
-        color: #166534;
-        border-color: #bbf7d0;
-        &:hover:not(:disabled) { background: #dcfce7; }
+        background: var(--color-success-bg, #f0fdf4);
+        color: var(--color-success, #166534);
+        border-color: var(--color-success, #bbf7d0);
+        &:hover:not(:disabled) { background: var(--color-success-bg, #dcfce7); }
     }
 
     &:disabled {
@@ -478,20 +478,20 @@ app-attendance-goal-card {
     }
 
     &.active {
-        background-color: #dcfce7;
-        color: #15803d;
+        background-color: var(--color-success-bg, #dcfce7);
+        color: var(--color-success, #15803d);
 
         .status-dot {
-            background-color: #22c55e;
+            background-color: var(--color-success, #22c55e);
         }
     }
 
     &.cancelled {
-        background-color: #fee2e2;
-        color: #b91c1c;
+        background-color: var(--color-error-bg, #fee2e2);
+        color: var(--color-error, #b91c1c);
 
         .status-dot {
-            background-color: #ef4444;
+            background-color: var(--color-error, #ef4444);
         }
     }
 }

@@ -57,7 +57,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: #0f1c3f;
+    background: var(--color-primary, #0f1c3f);
     color: #ffffff;
     padding: 12px 20px;
     border-radius: 12px;
@@ -97,15 +97,15 @@
             white-space: nowrap;
 
             &--renovar {
-                background-color: #dbeafe;
-                color: #1e40af;
-                &:hover { background-color: #bfdbfe; }
+                background-color: var(--color-info-bg, #dbeafe);
+                color: var(--color-info, #1e40af);
+                &:hover { background-color: var(--color-info, #bfdbfe); }
             }
 
             &--suspender {
-                background-color: #fef3c7;
-                color: #92400e;
-                &:hover { background-color: #fde68a; }
+                background-color: var(--color-warning-bg, #fef3c7);
+                color: var(--color-warning, #92400e);
+                &:hover { background-color: var(--color-warning, #fde68a); }
             }
 
             &--delete {
@@ -587,21 +587,21 @@
     &:disabled { opacity: 0.5; cursor: not-allowed; }
 
     &.btn-renovar {
-        background: #dbeafe;
-        color: #1e40af;
-        &:hover:not(:disabled) { background: #bfdbfe; }
+        background: var(--color-info-bg, #dbeafe);
+        color: var(--color-info, #1e40af);
+        &:hover:not(:disabled) { background: var(--color-info, #bfdbfe); }
     }
 
     &.btn-suspender {
-        background: #fef3c7;
-        color: #92400e;
-        &:hover:not(:disabled) { background: #fde68a; }
+        background: var(--color-warning-bg, #fef3c7);
+        color: var(--color-warning, #92400e);
+        &:hover:not(:disabled) { background: var(--color-warning, #fde68a); }
     }
 
     &.btn-cancelar {
-        background: #fee2e2;
-        color: #991b1b;
-        &:hover:not(:disabled) { background: #fca5a5; }
+        background: var(--color-error-bg, #fee2e2);
+        color: var(--color-error, #991b1b);
+        &:hover:not(:disabled) { background: var(--color-error, #fca5a5); }
     }
 }
 
