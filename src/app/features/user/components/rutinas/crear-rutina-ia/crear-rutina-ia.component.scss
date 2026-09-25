@@ -236,9 +236,9 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     font-weight: 500;
 
     &.alert-danger {
-        background: #fef2f2;
+        background: var(--color-error-bg, #fef2f2);
         color: $danger;
-        border: 1px solid #fecaca;
+        border: 1px solid var(--color-error, #fecaca);
         svg { stroke: $danger; }
     }
 }
@@ -435,7 +435,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     align-items: center;
     justify-content: center;
     margin: 0 auto 16px;
-    &.error-icon { background: #fef2f2; color: #dc2626; svg { stroke: #dc2626; } }
+    &.error-icon { background: var(--color-error-bg, #fef2f2); color: var(--color-error, #dc2626); svg { stroke: var(--color-error, #dc2626); } }
 }
 
 .modal-title {
@@ -468,9 +468,9 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     transition: $transition;
 
     &-secondary {
-        background: #f1f5f9;
+        background: var(--color-bg-hover, #f1f5f9);
         color: #0f172a;
-        &:hover { background: #e2e8f0; }
+        &:hover { background: var(--color-border, #e2e8f0); }
     }
 
     &-primary {

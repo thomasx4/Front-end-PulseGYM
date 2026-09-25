@@ -38,7 +38,7 @@
 
   .btn-retry {
     padding: 8px 16px;
-    background: #0f1c3f;
+    background: var(--color-primary, #0f1c3f);
     color: white;
     border: none;
     border-radius: 6px;
@@ -74,9 +74,9 @@
       justify-content: center;
       font-size: 18px;
       flex-shrink: 0;
-      &.blue { background: #ebf8ff; }
-      &.green { background: #f0fff4; }
-      &.purple { background: #faf5ff; }
+      &.blue { background: var(--color-info-bg, #ebf8ff); color: var(--color-info, #3182ce); }
+      &.green { background: var(--color-success-bg, #f0fff4); color: var(--color-success, #38a169); }
+      &.purple { background: rgba(128, 90, 213, 0.16); color: #a78bfa; }
     }
 
     .kpi-info {
@@ -169,8 +169,8 @@
       }
 
       &.active {
-        .circle { background: #0f1c3f; border-color: #3182ce; color: white; font-weight: 700; }
-        .day-label { color: #0f1c3f; font-weight: 600; }
+        .circle { background: var(--color-primary, #0f1c3f); border-color: #3182ce; color: white; font-weight: 700; }
+        .day-label { color: var(--color-text-primary, #0f1c3f); font-weight: 600; }
       }
     }
   }
@@ -190,21 +190,22 @@
       display: flex;
       gap: 12px;
       align-items: center;
-      .banner-icon { 
-        width: 32px; 
-        height: 32px; 
-        background: #ebf8ff; 
-        border-radius: 50%; 
-        display: flex; 
-        align-items: center; 
-        justify-content: center; 
+      .banner-icon {
+        width: 32px;
+        height: 32px;
+        background: var(--color-info-bg, #ebf8ff);
+        color: var(--color-info, #3182ce);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         flex-shrink: 0;
       }
-      .banner-title { 
-        font-size: 13px; 
-        font-weight: 700; 
-        margin: 0; 
-        color: #0f1c3f; 
+      .banner-title {
+        font-size: 13px;
+        font-weight: 700;
+        margin: 0;
+        color: var(--color-text-primary, #0f1c3f);
       }
       .banner-sub { 
         font-size: 11px; 
@@ -223,7 +224,7 @@
         background: var(--color-border, #e2e8f0);
         border-radius: 3px;
         overflow: hidden;
-        .fill { height: 100%; background: #3182ce; }
+        .fill { height: 100%; background: var(--color-info, #3182ce); }
       }
       .count-text { 
         font-size: 11px; 
@@ -240,7 +241,7 @@
   grid-column: 3 / 4;
 
   .routine-banner {
-    background: #ebf8ff;
+    background: var(--color-info-bg, #ebf8ff);
     border-radius: 10px;
     padding: 12px;
     display: flex;
@@ -255,7 +256,7 @@
       .routine-icon { 
         width: 32px; 
         height: 32px; 
-        background: #0f1c3f; 
+        background: var(--color-primary, #0f1c3f); 
         color: white; 
         border-radius: 6px; 
         display: flex; 
@@ -314,10 +315,10 @@
           color: var(--color-text-muted, #a0aec0);
           flex-wrap: wrap;
 
-          .ex-muscle { 
+          .ex-muscle {
             font-size: 9px;
-            color: #0f1c3f; 
-            background: #ebf8ff; 
+            color: var(--color-info, #0f1c3f);
+            background: var(--color-info-bg, #ebf8ff);
             padding: 1px 8px; 
             border-radius: 10px; 
             display: inline-block;
@@ -374,9 +375,9 @@
           justify-content: center;
           font-size: 14px;
           flex-shrink: 0;
-          &.blue { background: #ebf8ff; }
-          &.green { background: #f0fff4; }
-          &.purple { background: #faf5ff; }
+          &.blue { background: var(--color-info-bg, #ebf8ff); color: var(--color-info, #3182ce); }
+          &.green { background: var(--color-success-bg, #f0fff4); color: var(--color-success, #38a169); }
+          &.purple { background: rgba(128, 90, 213, 0.16); color: #a78bfa; }
         }
         .val { 
           font-size: 18px; 
@@ -398,9 +399,9 @@
           margin-bottom: 4px;
           .fill {
             height: 100%;
-            background: #3182ce;
-            &.green { background: #38a169; }
-            &.purple { background: #805ad5; }
+            background: var(--color-info, #3182ce);
+            &.green { background: var(--color-success, #38a169); }
+            &.purple { background: #a78bfa; }
           }
         }
         span { 
@@ -471,8 +472,8 @@
     margin: 0 auto 16px;
 
     &.error-icon {
-        background: #fef2f2;
-        color: #dc2626;
+        background: var(--color-error-bg, #fef2f2);
+        color: var(--color-error, #dc2626);
     }
     &.error-icon svg {
         stroke: #dc2626;
@@ -509,14 +510,14 @@
     transition: all 0.2s ease;
 
     &.modal-btn-secondary {
-        background: #f1f5f9;
-        color: #0f172a;
-        &:hover { background: #e2e8f0; }
+        background: var(--color-bg-hover, #f1f5f9);
+        color: var(--color-text-primary, #0f172a);
+        &:hover { background: var(--color-border, #e2e8f0); }
     }
     &.modal-btn-primary {
-        background: #0f1c3f;
+        background: var(--color-primary, #0f1c3f);
         color: #ffffff;
-        &:hover { background: #1a2b5c; }
+        &:hover { background: var(--color-primary-hover, #1a2b5c); }
     }
 }
 

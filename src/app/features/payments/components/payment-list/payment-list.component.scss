@@ -121,11 +121,11 @@
         justify-content: center;
         flex-shrink: 0;
 
-        &--green { background: #dcfce7; color: #16a34a; }
-        &--blue { background: #e0f2fe; color: #0284c7; }
-        &--yellow { background: #fef9c3; color: #ca8a04; }
-        &--red { background: #fee2e2; color: #dc2626; }
-        &--cyan { background: #cffafe; color: #0891b2; }
+        &--green { background: var(--color-success-bg, #dcfce7); color: var(--color-success, #16a34a); }
+        &--blue { background: var(--color-info-bg, #e0f2fe); color: var(--color-info, #0284c7); }
+        &--yellow { background: rgba(202, 138, 4, 0.16); color: #eab308; }
+        &--red { background: var(--color-error-bg, #fee2e2); color: var(--color-error, #dc2626); }
+        &--cyan { background: rgba(8, 145, 178, 0.16); color: #22d3ee; }
     }
 
     &__content {
@@ -423,10 +423,10 @@
         }
 
         &.row-anulado {
-            background: #fef2f2;
+            background: var(--color-error-bg, #fef2f2);
             opacity: 0.8;
 
-            &:hover { background: #fee2e2; }
+            &:hover { background: var(--color-error, #fee2e2); }
         }
     }
 }
@@ -548,18 +548,18 @@
     white-space: nowrap;
 
     &.success {
-        background: #dcfce7;
-        color: #16a34a;
+        background: var(--color-success-bg, #dcfce7);
+        color: var(--color-success, #16a34a);
     }
 
     &.warning {
-        background: #fef9c3;
-        color: #ca8a04;
+        background: var(--color-warning-bg, #fef9c3);
+        color: var(--color-warning, #ca8a04);
     }
 
     &.danger {
-        background: #fee2e2;
-        color: #dc2626;
+        background: var(--color-error-bg, #fee2e2);
+        color: var(--color-error, #dc2626);
     }
 
     &.lg {
@@ -595,14 +595,14 @@
     }
 
     &--danger {
-        background: #fef2f2;
-        border-color: #fecaca;
-        color: #dc2626;
+        background: var(--color-error-bg, #fef2f2);
+        border-color: var(--color-error, #fecaca);
+        color: var(--color-error, #dc2626);
 
         &:hover {
-            background: #fee2e2;
-            border-color: #f87171;
-            color: #b91c1c;
+            background: var(--color-error-bg, #fee2e2);
+            border-color: var(--color-error, #f87171);
+            color: var(--color-error, #b91c1c);
         }
     }
 }
@@ -963,7 +963,7 @@
             }
 
             &--danger {
-                background-color: #fee2e2;
+                background-color: var(--color-error-bg, #fee2e2);
                 color: #b91c1c;
                 &:hover { background-color: #fecaca; }
             }

@@ -100,7 +100,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: #0f1c3f;
+    background: var(--color-primary, #0f1c3f);
     color: #ffffff;
     padding: 12px 20px;
     border-radius: 12px;
@@ -473,19 +473,19 @@
 
         &.badge-essential,
         &.badge-standard {
-            background: #e0e7ff;
-            color: #4338ca;
+            background: var(--color-info-bg, #e0e7ff);
+            color: var(--color-info, #4338ca);
         }
 
         &.badge-elite,
         &.badge-premium {
-            background: #fef3c7;
-            color: #92400e;
+            background: var(--color-warning-bg, #fef3c7);
+            color: var(--color-warning, #92400e);
         }
 
         &.badge-vip {
-            background: #fce4ec;
-            color: #9a1f3c;
+            background: rgba(236, 64, 122, 0.14);
+            color: #ec4899;
         }
 
         .ia-badge {
@@ -620,13 +620,13 @@
         }
 
         .btn-delete {
-            border: 1px solid #fecdd3;
-            background: #fff1f2;
-            color: #e11d48;
+            border: 1px solid var(--color-error, #fecdd3);
+            background: var(--color-error-bg, #fff1f2);
+            color: var(--color-error, #e11d48);
 
             &:hover {
-                background: #ffe4e6;
-                color: #be123c;
+                background: var(--color-error-bg, #ffe4e6);
+                color: var(--color-error, #be123c);
             }
         }
     }
@@ -877,18 +877,18 @@
     white-space: nowrap;
 
     &.tier-essential {
-        background: #e0e7ff;
-        color: #4338ca;
+        background: var(--color-info-bg, #e0e7ff);
+        color: var(--color-info, #4338ca);
     }
 
     &.tier-elite {
-        background: #fef3c7;
-        color: #92400e;
+        background: var(--color-warning-bg, #fef3c7);
+        color: var(--color-warning, #92400e);
     }
 
     &.tier-vip {
-        background: #fce4ec;
-        color: #9a1f3c;
+        background: rgba(236, 64, 122, 0.14);
+        color: #ec4899;
     }
 }
 

@@ -644,8 +644,8 @@
                 }
 
                 &.input-error {
-                    border-color: #f43f5e;
-                    background-color: #fff1f2;
+                    border-color: var(--color-error, #f43f5e);
+                    background-color: var(--color-error-bg, #fff1f2);
                 }
             }
 
@@ -773,21 +773,21 @@
             white-space: nowrap;
 
             &--success {
-                background-color: #dcfce7;
-                color: #16a34a;
-                &:hover { background-color: #bbf7d0; }
+                background-color: var(--color-success-bg, #dcfce7);
+                color: var(--color-success, #16a34a);
+                &:hover { background-color: var(--color-success, #bbf7d0); }
             }
 
             &--warning {
-                background-color: #fef9c3;
+                background-color: var(--color-warning-bg, #fef9c3);
                 color: #ca8a04;
                 &:hover { background-color: #fef08a; }
             }
 
             &--danger {
-                background-color: #fee2e2;
-                color: #b91c1c;
-                &:hover { background-color: #fecaca; }
+                background-color: var(--color-error-bg, #fee2e2);
+                color: var(--color-error, #b91c1c);
+                &:hover { background-color: var(--color-error, #fecaca); }
             }
 
             &--clear {
