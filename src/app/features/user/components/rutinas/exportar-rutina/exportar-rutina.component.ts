@@ -2,9 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
 import { RutinasService, RutinaDetalle } from '../../../../../core/services/rutinas.service';
-import { Capacitor } from '@capacitor/core';
-import { Filesystem, Directory } from '@capacitor/filesystem';
-import { Share } from '@capacitor/share';
+import { FileDownloadService } from '../../../../../core/services/file-download.service';
 import { lastValueFrom } from 'rxjs';
 import JSZip from 'jszip';
 
@@ -28,7 +26,8 @@ export class ExportarRutinaComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private rutinasService: RutinasService
+    private rutinasService: RutinasService,
+    private fileDownloadService: FileDownloadService
   ) {}
 
   ngOnInit(): void {
@@ -182,49 +181,10 @@ export class ExportarRutinaComponent implements OnInit {
   }
 
   private async procesarArchivoIndividual(blob: Blob, fileName: string): Promise<void> {
-    try {
-      if (Capacitor.isNativePlatform()) {
-        try {
-          await Filesystem.requestPermissions();
-        } catch (permErr) {
-          console.warn('Permisos no disponibles:', permErr);
-        }
-
-        const reader = new FileReader();
-        reader.readAsDataURL(blob);
-        reader.onloadend = async () => {
-          const base64data = reader.result as string;
-          const base64Content = base64data.includes(',') ? base64data.split(',')[1] : base64data;
-
-          try {
-            const savedFile = await Filesystem.writeFile({
-              path: fileName,
-              data: base64Content,
-              directory: Directory.Cache
-            });
-
-            await Share.share({
-              title: 'Rutinas Pulse Gym',
-              url: savedFile.uri,
-              dialogTitle: 'Abrir o compartir archivo'
-            });
-          } catch (fsError: any) {
-            console.error('Error al guardar archivo en móvil:', fsError);
-            Swal.fire('Error', 'No se pudo abrir el archivo en el dispositivo.', 'error');
-          }
-        };
-      } else {
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = fileName;
-        link.click();
-        window.URL.revokeObjectURL(url);
-      }
-    } catch (err) {
-      console.error('Error procesando archivo:', err);
-      Swal.fire('Error', 'Ocurrió un error al procesar el archivo', 'error');
-    }
+    await this.fileDownloadService.saveAndShare(blob, fileName, {
+      title: 'Rutinas Pulse Gym',
+      dialogTitle: 'Abrir o compartir archivo'
+    });
   }
 
   volver(): void {

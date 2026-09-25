@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MembershipService, SocioEnMoraDTO } from '../../../../core/services/membership.service';
+import { FileDownloadService } from '../../../../core/services/file-download.service';
 
 @Component({
   selector: 'app-overdue-members',
@@ -21,7 +22,10 @@ export class OverdueMembersComponent implements OnInit {
   paginaActual: number = 1;
   itemsPorPagina: number = 7;
 
-  constructor(private membershipService: MembershipService) { }
+  constructor(
+    private membershipService: MembershipService,
+    private fileDownloadService: FileDownloadService
+  ) { }
 
   ngOnInit(): void {
     this.cargarSociosEnMora();
@@ -125,8 +129,8 @@ export class OverdueMembersComponent implements OnInit {
   exportarPdf(): void {
     this.exportando = true;
     this.membershipService.exportarMoraPdf(this.fechaInicio, this.fechaFin).subscribe({
-      next: (blob) => {
-        this.descargarArchivo(blob, `Socios_En_Mora_${new Date().toISOString().slice(0, 10)}.pdf`);
+      next: async (blob) => {
+        await this.descargarArchivo(blob, `Socios_En_Mora_${new Date().toISOString().slice(0, 10)}.pdf`);
         this.exportando = false;
       },
       error: (err) => {
@@ -139,8 +143,8 @@ export class OverdueMembersComponent implements OnInit {
   exportarExcel(): void {
     this.exportando = true;
     this.membershipService.exportarMoraExcel(this.fechaInicio, this.fechaFin).subscribe({
-      next: (blob) => {
-        this.descargarArchivo(blob, `Socios_En_Mora_${new Date().toISOString().slice(0, 10)}.xlsx`);
+      next: async (blob) => {
+        await this.descargarArchivo(blob, `Socios_En_Mora_${new Date().toISOString().slice(0, 10)}.xlsx`);
         this.exportando = false;
       },
       error: (err) => {
@@ -150,12 +154,10 @@ export class OverdueMembersComponent implements OnInit {
     });
   }
 
-  private descargarArchivo(blob: Blob, nombreArchivo: string): void {
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = nombreArchivo;
-    a.click();
-    window.URL.revokeObjectURL(url);
+  private async descargarArchivo(blob: Blob, nombreArchivo: string): Promise<void> {
+    await this.fileDownloadService.saveAndShare(blob, nombreArchivo, {
+      title: 'Reporte de Socios en Mora Pulse Gym',
+      dialogTitle: 'Abrir o compartir reporte'
+    });
   }
 }

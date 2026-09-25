@@ -1,6 +1,7 @@
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import { AuthService } from '../../../../core/services/auth.service';
 import { DashboardService, DashboardResumenDTO } from '../../../../core/services/dashboard.service';
+import { FileDownloadService } from '../../../../core/services/file-download.service';
 import jsPDF from 'jspdf';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
@@ -66,7 +67,8 @@ export class DashboardComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private dashboardService: DashboardService,
-    private router: Router
+    private router: Router,
+    private fileDownloadService: FileDownloadService
   ) {
     this.generarAnosDisponibles();
   }
@@ -381,7 +383,12 @@ export class DashboardComponent implements OnInit {
       pdf.setFont('helvetica', 'bold');
       pdf.text(`Total General: $ ${Number(total).toLocaleString('es-CO')}`, pageWidth - margin - 80, y);
 
-      pdf.save(`Ingresos-Anio-${this.anioSeleccionado}-${new Date().toISOString().split('T')[0]}.pdf`);
+      const fileName = `Ingresos-Anio-${this.anioSeleccionado}-${new Date().toISOString().split('T')[0]}.pdf`;
+      const pdfBlob = pdf.output('blob');
+      await this.fileDownloadService.saveAndShare(pdfBlob, fileName, {
+        title: 'Reporte de Ingresos Pulse Gym',
+        dialogTitle: 'Abrir o compartir reporte'
+      });
       this.loading = false;
     } catch (error) {
       console.error('Error al exportar PDF:', error);

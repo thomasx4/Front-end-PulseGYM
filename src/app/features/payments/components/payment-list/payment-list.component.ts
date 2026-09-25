@@ -3,9 +3,7 @@ import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
 import { PaymentService } from '../../../../core/services/payment.service';
 import { Payment, PaymentSummaryDTO, AnularPagoRequestDTO } from '../../../../core/models/payment';
-import { Capacitor } from '@capacitor/core';
-import { Filesystem, Directory } from '@capacitor/filesystem';
-import { Share } from '@capacitor/share';
+import { FileDownloadService } from '../../../../core/services/file-download.service';
 import { forkJoin } from 'rxjs';
 import JSZip from 'jszip';
 
@@ -39,7 +37,11 @@ export class PaymentListComponent implements OnInit {
     completadosCount: 0
   };
 
-  constructor(private paymentService: PaymentService, private router: Router) { }
+  constructor(
+    private paymentService: PaymentService,
+    private router: Router,
+    private fileDownloadService: FileDownloadService
+  ) { }
 
   ngOnInit(): void {
     this.loadResumen();
@@ -187,41 +189,11 @@ export class PaymentListComponent implements OnInit {
           const content = await zip.generateAsync({ type: 'blob' });
           this.loading = false;
 
-          if (Capacitor.isNativePlatform()) {
-            const reader = new FileReader();
-            reader.readAsDataURL(content);
-            reader.onloadend = async () => {
-              const base64data = reader.result as string;
-              const base64Content = base64data.includes(',') ? base64data.split(',')[1] : base64data;
-              const zipFileName = `comprobantes-pagos-${Date.now()}.zip`;
-
-              const savedFile = await Filesystem.writeFile({
-                path: zipFileName,
-                data: base64Content,
-                directory: Directory.Documents
-              });
-
-              await Share.share({
-                title: 'Comprobantes de Pago - Pulse Gym',
-                url: savedFile.uri,
-                dialogTitle: 'Compartir archivo ZIP'
-              });
-            };
-          } else {
-            const url = window.URL.createObjectURL(content);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `comprobantes-pagos-${Date.now()}.zip`;
-            a.click();
-            window.URL.revokeObjectURL(url);
-          }
-
-          Swal.fire({
-            icon: 'success',
-            title: '¡ZIP Descargado!',
-            text: `Se comprimieron y descargaron ${blobs.length} comprobante(s) en un archivo .zip exitosamente.`,
-            timer: 2500,
-            showConfirmButton: false
+          const zipFileName = `comprobantes-pagos-${Date.now()}.zip`;
+          await this.fileDownloadService.saveAndShare(content, zipFileName, {
+            title: 'Comprobantes de Pago - Pulse Gym',
+            dialogTitle: 'Compartir archivo ZIP',
+            successMessage: `Se comprimieron y descargaron ${blobs.length} comprobante(s) en un archivo .zip exitosamente.`
           });
 
         } catch (zipError) {
@@ -358,72 +330,12 @@ export class PaymentListComponent implements OnInit {
   async descargarPdf(idPago: number): Promise<void> {
     this.paymentService.descargarComprobantePDF(idPago).subscribe({
       next: async (blob) => {
-        try {
-          if (Capacitor.isNativePlatform()) {
-            try {
-              const permissionStatus = await Filesystem.requestPermissions();
-              console.log('Estado de permisos:', permissionStatus);
-            } catch (permErr) {
-              console.warn('El sistema de permisos no está disponible o fue denegado:', permErr);
-            }
-
-            const reader = new FileReader();
-            reader.readAsDataURL(blob);
-            reader.onloadend = async () => {
-              const base64data = reader.result as string;
-              const base64Content = base64data.includes(',') ? base64data.split(',')[1] : base64data;
-              const fileName = `comprobante-pago-${idPago}.pdf`;
-
-              try {
-                const savedFile = await Filesystem.writeFile({
-                  path: fileName,
-                  data: base64Content,
-                  directory: Directory.ExternalStorage
-                });
-
-                Swal.fire({
-                  icon: 'success',
-                  title: '¡Comprobante Descargado!',
-                  text: `Guardado correctamente en el dispositivo.`,
-                  timer: 3000,
-                  showConfirmButton: false
-                });
-
-                await Share.share({
-                  title: 'Comprobante de Pago Pulse Gym',
-                  url: savedFile.uri,
-                  dialogTitle: 'Abrir o compartir comprobante'
-                });
-
-              } catch (fsError: any) {
-                try {
-                  const savedFileFallback = await Filesystem.writeFile({
-                    path: fileName,
-                    data: base64Content,
-                    directory: Directory.Documents
-                  });
-
-                  await Share.share({
-                    title: 'Comprobante de Pago Pulse Gym',
-                    url: savedFileFallback.uri,
-                    dialogTitle: 'Abrir o compartir comprobante'
-                  });
-                } catch (fallbackErr: any) {
-                  Swal.fire('Error', 'No se pudo guardar el archivo en el almacenamiento', 'error');
-                }
-              }
-            };
-          } else {
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `comprobante-pago-${idPago}.pdf`;
-            a.click();
-            window.URL.revokeObjectURL(url);
-          }
-        } catch (err) {
-          Swal.fire('Error', 'Ocurrió un error al procesar el comprobante', 'error');
-        }
+        const fileName = `comprobante-pago-${idPago}.pdf`;
+        await this.fileDownloadService.saveAndShare(blob, fileName, {
+          title: 'Comprobante de Pago Pulse Gym',
+          dialogTitle: 'Abrir o compartir comprobante',
+          successMessage: '¡Comprobante Descargado!'
+        });
       },
       error: () => {
         Swal.fire('Error', 'No se pudo obtener el comprobante del servidor', 'error');
