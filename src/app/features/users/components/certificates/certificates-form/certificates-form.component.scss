@@ -618,8 +618,8 @@
     white-space: nowrap;
 
     &.rol-entrenador {
-        background: #e0e7ff;
-        color: #3730a3;
+        background: var(--color-info-bg, #e0e7ff);
+        color: var(--color-info, #3730a3);
     }
 }
 

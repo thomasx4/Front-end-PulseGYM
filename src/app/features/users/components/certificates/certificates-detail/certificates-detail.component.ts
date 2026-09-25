@@ -3,6 +3,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { CertificateService } from '../../../../../core/services/certificate.service';
 import { Certificate } from '../../../../../core/models/certificate';
+import { FileDownloadService } from '../../../../../core/services/file-download.service';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -21,7 +22,8 @@ export class CertificatesDetailComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private certificateService: CertificateService,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private fileDownloadService: FileDownloadService
   ) {}
 
   ngOnInit(): void {
@@ -79,32 +81,14 @@ export class CertificatesDetailComponent implements OnInit {
     if (!this.certificate?.urlPdf) return;
 
     this.downloading = true;
-    let url = this.certificate.urlPdf;
+    const url = this.certificate.urlPdf;
+    const fileName = `Certificacion_${this.certificate.nombreCertificacion.replace(/\s+/g, '_')}.pdf`;
 
     try {
-      if (url.includes('cloudinary.com')) {
-        const downloadUrl = url.replace('/upload/', '/upload/fl_attachment/');
-        const link = document.createElement('a');
-        link.href = downloadUrl;
-        link.target = '_blank';
-        link.setAttribute('download', `Certificacion_${this.certificate.nombreCertificacion.replace(/\s+/g, '_')}.pdf`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      } else {
-        const response = await fetch(url);
-        const blob = await response.blob();
-        const blobUrl = window.URL.createObjectURL(blob);
-
-        const fileName = `Certificacion_${this.certificate.nombreCertificacion.replace(/\s+/g, '_')}.pdf`;
-        const link = document.createElement('a');
-        link.href = blobUrl;
-        link.download = fileName;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(blobUrl);
-      }
+      await this.fileDownloadService.fetchAndSaveAndShare(url, fileName, {
+        title: 'Certificación Pulse Gym',
+        dialogTitle: 'Abrir o compartir certificación'
+      });
     } catch {
       window.open(url, '_blank');
     } finally {

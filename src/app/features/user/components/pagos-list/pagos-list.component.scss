@@ -139,7 +139,7 @@
             transition: all 0.2s ease;
 
             &--export {
-                background-color: #d1fae5;
+                background-color: var(--color-success-bg, #d1fae5);
                 color: #065f46;
                 &:hover { background-color: #a7f3d0; }
             }
@@ -702,9 +702,9 @@
     }
 
     &--secondary-export {
-        background: #0f1c3f;
-        color: #ffffff;
-        &:hover { background: #1a2b5c; }
+        background: var(--color-primary, #0f1c3f);
+        color: var(--color-text-inverse, #ffffff);
+        &:hover { background: var(--color-primary-hover, #1a2b5c); }
     }
 
     &--outline-dark {

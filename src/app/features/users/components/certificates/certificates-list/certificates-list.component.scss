@@ -48,7 +48,7 @@
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    background: #0f1c3f;
+    background: var(--color-primary, #0f1c3f);
     color: #ffffff;
     padding: 14px;
     border-radius: 12px;
@@ -288,13 +288,13 @@
     }
 
     &--total .metric-icon {
-        background: #dbeafe;
-        color: #2563eb;
+        background: var(--color-info-bg, #dbeafe);
+        color: var(--color-info, #2563eb);
     }
 
     &--entrenadores .metric-icon {
-        background: #f3e8ff;
-        color: #7c3aed;
+        background: rgba(124, 58, 237, 0.14);
+        color: #a855f7;
     }
 }
 
@@ -509,7 +509,7 @@
         }
 
         &.btn-edit {
-            background-color: #dbeafe;
+            background-color: var(--color-info-bg, #dbeafe);
             color: #1e40af;
             border: 1px solid #bfdbfe;
 

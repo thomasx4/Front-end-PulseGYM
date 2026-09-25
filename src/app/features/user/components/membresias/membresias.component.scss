@@ -274,13 +274,13 @@
             text-transform: uppercase;
 
             &.badge-standard {
-                background-color: #e0e7ff;
-                color: #4338ca;
+                background-color: var(--color-info-bg, #e0e7ff);
+                color: var(--color-info, #4338ca);
             }
 
             &.badge-premium {
-                background-color: #fef3c7;
-                color: #d97706;
+                background-color: var(--color-warning-bg, #fef3c7);
+                color: var(--color-warning, #d97706);
             }
         }
 
@@ -562,7 +562,7 @@
 // ============================================
 .config-adicional {
     border: 1px solid #dbeafe;
-    background: #1a2b5c;
+    background: var(--color-primary-hover, #1a2b5c);
 
     h3 {
         color: #ffffff;
@@ -583,7 +583,7 @@
         .badge-incluido {
             color: #ffffff;
             font-weight: 600;
-            background: #0f1c3f;
+            background: var(--color-primary, #0f1c3f);
             padding: 2px 12px;
             border-radius: 12px;
         }
@@ -719,13 +719,13 @@
     margin: 0 auto 16px;
 
     &.warning-icon {
-        background: #fffbeb;
-        color: #d97706;
+        background: var(--color-warning-bg, #fffbeb);
+        color: var(--color-warning, #d97706);
     }
 
     &.error-icon {
-        background: #fef2f2;
-        color: #dc2626;
+        background: var(--color-error-bg, #fef2f2);
+        color: var(--color-error, #dc2626);
     }
 
     &.warning-icon svg,
@@ -768,11 +768,11 @@
     transition: all 0.2s ease;
 
     &.modal-btn-secondary {
-        background: #f1f5f9;
+        background: var(--color-bg-hover, #f1f5f9);
         color: #0f172a;
 
         &:hover {
-            background: #e2e8f0;
+            background: var(--color-border, #e2e8f0);
         }
     }
 

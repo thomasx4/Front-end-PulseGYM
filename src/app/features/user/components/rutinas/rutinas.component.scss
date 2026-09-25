@@ -147,7 +147,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         color: #0f1c3f;
 
         &:hover {
-            background-color: #1a2b5c;
+            background-color: var(--color-primary-hover, #1a2b5c);
             transform: translateY(-1px);
         }
     }
@@ -202,7 +202,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         flex-shrink: 0;
 
         &--export {
-            background: #0f1c3f;
+            background: var(--color-primary, #0f1c3f);
             color: #ffffff;
         }
     }
@@ -340,7 +340,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             font-size: 0.65rem;
             font-weight: 700;
             color: #ffffff;
-            background: #0f1c3f;
+            background: var(--color-primary, #0f1c3f);
             padding: 0.1rem 0.5rem;
             border-radius: 4px;
         }
@@ -466,8 +466,8 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     margin: 0 auto 16px;
 
     &.error-icon {
-        background: #fef2f2;
-        color: #dc2626;
+        background: var(--color-error-bg, #fef2f2);
+        color: var(--color-error, #dc2626);
     }
     &.error-icon svg {
         stroke: #dc2626;
@@ -504,9 +504,9 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     transition: $transition;
 
     &-secondary {
-        background: #f1f5f9;
+        background: var(--color-bg-hover, #f1f5f9);
         color: #0f172a;
-        &:hover { background: #e2e8f0; }
+        &:hover { background: var(--color-border, #e2e8f0); }
     }
 
     &-primary {

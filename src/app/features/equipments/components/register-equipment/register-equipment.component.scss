@@ -171,7 +171,7 @@
 
     &.input-error {
       border-color: #f43f5e;
-      background-color: #fff1f2;
+      background-color: var(--color-error-bg, #fff1f2);
     }
   }
 }

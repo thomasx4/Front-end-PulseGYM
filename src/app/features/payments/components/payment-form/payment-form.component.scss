@@ -384,8 +384,8 @@
 
         /* CAJA DE MONTO ADAPTABLE */
         .amount-display-box {
-            background: #f0fdf4;
-            border: 1px solid #bbf7d0;
+            background: var(--color-success-bg, #f0fdf4);
+            border: 1px solid var(--color-success, #bbf7d0);
             padding: 8px 14px;
             border-radius: 10px;
             display: flex;
@@ -653,8 +653,8 @@
 }
 
 .amount-badge-table {
-    background: #f0fdf4;
-    color: #15803d;
+    background: var(--color-success-bg, #f0fdf4);
+    color: var(--color-success, #15803d);
     padding: 4px 10px;
     border-radius: 6px;
     font-size: 0.8rem;
@@ -671,8 +671,8 @@
     font-weight: 700;
 
     &.rol-socio {
-        background: #e0f2fe;
-        color: #075985;
+        background: rgba(56, 189, 248, 0.16);
+        color: #38bdf8;
     }
 }
 

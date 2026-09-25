@@ -254,15 +254,15 @@ $warning: #d97706;
         margin-bottom: 0.75rem;
 
         &.ambos {
-            background: #dbeafe;
-            color: #2563eb;
+            background: var(--color-info-bg, #dbeafe);
+            color: var(--color-info, #2563eb);
         }
         &.email {
-            background: #d1fae5;
-            color: #059669;
+            background: var(--color-success-bg, #d1fae5);
+            color: var(--color-success, #059669);
         }
         &.whatsapp {
-            background: #d1fae5;
+            background: rgba(37, 211, 102, 0.16);
             color: #25d366;
         }
     }
@@ -379,23 +379,23 @@ $warning: #d97706;
             flex-shrink: 0;
 
             &.dark-mode {
-                background: #e2e8f0;
+                background: var(--color-border, #e2e8f0);
                 color: #1e293b;
             }
 
             &.logros {
-                background: #fef3c7;
-                color: #d97706;
+                background: var(--color-warning-bg, #fef3c7);
+                color: var(--color-warning, #d97706);
             }
 
             &.mantenimiento {
-                background: #e5e7eb;
-                color: #6b7280;
+                background: var(--color-bg-hover, #e5e7eb);
+                color: var(--color-text-secondary, #6b7280);
             }
 
             &.promocion {
-                background: #fee2e2;
-                color: #dc2626;
+                background: var(--color-error-bg, #fee2e2);
+                color: var(--color-error, #dc2626);
             }
         }
 
@@ -649,19 +649,19 @@ $warning: #d97706;
     margin: 0 auto 16px;
 
     &.error-icon {
-        background: #fef2f2;
+        background: var(--color-error-bg, #fef2f2);
         color: $error;
         svg { stroke: $error; }
     }
 
     &.success-icon {
-        background: #d1fae5;
+        background: var(--color-success-bg, #d1fae5);
         color: $success;
         svg { stroke: $success; }
     }
 
     &.warning-icon {
-        background: #fef3c7;
+        background: var(--color-warning-bg, #fef3c7);
         color: $warning;
         svg { stroke: $warning; }
     }

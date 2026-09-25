@@ -44,8 +44,8 @@
 
 .btn-retry {
     padding: 8px 16px;
-    background: #0f1c3f;
-    color: white;
+    background: var(--color-primary, #0f1c3f);
+    color: var(--color-text-inverse, white);
     border: none;
     border-radius: 6px;
     cursor: pointer;
@@ -161,15 +161,15 @@
 .profile-badge {
     padding: 8px 13px;
     border-radius: 18px;
-    background: #eef4ff;
-    color: #0f1c3f;
+    background: var(--color-info-bg, #eef4ff);
+    color: var(--color-primary, #0f1c3f);
     font-size: 12px;
     font-weight: 600;
 }
 
 .profile-badge.username {
     background: var(--color-bg-hover, #f1f5f9);
-    color: #0f1c3f;
+    color: var(--color-text-primary, #0f1c3f);
 }
 
 /* ============================================
@@ -189,9 +189,9 @@
     align-items: center;
     gap: 7px;
     padding: 11px 16px;
-    background: #0f1c3f;
-    color: #ffffff;
-    border: 1px solid #0f1c3f;
+    background: var(--color-primary, #0f1c3f);
+    color: var(--color-text-inverse, #ffffff);
+    border: 1px solid var(--color-primary, #0f1c3f);
     border-radius: 7px;
     font-weight: 600;
     cursor: pointer;
@@ -200,7 +200,7 @@
 }
 
 .btn-edit-profile:hover {
-    background: #1a2b5c;
+    background: var(--color-primary-hover, #1a2b5c);
 }
 
 .btn-settings {
@@ -322,8 +322,8 @@
 }
 
 .goal-banner {
-    background: #f1f6ff;
-    border: 1px solid #dce8ff;
+    background: var(--color-primary-light, #f1f6ff);
+    border: 1px solid var(--color-border, #dce8ff);
     border-radius: 12px;
     display: flex;
     align-items: center;
@@ -340,12 +340,12 @@
     justify-content: center;
     margin-right: 13px;
     border-radius: 50%;
-    background: #dce9ff;
+    background: var(--color-info-bg, #dce9ff);
     flex-shrink: 0;
 }
 
 .goal-title {
-    color: #2563eb;
+    color: var(--color-primary, #2563eb);
     font-size: 11px;
     font-weight: 600;
 }
@@ -372,7 +372,7 @@
 }
 
 .link-action {
-    color: #2563eb;
+    color: var(--color-primary, #2563eb);
     text-decoration: none;
     font-size: 12px;
     font-weight: 600;
@@ -430,15 +430,15 @@
 .badge-status.success {
     padding: 6px 12px;
     border-radius: 7px;
-    background: #dcfce7;
-    color: #16a34a;
+    background: var(--color-success-bg, #dcfce7);
+    color: var(--color-success, #16a34a);
     font-size: 11px;
     font-weight: 600;
 }
 
 .medidas-banner {
-    background: #f1f6ff;
-    border: 1px solid #dce8ff;
+    background: var(--color-primary-light, #f1f6ff);
+    border: 1px solid var(--color-border, #dce8ff);
     border-radius: 12px;
     display: flex;
     align-items: center;
@@ -508,12 +508,12 @@
     justify-content: center;
     margin-right: 12px;
     border-radius: 50%;
-    background: #eef4ff;
+    background: var(--color-info-bg, #eef4ff);
     flex-shrink: 0;
 }
 
 .contacto-icon svg {
-    color: #0f1c3f;
+    color: var(--color-primary, #0f1c3f);
 }
 
 .contacto-details {
@@ -539,8 +539,8 @@
 .tag-parentesco {
     padding: 2px 10px;
     border-radius: 12px;
-    background: #edf3ff;
-    color: #2563eb;
+    background: var(--color-info-bg, #edf3ff);
+    color: var(--color-primary, #2563eb);
     font-size: 10px;
     font-weight: 600;
 }
@@ -551,14 +551,14 @@
 }
 
 .empty-message {
-    color: #0f1c3f;
+    color: var(--color-text-secondary, #0f1c3f);
     text-align: center;
     padding: 20px 0;
 }
 
 .security-banner {
-    background: #f1f6ff;
-    border: 1px solid #dce8ff;
+    background: var(--color-primary-light, #f1f6ff);
+    border: 1px solid var(--color-border, #dce8ff);
     border-radius: 12px;
     display: flex;
     align-items: center;
@@ -575,7 +575,7 @@
     justify-content: center;
     margin-right: 12px;
     border-radius: 50%;
-    background: #dce9ff;
+    background: var(--color-info-bg, #dce9ff);
     flex-shrink: 0;
 }
 
@@ -649,8 +649,8 @@
 }
 
 .medico-banner {
-    background: #f1f6ff;
-    border: 1px solid #dce8ff;
+    background: var(--color-primary-light, #f1f6ff);
+    border: 1px solid var(--color-border, #dce8ff);
     border-radius: 12px;
     display: flex;
     align-items: center;
@@ -667,7 +667,7 @@
     justify-content: center;
     margin-right: 12px;
     border-radius: 50%;
-    background: #dce9ff;
+    background: var(--color-info-bg, #dce9ff);
     flex-shrink: 0;
 }
 
@@ -766,10 +766,10 @@
 
 .btn-upload-photo {
     padding: 8px 24px;
-    background: #1a2b5c;
+    background: var(--color-primary-hover, #1a2b5c);
     border: 1px solid var(--color-border, #e2e8f0);
     border-radius: 8px;
-    color: white;
+    color: var(--color-text-inverse, white);
     font-weight: 600;
     cursor: pointer;
     font-size: 13px;
@@ -777,7 +777,7 @@
 }
 
 .btn-upload-photo:hover {
-    background: #0f1c3f;
+    background: var(--color-primary, #0f1c3f);
 }
 
 .btn-upload-photo:disabled {
@@ -786,12 +786,12 @@
 }
 
 .btn-upload-photo.btn-remove {
-    color: #dc2626;
-    border-color: #fca5a5;
+    color: var(--color-error, #dc2626);
+    border-color: var(--color-error, #fca5a5);
 }
 
 .btn-upload-photo.btn-remove:hover {
-    background: #fee2e2;
+    background: var(--color-error-bg, #fee2e2);
 }
 
 .btn-group {
@@ -865,8 +865,8 @@
 
 .form-control:focus {
     outline: none;
-    border-color: #0f1c3f;
-    box-shadow: 0 0 0 3px rgba(15, 28, 63, 0.1);
+    border-color: var(--color-primary, #0f1c3f);
+    box-shadow: 0 0 0 3px var(--color-primary-light, rgba(15, 28, 63, 0.1));
 }
 
 .form-control::placeholder {
@@ -900,8 +900,8 @@
 
 .btn-primary {
     padding: 10px 24px;
-    background: #0f1c3f;
-    color: #ffffff;
+    background: var(--color-primary, #0f1c3f);
+    color: var(--color-text-inverse, #ffffff);
     border: none;
     border-radius: 8px;
     font-size: 14px;
@@ -911,7 +911,7 @@
 }
 
 .btn-primary:hover:not(:disabled) {
-    background: #1a2b5c;
+    background: var(--color-primary-hover, #1a2b5c);
     box-shadow: 0 4px 12px rgba(15, 28, 63, 0.3);
 }
 
@@ -924,9 +924,9 @@
    ALERTA DE EXITO
    ============================================ */
 .alert-success {
-    background: #dcfce7;
-    color: #166534;
-    border: 1px solid #86efac;
+    background: var(--color-success-bg, #dcfce7);
+    color: var(--color-success, #166534);
+    border: 1px solid var(--color-success, #86efac);
     border-radius: 10px;
     padding: 14px 20px;
     margin-bottom: 20px;
@@ -987,12 +987,12 @@
 }
 
 .modal-icon.error-icon {
-    background: #fef2f2;
-    color: #dc2626;
+    background: var(--color-error-bg, #fef2f2);
+    color: var(--color-error, #dc2626);
 }
 
 .modal-icon.error-icon svg {
-    stroke: #dc2626;
+    stroke: var(--color-error, #dc2626);
 }
 
 .modal-title {
@@ -1026,21 +1026,21 @@
 }
 
 .modal-btn-secondary {
-    background: #f1f5f9;
-    color: #0f172a;
+    background: var(--color-bg-hover, #f1f5f9);
+    color: var(--color-text-primary, #0f172a);
 }
 
 .modal-btn-secondary:hover {
-    background: #e2e8f0;
+    background: var(--color-border, #e2e8f0);
 }
 
 .modal-btn-primary {
-    background: #2563eb;
-    color: #ffffff;
+    background: var(--color-primary, #2563eb);
+    color: var(--color-text-inverse, #ffffff);
 }
 
 .modal-btn-primary:hover {
-    background: #1d4ed8;
+    background: var(--color-primary-hover, #1d4ed8);
     box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
 
@@ -1068,9 +1068,9 @@
     align-items: center;
     gap: 10px;
     padding: 14px 20px;
-    background: #fef2f2;
-    border: 1px solid #fecaca;
-    color: #b91c1c;
+    background: var(--color-error-bg, #fef2f2);
+    border: 1px solid var(--color-error, #fecaca);
+    color: var(--color-error, #b91c1c);
     border-radius: 10px;
     font-size: 14px;
     font-weight: 600;
@@ -1454,7 +1454,7 @@
 }
 
 .required-star {
-    color: #dc2626;
+    color: var(--color-error, #dc2626);
     margin-left: 2px;
 }
 
@@ -1462,7 +1462,7 @@
    ESTILOS DE ERROR PARA CAMPOS DE FORMULARIO
    ============================================ */
 .text-error {
-    color: #dc2626;
+    color: var(--color-error, #dc2626);
     font-size: 12px;
     margin-top: 4px;
     display: block;

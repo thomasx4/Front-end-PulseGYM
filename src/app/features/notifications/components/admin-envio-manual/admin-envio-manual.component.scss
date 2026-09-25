@@ -706,23 +706,23 @@
     }
 
     &.rol-admin {
-        background: #fee2e2;
-        color: #991b1b;
+        background: var(--color-error-bg, #fee2e2);
+        color: var(--color-error, #991b1b);
     }
 
     &.rol-recep {
-        background: #fef3c7;
-        color: #92400e;
+        background: var(--color-warning-bg, #fef3c7);
+        color: var(--color-warning, #92400e);
     }
 
     &.rol-entrenador {
-        background: #e0e7ff;
-        color: #3730a3;
+        background: var(--color-info-bg, #e0e7ff);
+        color: var(--color-info, #3730a3);
     }
 
     &.rol-socio {
-        background: #e0f2fe;
-        color: #075985;
+        background: rgba(56, 189, 248, 0.16);
+        color: #38bdf8;
     }
 }
 

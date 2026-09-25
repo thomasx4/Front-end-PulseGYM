@@ -6,6 +6,7 @@ import {
   RutinaDetalleEjercicio,
   HistorialVersion
 } from '../../../../../core/services/entrenador.service';
+import { FileDownloadService } from '../../../../../core/services/file-download.service';
 
 interface DiaRutina {
   alias: string;
@@ -62,7 +63,8 @@ export class DetalleSocioComponent implements OnInit {
   constructor(
     private router: Router,
     private route: ActivatedRoute,
-    private entrenadorService: EntrenadorService
+    private entrenadorService: EntrenadorService,
+    private fileDownloadService: FileDownloadService
   ) {}
 
   ngOnInit(): void {
@@ -317,23 +319,18 @@ export class DetalleSocioComponent implements OnInit {
     // ✅ Usa el endpoint correcto para el entrenador: 
     // /seguimiento/rutina/{idSocio}/exportar-pdf?idRutina={idRutina}
     this.entrenadorService.exportarRutinaSocioPDF(this.idSocio, this.rutinaId).subscribe({
-      next: (blob: Blob) => {
+      next: async (blob: Blob) => {
         this.exportandoPDF = false;
-
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
 
         const nombreLimpio = (this.rutina?.nombre || `rutina-${this.rutinaId}`)
           .replace(/[^a-zA-Z0-9-_ ]/g, '')
           .replace(/\s+/g, '-')
           .toLowerCase();
 
-        link.download = `${nombreLimpio}.pdf`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
+        await this.fileDownloadService.saveAndShare(blob, `${nombreLimpio}.pdf`, {
+          title: 'Rutina Pulse Gym',
+          dialogTitle: 'Abrir o compartir rutina'
+        });
       },
       error: async (error: any) => {
         this.exportandoPDF = false;

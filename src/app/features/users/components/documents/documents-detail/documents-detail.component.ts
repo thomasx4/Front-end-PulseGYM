@@ -3,6 +3,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { DocumentService } from '../../../../../core/services/document.service';
 import { Document, getTipoDocumentoLabel, getEstadoDocumentoLabel } from '../../../../../core/models/document';
+import { FileDownloadService } from '../../../../../core/services/file-download.service';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -21,7 +22,8 @@ export class DocumentsDetailComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private documentService: DocumentService,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private fileDownloadService: FileDownloadService
   ) { }
 
   ngOnInit(): void {
@@ -75,32 +77,14 @@ export class DocumentsDetailComponent implements OnInit {
     if (!this.document?.urlArchivoFirmado) return;
 
     this.downloading = true;
-    let url = this.document.urlArchivoFirmado;
+    const url = this.document.urlArchivoFirmado;
+    const fileName = `${this.document.tipoDocumento}_${this.document.nombreUsuario.replace(/\s+/g, '_')}.pdf`;
 
     try {
-      if (url.includes('cloudinary.com')) {
-        const downloadUrl = url.replace('/upload/', '/upload/fl_attachment/');
-        const link = document.createElement('a');
-        link.href = downloadUrl;
-        link.target = '_blank';
-        link.setAttribute('download', `${this.document.tipoDocumento}_${this.document.nombreUsuario.replace(/\s+/g, '_')}.pdf`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      } else {
-        const response = await fetch(url);
-        const blob = await response.blob();
-        const blobUrl = window.URL.createObjectURL(blob);
-        
-        const fileName = `${this.document.tipoDocumento}_${this.document.nombreUsuario.replace(/\s+/g, '_')}.pdf`;
-        const link = document.createElement('a');
-        link.href = blobUrl;
-        link.download = fileName;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(blobUrl);
-      }
+      await this.fileDownloadService.fetchAndSaveAndShare(url, fileName, {
+        title: 'Documento Pulse Gym',
+        dialogTitle: 'Abrir o compartir documento'
+      });
     } catch {
       window.open(url, '_blank');
     } finally {

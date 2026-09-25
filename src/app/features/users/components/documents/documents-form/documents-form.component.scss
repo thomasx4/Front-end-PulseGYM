@@ -602,10 +602,10 @@
     font-weight: 700;
     white-space: nowrap;
 
-    &.rol-admin { background: #fee2e2; color: #991b1b; }
-    &.rol-recep { background: #fef3c7; color: #92400e; }
-    &.rol-entrenador { background: #e0e7ff; color: #3730a3; }
-    &.rol-socio { background: #e0f2fe; color: #075985; }
+    &.rol-admin { background: var(--color-error-bg, #fee2e2); color: #991b1b; }
+    &.rol-recep { background: var(--color-warning-bg, #fef3c7); color: #92400e; }
+    &.rol-entrenador { background: var(--color-info-bg, #e0e7ff); color: #3730a3; }
+    &.rol-socio { background: var(--color-info-bg, #e0f2fe); color: #075985; }
 }
 
 .partner-table-contact {

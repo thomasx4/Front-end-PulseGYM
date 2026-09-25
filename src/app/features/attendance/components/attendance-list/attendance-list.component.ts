@@ -4,6 +4,7 @@ import { AttendanceService } from '../../../../core/services/attendance.service'
 import { UserService } from '../../../../core/services/user.service';
 import { AsistenciaResponseDTO, PeakHour } from '../../models/attendance.model';
 import { FiltrosAsistencia } from '../../models/attendance-filter.model';
+import { FileDownloadService } from '../../../../core/services/file-download.service';
 
 export interface AsistenciaTabla {
   idUsuario: number;
@@ -46,7 +47,11 @@ export class AttendanceListComponent implements OnInit {
 
   filtrosActivos: FiltrosAsistencia = { ordenFecha: 'desc' };
 
-  constructor(private attendanceService: AttendanceService, private userService: UserService) { }
+  constructor(
+    private attendanceService: AttendanceService,
+    private userService: UserService,
+    private fileDownloadService: FileDownloadService
+  ) { }
 
   ngOnInit(): void {
     this.capacidadDiaria = this.attendanceService.capacidadDiaria;
@@ -284,8 +289,8 @@ export class AttendanceListComponent implements OnInit {
     this.cargandoExport = true;
 
     this.attendanceService.exportarPdfAfluencia(fechaHoy).subscribe({
-      next: (blob) => {
-        this.descargarArchivo(blob, `Afluencia_Accesos_${fechaHoy}.pdf`);
+      next: async (blob) => {
+        await this.descargarArchivo(blob, `Afluencia_Accesos_${fechaHoy}.pdf`);
         this.cargandoExport = false;
       },
       error: (err) => {
@@ -300,8 +305,8 @@ export class AttendanceListComponent implements OnInit {
     this.cargandoExport = true;
 
     this.attendanceService.exportarExcelAfluencia(fechaHoy).subscribe({
-      next: (blob) => {
-        this.descargarArchivo(blob, `Afluencia_Accesos_${fechaHoy}.xlsx`);
+      next: async (blob) => {
+        await this.descargarArchivo(blob, `Afluencia_Accesos_${fechaHoy}.xlsx`);
         this.cargandoExport = false;
       },
       error: (err) => {
@@ -311,12 +316,10 @@ export class AttendanceListComponent implements OnInit {
     });
   }
 
-  private descargarArchivo(blob: Blob, nombreArchivo: string): void {
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = nombreArchivo;
-    a.click();
-    window.URL.revokeObjectURL(url);
+  private async descargarArchivo(blob: Blob, nombreArchivo: string): Promise<void> {
+    await this.fileDownloadService.saveAndShare(blob, nombreArchivo, {
+      title: 'Reporte de Afluencia Pulse Gym',
+      dialogTitle: 'Abrir o compartir reporte'
+    });
   }
 }

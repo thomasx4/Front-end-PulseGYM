@@ -309,10 +309,10 @@
             margin-top: 4px;
             align-self: center;
 
-            &.role-administrador { background: #f3e8ff; color: #7c3aed; }
-            &.role-entrenador { background: #d1fae5; color: #059669; }
-            &.role-recepcionista { background: #fef3c7; color: #d97706; }
-            &.role-socio { background: #dbeafe; color: #2563eb; }
+            &.role-administrador { background: rgba(124, 58, 237, 0.14); color: #a855f7; }
+            &.role-entrenador { background: var(--color-success-bg, #d1fae5); color: var(--color-success, #059669); }
+            &.role-recepcionista { background: var(--color-warning-bg, #fef3c7); color: var(--color-warning, #d97706); }
+            &.role-socio { background: var(--color-info-bg, #dbeafe); color: var(--color-info, #2563eb); }
         }
     }
 }

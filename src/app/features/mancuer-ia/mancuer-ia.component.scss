@@ -225,12 +225,12 @@
     }
 
     &.on {
-        background: #c0cdef;
-        color: #0f1c3f;
+        background: var(--color-info-bg, #c0cdef);
+        color: var(--color-info, #0f1c3f);
         border-color: rgba(34, 61, 197, 0.3);
 
         .ind {
-            background: #133259;
+            background: var(--color-info, #133259);
             box-shadow: 0 0 6px rgb(34, 102, 197);
         }
     }
@@ -785,8 +785,8 @@
     .lock-icon-wrap {
         width: 32px;
         height: 32px;
-        background: #fee2e2;
-        border: 1px solid #fca5a5;
+        background: var(--color-error-bg, #fee2e2);
+        border: 1px solid var(--color-error, #fca5a5);
         border-radius: 8px;
         display: flex;
         align-items: center;
@@ -1067,8 +1067,8 @@
         }
 
         .info-alert-box {
-            background: #f1f5f9;
-            border: 1px solid #cbd5e1;
+            background: var(--color-bg-hover, #f1f5f9);
+            border: 1px solid var(--color-border, #cbd5e1);
             border-radius: 10px;
             padding: 12px 14px;
             display: flex;

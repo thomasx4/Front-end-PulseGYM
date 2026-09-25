@@ -141,10 +141,10 @@ $shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
 
         svg { stroke: currentColor; }
 
-        &--blue { background: #dbeafe; color: #2563eb; }
-        &--green { background: #d1fae5; color: #059669; }
-        &--orange { background: #ffedd5; color: #ea580c; }
-        &--red { background: #fee2e2; color: #dc2626; }
+        &--blue { background: var(--color-info-bg, #dbeafe); color: var(--color-info, #2563eb); }
+        &--green { background: var(--color-success-bg, #d1fae5); color: var(--color-success, #059669); }
+        &--orange { background: rgba(234, 88, 12, 0.16); color: #fb923c; }
+        &--red { background: var(--color-error-bg, #fee2e2); color: var(--color-error, #dc2626); }
     }
 
     &__info {
@@ -365,18 +365,18 @@ $shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
     text-transform: uppercase;
 
     &.estado--operativo {
-        background: #d1fae5;
-        color: #059669;
+        background: var(--color-success-bg, #d1fae5);
+        color: var(--color-success, #059669);
     }
 
     &.estado--mantenimiento {
-        background: #fef3c7;
-        color: #d97706;
+        background: var(--color-warning-bg, #fef3c7);
+        color: var(--color-warning, #d97706);
     }
 
     &.estado--fuera {
-        background: #fee2e2;
-        color: #dc2626;
+        background: var(--color-error-bg, #fee2e2);
+        color: var(--color-error, #dc2626);
     }
 }
 
@@ -480,9 +480,9 @@ $shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
     margin: 0 auto 16px;
 
     &.error-icon {
-        background: #fef2f2;
-        color: #dc2626;
-        svg { stroke: #dc2626; }
+        background: var(--color-error-bg, #fef2f2);
+        color: var(--color-error, #dc2626);
+        svg { stroke: var(--color-error, #dc2626); }
     }
 }
 
@@ -516,9 +516,9 @@ $shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
     transition: $transition;
 
     &-secondary {
-        background: #f1f5f9;
+        background: var(--color-bg-hover, #f1f5f9);
         color: #0f172a;
-        &:hover { background: #e2e8f0; }
+        &:hover { background: var(--color-border, #e2e8f0); }
     }
 
     &-primary {

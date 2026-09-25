@@ -67,18 +67,18 @@
         flex-shrink: 0;
 
         &--blue {
-            background: #d6e3ff;
-            color: #00254f;
+            background: var(--color-info-bg, #d6e3ff);
+            color: var(--color-info, #00254f);
         }
 
         &--purple {
-            background: #dedfff;
-            color: #4f589c;
+            background: rgba(79, 88, 156, 0.16);
+            color: #a5abe0;
         }
 
         &--grey {
-            background: #e3e1e1;
-            color: #42464f;
+            background: var(--color-bg-hover, #e3e1e1);
+            color: var(--color-text-secondary, #42464f);
         }
     }
 
@@ -867,18 +867,18 @@
     flex-shrink: 0;
 
     &--ok {
-        background-color: #e6f4ea;
-        color: #10b981;
+        background-color: var(--color-success-bg, #e6f4ea);
+        color: var(--color-success, #10b981);
     }
 
     &--warn {
-        background-color: #fff7ed;
-        color: #ea580c;
+        background-color: rgba(234, 88, 12, 0.16);
+        color: #fb923c;
     }
 
     &--danger {
-        background-color: #fee2e2;
-        color: #dc2626;
+        background-color: var(--color-error-bg, #fee2e2);
+        color: var(--color-error, #dc2626);
     }
 }
 
