@@ -4,12 +4,18 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
-
+RUN echo "PROD" && cat src/environments/environment.prod.ts && sleep 2
+RUN echo "DEV" && cat src/environments/environment.ts && sleep 2
 RUN npm run build -- --configuration production
 
+# Etapa 2: Servir la aplicación con Nginx
 FROM nginx:alpine
-COPY --from=build /app/dist/front-end/browser /usr/share/nginx/html/browser
 
+# Angular 17 con el builder "application" genera la salida dentro de /browser
+COPY --from=build /app/dist/front-end/browser /usr/share/nginx/html/
+
+# Eliminamos la configuración por defecto de Nginx y copiamos la nuestra personalizada
+RUN rm -rf /etc/nginx/conf.d/default.conf
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
